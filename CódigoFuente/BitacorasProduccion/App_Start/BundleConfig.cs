@@ -51,6 +51,18 @@ namespace IdentitySample
                           "~/Content/vendors/pdfmake/build/pdfmake.min.js",
                           "~/Content/vendors/pdfmake/build/vfs_fonts.js"
                       ));
+            bundles.Add(new ScriptBundle("~/bundles/EditClientPartInfo").Include(
+                    "~/Scripts/Views/CTZ_Projects/EditClientPartInfo/page.constants.js",
+                    "~/Scripts/Views/CTZ_Projects/EditClientPartInfo/page.validators.js",
+                    "~/Scripts/Views/CTZ_Projects/EditClientPartInfo/page.uiHandlers.js",
+                    "~/Scripts/Views/CTZ_Projects/EditClientPartInfo/page.main.js"
+                //"~/Scripts/Views/CTZ_Projects/EditClientPartInfo/page.uiHandlers.js",
+                //"~/Scripts/Views/CTZ_Projects/EditClientPartInfo/page.calculations.js",
+                //"~/Scripts/Views/CTZ_Projects/EditClientPartInfo/page.tableManager.js",
+                //"~/Scripts/Views/CTZ_Projects/EditClientPartInfo/page.charts.js",
+                //"~/Scripts/Views/CTZ_Projects/EditClientPartInfo/page.main.js"
+                ));
+
         }
     }
 }

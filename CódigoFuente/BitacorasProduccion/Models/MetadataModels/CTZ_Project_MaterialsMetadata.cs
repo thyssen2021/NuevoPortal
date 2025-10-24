@@ -371,6 +371,43 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Interplant Facility")]
         public Nullable<int> ID_Interplant_Plant { get; set; }
+
+        [Display(Name = "Initial Weight per Part (Adjusted) [kg]")]
+        public Nullable<double> InitialWeightPerPart { get; set; }
+
+        [Display(Name = "Shipping Tons [Tons]")]
+        public Nullable<double> ShippingTons { get; set; }
+
+        [Display(Name = "Interplant Coil Position")]
+        public Nullable<int> ID_InterplantDelivery_Coil_Position { get; set; }
+
+        [Display(Name = "Interplant Transport Type")]
+        public Nullable<int> ID_InterplantDelivery_Transport_Type { get; set; }
+
+        [Display(Name = "Specify \"Other\" Interplant Transport")]
+        [StringLength(50)]
+        public string InterplantDelivery_Transport_Type_Other { get; set; }
+
+        [Display(Name = "Interplant Packaging Standard")]
+        [StringLength(20)]
+        public string InterplantPackagingStandard { get; set; }
+
+        [Display(Name = "Interplant Requires Rack Manufacturing")]
+        public Nullable<bool> InterplantRequiresRackManufacturing { get; set; }
+
+        [Display(Name = "Interplant Requires Die Manufacturing")]
+        public Nullable<bool> InterplantRequiresDieManufacturing { get; set; }
+
+        [Display(Name = "Interplant Pieces per Package")]
+        public Nullable<int> InterplantPiecesPerPackage { get; set; } 
+
+        [Display(Name = "Interplant Stacks per Package")]
+        public Nullable<int> InterplantStacksPerPackage { get; set; }
+
+        [Display(Name = "Interplant Package Weight (kg)")]
+        public Nullable<double> InterplantPackageWeight { get; set; }
+
+        
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
@@ -404,6 +441,9 @@ namespace Portal_2_0.Models
         [NotMapped]
         public List<int> SelectedStrapTypeIds { get; set; }
 
+        [NotMapped]
+        public List<int> SelectedInterplantRackTypeIds { get; set; } // Add this line
+        
         //*** Variales para agregar archivos *** 
         [NotMapped]
         public bool? IsFile { get; set; }

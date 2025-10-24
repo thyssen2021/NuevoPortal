@@ -19,6 +19,8 @@ namespace Portal_2_0.Models
         {
             this.CTZ_Material_RackTypes = new HashSet<CTZ_Material_RackTypes>();
             this.CTZ_Material_RackTypes_History = new HashSet<CTZ_Material_RackTypes_History>();
+            this.CTZ_Material_InterplantRackTypes = new HashSet<CTZ_Material_InterplantRackTypes>();
+            this.CTZ_Material_InterplantRackTypes_History = new HashSet<CTZ_Material_InterplantRackTypes_History>();
             this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
             this.CTZ_Project_Materials_History = new HashSet<CTZ_Project_Materials_History>();
         }
@@ -31,6 +33,10 @@ namespace Portal_2_0.Models
         public virtual ICollection<CTZ_Material_RackTypes> CTZ_Material_RackTypes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_RackTypes_History> CTZ_Material_RackTypes_History { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Material_InterplantRackTypes> CTZ_Material_InterplantRackTypes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Material_InterplantRackTypes_History> CTZ_Material_InterplantRackTypes_History { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

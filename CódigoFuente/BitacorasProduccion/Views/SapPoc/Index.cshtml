@@ -1,0 +1,119 @@
+﻿@* Vista para la Prueba de Concepto de Conexión a SAP *@
+@model Portal_2_0.Controllers.SapMaterialViewModel
+@{
+    ViewBag.Title = "Conexión en tiempo real a SAP T60";
+    ViewBag.PrimerNivel = "PoC SAP";
+    ViewBag.SegundoNivel = "Consulta de Materiales";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <style>
+        /* Estilos para resaltar los resultados y errores */
+        .result-box {
+            border-left: 5px solid #1ABB9C;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .result-label {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-cubes"></i> @ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <p class="lead">
+                            Obtiene los datos de un material en tiempo real de T60 (Ej. AL00827).
+                        </p>
+
+                        @using (Html.BeginForm("Index", "SapPoc", FormMethod.Post, new { @class = "form-horizontal" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-1 col-sm-1" for="MaterialNumber">
+                                    Núm. Material:
+                                </label>
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.TextBoxFor(m => m.MaterialNumber, new { @class = "form-control", placeholder = "Material", autofocus = "autofocus" })
+                                    @Html.ValidationMessageFor(m => m.MaterialNumber, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-3 col-sm-3">
+                                    <button type="submit" class="btn btn-success"><i class="fa fa-search"></i> Consultar en SAP</button>
+                                </div>
+                            </div>
+                        }
+
+                        <hr />
+
+                        @if (Model.QueryExecuted)
+                        {
+                            if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                            {
+                                <div class="alert alert-danger alert-dismissible " role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <strong><i class="fa fa-times-circle"></i> ¡Error!</strong> @Model.ErrorMessage
+                                </div>
+                            }
+                            else
+                            {
+                                <h3>Resultados para el material: <small>@Model.MaterialNumber</small></h3>
+                                <div class="result-box">
+                                    @* --- SECCIÓN DE RESULTADOS ACTUALIZADA --- *@
+                                    <dl class="row">
+                                        <dt class="col-sm-3 result-label">@Html.DisplayNameFor(m => m.DescriptionEN):</dt>
+                                        <dd class="col-sm-9">@Model.DescriptionEN</dd>
+
+                                        <dt class="col-sm-3 result-label">@Html.DisplayNameFor(m => m.DescriptionES):</dt>
+                                        <dd class="col-sm-9">@Model.DescriptionES</dd>
+
+                                        <dt class="col-sm-3 result-label">@Html.DisplayNameFor(m => m.OldMaterialNumber):</dt>
+                                        <dd class="col-sm-9">@Model.OldMaterialNumber</dd>
+
+                                        <dt class="col-sm-3 result-label">@Html.DisplayNameFor(m => m.GrossWeight):</dt>
+                                        <dd class="col-sm-9">@Model.GrossWeight</dd>
+
+                                        <dt class="col-sm-3 result-label">@Html.DisplayNameFor(m => m.NetWeight):</dt>
+                                        <dd class="col-sm-9">@Model.NetWeight</dd>
+
+                                        <dt class="col-sm-3 result-label">@Html.DisplayNameFor(m => m.Dimensions):</dt>
+                                        <dd class="col-sm-9">@Model.Dimensions</dd>
+
+                                        <dt class="col-sm-3 result-label">@Html.DisplayNameFor(m => m.MaterialType):</dt>
+                                        <dd class="col-sm-9">@Model.MaterialType</dd>
+
+                                        <dt class="col-sm-3 result-label">@Html.DisplayNameFor(m => m.UnitOfMeasure):</dt>
+                                        <dd class="col-sm-9">@Model.UnitOfMeasure</dd>
+                                    </dl>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+        });
+    </script>
+}

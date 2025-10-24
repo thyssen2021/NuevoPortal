@@ -274,7 +274,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Fiscal_Years> CTZ_Fiscal_Years { get; set; }
         public virtual DbSet<CTZ_Hours_By_Line> CTZ_Hours_By_Line { get; set; }
         public virtual DbSet<CTZ_Material_Owner> CTZ_Material_Owner { get; set; }
-        public virtual DbSet<CTZ_plants> CTZ_plants { get; set; }
         public virtual DbSet<CTZ_Project_Status> CTZ_Project_Status { get; set; }
         public virtual DbSet<CTZ_Projects_Versions> CTZ_Projects_Versions { get; set; }
         public virtual DbSet<CTZ_Material_Type> CTZ_Material_Type { get; set; }
@@ -319,9 +318,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Packaging_RackType> CTZ_Packaging_RackType { get; set; }
         public virtual DbSet<CTZ_Packaging_StrapType> CTZ_Packaging_StrapType { get; set; }
         public virtual DbSet<CTZ_Material_Labels> CTZ_Material_Labels { get; set; }
-        public virtual DbSet<CTZ_Clients> CTZ_Clients { get; set; }
         public virtual DbSet<CTZ_Countries> CTZ_Countries { get; set; }
-        public virtual DbSet<CTZ_OEMClients> CTZ_OEMClients { get; set; }
         public virtual DbSet<CTZ_Technical_Information_Line> CTZ_Technical_Information_Line { get; set; }
         public virtual DbSet<CTZ_Technical_Criteria> CTZ_Technical_Criteria { get; set; }
         public virtual DbSet<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
@@ -335,6 +332,11 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Material_WeldedPlates> CTZ_Material_WeldedPlates { get; set; }
         public virtual DbSet<CTZ_ExternalProcessorNames> CTZ_ExternalProcessorNames { get; set; }
         public virtual DbSet<CTZ_Projects> CTZ_Projects { get; set; }
+        public virtual DbSet<CTZ_Clients> CTZ_Clients { get; set; }
+        public virtual DbSet<CTZ_OEMClients> CTZ_OEMClients { get; set; }
+        public virtual DbSet<CTZ_plants> CTZ_plants { get; set; }
+        public virtual DbSet<CTZ_Material_InterplantRackTypes> CTZ_Material_InterplantRackTypes { get; set; }
+        public virtual DbSet<CTZ_Material_InterplantRackTypes_History> CTZ_Material_InterplantRackTypes_History { get; set; }
         public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
     }

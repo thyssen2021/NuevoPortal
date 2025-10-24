@@ -38,6 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -171,6 +172,18 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="QRCoder, Version=1.5.1.0, Culture=neutral, PublicKeyToken=c4ed5b9ae8358a28, processorArchitecture=MSIL">
       <HintPath>..\packages\QRCoder.1.5.1\lib\net40\QRCoder.dll</HintPath>
+    </Reference>
+    <Reference Include="RequeraSapConnector, Version=1.3.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\RequeraSapConnector.dll</HintPath>
+    </Reference>
+    <Reference Include="RequeraSapConnector.Native, Version=1.3.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\RequeraSapConnector.Native.dll</HintPath>
+    </Reference>
+    <Reference Include="sapnco, Version=3.0.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\sapnco.dll</HintPath>
+    </Reference>
+    <Reference Include="sapnco_utils, Version=3.0.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\sapnco_utils.dll</HintPath>
     </Reference>
     <Reference Include="SpreadsheetLight, Version=3.4.9.0, Culture=neutral, PublicKeyToken=32fbb46dc1730c57, processorArchitecture=MSIL">
       <HintPath>..\packages\SpreadsheetLight.3.4.9\lib\SpreadsheetLight.dll</HintPath>
@@ -386,6 +399,7 @@
     <Compile Include="Controllers\RM_cabeceraController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
     <Compile Include="Controllers\RU_registrosController.cs" />
+    <Compile Include="Controllers\SapPocController.cs" />
     <Compile Include="Controllers\SCDM_catalogosController.cs" />
     <Compile Include="Controllers\SCDM_cat_commodityController.cs" />
     <Compile Include="Controllers\SCDM_cat_forma_materialController.cs" />
@@ -442,6 +456,7 @@
     <Compile Include="Models\AuxiliarModels\BusinessTimeCalculator.cs" />
     <Compile Include="Models\AuxiliarModels\Enums.cs" />
     <Compile Include="Models\AuxiliarModels\Helpers.cs" />
+    <Compile Include="Models\AuxiliarModels\SAPRFC.cs" />
     <Compile Include="Models\AuxiliarModels\ViewModels.cs" />
     <Compile Include="Models\BaseController.cs" />
     <Compile Include="Models\biblioteca_digital.cs">
@@ -596,6 +611,12 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Material_Additionals_History.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Material_InterplantRackTypes.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Material_InterplantRackTypes_History.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Material_Labels.cs">
@@ -5405,6 +5426,10 @@
     <Content Include="Scripts\umd\popper-utils.min.js" />
     <Content Include="Scripts\umd\popper.js" />
     <Content Include="Scripts\umd\popper.min.js" />
+    <Content Include="Scripts\Views\CTZ_Projects\EditClientPartInfo\page.constants.js" />
+    <Content Include="Scripts\Views\CTZ_Projects\EditClientPartInfo\page.main.js" />
+    <Content Include="Scripts\Views\CTZ_Projects\EditClientPartInfo\page.uiHandlers.js" />
+    <Content Include="Scripts\Views\CTZ_Projects\EditClientPartInfo\page.validators.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -6062,6 +6087,8 @@
     <Content Include="Views\CTZ_Catalogs\ManagePackagingCatalogs.cshtml" />
     <Content Include="Views\CTZ_Catalogs\OEMs.cshtml" />
     <Content Include="Views\CTZ_Catalogs\ManageShiftsByPlant.cshtml" />
+    <Content Include="Views\SapPoc\Index.cshtml" />
+    <Content Include="Views\SapPoc\MaterialDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,320 @@
+﻿@model Portal_2_0.Models.SapDetailsQueryViewModel
+@{
+    ViewBag.Title = "Consulta de Materiales en SAP";
+    ViewBag.PrimerNivel = "PoC SAP";
+    ViewBag.SegundoNivel = "Consulta de Datos";
+    ViewBag.nav_style = "nav-sm";
+}
+@section estilos {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <style>
+        .toast {
+            opacity: 0.95 !important; /* Ajusta el valor según lo que necesites */
+        }
+
+    </style>
+}
+    <div class="right_col" role="main">
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-cubes"></i> @ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <p class="lead">
+                            Obtiene todos los datos de un material (maestro, plantas, BOMs, características) en tiempo real desde T60.
+                        </p>
+
+                        @using (Html.BeginForm("MaterialDetails", "SapPoc", FormMethod.Post, new { @class = "form-horizontal" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-1 col-sm-1">Material:</label>
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.TextBoxFor(m => m.MaterialNumber, new { @class = "form-control", placeholder = "Ej. CM12345", autofocus = "autofocus" })
+                                </div>
+                                <label class="col-form-label col-md-1 col-sm-1">Planta:</label>
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.TextBoxFor(m => m.Plant, new { @class = "form-control", placeholder = "Ej. 5190,5390" })
+                                </div>
+                                <div class="col-md-3 col-sm-3">
+                                    <button type="submit" class="btn btn-success"><i class="fa fa-search"></i> Consultar en SAP</button>
+                                </div>
+                            </div>
+                        }
+                        <hr />
+
+                        @if (Model.QueryExecuted)
+                        {
+                            if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                            {
+                                <div class="alert alert-danger"><strong><i class="fa fa-times-circle"></i> ¡Error!</strong> @Model.ErrorMessage</div>
+                            }
+                            else if (Model.Materials != null && Model.Materials.Any())
+                            {
+                                foreach (var material in Model.Materials)
+                                {
+                                    <h3 class="text-thyssen-color">Resultados para el material: <small>@material.Matnr</small></h3>
+
+                                    <div class="x_panel">
+                                        <div class="x_title"><h4><i class="fa fa-info-circle"></i> Datos Maestros y Descripciones</h4></div>
+                                        <div class="x_content">
+                                            <h5 class="text-thyssen-color">Datos Base</h5>
+                                            <dl class="row">
+                                                <!-- Datos Base del material -->
+                                                <dt class="col-sm-1">Tipo:</dt>
+                                                <dd class="col-sm-3">@material.Mtart</dd>
+                                                <dt class="col-sm-1">Material Antiguo:</dt>
+                                                <dd class="col-sm-3">@material.Bismt</dd>
+                                                <dt class="col-sm-1">Peso Bruto:</dt>
+                                                <dd class="col-sm-3">@material.Brgew</dd>
+                                                <dt class="col-sm-1">Peso Neto:</dt>
+                                                <dd class="col-sm-3">@material.Ntgwe</dd>
+                                                <dt class="col-sm-1">Unidad Peso:</dt>
+                                                <dd class="col-sm-3">@material.Gewei</dd>
+                                                <dt class="col-sm-1">Unidad Base:</dt>
+                                                <dd class="col-sm-3">@material.Meins</dd>
+                                                <dt class="col-sm-1">Dimensiones:</dt>
+                                                <dd class="col-sm-3">@material.Groes</dd>
+                                                <dt class="col-sm-1">Status Dist (S.O.:5000/D.C.:50):</dt>
+                                                <dd class="col-sm-3">@material.Vmsta</dd>
+                                            </dl>
+                                            <hr />
+                                            <h5 class="text-thyssen-color">Datos de Budget</h5>
+                                            <dl class="row">
+
+                                                <!-- Vista Budget -->
+                                                <dt class="col-sm-1">Reaplicación:</dt>
+                                                <dd class="col-sm-3">@(String.IsNullOrEmpty(material.Zzreappl) ? "❌" : "✔️")</dd>
+                                                <dt class="col-sm-1">Tipo Metal:</dt>
+                                                <dd class="col-sm-3">@material.Zzmtltyp</dd>
+                                                <dt class="col-sm-1">Tipo Venta:</dt>
+                                                <dd class="col-sm-3">@material.Zzselltyp</dd>
+                                                <dt class="col-sm-1">Modelo Negocio:</dt>
+                                                <dd class="col-sm-3">@material.Zzbussmodl</dd>
+                                                <dt class="col-sm-1">Tipo Material:</dt>
+                                                <dd class="col-sm-3">@material.Zzmattype</dd>
+                                                <dt class="col-sm-1">Scrap Cliente:</dt>
+                                                <dd class="col-sm-3">@(String.IsNullOrEmpty(material.Zzcustscrp) ? "❌" : "✔️")</dd>
+                                                <dt class="col-sm-1">Scrap Ing.:</dt>
+                                                <dd class="col-sm-3">@(String.IsNullOrEmpty(material.Zzengscrp) ? "❌" : "✔️")</dd>
+                                                <dt class="col-sm-1">Vehículo 1:</dt>
+                                                <dd class="col-sm-3">@material.Zzihsnum1</dd>
+                                                <dt class="col-sm-1">Vehículo 2:</dt>
+                                                <dd class="col-sm-3">@material.Zzihsnum2</dd>
+                                                <dt class="col-sm-1">Vehículo 3:</dt>
+                                                <dd class="col-sm-3">@material.Zzihsnum3</dd>
+                                                <dt class="col-sm-1">Propulsión:</dt>
+                                                <dd class="col-sm-3">@material.Zzihsnum4</dd>
+                                                <dt class="col-sm-1">S&P Programa:</dt>
+                                                <dd class="col-sm-3">@material.Zzihsnum5</dd>
+                                                <dt class="col-sm-1">Piezas x Paquete:</dt>
+                                                <dd class="col-sm-3">@material.Zzpkgpcs</dd>
+                                                <dt class="col-sm-1">Thickness (Budget):</dt>
+                                                <dd class="col-sm-3">@(material.Zzthcknss?.ToString("N4"))</dd>
+                                                <dt class="col-sm-1">Width (Budget):</dt>
+                                                <dd class="col-sm-3">@(material.Zzwidth?.ToString("N4"))</dd>
+                                                <dt class="col-sm-1">Advance (Budget):</dt>
+                                                <dd class="col-sm-3">@(material.Zzadvance?.ToString("N4"))</dd>
+                                                <dt class="col-sm-1">Head/Tail Scrap:</dt>
+                                                <dd class="col-sm-3">@(material.Zzhtalscrp?.ToString("N4"))</dd>
+                                                <dt class="col-sm-1">Piezas x Coche:</dt>
+                                                <dd class="col-sm-3">@(material.Zzcarpcs?.ToString("N0"))</dd>
+                                                <dt class="col-sm-1">Peso Inicial:</dt>
+                                                <dd class="col-sm-3">@(material.Zzinitwt?.ToString("N3"))</dd>
+                                                <dt class="col-sm-1">Peso Mín.:</dt>
+                                                <dd class="col-sm-3">@(material.Zzminwt?.ToString("N3"))</dd>
+                                                <dt class="col-sm-1">Peso Máx.:</dt>
+                                                <dd class="col-sm-3">@(material.Zzmaxwt?.ToString("N3"))</dd>
+                                                <dt class="col-sm-1">Stroke Pieces:</dt>
+                                                <dd class="col-sm-3">@material.Zzstkpcs</dd>
+                                                <dt class="col-sm-1">Ángulo A:</dt>
+                                                <dd class="col-sm-3">@(material.Zzanglea?.ToString("N4"))</dd>
+                                                <dt class="col-sm-1">Ángulo B:</dt>
+                                                <dd class="col-sm-3">@(material.Zzangleb?.ToString("N4"))</dd>
+                                                <dt class="col-sm-1">Peso Neto Real:</dt>
+                                                <dd class="col-sm-3">@(material.Zzrealntwt?.ToString("N3"))</dd>
+                                                <dt class="col-sm-1">Peso Bruto Real:</dt>
+                                                <dd class="col-sm-3">@(material.Zzrealgrwt?.ToString("N3"))</dd>
+                                                <dt class="col-sm-1">Piezas Dobles:</dt>
+                                                <dd class="col-sm-3">@(String.IsNullOrEmpty(material.Zzdouopcs) ? "❌" : "✔️")</dd>
+                                                <dt class="col-sm-1">Posición Coil:</dt>
+                                                <dd class="col-sm-3">@material.Zzcoilsltpos</dd>
+                                                <dt class="col-sm-1">Tol. Peso Max (+):</dt>
+                                                <dd class="col-sm-3">@(material.Zzmxwttolp?.ToString("N3"))</dd>
+                                                <dt class="col-sm-1">Tol. Peso Max (-):</dt>
+                                                <dd class="col-sm-3">@(material.Zzmxwttoln?.ToString("N3"))</dd>
+                                                <dt class="col-sm-1">Tol. Peso Min (+):</dt>
+                                                <dd class="col-sm-3">@(material.Zzmnwttolp?.ToString("N3"))</dd>
+                                                <dt class="col-sm-1">Tol. Peso Min (-):</dt>
+                                                <dd class="col-sm-3">@(material.Zzmnwttoln?.ToString("N3"))</dd>
+                                                <dt class="col-sm-1">Almacén Norte:</dt>
+                                                <dd class="col-sm-3">@(String.IsNullOrEmpty(material.Zzwh) ? "❌" : "✔️")</dd>
+                                                <dt class="col-sm-1">Tipo Transporte:</dt>
+                                                <dd class="col-sm-3">@material.Zztransp</dd>
+                                                <dt class="col-sm-1">tkMM SOP:</dt>
+                                                <dd class="col-sm-3">@material.Zztkmmsop</dd>
+                                                <dt class="col-sm-1">tkMM EOP:</dt>
+                                                <dd class="col-sm-3">@material.Zztkmmeop</dd>
+                                                <dt class="col-sm-1">Piezas x Paquete:</dt>
+                                                <dd class="col-sm-3">@material.Zzppackage</dd>
+                                                <dt class="col-sm-1">Stacks x Paquete:</dt>
+                                                <dd class="col-sm-3">@material.Zzspackage</dd>
+                                                <dt class="col-sm-1">Tipo Pallet:</dt>
+                                                <dd class="col-sm-3">@material.Zzpallet</dd>
+                                                <dt class="col-sm-1">Status DM:</dt>
+                                                <dd class="col-sm-3">@material.Zzstamd</dd>
+                                                <dt class="col-sm-1">ID Part Number:</dt>
+                                                <dd class="col-sm-3">@material.Zzidpnum</dd>
+                                                <dt class="col-sm-1">ID Tool:</dt>
+                                                <dd class="col-sm-3">@material.Zzidtool</dd>
+                                                <dt class="col-sm-1">ID Mat. Obsoleto:</dt>
+                                                <dd class="col-sm-3">@material.Zzidobsol</dd>
+                                                <dt class="col-sm-1">Desc. Tour:</dt>
+                                                <dd class="col-sm-3">@material.Zztourd</dd>
+                                                <dt class="col-sm-1">Tol. Max Peso:</dt>
+                                                <dd class="col-sm-3">@material.Zztolmaxwt</dd>
+                                                <dt class="col-sm-1">Tol. Min Peso:</dt>
+                                                <dd class="col-sm-3">@material.Zztolminwt</dd>
+                                            </dl>
+                                            <h5 class="text-thyssen-color">Descripciones:</h5>
+                                            <table class="table table-striped table-sm">
+                                                @foreach (var desc in material.Descriptions)
+                                                {
+                                                    <tr><td><strong>@desc.Spras</strong></td><td>@desc.Maktx</td></tr>
+                                                }
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="x_panel">
+                                        <div class="x_title"><h4><i class="fa fa-industry"></i> Plantas y Listas de Materiales (BOM)</h4></div>
+                                        <div class="x_content">
+                                            @foreach (var plant in material.Plants)
+                                            {
+                                                <h5 class="text-thyssen-color"><strong>Planta: @plant.Werks</strong> (Status: @plant.Mmsta)</h5>
+                                                if (plant.BomItems.Any())
+                                                {
+                                                    <table class="table table-bordered table-sm">
+                                                        <thead class="thead-light">
+                                                            <tr>
+                                                                <th>Altern.</th>
+                                                                <th>Item</th>
+                                                                <th>Componente</th>
+                                                                <th>Descripción</th>
+                                                                <th>Cantidad</th>
+                                                                <th>U.M.</th>
+                                                                <th>Válido Desde</th>
+                                                                <th>Creado</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var bom in plant.BomItems)
+                                                            {
+                                                                <tr>
+                                                                    <td>@bom.Alt_Bom</td>
+                                                                    <td>@bom.Item_No</td>
+                                                                    <td>@bom.Component</td>
+                                                                    <td>@bom.Comp_Desc</td>
+                                                                    <td>@bom.Quantity</td>
+                                                                    <td>@bom.Uom</td>
+                                                                    <td>@(bom.Valid_From?.ToString("yyyy-MM-dd"))</td>
+                                                                    <td>@(bom.Created_On?.ToString("yyyy-MM-dd"))</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                }
+                                                else
+                                                {
+                                                    <p><em>Esta planta no tiene BOM.</em></p>
+                                                }
+                                                <div class="row mt-2">
+                                                    <div class="col-md-2">
+                                                        <strong class="text-thyssen-color">@Html.DisplayNameFor(m => plant.CalculatedGrossWeight):</strong>
+                                                        @plant.CalculatedGrossWeight.ToString("N3") @* Formato con 3 decimales *@
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <strong class="text-thyssen-color">@Html.DisplayNameFor(m => plant.CalculatedNetWeight):</strong>
+                                                        @plant.CalculatedNetWeight.ToString("N3")
+                                                    </div>
+                                                </div>
+                                                <hr />
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="x_panel">
+                                        <div class="x_title"><h4><i class="fa fa-tags text-thyssen-color"></i> Características</h4></div>
+                                        <div class="x_content">
+                                            <table class="table table-hover table-sm">
+                                                <thead class="thead-light"><tr><th>Característica (EN/ES)</th><th>Valor (EN/ES)</th><th>Valor Interno</th><th>Unidad</th></tr></thead>
+                                                <tbody>
+                                                    @foreach (var ch in material.Characteristics)
+                                                    {
+                                                        <tr>
+                                                            <td><strong>@ch.Charact_Desc_En</strong><br /><small>@ch.Charact_Desc_Es</small></td>
+                                                            <td><strong>@ch.Value_Desc_En</strong><br /><small>@ch.Value_Desc_Es</small></td>
+                                                            <td>@ch.Value_Internal</td>
+                                                            <td>@ch.Unit</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <script>
+        $(document).ready(function () {
+            console.log("Document ready. Checking for notifications..."); // Debug 1: Script started
+
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "4000"
+            };
+
+            var notificationMessage = "@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.NotificationMessage as string ?? string.Empty))";
+            var notificationType = "@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.NotificationType as string ?? string.Empty))";
+
+            console.log("Notification Message from ViewBag:", notificationMessage); // Debug 2: Check message value
+            console.log("Notification Type from ViewBag:", notificationType);       // Debug 3: Check type value
+
+            if (notificationMessage) {
+                console.log("Message found. Attempting to show toastr..."); // Debug 4: Check if condition is met
+                switch (notificationType) {
+                    case "success":
+                        console.log("Showing SUCCESS toastr."); // Debug 5a
+                        toastr.success(notificationMessage, "Consulta Exitosa");
+                        break;
+                    case "error":
+                        console.log("Showing ERROR toastr.");   // Debug 5b
+                        toastr.error(notificationMessage, "Error");
+                        break;
+                    case "warning":
+                        console.log("Showing WARNING toastr."); // Debug 5c
+                        toastr.warning(notificationMessage, "Advertencia");
+                        break;
+                    default:
+                        console.log("Showing INFO toastr (default)."); // Debug 5d
+                        toastr.info(notificationMessage, "Información");
+                        break;
+                }
+            } else {
+                console.log("No notification message found in ViewBag."); // Debug 6: Condition not met
+            }
+        });
+        </script>
+    }

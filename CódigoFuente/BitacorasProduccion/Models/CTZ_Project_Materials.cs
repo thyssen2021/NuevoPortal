@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public CTZ_Project_Materials()
         {
             this.CTZ_Material_Additionals = new HashSet<CTZ_Material_Additionals>();
+            this.CTZ_Material_InterplantRackTypes = new HashSet<CTZ_Material_InterplantRackTypes>();
             this.CTZ_Material_Labels = new HashSet<CTZ_Material_Labels>();
             this.CTZ_Material_RackTypes = new HashSet<CTZ_Material_RackTypes>();
             this.CTZ_Material_StrapTypes = new HashSet<CTZ_Material_StrapTypes>();
@@ -171,10 +172,22 @@ namespace Portal_2_0.Models
         public Nullable<double> Shearing_Pieces_Per_Stroke { get; set; }
         public Nullable<double> Shearing_Pieces_Per_Car { get; set; }
         public Nullable<int> ID_Interplant_Plant { get; set; }
+        public Nullable<double> InitialWeightPerPart { get; set; }
+        public Nullable<double> ShippingTons { get; set; }
+        public Nullable<int> ID_InterplantDelivery_Coil_Position { get; set; }
+        public Nullable<int> ID_InterplantDelivery_Transport_Type { get; set; }
+        public string InterplantDelivery_Transport_Type_Other { get; set; }
+        public string InterplantPackagingStandard { get; set; }
+        public Nullable<bool> InterplantRequiresRackManufacturing { get; set; }
+        public Nullable<bool> InterplantRequiresDieManufacturing { get; set; }
+        public Nullable<int> InterplantPiecesPerPackage { get; set; }
+        public Nullable<int> InterplantStacksPerPackage { get; set; }
+        public Nullable<double> InterplantPackageWeight { get; set; }
     
         public virtual CTZ_Arrival_Warehouses CTZ_Arrival_Warehouses { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position1 { get; set; }
+        public virtual CTZ_Coil_Position CTZ_Coil_Position2 { get; set; }
         public virtual CTZ_Files CTZ_Files { get; set; }
         public virtual CTZ_Files CTZ_Files1 { get; set; }
         public virtual CTZ_Files CTZ_Files2 { get; set; }
@@ -188,6 +201,8 @@ namespace Portal_2_0.Models
         public virtual CTZ_FreightTypes CTZ_FreightTypes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_Additionals> CTZ_Material_Additionals { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Material_InterplantRackTypes> CTZ_Material_InterplantRackTypes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_Labels> CTZ_Material_Labels { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -207,6 +222,7 @@ namespace Portal_2_0.Models
         public virtual CTZ_Route CTZ_Route { get; set; }
         public virtual CTZ_Transport_Types CTZ_Transport_Types { get; set; }
         public virtual CTZ_Transport_Types CTZ_Transport_Types1 { get; set; }
+        public virtual CTZ_Transport_Types CTZ_Transport_Types2 { get; set; }
         public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
     }
 }

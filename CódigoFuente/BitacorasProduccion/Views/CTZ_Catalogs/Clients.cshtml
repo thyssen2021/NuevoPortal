@@ -72,7 +72,10 @@
                                 @Html.LabelFor(m => m.Client.Client_Name)
                                 @Html.TextBoxFor(m => m.Client.Client_Name, new { @class = "form-control", placeholder = "Client Name", required = "required" })
                                 @Html.ValidationMessageFor(m => m.Client.Clave_SAP, "", new { @class = "text-danger" })
-
+                            </div>
+                            <div class="col-md-2 form-group">
+                                @Html.LabelFor(m => m.Client.ShortName)
+                                @Html.TextBoxFor(m => m.Client.ShortName, new { @class = "form-control", placeholder = "Short Name", maxlength = 20 })
                             </div>
                             <div class="col-md-2 form-group">
                                 @Html.LabelFor(m => m.Client.Clave_SAP)
@@ -185,16 +188,17 @@
                 height: 500,
                 stretchH: 'all',
                 rowHeaders: true,
-                colHeaders: ['SAP Key', 'Name', 'Country', 'Address', 'Automotive', 'Active', 'Actions'],
+                colHeaders: ['SAP Key', 'Name', 'Short Name', 'Country', 'Address', 'Automotive', 'Active', 'Actions'], // <-- Añadir "Short Name"
                 // 2. Definimos las columnas y el campo de datos correspondiente para cada una
                 columns: [
                     { data: 'Clave_SAP' },
                     { data: 'Client_Name' },
+                    { data: 'ShortName' }, 
                     { data: 'CountryName' },
-                    { data: 'Direccion' }, // Usamos 'Direccion' para la columna 'Address'
+                    { data: 'Direccion' },
                     { data: 'Automotriz', type: 'checkbox' },
                     { data: 'Active', type: 'checkbox' },
-                    { renderer: actionsRenderer, readOnly: true } // La columna de acciones no cambia
+                    { renderer: actionsRenderer, readOnly: true }
                 ],
                 // --- Configuración de Plugins ---
                 filters: true,
@@ -290,7 +294,6 @@
 
                     var client = clientData.find(c => c.ID_Cliente == id);
                     if (client) {
-                        // ===== INICIO DE LAS MODIFICACIONES =====
 
                         // 1. Deshabilitar Clave SAP (usamos readonly para que el valor se envíe al guardar)
                         $('#Client_Clave_SAP').prop('readonly', true).css('background-color', '#e9ecef');
@@ -315,6 +318,7 @@
                         // Llenar el resto de los campos del formulario
                         $('#Client_ID_Cliente').val(client.ID_Cliente);
                         $('#Client_Client_Name').val(client.Client_Name);
+                        $('#Client_ShortName').val(client.ShortName);
                         $('#Client_Clave_SAP').val(client.Clave_SAP);
                         $('#Client_Telephone').val(client.Telephone);
                         $('#Client_ID_Country').val(client.ID_Country).trigger('change');

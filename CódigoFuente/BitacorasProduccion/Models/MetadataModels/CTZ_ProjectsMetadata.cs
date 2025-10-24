@@ -113,20 +113,26 @@ namespace Portal_2_0.Models
             get
             {
                 // Obtiene el cliente, priorizando CTZ_Clients, de lo contrario Cliente_Otro, y recorta espacios
-                string cliente = (CTZ_Clients?.Client_Name?.Trim() ?? Cliente_Otro?.Trim() ?? string.Empty);
+                // Obtiene el cliente, priorizando el nombre corto.
+                string cliente = !string.IsNullOrWhiteSpace(CTZ_Clients?.ShortName)
+                    ? CTZ_Clients.ShortName.Trim()
+                    : (CTZ_Clients?.Client_Name?.Trim() ?? Cliente_Otro?.Trim() ?? string.Empty);
 
                 // Obtiene el OEM, priorizando CTZ_OEMClients, de lo contrario OEM_Otro, y recorta espacios
-                string oem = (CTZ_OEMClients?.Client_Name?.Trim() ?? OEM_Otro?.Trim() ?? string.Empty);
+                string oem = !string.IsNullOrWhiteSpace(CTZ_OEMClients?.ShortName)
+                   ? CTZ_OEMClients.ShortName.Trim()
+                   : (CTZ_OEMClients?.Client_Name?.Trim() ?? OEM_Otro?.Trim() ?? string.Empty);
 
-                // Si el tipo de vehículo es diferente de Automotriz (ID_VehicleType distinto de 1),
-                // se utiliza la descripción del vehículo en lugar del OEM.
+                /// Si el tipo de vehículo no es automotriz, la lógica del OEM se mantiene.
                 if (ID_VehicleType.HasValue && ID_VehicleType.Value != 1)
                 {
                     oem = CTZ_Vehicle_Types?.VehicleType_Name?.Trim() ?? string.Empty;
                 }
 
                 // Obtiene la descripción de la planta y la clave del owner, recortadas
-                string plant = CTZ_plants?.Description?.Trim() ?? string.Empty;
+                string plant = !string.IsNullOrWhiteSpace(CTZ_plants?.ShortName)
+                           ? CTZ_plants.ShortName.Trim()
+                           : (CTZ_plants?.Description?.Trim() ?? string.Empty);
                 string owner = CTZ_Material_Owner?.Owner_Key?.Trim() ?? string.Empty;
 
                 // Concatenar los programas, ignorando nulos o vacíos y recortando espacios

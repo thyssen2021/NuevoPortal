@@ -32,7 +32,7 @@ namespace Portal_2_0.Models
         public Nullable<double> Pitch_Max { get; set; }
     
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
-        public virtual CTZ_plants CTZ_plants { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
+        public virtual CTZ_plants CTZ_plants { get; set; }
     }
 }

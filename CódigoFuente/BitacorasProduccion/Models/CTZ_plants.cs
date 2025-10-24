@@ -17,13 +17,13 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public CTZ_plants()
         {
-            this.CTZ_Employee_Plants = new HashSet<CTZ_Employee_Plants>();
-            this.CTZ_Project_Assignment = new HashSet<CTZ_Project_Assignment>();
-            this.CTZ_Theoretical_Line_Criteria = new HashSet<CTZ_Theoretical_Line_Criteria>();
-            this.CTZ_Production_Lines = new HashSet<CTZ_Production_Lines>();
-            this.CTZ_Total_Time_Per_Fiscal_Year = new HashSet<CTZ_Total_Time_Per_Fiscal_Year>();
             this.CTZ_Arrival_Warehouses = new HashSet<CTZ_Arrival_Warehouses>();
+            this.CTZ_Employee_Plants = new HashSet<CTZ_Employee_Plants>();
+            this.CTZ_Production_Lines = new HashSet<CTZ_Production_Lines>();
+            this.CTZ_Project_Assignment = new HashSet<CTZ_Project_Assignment>();
             this.CTZ_Projects = new HashSet<CTZ_Projects>();
+            this.CTZ_Theoretical_Line_Criteria = new HashSet<CTZ_Theoretical_Line_Criteria>();
+            this.CTZ_Total_Time_Per_Fiscal_Year = new HashSet<CTZ_Total_Time_Per_Fiscal_Year>();
             this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
             this.CTZ_Project_Materials_History = new HashSet<CTZ_Project_Materials_History>();
         }
@@ -32,21 +32,22 @@ namespace Portal_2_0.Models
         public string Description { get; set; }
         public string Codigo_SAP { get; set; }
         public bool Active { get; set; }
+        public string ShortName { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Employee_Plants> CTZ_Employee_Plants { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Theoretical_Line_Criteria> CTZ_Theoretical_Line_Criteria { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Total_Time_Per_Fiscal_Year> CTZ_Total_Time_Per_Fiscal_Year { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Arrival_Warehouses> CTZ_Arrival_Warehouses { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Employee_Plants> CTZ_Employee_Plants { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Theoretical_Line_Criteria> CTZ_Theoretical_Line_Criteria { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Total_Time_Per_Fiscal_Year> CTZ_Total_Time_Per_Fiscal_Year { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

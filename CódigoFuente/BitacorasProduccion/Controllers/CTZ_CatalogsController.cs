@@ -2196,6 +2196,7 @@ namespace Portal_2_0.Controllers
             var simpleClientList = allClients.Select(c => new {
                 c.ID_Cliente,
                 c.Client_Name,
+                c.ShortName,
                 c.Clave_SAP,
                 c.Telephone,
                 c.Direccion,
@@ -2542,6 +2543,7 @@ namespace Portal_2_0.Controllers
             var simpleClientList = allOEMs.Select(c => new {
                 c.ID_OEM,
                 c.Client_Name,
+                c.ShortName,
                 c.Clave_SAP,
                 c.Telephone,
                 c.Direccion,
@@ -2613,8 +2615,33 @@ namespace Portal_2_0.Controllers
                     }
                     else // Es una actualización de un cliente existente
                     {
-                        // Usar db.Entry es la forma recomendada por Entity Framework para actualizaciones.
-                        db.Entry(oem).State = EntityState.Modified;
+                        // >>>>> INICIA CAMBIO <<<<<
+
+                        // 1. Cargar la entidad original desde la base de datos.
+                        var oemInDb = db.CTZ_OEMClients.Find(oem.ID_OEM);
+                        if (oemInDb == null)
+                        {
+                            TempData["ErrorMessage"] = "OEM not found. It might have been deleted.";
+                            return RedirectToAction("OEMs");
+                        }
+
+                        // 2. Copiar manualmente las propiedades del formulario a la entidad de la BD.
+                        // Esto es más seguro que usar db.Entry(oem).State = EntityState.Modified;
+                        oemInDb.Client_Name = oem.Client_Name;
+                        oemInDb.ShortName = oem.ShortName; // <-- Aquí se copia el nuevo ShortName
+                        oemInDb.Clave_SAP = oem.Clave_SAP;
+                        oemInDb.Telephone = oem.Telephone;
+                        oemInDb.ID_Country = oem.ID_Country;
+                        oemInDb.Calle = oem.Calle;
+                        oemInDb.Ciudad = oem.Ciudad;
+                        oemInDb.Estado = oem.Estado;
+                        oemInDb.Codigo_Postal = oem.Codigo_Postal;
+                        oemInDb.Direccion = oem.Direccion;
+                        oemInDb.Automotriz = oem.Automotriz;
+                        oemInDb.Active = oem.Active;
+
+                        // >>>>> FINALIZA CAMBIO <<<<<
+
                         TempData["SuccessMessage"] = "OEM updated successfully.";
                     }
 

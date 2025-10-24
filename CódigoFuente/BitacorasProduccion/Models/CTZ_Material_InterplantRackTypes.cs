@@ -12,13 +12,13 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Employee_Plants
+    public partial class CTZ_Material_InterplantRackTypes
     {
-        public int ID_Employee_Plants { get; set; }
-        public int ID_Employee { get; set; }
-        public int ID_Plant { get; set; }
+        public int ID { get; set; }
+        public int ID_Material { get; set; }
+        public int ID_RackType { get; set; }
     
-        public virtual empleados empleados { get; set; }
-        public virtual CTZ_plants CTZ_plants { get; set; }
+        public virtual CTZ_Packaging_RackType CTZ_Packaging_RackType { get; set; }
+        public virtual CTZ_Project_Materials CTZ_Project_Materials { get; set; }
     }
 }

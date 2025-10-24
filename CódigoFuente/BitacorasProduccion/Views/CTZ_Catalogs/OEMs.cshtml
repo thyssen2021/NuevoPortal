@@ -90,6 +90,10 @@
                                 @Html.TextBoxFor(m => m.OEM.Client_Name, new { @class = "form-control", placeholder = "Client Name", required = "required" })
                             </div>
                             <div class="col-md-2 form-group">
+                                @Html.LabelFor(m => m.OEM.ShortName)
+                                @Html.TextBoxFor(m => m.OEM.ShortName, new { @class = "form-control", placeholder = "Short Name", maxlength = 20 })
+                            </div>
+                            <div class="col-md-2 form-group">
                                 @Html.LabelFor(m => m.OEM.Clave_SAP)
                                 @Html.TextBoxFor(m => m.OEM.Clave_SAP, new { @class = "form-control", placeholder = "SAP Key" })
                                 @Html.ValidationMessageFor(m => m.OEM.Clave_SAP, "", new { @class = "text-danger" })
@@ -207,16 +211,16 @@
                 height: 500,
                 stretchH: 'all',
                 rowHeaders: true,
-                colHeaders: ['SAP Key', 'Name', 'Country', 'Address', 'Automotive', 'Active', 'Actions'],
-                // 2. Definimos las columnas y el campo de datos correspondiente para cada una
+                colHeaders: ['SAP Key', 'Name', 'Short Name', 'Country', 'Address', 'Automotive', 'Active', 'Actions'], 
                 columns: [
                     { data: 'Clave_SAP' },
                     { data: 'Client_Name' },
+                    { data: 'ShortName' }, 
                     { data: 'CountryName' },
-                    { data: 'Direccion' }, // Usamos 'Direccion' para la columna 'Address'
+                    { data: 'Direccion' },
                     { data: 'Automotriz', type: 'checkbox' },
                     { data: 'Active', type: 'checkbox' },
-                    { renderer: actionsRenderer, readOnly: true } // La columna de acciones no cambia
+                    { renderer: actionsRenderer, readOnly: true }
                 ],
                 // --- Configuración de Plugins ---
                 filters: true,
@@ -336,7 +340,7 @@
                         // ===== FIN DE LAS MODIFICACIONES =====
 
                         // Llenar el resto de los campos del formulario
-                        $('#OEM_ID_Cliente').val(client.ID_OEM);
+                        $('#OEM_ID_OEM').val(client.ID_OEM);
                         $('#OEM_Client_Name').val(client.Client_Name);
                         $('#OEM_Clave_SAP').val(client.Clave_SAP);
                         $('#OEM_Telephone').val(client.Telephone);
@@ -346,6 +350,7 @@
                         $('#OEM_Codigo_Postal').val(client.Codigo_Postal);
                         $('#OEM_Automotriz').prop('checked', client.Automotriz);
                         $('#ActiveCheckbox').prop('checked', client.Active);
+                        $('#OEM_ShortName').val(client.ShortName); // <-- Añadir esta línea
 
                         $('html, body').animate({ scrollTop: 0 }, 'slow');
                         toastr.info('Client data loaded for editing.');

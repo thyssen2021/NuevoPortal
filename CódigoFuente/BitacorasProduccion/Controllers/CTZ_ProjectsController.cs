@@ -1631,12 +1631,13 @@ namespace Portal_2_0.Controllers
             // Buscar el proyecto por id junto con sus materiales relacionados.
             var project = db.CTZ_Projects
                 .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Route))
-                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files)) // <--- AÑADE ESTA LÍNEA (para CAD)
-                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files1)) // <--- AÑADE ESTA LÍNEA (para Packaging)
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files)) 
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files1)) 
                 .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_RackTypes))
                 .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_Additionals))
                 .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_Labels))
                 .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_StrapTypes))
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantRackTypes)) 
                 .Include(p => p.CTZ_Clients)
                 .Include(p => p.CTZ_OEMClients)
                 .Include(p => p.CTZ_Material_Owner)
@@ -1752,12 +1753,35 @@ namespace Portal_2_0.Controllers
             // 4. Crear el SelectList para el ViewBag con la lista ya ordenada
             ViewBag.AdditionalList = new SelectList(allAdditionals, nameof(CTZ_Packaging_Additionals.ID_Additional), nameof(CTZ_Packaging_Additionals.AdditionalName));
 
+
+            // Creamos una nueva lista para el dropdown de Rack Type en "Arrival"
+            var arrivalRackTypes = db.CTZ_Packaging_RackType
+                .Where(r => r.IsActive)
+                .OrderBy(r => r.RackTypeName)
+                .Select(r => new SelectListItem { Value = r.ID_RackType.ToString(), Text = r.RackTypeName })
+                .ToList();
+
+            // Añadimos la opción "N/A" al final con un valor de 0
+            arrivalRackTypes.Add(new SelectListItem { Value = "0", Text = "N/A (Not Applicable)" });
+            ViewBag.ArrivalRackTypeList = new SelectList(arrivalRackTypes, "Value", "Text");
+
+            // Hacemos lo mismo para el dropdown de "Protective Material"
+            var arrivalAdditionals = db.CTZ_Packaging_Additionals
+                .Where(a => a.IsActive)
+                .OrderBy(a => a.AdditionalName)
+                .Select(a => new SelectListItem { Value = a.ID_Additional.ToString(), Text = a.AdditionalName })
+                .ToList();
+
+            // Añadimos la opción "N/A" al final con un valor de 0
+            arrivalAdditionals.Add(new SelectListItem { Value = "0", Text = "N/A (Not Applicable)" });
+            ViewBag.ArrivalAdditionalList = new SelectList(arrivalAdditionals, "Value", "Text");
+
+
             var allIhsCountries = db.CTZ_Temp_IHS
                           .Select(i => i.Country)
                           .Distinct()
                           .OrderBy(c => c)
                           .ToList();
-
             // Proyectamos la lista de strings a una lista de objetos anónimos
             var countrySelectListItems = allIhsCountries.Select(c => new { Value = c, Text = c }).ToList();
 
@@ -2291,6 +2315,9 @@ namespace Portal_2_0.Controllers
                             if (material.IsVolumeAdditionalFile == true && newFileId_VolumeAdditional.HasValue) material.ID_File_VolumeAdditional = newFileId_VolumeAdditional;
                             if (material.IsOutboundFreightAdditionalFile == true && newFileId_OutboundFreightAdditional.HasValue) material.ID_File_OutboundFreightAdditional = newFileId_OutboundFreightAdditional;
                             if (material.IsDeliveryPackagingAdditionalFile == true && newFileId_DeliveryPackagingAdditional.HasValue) material.ID_File_DeliveryPackagingAdditional = newFileId_DeliveryPackagingAdditional;
+                            // Si el valor recibido es 0 (es decir, "N/A"), lo convertimos a null.
+                            if (material.ID_Arrival_Packaging_Type == 0){material.ID_Arrival_Packaging_Type = null;}
+                            if (material.ID_Arrival_Protective_Material == 0){material.ID_Arrival_Protective_Material = null;}
 
                             db.CTZ_Project_Materials.Add(material);
 
@@ -2348,6 +2375,14 @@ namespace Portal_2_0.Controllers
                                 foreach (var additionalID in material.SelectedAdditionalIds)
                                 {
                                     additionalsToAdd.Add(new CTZ_Material_Additionals { ID_Additional = additionalID });
+                                }
+                            }
+                            if (material.SelectedInterplantRackTypeIds != null && material.SelectedInterplantRackTypeIds.Any())
+                            {
+                                foreach (var interplantRackTypeId in material.SelectedInterplantRackTypeIds)
+                                {
+                                    // Crea la entidad de enlace y EF la asociará al 'material'
+                                    material.CTZ_Material_InterplantRackTypes.Add(new CTZ_Material_InterplantRackTypes { ID_RackType = interplantRackTypeId });
                                 }
                             }
 
