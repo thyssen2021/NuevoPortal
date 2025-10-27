@@ -1,0 +1,222 @@
+﻿@{
+    ViewBag.Title = "Editar Targets";
+    ViewBag.PrimerNivel = "budget";
+    ViewBag.SegundoNivel = "edit_targets";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+    var fiscalYears = ViewBag.FiscalYears as List<Portal_2_0.Models.budget_anio_fiscal>;
+    var centroCostos = ViewBag.CentroCostos as List<Portal_2_0.Models.budget_centro_costo>;
+}
+
+@section estilos {
+    <!-- Se incluyen Handsontable y Select2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.css" />
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <style>
+        /* Estilos personalizados */
+        .combo-container {
+            margin-bottom: 15px;
+        }
+
+            .combo-container .form-group {
+                margin-bottom: 0;
+            }
+
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+
+        .htCore thead th {
+            background-color: #009ff5 !important;
+            color: white !important;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <!-- Combos en una sola línea con labels -->
+                        <div class="combo-container">
+                            <div class="row">
+                                <div class="col-md-4 form-group">
+                                    <label for="selectFiscalYear">Año Fiscal</label>
+                                    <select id="selectFiscalYear" class="form-control select2">
+                                        <option value="">Seleccione Año Fiscal</option>
+                                        @foreach (var fy in fiscalYears)
+                                        {
+                                            <option value="@fy.id">@fy.ConcatAnio</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="selectCentroCosto">Centro de Costo</label>
+                                    <select id="selectCentroCosto" class="form-control select2">
+                                        <option value="">Seleccione Centro de Costo</option>
+                                        @foreach (var cc in centroCostos)
+                                        {
+                                            <option value="@cc.id">@cc.ConcatCentro</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <!-- Se utiliza un label vacío para alinear el botón -->
+                                    <label>&nbsp;</label>
+                                    <button id="loadGrid" class="btn btn-info btn-block">Cargar Cuentas</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Contenedor para Handsontable -->
+                        <div id="hotContainer"></div>
+                        <br />
+                        <!-- Botón Guardar inicialmente oculto -->
+                        <button id="saveGrid" class="btn btn-success" style="display:none;">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script>
+        var hot; // Variable global para Handsontable
+
+        $(document).ready(function () {
+            // Inicializa Select2 en los combos
+            $('.select2').select2({
+                width: '100%' // O el ancho que desees
+            });
+
+            // Al hacer clic en "Cargar Cuentas", se solicita la data para el grid
+            // Dentro del bloque $(document).ready
+$("#loadGrid").click(function () {
+    var fiscalYearId = $("#selectFiscalYear").val();
+    var centroCostoId = $("#selectCentroCosto").val();
+    if (fiscalYearId == "" || centroCostoId == "") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Mensaje',
+            text: 'Seleccione ambos, Año Fiscal y Centro de Costo.',
+        });
+        return;
+    }
+    $.ajax({
+        url: '@Url.Action("GetTargets", "Budget_target")',
+        data: { id_anio_fiscal: fiscalYearId, id_centro_costo: centroCostoId },
+        type: 'GET',
+        success: function (data) {
+            var container = document.getElementById('hotContainer');
+            if(hot) {
+                hot.destroy();
+            }
+            // Configuración de Handsontable:
+            hot = new Handsontable(container, {
+                data: data,
+                colHeaders: ["Año Fiscal", "Centro de Costo", "Cuenta SAP", "Nombre de Cuenta", "Target", "Activado"],
+                columns: [
+                    { data: 'fiscalYearDesc', readOnly: true },
+                    { data: 'centroCostoDesc', readOnly: true },
+                    { data: 'sap_account', readOnly: true },
+                    { data: 'accountName', readOnly: true },
+                    { data: 'target', type: 'numeric', numericFormat: { pattern: '$0,0.00', culture: 'en-US' } },
+                    { data: 'activado', type: 'checkbox' }
+                ],
+                stretchH: 'all',
+                width: '100%',
+                autoWrapRow: true,
+                height: 300,
+                rowHeaders: true,
+                manualRowResize: true,
+                manualColumnResize: true,
+                licenseKey: 'non-commercial-and-evaluation'
+
+            });
+            // Una vez que se carga Handsontable, mostramos el botón Guardar
+            $("#saveGrid").show();
+        },
+        error: function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Error al cargar las cuentas.',
+            });
+            // Si ocurre un error, ocultamos el botón
+            $("#saveGrid").hide();
+        }
+    });
+});
+
+
+            // Funcionalidad del botón "Guardar"
+            $("#saveGrid").click(function () {
+                var fiscalYearId = $("#selectFiscalYear").val();
+                var centroCostoId = $("#selectCentroCosto").val();
+                if (fiscalYearId == "" || centroCostoId == "") {
+                    alert("Seleccione ambos, Año Fiscal y Centro de Costo.");
+                    return;
+                }
+                // Se extrae la data del grid
+                var rows = [];
+                for (var i = 0; i < hot.countRows(); i++) {
+                    var row = hot.getSourceDataAtRow(i);
+                    if (row.sap_account) { // Se valida que la fila corresponda a una cuenta
+                        rows.push({
+                            id: row.id, // 0 si no existe registro previo
+                            id_cuenta_sap: row.id_cuenta_sap,
+                            target: row.target,
+                            activado: row.activado
+                        });
+                    }
+                }
+                $.ajax({
+                    url: '@Url.Action("SaveTargets", "Budget_target")',
+                    type: 'POST',
+                    data: JSON.stringify({
+                        id_anio_fiscal: parseInt(fiscalYearId),
+                        id_centro_costo: parseInt(centroCostoId),
+                        rows: rows
+                    }),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (response) {
+                        if(response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Mensaje',
+                                text: 'Los datos se guardaron correctamente.',
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Mensaje',
+                                text: 'Error al guardar los datos.',
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Mensaje',
+                            text: 'Error al guardar los datos.',
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

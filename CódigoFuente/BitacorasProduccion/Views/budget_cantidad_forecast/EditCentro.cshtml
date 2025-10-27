@@ -1,0 +1,2910 @@
+﻿@model Portal_2_0.Models.budget_centro_costo
+@using Bitacoras.Util
+@using Clases.Util;
+
+@{
+
+    Portal_2_0.Models.budget_rel_fy_centro rel_presente = (Portal_2_0.Models.budget_rel_fy_centro)ViewBag.rel_presente;
+
+    ViewBag.Title = "Forecast FY " + rel_presente.budget_anio_fiscal.descripcion;
+    ViewBag.PrimerNivel = "plantilla_forecast";
+    ViewBag.SegundoNivel = "index_forecast";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+
+    //lee los valores necesarios para los headers
+    string[] headersForecast = (string[])ViewBag.HeadersForecast2;
+    string[][] arraySugeridos = (string[][])ViewBag.GastosSugeridos;
+
+
+    String responsables = (string.Join(" / ", Model.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
+
+    if (responsables.Length > 90)
+    {
+        responsables = responsables.Substring(0, 90) + "...";
+    }
+
+    bool controlling = ViewBag.controlling != null ? (bool)ViewBag.controlling : false;
+    bool import = ViewBag.import != null ? (bool)ViewBag.import : false;
+    bool info = ViewBag.info != null ? (bool)ViewBag.info : false;
+
+    //determina si los meses son actual o no y deshabilata todas las columnas en caso de que el Fy este deshabilitado
+    bool isActualOctubre = controlling ? false : rel_presente.budget_anio_fiscal.isActual(10) == "ACT" || !rel_presente.estatus || info;
+    bool isActualNoviembre = controlling ? false : rel_presente.budget_anio_fiscal.isActual(11) == "ACT" || !rel_presente.estatus || info;
+    bool isActualDiciembre = controlling ? false : rel_presente.budget_anio_fiscal.isActual(12) == "ACT" || !rel_presente.estatus || info;
+    bool isActualEnero = controlling ? false : rel_presente.budget_anio_fiscal.isActual(1) == "ACT" || !rel_presente.estatus || info;
+    bool isActualFebrero = controlling ? false : rel_presente.budget_anio_fiscal.isActual(2) == "ACT" || !rel_presente.estatus || info;
+    bool isActualMarzo = controlling ? false : rel_presente.budget_anio_fiscal.isActual(3) == "ACT" || !rel_presente.estatus || info;
+    bool isActualAbril = controlling ? false : rel_presente.budget_anio_fiscal.isActual(4) == "ACT" || !rel_presente.estatus || info;
+    bool isActualMayo = controlling ? false : rel_presente.budget_anio_fiscal.isActual(5) == "ACT" || !rel_presente.estatus || info;
+    bool isActualJunio = controlling ? false : rel_presente.budget_anio_fiscal.isActual(6) == "ACT" || !rel_presente.estatus || info;
+    bool isActualJulio = controlling ? false : rel_presente.budget_anio_fiscal.isActual(7) == "ACT" || !rel_presente.estatus || info;
+    bool isActualAgosto = controlling ? false : rel_presente.budget_anio_fiscal.isActual(8) == "ACT" || !rel_presente.estatus || info;
+    bool isActualSeptiembre = controlling ? false : rel_presente.budget_anio_fiscal.isActual(9) == "ACT" || !rel_presente.estatus || info;
+
+    // Definir el orden de los meses (ejemplo para FY que inicia en octubre)
+    int[] mesesOrdenados = { 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+    // Lista para almacenar los datos de la fila; usaremos string para poder colocar "--" en caso de valor 0 o nulo.
+    var filaDatos = new List<string>();
+
+    foreach (var mes in mesesOrdenados)
+    {
+        // Obtiene el registro para USD/MXN (id_tipo_cambio == 1) y para EUR/USD (id_tipo_cambio == 2)
+        var rec1 = @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy_forecast
+                    .FirstOrDefault(x => x.id_tipo_cambio == 1 && x.mes == mes);
+        var rec2 = @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy_forecast
+                    .FirstOrDefault(x => x.id_tipo_cambio == 2 && x.mes == mes);
+
+        // Extrae la cantidad; si es nula, asigna 0
+        double valor1 = rec1 != null ? rec1.cantidad : 0;
+        double valor2 = rec2 != null ? rec2.cantidad : 0;
+
+        // Si el valor es 0, asigna "--", de lo contrario formatea a 4 decimales
+        string displayValor1 = (valor1 == 0) ? "--" : valor1.ToString("0.0000");
+        string displayValor2 = (valor2 == 0) ? "--" : valor2.ToString("0.0000");
+
+        filaDatos.Add(displayValor1);
+        filaDatos.Add(displayValor2);
+    }
+
+}
+
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.css"/>
+
+    <style>
+        .btn-documento-pendiente {
+            display: inline-block;
+            color: #6d6d6d;
+            border: 1px solid #CCC;
+            background: #f8f3b7;
+            box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+            cursor: pointer;
+            vertical-align: middle;
+            width: 99%;
+            height: 80%;
+            border-radius: 5px;
+            padding: 0px;
+            text-align: center;
+        }
+
+        .btn-documento-agregado {
+            display: inline-block;
+            color: #edecec;
+            border: 1px solid #CCC;
+            background: green;
+            box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+            cursor: pointer;
+            vertical-align: middle;
+            width: 99%;
+            height: 80%;
+            border-radius: 5px;
+            padding: 0px;
+            text-align: center;
+        }
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+
+        .nav-tabs .nav-item .nav-link {
+            background-color: #eeeeee;
+            color: #808080;
+        }
+
+            .nav-tabs .nav-item .nav-link.active {
+                background-color: white;
+                color: #009ff5;
+            }
+
+        .tab-content {
+            border: 1px solid #dee2e6;
+            border-top: transparent;
+            padding: 15px;
+        }
+
+            .tab-content .tab-pane {
+                background-color: #FFF;
+                color: #0080FF;
+                min-height: 200px;
+                height: auto;
+            }
+
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #edecec;
+        }
+
+        .handsontable THEAD TH.HTdefault {
+            background-color: #aee3ff;
+            color: black;
+            /*font-weight: bold;*/
+            font-size: 12px;
+        }
+
+        .handsontable THEAD TH.HTgray {
+            background: #ebebeb;
+            color: black;
+        }
+
+        .handsontable THEAD TH.HTdarkgray {
+            background: #828282;
+            color: white;
+        }
+
+        .handsontable THEAD TH.HTgreen {
+            background: green;
+            color: white;
+        }
+
+        .handsontable THEAD TH.HTlightgreen {
+            background: #c0e1c0;
+            color: black;
+        }
+
+        .handsontable THEAD TH.HTred {
+            background: #ed2727;
+            color: white;
+        }
+
+        .handsontable THEAD TH.HTblue {
+            background: #009ff5;
+            color: white;
+        }
+
+        .handsontable THEAD TH.HTPurple {
+            background: #3a04cc;
+            color: white;
+        }
+
+        .handsontable THEAD TH.HTOrange {
+            background: #feae31;
+            color: black;
+        }
+
+        .handsontable .tipoCambio {
+            background: #c0e1c0;
+            color: black;
+        }
+
+        .handsontable .aplica-formula {
+            background: repeating-linear-gradient( -50deg, #fff 10px, #fff 20px, #edecec 20px, #edecec 30px );
+        }
+
+        .handsontable .diferencia-sugerido {
+            border: solid 1px !important;
+            border-color: #d05e0e !important;
+            font-weight: 400;
+        }
+
+        .handsontable .aplica-form-readonly {
+            background: repeating-linear-gradient( -50deg, #dedede 10px, #dedede 20px, #edecec 20px, #edecec 30px );
+        }
+
+        .handsontable .htCommentCell:after {
+            border-top: 10px solid #009ff5 !important
+        }
+    </style>
+
+}
+
+@{Html.RenderPartial("_BlockUI", Model);}
+
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @if (!rel_presente.estatus)
+                        {
+                            @*<div class="form-group row">
+
+                                <div class="alert alert-danger col-md-12" role="alert">
+                                    <i class="fa fa-exclamation-triangle" style="color:yellow"></i> La edici&oacute;n de datos se encuentra desactivada.
+                                </div>
+                            </div>*@
+                        }
+                        <div class="col-sm-12">
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">Plant</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.budget_departamentos.budget_plantas.descripcion)</dd>
+                                    <dt class="col-sm-2">Department</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.budget_departamentos.descripcion)</dd>
+                                    <dt class="col-sm-2">Cost Center</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.num_centro_costo)</dd>
+                                    <dt class="col-sm-2">Name</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.descripcion)</dd>
+                                    <dt class="col-sm-2">FY</dt>
+                                    <dd class="col-sm-6">@ViewBag.Title</dd>
+                                    <dt class="col-sm-2">Responsable</dt>
+                                    <dd class="col-sm-10">@responsables</dd>
+
+                                </dl>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <h4 style="color:#7c7c7c"><b>Tipo de Cambio FC FY @rel_presente.budget_anio_fiscal.descripcion</b></h4>
+                            </div>
+                        </div>
+
+                        <div id="ht-tipo-cambio" class="hot handsontable htRowHeaders htColumnHeaders" style="height: 100px; overflow: hidden; width: 100%;" data-originalstyle="height: 320px; overflow: hidden; width: 584px;"></div>
+                        <div class="col-sm-12">
+                            <br />
+                            <br />
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="control-label col-md-9" for="search_field" style="text-align: right; vertical-align: middle; padding-top: 10px !important; ">Cuenta SAP:</label>
+                            <div class="col-sm-3" style="text-align:right">
+                                <input id="search_field" class="form-control" type="text" placeholder="Búsqueda" />
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+
+                            <ul class="nav nav-tabs bar_tabs" id="myTab" role="tablist">
+
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="ht-forecast-tab" data-toggle="tab" href="#ht-forecast" role="tab" aria-controls="ht-forecast" onclick="ResetScroll()" aria-selected="false">FC FY @rel_presente.budget_anio_fiscal.descripcion</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="ht-forecast" role="tabpanel" aria-labelledby="ht-forecast-tab">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="ln_solid"></div>
+                        <button type="button" id="btn-clear_filters" class="btn btn-danger  float-lg-left"><i class="fa-solid fa-filter-circle-xmark"></i>  Borrar Filtros</button>
+                        @if ((rel_presente.estatus && !info) || (User.IsInRole(TipoRoles.BG_CONTROLLING) && controlling))
+                        {
+                            <button type="button" id="btn-submit-salir" class="btn btn-info float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
+                            <button type="button" id="btn-submit" class="btn btn-success float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y continuar</button>
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+            <div>
+                <br />
+                <a onclick="volverAtras()" class="btn btn-round btn-info" title="Volver" style="color:white">
+                    <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal DEMO Modelo -->
+<div class="modal fade" id="modalCalculo" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static">
+    <div id="modal-class" class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLongTitle">Calcular cantidad</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body" id="id_modal_body">
+
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-danger mr-auto" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn_aceptar_modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <!-- SweetAlert2 (css incluido) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.js"></script>
+    <script src="https://handsontable.com/docs/8.3.1/components/numbro/dist/languages.min.js"></script>
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
+<script>
+
+           //define variables globales
+   var container2 = document.getElementById('ht-forecast'),
+       container4 = document.getElementById('ht-tipo-cambio'),
+        hot2, hotTC;
+
+    var headers1 = JSON.parse('@Html.Raw(ViewBag.HeadersForecast1)');
+    var headers2 = @Html.Raw(Json.Encode(headersForecast));
+    var arraySugeridos = @Html.Raw(Json.Encode(arraySugeridos));
+
+    // Precalcular el mapa de encabezados (esto se hace una sola vez)
+    var headerMap = {};
+    headers2.forEach(function (header, index) {
+        headerMap[header.toLowerCase()] = index;
+    });
+
+    // Función que utiliza el mapa precalculado
+    function getColumnIndexByName(name) {
+        return headerMap[name.toLowerCase()] !== undefined ? headerMap[name.toLowerCase()] : -1;
+    }
+
+   //console.log(arraySugeridos)
+
+   var columnasNoEditables = []
+   var columnasEditables = [];
+   var columnasSumatoriasComentarioEditable = [];
+   var columnasMonedaLocal = [6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50];
+
+   //determina si una columna puede editarse
+   {
+       if ("@isActualOctubre" === "@(true)") {
+           columnasNoEditables.push(3, 4, 5)
+       } else {
+           columnasSumatoriasComentarioEditable.push(6)
+           columnasEditables.push(3, 4, 5)
+       }
+       if ("@isActualNoviembre" === "@(true)") {
+           columnasNoEditables.push(7, 8, 9)
+       } else {
+           columnasEditables.push(7, 8, 9)
+           columnasSumatoriasComentarioEditable.push(10)
+       }
+       if ("@isActualDiciembre" === "@(true)") {
+           columnasNoEditables.push(11, 12, 13)
+       } else {
+           columnasEditables.push(11, 12, 13)
+           columnasSumatoriasComentarioEditable.push(14)
+       }
+       if ("@isActualEnero" === "@(true)") {
+           columnasNoEditables.push(15, 16, 17)
+       } else {
+           columnasEditables.push(15, 16, 17)
+           columnasSumatoriasComentarioEditable.push(18)
+       }
+       if ("@isActualFebrero" === "@(true)") {
+           columnasNoEditables.push(19, 20, 21)
+       } else {
+           columnasEditables.push(19, 20, 21)
+           columnasSumatoriasComentarioEditable.push(22)
+       }
+       if ("@isActualMarzo" === "@(true)") {
+           columnasNoEditables.push(23, 24, 25)
+       } else {
+           columnasEditables.push(23, 24, 25)
+           columnasSumatoriasComentarioEditable.push(26)
+       }
+       if ("@isActualAbril" === "@(true)") {
+           columnasNoEditables.push(27, 28, 29)
+       } else {
+           columnasEditables.push(27, 28, 29)
+           columnasSumatoriasComentarioEditable.push(30)
+       }
+       if ("@isActualMayo" === "@(true)") {
+           columnasNoEditables.push(31, 32, 33)
+       } else {
+           columnasEditables.push(31, 32, 33)
+           columnasSumatoriasComentarioEditable.push(34)
+       }
+       if ("@isActualJunio" === "@(true)") {
+           columnasNoEditables.push(35, 36, 37)
+       } else {
+           columnasEditables.push(35, 36, 37)
+           columnasSumatoriasComentarioEditable.push(38)
+       }
+       if ("@isActualJulio" === "@(true)") {
+           columnasNoEditables.push(39, 40, 41)
+       } else {
+           columnasEditables.push(39, 40, 41)
+           columnasSumatoriasComentarioEditable.push(42)
+       }
+       if ("@isActualAgosto" === "@(true)") {
+           columnasNoEditables.push(43, 44, 45)
+       } else {
+           columnasEditables.push(43, 44, 45)
+           columnasSumatoriasComentarioEditable.push(46)
+       }
+       if ("@isActualSeptiembre" === "@(true)") {
+           columnasNoEditables.push(47, 48, 49)
+       } else {
+           columnasEditables.push(47, 48, 49)
+           columnasSumatoriasComentarioEditable.push(50)
+       }
+   }
+
+   var conceptos_calculados = [];
+
+   // create an external HyperFormula instance
+   const hyperformulaInstance = HyperFormula.buildEmpty({
+       licenseKey: 'internal-use-in-handsontable',
+   });
+
+        searchResultCount = 0;
+
+
+        //////////
+
+        // Variables de ejemplo (estas puedes obtenerlas de tu modelo)
+        var fiscalYearDescription = "2018/19";
+        var fiscalYearStart = @(rel_presente.budget_anio_fiscal.anio_inicio);
+        var mesInicio = 10;
+
+        // Arreglo con los nombres de los meses en español (puedes ajustar según convención)
+        var nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        // Construye los encabezados anidados
+        var nestedHeadersTop = [];    // Primera fila: Mes y año
+        var nestedHeadersBottom = []; // Segunda fila: Títulos de columnas
+
+        // La primera columna de ambos niveles será para el FY
+
+
+        // Para cada uno de los 12 meses, calculamos el mes y el año correspondiente según el FY
+        for (var i = 0; i < 12; i++) {
+            // Calcula el mes actual: se asume que el año fiscal inicia en 'mesInicio'
+            var mesActual = ((mesInicio - 1 + i) % 12) + 1;
+            // Determina el año: si el mes actual es mayor o igual a mesInicio, usa fiscalYearStart; de lo contrario, usa fiscalYearStart + 1
+            var yearForMonth = (mesActual >= mesInicio) ? fiscalYearStart : fiscalYearStart + 1;
+            // Arma la etiqueta para la parte superior, por ejemplo "Octubre 2018"
+            var etiquetaMes = nombresMeses[mesActual - 1] + " " + yearForMonth;
+            // Para este mes se ocuparán 2 columnas, así que se especifica colspan: 2
+            nestedHeadersTop.push({ label: etiquetaMes, colspan: 2 });
+            // En la parte inferior se muestran los títulos de las dos columnas
+            nestedHeadersBottom.push("USD/MXN", "EUR/USD");
+    }
+
+
+     oct1 =  @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy_forecast.FirstOrDefault(x=>x.id_tipo_cambio == 1 && x.mes == 10).cantidad
+     oct2 =  @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy_forecast.FirstOrDefault(x=>x.id_tipo_cambio == 2 && x.mes == 10).cantidad
+    hotTC = new Handsontable(container4, {
+        data: [@Html.Raw(Json.Encode(filaDatos))],
+        readOnly: true, // Toda la tabla será de solo lectura
+
+        nestedHeaders: [
+            nestedHeadersTop,
+            nestedHeadersBottom
+        ],
+        columns: [
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+             { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+             { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+             { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            // Repite para cada mes...
+        ],
+        // Define un ancho fijo para cada columna (por ejemplo, 80px)
+        colWidths: 60,
+        rowHeaders: true,
+        licenseKey: 'non-commercial-and-evaluation',
+        afterGetColHeader: function (col, TH) {
+            var TR = TH.parentNode;
+            var THEAD = TR.parentNode;
+            // Determina el nivel del encabezado
+            // Por ejemplo, si tienes 2 filas de encabezado, el primer nivel será -1 y el segundo -2.
+            var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+            if (headerLevel === -1) {
+                // Primer fila del encabezado: asigna HTlightgreen
+                Handsontable.dom.addClass(TH, 'HTlightgreen');
+            } else if (headerLevel === -2) {
+                // Segunda fila del encabezado: asigna HTblue
+                Handsontable.dom.addClass(TH, 'HTblue');
+            }
+        }
+
+    });
+
+
+   hot2 = new Handsontable(container2, {
+       data: [],
+       nestedHeaders: [
+           headers1,
+           headers2
+       ],
+       afterGetColHeader: function(col, TH) {
+           var TR = TH.parentNode;
+           var THEAD = TR.parentNode;
+           var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+           function applyClass(elem, className) {
+               if (!Handsontable.dom.hasClass(elem, className)) {
+                   Handsontable.dom.addClass(elem, className);
+               }
+           }
+
+           if (col == -1) {
+               applyClass(TH, 'HTgray');
+           } else if (headerLevel === -2) {
+               switch (col) {
+                   case 3: //octubre
+                       if ('@isActualOctubre' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 7: //noviembre
+                       if ('@isActualNoviembre' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 11: //diciembre
+                       if ('@isActualDiciembre' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 15: //enero
+                       if ('@isActualEnero' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 19: //febrero
+                       if ('@isActualFebrero' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 23: //marzo
+                       if ('@isActualMarzo' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 27: //abril
+                       if ('@isActualAbril' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 31: //MAYO
+                       if ('@isActualMayo' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 35: //junio
+                       if ('@isActualJunio' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 39: //julio
+                       if ('@isActualJulio' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 43: //agosto
+                       if ('@isActualAgosto' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   case 47: //septiembre
+                       if ('@isActualSeptiembre' === '@true')
+                           applyClass(TH, 'HTdarkgray');
+                       else
+                           applyClass(TH, 'HTgreen');
+                       break;
+                   default:
+                       applyClass(TH, 'HTblue');
+                       break;
+               }
+
+
+           } else {
+               switch (col) {
+                   case 0:
+                   case 1:
+                   case 2:
+                       applyClass(TH, 'HTblue');
+                       break;
+                   case 6:
+                   case 10:
+                   case 14:
+                   case 18:
+                   case 22:
+                   case 26:
+                   case 30:
+                   case 34:
+                   case 38:
+                   case 42:
+                   case 46:
+                   case 50:
+                   case 55: //target
+                       applyClass(TH, 'HTOrange');
+                       break;
+                   case 51:
+                   case 52:
+                   case 53:
+                   case 54:
+                       applyClass(TH, 'HTblue');
+                       break;
+                   default:
+                       applyClass(TH, 'HTlightgreen');
+                       break;
+
+               }
+           }
+       },
+       columns: [{
+               readOnly: true,
+               renderer: conditionalRenderer
+           },
+           {
+               readOnly: true,
+               renderer: conditionalRenderer
+           },
+           {
+               readOnly: true,
+               renderer: conditionalRenderer
+           },
+           //pesos octubre
+           {
+               readOnly: @(isActualOctubre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd octubre
+           {
+               readOnly: @(isActualOctubre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros octubre
+           {
+               readOnly: @(isActualOctubre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos noviembre
+           {
+               readOnly: @(isActualNoviembre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+
+           },
+           //usd noviembre
+           {
+               readOnly: @(isActualNoviembre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros noviembre
+           {
+               readOnly: @(isActualNoviembre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos diciembre
+           {
+               readOnly: @(isActualDiciembre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd diciembre
+           {
+               readOnly: @(isActualDiciembre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros diciembre
+           {
+               readOnly: @(isActualDiciembre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL diciembre
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos enero
+           {
+               readOnly: @(isActualEnero ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd enero
+           {
+               readOnly: @(isActualEnero ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros enero
+           {
+               readOnly: @(isActualEnero ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL enero
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos febrero
+           {
+               readOnly: @(isActualFebrero ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd febrero
+           {
+               readOnly: @(isActualFebrero ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros febrero
+           {
+               readOnly: @(isActualFebrero ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL febrero
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos marzo
+           {
+               readOnly: @(isActualMarzo ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd marzo
+           {
+               readOnly: @(isActualMarzo ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros marzo
+           {
+               readOnly: @(isActualMarzo ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL marzo
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos abril
+           {
+               readOnly: @(isActualAbril ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd abril
+           {
+               readOnly: @(isActualAbril ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros abril
+           {
+               readOnly: @(isActualAbril ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL abril
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos mayo
+           {
+               readOnly: @(isActualMayo ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd mayo
+           {
+               readOnly: @(isActualMayo ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros mayo
+           {
+               readOnly: @(isActualMayo ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL mayo
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos junio
+           {
+               readOnly: @(isActualJunio ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd junio
+           {
+               readOnly: @(isActualJunio ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros junio
+           {
+               readOnly: @(isActualJunio ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos julio
+           {
+               readOnly: @(isActualJulio ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd julio
+           {
+               readOnly: @(isActualJulio ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros julio
+           {
+               readOnly: @(isActualJulio ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL julio
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos agosto
+           {
+               readOnly: @(isActualAgosto ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd agosto
+           {
+               readOnly: @(isActualAgosto ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros agosto
+           {
+               readOnly: @(isActualAgosto ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL agosto
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //pesos septiembre
+           {
+               readOnly: @(isActualSeptiembre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //usd septiembre
+           {
+               readOnly: @(isActualSeptiembre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // this is the default culture, set up for USD
+               },
+               width: 90
+           },
+           //euros septiembre
+           {
+               readOnly: @(isActualSeptiembre ? "true" : "false"),
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //USD LOCAL septiembre
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           //mxn total
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+            //USD total
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+            //EUR total
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+            //USD total LOCAL
+           {
+               readOnly: true,
+               type: 'numeric',
+               numericFormat: {
+                   pattern: '$ 0,0.00',
+                   culture: 'en-US' // alemania
+               },
+               width: 90
+           },
+           { //target
+               readOnly: true, // Solo lectura
+               type: 'numeric', // O el tipo que convenga, por ejemplo 'text' si es string
+               renderer: targetRenderer,
+               width: 90
+           },
+           //comentarios
+           {
+                readOnly: @(!rel_presente.estatus || info ? "true" : "false"),
+                validator: function(value, callback) {
+                   let max = 200;
+                   if (value != null && value.length > max) {
+                       toastMixin.fire({
+                           title: 'Este campo debe ser de ' + max + ' carácteres o menos. Los carácteres extras serán eliminados.',
+                           icon: 'warning'
+                       });
+                       this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                   }
+                   callback(true);
+               },
+               width: 200
+           },
+           {
+               type: 'text'
+           },
+           {
+               type: 'text'
+           },
+           {
+               type: 'text'
+           },
+           {
+               type: 'text'
+           },
+           { readOnly: true, className: 'htMiddle', renderer: "html" },
+           {
+               type: 'text'
+           }
+
+       ],
+       cells: function(row, col) {
+           let cellProperties = {}
+
+           //coloca estilo para totales
+           switch (col) {
+               case 6:
+               case 10:
+               case 14:
+               case 18:
+               case 22:
+               case 26:
+               case 30:
+               case 34:
+               case 38:
+               case 42:
+               case 46:
+               case 50:
+               case 51: //totales
+               case 52: //totales
+               case 53: //totales
+               case 54: //totales
+                   cellProperties.className = 'htRight';
+                   cellProperties.renderer = 'boldCurrencyStylesRenderer'
+                   break;
+           }
+
+           return cellProperties
+       },
+       hiddenColumns: {
+           // specify columns hidden by default
+           columns: [getColumnIndexByName( "AplicaFormula"),
+               getColumnIndexByName( "AplicaMXN"),
+               getColumnIndexByName( "AplicaUSD"),
+               getColumnIndexByName( "AplicaEUR"),
+               getColumnIndexByName( "AplicaGastos"),
+
+           ],
+           //indicators: true,
+       },
+       filters: false,
+       search: {
+           callback: searchResultCounter
+       },
+       fixedColumnsStart: 3,
+       fixedRowsBottom: 1,
+       manualColumnResize: false,
+       rowHeaders: true,
+       height: '550px',
+       wordWrap: false, // Desactiva el ajuste de texto en TODAS las celdas
+       comments: true,
+       formulas: {
+           engine: hyperformulaInstance,
+           sheetName: 'Sheet2'
+       },
+       // contextMenu: ['undo', 'redo', '---------', 'cut', 'copy', '---------', 'commentsAddEdit', 'commentsRemove', 'calcular'],
+       licenseKey: 'non-commercial-and-evaluation'
+   });
+
+    //variable para toast
+   var toastMixin = Swal.mixin({
+       toast: true,
+       icon: 'success',
+       iconColor: 'white',
+       customClass: {
+           popup: 'colored-toast'
+       },
+       animation: false,
+       position: 'top-right',
+       showConfirmButton: false,
+       timer: 3000,
+       timerProgressBar: true,
+       didOpen: (toast) => {
+           toast.addEventListener('mouseenter', Swal.stopTimer)
+           toast.addEventListener('mouseleave', Swal.resumeTimer)
+       }
+   });
+
+   //render para currency no editable
+   Handsontable.renderers.registerRenderer('boldCurrencyStylesRenderer', (instance, TD, row, col, prop, value, cellProperties) => {
+       Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties);
+       TD.style.fontWeight = 'bold';
+       TD.style.textAlignment = 'Right';
+
+       if (value != null && value !== '') {
+           TD.innerHTML = `$ ${Number(value).toLocaleString('en-US', {
+                    style: 'decimal',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                })}`
+       }
+   });
+
+   Handsontable.renderers.registerRenderer('aplicaFormulaRenderer', (instance, TD, row, col, prop, value, cellProperties) => {
+       Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties);
+       $(TD).addClass("aplica-formula");
+   });
+
+
+   jQuery(function() {
+       //jQuery('#myTab a:last').tab('show')
+   });
+
+
+   $(document).ready(function() {
+
+
+       cargaDatosIniciales();
+
+       $("#btn_aceptar_modal").on("click", function() {
+           ActualizaCalculo()
+       });
+
+       $("#btn-submit").on("click", function() {
+           EnviaFormulario(false)
+       });
+       $("#btn-submit-salir").on("click", function() {
+           EnviaFormulario(true)
+       });
+
+       $("#btn-clear_filters").on("click", function() {
+           //para busqueda
+           $('#search_field').val('');
+           hot2.scrollViewportTo(0)
+           hot2.render();
+
+       });
+
+      // setTimeout(Recordatorio, 600000); //diez minutos
+
+       //para busqueda
+       const searchField = document.querySelector('#search_field');
+
+       const debouncedSearch = debounce(function (event) {
+           const search = hot2.getPlugin('search');
+           const queryResult = search.query(event.target.value);
+           if (queryResult.length > 0) {
+               hot2.scrollViewportTo(queryResult[0].row);
+           }
+           hot2.render();
+       }, 600);
+
+       searchField.addEventListener('keyup', debouncedSearch);
+
+       $.unblockUI();
+
+   });
+
+        function searchResultCounter(instance, row, col, value, result) {
+            const DEFAULT_CALLBACK = function (instance, row, col, data, testResult) {
+                if (col === 0 || col === 1 || col === 2) {
+                    instance.getCellMeta(row, col).isSearchResult = testResult;
+                }
+            };
+
+            DEFAULT_CALLBACK.apply(this, arguments);
+
+            if (result) {
+                searchResultCount++;
+            }
+        }
+
+    //Actualiza el calculo de conceptos por formula
+   function ActualizaCalculo() {
+
+
+       let _readOnly = $('#_readonly').val();
+       let rowFormula = $('#row_formula').val();
+       let columnFormula = $('#column_formula').val();
+       let id_budget_cantidad = $('#id_budget_cantidad').val();
+       let _cuenta_sap = $('#_cuenta_sap').val();
+       let _id_bd_fy_centro = $('#_id_bd_fy_centro').val();
+       let _mes = $('#_mes').val();
+       let _currency = $('#_currency').val();
+       let comentarioErrores = 0;
+
+       //si es readonly guarda el valor en la tabla
+       if (_readOnly == '@(false)') {
+
+           //Debe validar que el formulario es valido (comentario valor)
+
+           let claves = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm'];
+
+           claves.forEach(function (elemento, indice, array) {
+
+               if (document.getElementById("val_" + elemento) && document.getElementById("comentario_" + elemento)) {
+                   let val = $('#val_' + elemento).val();
+                   let coment = $('#comentario_' + elemento).val();
+
+
+                   if ((val != "" && coment == "") || (val == "" && coment != "")) {
+                       comentarioErrores++;
+                   }
+               }
+           });
+
+
+           if (comentarioErrores != 0) {
+               toastMixin.fire({
+                   icon: "error",
+                   title: "Verifique que cada cantidad tenga una descripción y viceversa."
+               });
+           } else { //no hay errores, guarda de forma temporal los datos
+               //console.log($('#val_result').val())
+               hot2.setDataAtCell(Number(rowFormula), Number(columnFormula), $('#val_result').val());
+
+               conceptos_calculados = conceptos_calculados.filter((element) => element[4] !== _cuenta_sap.toString() || element[1] !== columnFormula.toString());
+
+               if (document.getElementById("val_a")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_a').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_a').val(), $('#val_a').val(), document.getElementById("comentario_a") ? $('#comentario_a').val() : ""])
+               }
+               if (document.getElementById("val_b")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_b').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_b').val(), $('#val_b').val(), document.getElementById("comentario_b") ? $('#comentario_b').val() : ""])
+               }
+               if (document.getElementById("val_c")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_c').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_c').val(), $('#val_c').val(), document.getElementById("comentario_c") ? $('#comentario_c').val() : ""])
+               }
+               if (document.getElementById("val_d")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_d').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_d').val(), $('#val_d').val(), document.getElementById("comentario_d") ? $('#comentario_d').val() : ""])
+               }
+               if (document.getElementById("val_e")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_e').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_e').val(), $('#val_e').val(), document.getElementById("comentario_e") ? $('#comentario_e').val() : ""])
+               }
+               if (document.getElementById("val_f")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_f').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_f').val(), $('#val_f').val(), document.getElementById("comentario_f") ? $('#comentario_f').val() : ""])
+               }
+               if (document.getElementById("val_g")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_g').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_g').val(), $('#val_g').val(), document.getElementById("comentario_g") ? $('#comentario_g').val() : ""])
+               }
+               if (document.getElementById("val_h")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_h').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_h').val(), $('#val_h').val(), document.getElementById("comentario_h") ? $('#comentario_h').val() : ""])
+               }
+               if (document.getElementById("val_i")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_i').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_i').val(), $('#val_i').val(), document.getElementById("comentario_i") ? $('#comentario_i').val() : ""])
+               }
+               if (document.getElementById("val_j")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_j').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_j').val(), $('#val_j').val(), document.getElementById("comentario_j") ? $('#comentario_j').val() : ""])
+               }
+               if (document.getElementById("val_k")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_k').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_k').val(), $('#val_k').val(), document.getElementById("comentario_k") ? $('#comentario_k').val() : ""])
+               }
+               if (document.getElementById("val_l")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_l').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_l').val(), $('#val_l').val(), document.getElementById("comentario_l") ? $('#comentario_l').val() : ""])
+               }
+               if (document.getElementById("val_m")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_m').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_m').val(), $('#val_m').val(), document.getElementById("comentario_m") ? $('#comentario_m').val() : ""])
+               }
+           }
+       }
+
+       console.log('errores: ' + comentarioErrores)
+
+       if (comentarioErrores == 0) {
+           $('#modalCalculo').modal('hide')
+       }
+   }
+    //obtiene una copia del ht activo
+        function ObtieneHotActivo() {
+
+            let ht_copia;
+
+              if (hot2.getSelected() !== undefined) {
+                  ht_copia = hot2;
+              }
+
+
+            return ht_copia;
+        }
+
+   //realiza llamada ajax para cargar el formulario
+   function ObtieneForm(row, column, cuenta_sap, id_bd_fy_centro, mes, currency, isReadonly) {
+
+       let copia_ht = ObtieneHotActivo();
+
+       //ver si es posible obtener los valores del array conceptos_calculados
+       var datosPrevios = conceptos_calculados.filter((element) => element[4] === cuenta_sap && element[1] === column.toString());
+       let _a = "",
+           _b = "",
+           _c = "",
+           _d = "",
+           _e = "",
+           _f = "",
+           _g = "",
+           _h = "",
+           _i = "",
+           _j = "",
+           _k = "";
+           _l = "";
+            _m = "";
+           //para comentarios
+       let c_a = "",
+           c_b = "",
+           c_c = "",
+           c_d = "",
+           c_e = "",
+           c_f = "",
+           c_g = "",
+           c_h = "",
+           c_i = "",
+           c_j = "",
+           c_k = "";
+           c_l = "";
+           c_m = "";
+
+       //asigna los valores
+       try {
+           _a = datosPrevios.filter((element) => element[3] === 'a')[0][9];
+           c_a = datosPrevios.filter((element) => element[3] === 'a')[0][10];
+       } catch {}
+       try {
+           _b = datosPrevios.filter((element) => element[3] === 'b')[0][9];
+           c_b = datosPrevios.filter((element) => element[3] === 'b')[0][10];
+       } catch {}
+       try {
+           _c = datosPrevios.filter((element) => element[3] === 'c')[0][9];
+           c_c = datosPrevios.filter((element) => element[3] === 'c')[0][10];
+       } catch {}
+       try {
+           _d = datosPrevios.filter((element) => element[3] === 'd')[0][9];
+           c_d = datosPrevios.filter((element) => element[3] === 'd')[0][10];
+       } catch {}
+       try {
+           _e = datosPrevios.filter((element) => element[3] === 'e')[0][9];
+           c_e = datosPrevios.filter((element) => element[3] === 'e')[0][10];
+       } catch {}
+       try {
+           _f = datosPrevios.filter((element) => element[3] === 'f')[0][9];
+           c_f = datosPrevios.filter((element) => element[3] === 'f')[0][10];
+       } catch {}
+       try {
+           _g = datosPrevios.filter((element) => element[3] === 'g')[0][9];
+           c_g = datosPrevios.filter((element) => element[3] === 'g')[0][10];
+       } catch {}
+       try {
+           _h = datosPrevios.filter((element) => element[3] === 'h')[0][9];
+           c_h = datosPrevios.filter((element) => element[3] === 'h')[0][10];
+       } catch {}
+       try {
+           _i = datosPrevios.filter((element) => element[3] === 'i')[0][9];
+           c_i = datosPrevios.filter((element) => element[3] === 'i')[0][10];
+       } catch {}
+       try {
+           _j = datosPrevios.filter((element) => element[3] === 'j')[0][9];
+           c_j = datosPrevios.filter((element) => element[3] === 'j')[0][10];
+       } catch {}
+       try {
+           _k = datosPrevios.filter((element) => element[3] === 'k')[0][9];
+           c_k = datosPrevios.filter((element) => element[3] === 'k')[0][10];
+       } catch {}
+       try {
+           _l = datosPrevios.filter((element) => element[3] === 'l')[0][9];
+           c_l = datosPrevios.filter((element) => element[3] === 'l')[0][10];
+       } catch {}
+       try {
+           _m = datosPrevios.filter((element) => element[3] === 'm')[0][9];
+           c_m = datosPrevios.filter((element) => element[3] === 'm')[0][10];
+       } catch {}
+
+       //llamada ajax para obtener el detalle del item  seleccionado
+       $.ajax({
+           type: 'POST',
+           url: '/budget_cantidad_forecast/CargaFormFormula',
+           data: {
+               row: row,
+               column: column,
+               cuenta_sap: cuenta_sap,
+               id_bd_fy_centro: id_bd_fy_centro,
+               mes: mes,
+               currency: currency,
+               datosPrevios: datosPrevios.length > 0,
+               readOnly: isReadonly,
+               valor_actual: copia_ht.getDataAtCell(row, column),
+               a: _a,
+               b: _b,
+               c: _c,
+               d: _d,
+               e: _e,
+               f: _f,
+               g: _g,
+               h: _h,
+               i: _i,
+               j: _j,
+               k: _k,
+               l: _l,
+               m: _m,
+               c_a: c_a,
+               c_b: c_b,
+               c_c: c_c,
+               c_d: c_d,
+               c_e: c_e,
+               c_f: c_f,
+               c_g: c_g,
+               c_h: c_h,
+               c_i: c_i,
+               c_j: c_j,
+               c_k: c_k,
+               c_l: c_l,
+               c_m: c_m,
+
+           },
+           success: function(data) {
+               try {
+                   // console.log(data);
+                   if (data[0].estatus == "OK") {
+                       $('#id_modal_body').html(data[0].html);
+                       //cambia el titulo del modal
+                       $('#exampleModalLongTitle').html(copia_ht.getDataAtCell(row, 1));
+                       //agrega la clase que determina el tamaño
+                       if (data[0].tieneComentarios == "true") {
+                           $('#modal-class').addClass('modal-lg')
+                       } else {
+                           $('#modal-class').removeClass('modal-lg')
+                       }
+
+                       //LLama a select2
+                       $('.select2bs4').select2({
+                           theme: 'bootstrap4'
+                       })
+
+                       $('#modalCalculo').modal('show')
+                       AsignaEventos();
+                       ActualizaCantidadInput();
+                   } else { //en caso de que el mensaje no sea exitoso muestra mensaje
+                       Swal.fire({
+                           icon: 'info',
+                           title: 'Mensaje',
+                           text: 'No hay un formula asociada para el cálculo.'
+                       })
+                   }
+
+               } catch (error) {
+                   Swal.fire({
+                       icon: 'error',
+                       title: 'Error',
+                       text: 'Ocurrió un error obteniendo la información: ' + error,
+                       confirmButtonText: 'Aceptar',
+                   })
+               }
+           },
+           error: function(errorMsg) {
+               //Execute this function when the request fails
+               Swal.fire({
+                   icon: 'error',
+                   text: 'Ocurrió un error al obtener la información.',
+               })
+           },
+           async: false
+       });
+
+   }
+
+   function AsignaEventos() {
+
+       //input mask
+       $('.concepto-formula').inputmask({
+           'alias': 'decimal',
+           'groupSeparator': ',',
+           'autoGroup': true,
+           'digits': 2,
+           'digitsOptional': false,
+           'allowMinus': false,
+           'placeholder': '0',
+           'autoUnmask': true,
+           'removeMaskOnSubmit': true
+       });
+
+
+       //Agrega el evento a todos los input
+       $(".concepto-formula").each(function() {
+           $(this).on('keyup change clear input', function(e) {
+
+               ActualizaCantidadInput();
+           });
+       });
+   }
+
+   function ActualizaCantidadInput() {
+
+       //obtiene todos los valores posibles
+       let v_a = 0,
+           v_b = 0,
+           v_c = 0,
+           v_d = 0,
+           v_e = 0,
+           v_f = 0,
+           v_g = 0,
+           v_h = 0,
+           v_i = 0,
+           v_j = 0,
+           v_k = 0,
+           v_l = 0,
+           v_m = 0;
+
+       if (document.getElementById("val_a")) {
+           v_a = $('#val_a').val() == "" ? "0" : $('#val_a').val();
+       }
+       if (document.getElementById("val_b")) {
+           v_b = $('#val_b').val() == "" ? "0" : $('#val_b').val();
+       }
+       if (document.getElementById("val_c")) {
+           v_c = $('#val_c').val() == "" ? "0" : $('#val_c').val();
+       }
+       if (document.getElementById("val_d")) {
+           v_d = $('#val_d').val() == "" ? "0" : $('#val_d').val();
+       }
+       if (document.getElementById("val_e")) {
+           v_e = $('#val_e').val() == "" ? "0" : $('#val_e').val();
+       }
+       if (document.getElementById("val_f")) {
+           v_f = $('#val_f').val() == "" ? "0" : $('#val_f').val();
+       }
+       if (document.getElementById("val_g")) {
+           v_g = $('#val_g').val() == "" ? "0" : $('#val_g').val();
+       }
+       if (document.getElementById("val_h")) {
+           v_h = $('#val_h').val() == "" ? "0" : $('#val_h').val();
+       }
+       if (document.getElementById("val_i")) {
+           v_i = $('#val_i').val() == "" ? "0" : $('#val_i').val();
+       }
+       if (document.getElementById("val_j")) {
+           v_j = $('#val_j').val() == "" ? "0" : $('#val_j').val();
+       }
+       if (document.getElementById("val_k")) {
+           v_k = $('#val_k').val() == "" ? "0" : $('#val_k').val();
+       }
+       if (document.getElementById("val_l")) {
+           v_l = $('#val_l').val() == "" ? "0" : $('#val_l').val();
+       }
+       if (document.getElementById("val_m")) {
+           v_m = $('#val_m').val() == "" ? "0" : $('#val_m').val();
+       }
+
+       //calcula el resultado
+       let formulatxt = $('#formula').val();
+
+       formulatxt = formulatxt.replace("a", v_a).replace("b", v_b).replace("c", v_c).replace("d", v_d).replace("e", v_e).replace("f", v_f)
+           .replace("g", v_g).replace("h", v_h).replace("i", v_i).replace("j", v_j).replace("k", v_k).replace("l", v_l).replace("m", v_m)
+
+
+       try {
+           if (formulatxt != null && formulatxt != "") {
+               $('#val_result').val(eval(formulatxt));
+           }
+       } catch {
+           $('#val_result').val(eval(''));
+       }
+   }
+
+    function ResetScroll() {
+        hot2.scrollViewportTo(0, 0)
+    }
+
+
+   function EnviaFormulario(salir) {
+
+       //borra los filtros
+       //hot2.getPlugin('Filters').clearConditions();
+       //hot2.getPlugin('Filters').filter();
+       hot2.render();
+
+       //convierte los elementos del array en string
+       let arrayToString = [];
+       let dataTable = hot2.getData();
+
+       //deja fuera la sumatorioa
+       for (var i = 0; i < dataTable.length; i++) {
+           arrayToString.push(dataTable[i]);
+       }
+       //console.log(JSON.stringify(arrayToString));
+
+       // console.log(JSON.stringify(arrayToString));
+
+       let exito = false;
+
+       hot2.validateCells((valid) => {
+           if (valid) {
+
+               // ... code for validated cells
+               $.ajax({
+                   type: "POST",
+                   dataType: "json",
+                   contentType: 'application/json; charset=utf-8',
+                   url: '/budget_cantidad_forecast/EditCentroHT?id=' + @rel_presente.id,
+                   data: JSON.stringify(arrayToString),
+                   success: function(data) {
+                       try {
+                           exito = true;
+                       } catch (error) {
+                           Swal.fire({
+                               icon: 'error',
+                               title: 'Error',
+                               text: 'Ocurrió un error obteniendo la información: ' + error,
+                               confirmButtonText: 'Aceptar',
+                           })
+                       }
+                   },
+                   error: function(textStatus, errorThrown) {
+                       //en caso de error en la llamada ajax
+                       console.log(textStatus);
+                       console.log(errorThrown);
+                       Swal.fire({
+                           icon: 'error',
+                           title: 'Ocurrió un error',
+                           text: 'Intente nuevamente.'
+                       })
+                   },
+                   async: false
+               });
+           } else {
+               Swal.fire({
+                   icon: 'warning',
+                   title: 'Mensaje',
+                   text: 'Para continuar, verifica que no haya celdas marcadas en color rojo.',
+               })
+               // console.log(hot.getData());
+
+           }
+
+           //let comentarios = GetComments();
+
+           //if (exito) {
+           //    exito = false;
+
+           //    $.ajax({
+           //        type: "POST",
+           //        dataType: "json",
+           //        contentType: 'application/json; charset=utf-8',
+           //        url: '/ResponsableBudget/SaveComments?id_rel=' + @rel_presente.id,
+               //    data: JSON.stringify(comentarios),
+               //    success: function(data) {
+               //        try {
+               //            exito = true;
+               //        } catch (error) {
+               //            Swal.fire({
+               //                icon: 'error',
+               //                title: 'Error',
+               //                text: 'Ocurrió un error obteniendo la información: ' + error,
+               //                confirmButtonText: 'Aceptar',
+               //            })
+               //        }
+               //    },
+               //    error: function(textStatus, errorThrown) {
+               //        //en caso de error en la llamada ajax
+               //        console.log(textStatus);
+               //        console.log(errorThrown);
+               //        Swal.fire({
+               //            icon: 'error',
+               //            title: 'Ocurrió un error',
+               //            text: 'Intente nuevamente.'
+               //        })
+               //    },
+               //    async: false
+               //});
+           //}
+
+           //conviete los concepto en formato para json
+           const options = conceptos_calculados.map(function (row) {
+               return { id_budget_cantidad: row[2], clave: row[3], cuenta_sap: row[4], id_rel_fy_centro: row[5], mes: row[6], currency: row[7], id_rel_conceptos: row[8], cantidad: row[9], comentario: row[10] }
+           })
+           //actualiza los conceptos
+           if (exito) {
+               exito = false;
+
+               $.ajax({
+                   type: "POST",
+                   dataType: "json",
+                   contentType: 'application/json; charset=utf-8',
+                   url: '/budget_cantidad_forecast/SaveConceptosCapturados?id_rel=' + @rel_presente.id,
+                   data: JSON.stringify(options),
+                   success: function(data) {
+
+                       try {
+
+                           let result = data.result == null ? data[0].result : data.result;
+
+                           toastMixin.fire({
+                               icon: data.icon == null ? data[0].icon : data.icon,
+                               title: data.message == null ? data[0].message : data.message
+                           });
+
+                           exito = true;
+
+                           if (salir && result == "OK") {
+                                   window.location.href = "../Centros/";
+                           }
+
+                       } catch (error) {
+                           Swal.fire({
+                               icon: 'error',
+                               title: 'Error',
+                               text: 'Ocurrió un error obteniendo la información: ' + error,
+                               confirmButtonText: 'Aceptar',
+                           })
+                       }
+                   },
+                   error: function(textStatus, errorThrown) {
+                       //en caso de error en la llamada ajax
+                       console.log(textStatus);
+                       console.log(errorThrown);
+                       Swal.fire({
+                           icon: 'error',
+                           title: 'Ocurrió un error',
+                           text: 'Intente nuevamente.'
+                       })
+                   },
+                   async: true
+               });
+           }
+
+
+       })
+
+   }
+
+    //render para target
+    function conditionalRenderer(instance, td, row, col, prop, value, cellProperties) {
+        // Llama al renderer por defecto para pintar el valor
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+        // Obtén el índice de la columna Total (Local - USD) y Target
+        var totalCol = getColumnIndexByName("Total (Local - USD)");
+        var targetCol = getColumnIndexByName("Target");
+
+
+
+        // Obtén los valores de Total y Target para esta fila
+        var totalValue = parseFloat(instance.getDataAtCell(row, totalCol)) || 0;
+        var targetValue = parseFloat(instance.getDataAtCell(row, targetCol)) || 0;
+
+        // Limpia estilos anteriores (si los hubiera)
+        td.style.backgroundColor = "";
+
+        // Aplica el estilo según la comparación
+        if (targetValue > 0) { // evitar división por cero o comparación errónea
+            if (totalValue > targetValue) {
+                td.style.backgroundColor = "#FF9191"; // Total mayor que Target
+            } else if (totalValue >= 0.8 * targetValue) {
+                td.style.backgroundColor = "#FFCD90"; // Total mayor o igual al 80% de Target
+            }
+        }
+    }
+
+
+   //crea validadores
+   function DefineValidadores() {
+
+       //validador número positivos
+       (Handsontable => {
+           function customValidator(query, callback) {
+
+
+               let num = parseFloat(query);
+               if (!isNaN(query) && num >= 0 || (query == null || query == ''))
+                   callback(true);
+               else
+                   callback(false);
+
+           }
+
+           // Register an alias
+           Handsontable.validators.registerValidator('positivesNumbers', customValidator);
+
+       })(Handsontable);
+
+       //validador número negativos
+       (Handsontable => {
+           function customValidator(query, callback) {
+               try {
+                   let num = parseFloat(query);
+                   if (!isNaN(query) && num <= 0 || (query == null || query == ''))
+                       callback(true);
+                   else
+                       callback(false);
+               } catch (error) {
+                   console.log('error al validar negativo: ' + error)
+                   callback(false);
+               }
+           }
+
+           // Register an alias
+           Handsontable.validators.registerValidator('negativesNumbers', customValidator);
+
+       })(Handsontable);
+
+       //validador porcentaje 0-100
+       (Handsontable => {
+           function customValidator(query, callback) {
+               try {
+                   let num = parseFloat(query);
+                   if (!isNaN(query) && num >= 0 && num <= 100 || (query == null || query == ''))
+                       callback(true);
+                   else
+                       callback(false);
+               } catch (error) {
+                   console.log('error al validar porcentaje: ' + error)
+                   callback(false);
+               }
+           }
+
+           // Register an alias
+           Handsontable.validators.registerValidator('percentageNumbers', customValidator);
+
+       })(Handsontable);
+
+
+   }
+
+   //render para porcentaje
+   function myPercentage(instance, td, row, col, prop, value, cellProperties) {
+       Handsontable.renderers.TextRenderer.apply(this, arguments);
+       //console.log(value)
+       if (!isNaN(value) && value != null && value != '') {
+           td.innerHTML = `${value} %`
+       }
+
+        }
+
+    //render para target, cero no se muestra
+    function targetRenderer(instance, td, row, col, prop, value, cellProperties) {
+        // Llama al renderer por defecto (TextRenderer)
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+        // Agrega la clase htRight
+        Handsontable.dom.addClass(td, 'htRight');
+
+        // Convierte el valor a número (por si viene como string)
+        const numericValue = parseFloat(value) || 0;
+
+        // Si es cero, muestra vacío
+        if (numericValue === 0) {
+        td.innerHTML = '';
+        } else {
+        // Caso contrario, muéstralo formateado como moneda
+        td.innerHTML = `$ ${numericValue.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}`;
+        }
+    }
+
+
+    function CargaComentarios(opcion) {
+                
+        let cm;
+
+       $.ajax({
+           type: 'POST',
+           url: '/ResponsableBudget/CargaFYComentarios',
+           data: {
+               id_centro_costo: @Model.id,
+               id_fy: @rel_presente.id_anio_fiscal,
+               id_fy_cc: @rel_presente.id,
+               controlling: "@(controlling)",
+           },
+           success: function(data) {
+               try {
+                   cm = data;
+               } catch (error) {
+                   Swal.fire({
+                       icon: 'error',
+                       title: 'Error',
+                       text: 'Ocurrió un error obteniendo la información: ' + error,
+                       confirmButtonText: 'Aceptar',
+                   })
+               }
+           },
+           error: function(errorMsg) {
+               //Execute this function when the request fails
+               Swal.fire({
+                   icon: 'error',
+                   text: 'Ocurrió un error al obtener la información.',
+               })
+           },
+           async: false
+       });
+
+        return cm;
+   }
+
+   //obtiene los comentarios
+   function GetComments() {
+       var comments = hot2.getCellsMeta().filter(function(meta) {
+           return meta.comment !== void 0;
+       }).map(function(meta) {
+
+           let cuenta_sap = hot2.getDataAtCell(meta.row, 0);
+           return {
+               id_budget_rel_fy_centro: @rel_presente.id,
+               numero_cuenta_sap: cuenta_sap,
+               mes: getMonthByColumn(meta.col),
+               currency_iso: columnasMonedaLocal.includes(meta.col) ? "USD" : headers2[meta.col],
+               moneda_local_usd: columnasMonedaLocal.includes(meta.col),
+               comentario: meta.comment.value,
+           }
+       });
+
+       return comments;
+    }
+
+   function cargaDatosIniciales() {
+
+       $.ajax({
+           type: 'POST',
+           url: '/budget_cantidad_forecast/CargaForecastFY',
+           data: {
+               id_centro_costo: @Model.id,
+               id_fy: @rel_presente.id_anio_fiscal
+           },
+           success: function(data) {
+               try {
+                   //console.log(data);
+                   hot2.loadData(data);
+
+                   let cm = CargaComentarios(2);
+
+                   //actualiza la confuguracion de la tabla
+                   hot2.updateSettings({
+                       cells: function(row, col) {
+                           var cellProperties = {};
+
+                           //obtiene el sufijo para saber si es editable
+                           let suffix = '';
+                           switch (col) {
+                               case 3:
+                               case 7:
+                               case 11:
+                               case 15:
+                               case 19:
+                               case 23:
+                               case 27:
+                               case 31:
+                               case 35:
+                               case 39:
+                               case 43:
+                               case 47:
+                                   suffix = 'MXN';
+                                   break;
+                               case 4:
+                               case 8:
+                               case 12:
+                               case 16:
+                               case 20:
+                               case 24:
+                               case 28:
+                               case 32:
+                               case 36:
+                               case 40:
+                               case 44:
+                               case 48:
+                                   suffix = 'USD';
+                                   break;
+                               case 5:
+                               case 9:
+                               case 13:
+                               case 17:
+                               case 21:
+                               case 25:
+                               case 29:
+                               case 33:
+                               case 37:
+                               case 41:
+                               case 45:
+                               case 49:
+                                   suffix = 'EUR';
+                                   break;
+                           }
+
+                            //determina si el campo es readonly, segun el tipo de moneda
+                           if (columnasEditables.includes(col) ) {
+
+                               let clase = '';
+
+                               if (hot2.getDataAtCell(row, getColumnIndexByName( "AplicaGastos")) == '@(true)') {
+                                   let valor = hot2.getDataAtCell(row, col);
+
+                                   if (valor == "")
+                                       valor = 0;
+
+                                   let mes = getMonthByColumn(col);
+                                   let cuentaSAP = hot2.getDataAtCell(row, 0)
+                                   let currency = headers2[col];
+                                   //busca el valor qie coincida
+                                   //console.log(cuentaSAP + " | " + currency + " | " + mes)
+
+                                   let resultadoBusqueda = arraySugeridos.filter((element) => element[0] === cuentaSAP.toString() && element[1] === currency && element[2] === mes.toString())
+                                   let sugerido = 0;
+                                   if (resultadoBusqueda[0] !== undefined)
+                                       sugerido = Number(resultadoBusqueda[0][3])
+
+                                   //console.log("actual: " + valor + " - sugerido: " + sugerido)
+
+                                   if (Number(valor) != sugerido)
+                                        clase = 'diferencia-sugerido ';
+                               }
+
+                               if (hot2.getDataAtCell(row, getColumnIndexByName( "Aplica" + suffix)) == '@(false)') {
+                                   cellProperties.readOnly = true;
+                                   cellProperties.className = clase+'no-comments';
+                               } else if (hot2.getDataAtCell(row, getColumnIndexByName( "AplicaFormula")) === '@(true)') {
+                                   cellProperties.readOnly = true;
+                                   cellProperties.className =clase +'aplica-formula';
+                               }
+
+
+                           }
+                           //aplica formato para formula readonly
+                           if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, getColumnIndexByName( "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, getColumnIndexByName( "Aplica" + suffix)) == '@(true)') {
+                               cellProperties.className = 'aplica-form-readonly';
+                           }
+
+                           //vuelve readonly la última fila (totales)
+                           if (row == hot2.countRows() - 1) {
+                               cellProperties.readOnly = true;
+                           }
+                           return cellProperties;
+                       },
+
+                       contextMenu: {
+                           items: {
+                               undo: {
+                                   name: 'Deshacer'
+                               },
+                               redo: {
+                                   name: 'Rehacer'
+                               },
+                               copy: {
+                                   name: 'Copiar'
+                               },
+                               sp1: '---------',
+                               commentsAddEdit: {
+                                   name: 'Agregar/Editar comentarios',
+                                   hidden() { // `hidden` can be a boolean or a function
+                                       // Hide the option when a column with no formula is selected
+                                       let rowSelected = this.getSelectedLast()[0];
+                                       let columnSelected = this.getSelectedLast()[1];
+
+                                       //si se hace clic en el header oculta la opcion de comentarios
+                                       if (rowSelected < 0 || columnSelected < 0)
+                                           return true;
+
+                                       let _class = hot2.getCell(rowSelected, columnSelected, false).getAttribute("class");
+                                       let noComments = _class.includes("no-comments");
+
+                                       return (!columnasEditables.includes(columnSelected) && !columnasSumatoriasComentarioEditable.includes(columnSelected)) || noComments; // `this` === hot
+                                   },
+                               },
+                               commentsRemove: {
+                                   name: 'Eliminar comentarios',
+                                   hidden() { // `hidden` can be a boolean or a function
+                                       // Hide the option when a column with no formula is selected
+                                       let rowSelected = this.getSelectedLast()[0];
+                                       let columnSelected = this.getSelectedLast()[1];
+
+                                       //si se hace clic en el header oculta la opcion de comentarios
+                                       if (rowSelected < 0 || columnSelected < 0)
+                                           return true;
+
+                                       return !columnasEditables.includes(columnSelected) && !columnasSumatoriasComentarioEditable.includes(columnSelected); // `this` === hot
+                                   },
+                               },
+                               sp2: '---------',
+                               habilitaCelda: {
+                                   name() { // `name` can be a string or a function
+                                       return '<i>Habilitar Celda</i>'; // Name can contain HTML
+                                   },
+                                   hidden() {
+                                       //console.log(columnasEditables)
+                                       let columnSelected = this.getSelectedLast()[1];
+                                       return "@controlling" === "@(false)" || !columnasEditables.includes(columnSelected)
+                                   },
+                                   callback(key, selection, clickEvent) { // Callback for specific option
+                                      let rowSelected = this.getSelectedLast()[0];
+                                       let columnSelected = this.getSelectedLast()[1];
+
+                                       //console.log("row: " + rowSelected + "col: " + columnSelected)
+
+                                       //habilita la celda
+                                       hot2.updateSettings({
+                                           cells: function(row, col) {
+                                           var cellProperties = {};
+
+                                           //habilita la celda
+                                               if (row == rowSelected && col == columnSelected) {
+                                                   cellProperties.readOnly = false;
+                                                   return cellProperties;
+                                               } else {
+
+                                                   //obtiene el sufijo para saber si es editable
+                                                   let suffix = '';
+                                                   switch (col) {
+                                                       case 3:
+                                                       case 7:
+                                                       case 11:
+                                                       case 15:
+                                                       case 19:
+                                                       case 23:
+                                                       case 27:
+                                                       case 31:
+                                                       case 35:
+                                                       case 39:
+                                                       case 43:
+                                                       case 47:
+                                                           suffix = 'MXN';
+                                                           break;
+                                                       case 4:
+                                                       case 8:
+                                                       case 12:
+                                                       case 16:
+                                                       case 20:
+                                                       case 24:
+                                                       case 28:
+                                                       case 32:
+                                                       case 36:
+                                                       case 40:
+                                                       case 44:
+                                                       case 48:
+                                                           suffix = 'USD';
+                                                           break;
+                                                       case 5:
+                                                       case 9:
+                                                       case 13:
+                                                       case 17:
+                                                       case 21:
+                                                       case 25:
+                                                       case 29:
+                                                       case 33:
+                                                       case 37:
+                                                       case 41:
+                                                       case 45:
+                                                       case 49:
+                                                           suffix = 'EUR';
+                                                           break;
+                                                   }
+
+                                                   //determina si el campo es readonly, segun el tipo de moneda
+                                                   if (columnasEditables.includes(col)) {
+
+
+                                                       if (hot2.getDataAtCell(row, getColumnIndexByName( "Aplica" + suffix)) == '@(false)') {
+                                                           cellProperties.readOnly = true;
+                                                           cellProperties.className = 'no-comments';
+                                                       } else if (hot2.getDataAtCell(row, getColumnIndexByName( "AplicaFormula")) === '@(true)') {
+                                                           cellProperties.readOnly = true;
+                                                           cellProperties.className = 'aplica-formula';
+                                                       }
+                                                   }
+                                                   //aplica formato para formula readonly
+                                                   if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, getColumnIndexByName( "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, getColumnIndexByName( "Aplica" + suffix)) == '@(true)') {
+                                                       cellProperties.className = 'aplica-form-readonly';
+                                                   }
+
+                                                   //vuelve readonly la última fila (totales)
+                                                   if (row == hot2.countRows() - 1) {
+                                                       cellProperties.readOnly = true;
+                                                   }
+                                                   return cellProperties;
+                                               }
+                                        },
+                                       });
+
+                                      //console.log('HABILITANDO CELDA: ' + rowSelected + '-' + columnSelected)
+
+                                  }
+                               },
+                               aplicaFormula: { // Own custom option
+                                   name() { // `name` can be a string or a function
+                                       return '<b>Calcular...</b>'; // Name can contain HTML
+                                   },
+                                   //disabled() { // `disabled` can be a boolean or a function
+                                   //    // Disable option when first row was clicked
+                                   //    return this.getSelectedLast()[0] === 0; // `this` === hot
+                                   //},
+                                   hidden() { // `hidden` can be a boolean or a function
+                                       // Hide the option when a column with no formula is selected
+                                       let rowSelected = this.getSelectedLast()[0];
+                                       let columnSelected = this.getSelectedLast()[1];
+
+                                       //si se hace clic en el header oculta la opcion de comentarios
+                                       if (rowSelected < 0 || columnSelected < 0)
+                                           return true;
+
+                                       let _class = hot2.getCell(rowSelected, columnSelected, false).getAttribute("class");
+                                       let result = !_class.includes("aplica-formula");
+
+                                       return result; // `this` === hot
+                                   },
+                                   callback(key, selection, clickEvent) { // Callback for specific option
+                                       let rowSelected = this.getSelectedLast()[0];
+                                       let columnSelected = this.getSelectedLast()[1];
+                                       let cuenta_sap = hot2.getDataAtCell(rowSelected, 0);
+                                       let mes = getMonthByColumn(columnSelected);
+                                       let currency = headers2[columnSelected];
+
+                                       setTimeout(() => {
+                                           // console.log('Row: ' + rowSelected + ' Column: ' + columnSelected + ' Cuenta: ' + cuenta_sap + ' mes: ' + mes + ' currency:' + currency)
+                                           ObtieneForm(rowSelected, columnSelected, cuenta_sap, @rel_presente.id, mes, currency, false);
+
+                                       }, 0);
+                                   }
+                               }
+
+                           }
+                       },
+                       cell: cm
+                   });
+               } catch (error) {
+                   Swal.fire({
+                       icon: 'error',
+                       title: 'Error',
+                       text: 'Ocurrió un error obteniendo la información: ' + error,
+                       confirmButtonText: 'Aceptar',
+                   })
+               }
+           },
+           error: function(errorMsg) {
+               //Execute this function when the request fails
+               Swal.fire({
+                   icon: 'error',
+                   text: 'Ocurrió un error al obtener la información.',
+               })
+           },
+           async: false
+       });
+
+   }
+
+    //muestra la formula donde es necesario
+
+    document.body.addEventListener('dblclick', function (e) {
+        let hot2Activo = false;
+        let id_fy_cc_f = 0;
+        let ht_copia;
+
+        let seleccion;
+
+        if (hot2.getSelected() !== undefined) {
+            hot2Activo = true
+            ht_copia = hot2;
+            id_fy_cc_f = @rel_presente.id;
+        }
+
+
+        if (hot2Activo ) {
+            seleccion = ht_copia.getSelected();
+            let rowSelected = seleccion[0][0];
+            let columnSelected = seleccion[0][1];
+            cuenta_sap = ht_copia.getDataAtCell(rowSelected, 0);
+            let mes = getMonthByColumn(columnSelected);
+            let currency = headers2[columnSelected];
+
+            let _class = ht_copia.getCell(rowSelected, columnSelected, false).getAttribute("class");
+            let aplica_f = _class.includes("aplica-formula");
+            let aplica_f_r = _class.includes("aplica-form-readonly");
+
+            if (aplica_f || aplica_f_r) {
+                ObtieneForm(rowSelected, columnSelected, cuenta_sap, id_fy_cc_f, mes, currency, aplica_f_r);
+            }
+
+        }
+    })
+
+    //muestra formulario de documento soporte
+    function muestraSoporte(id_rel_fy_cc, id_cuenta_sap) {
+        //obtiene fila y columna
+        let rowSelected = hot2.getSelectedLast()[0];
+        let columnSelected = hot2.getSelectedLast()[1];
+
+        popupCenterRU({ url: '/@ViewBag.ControllerName/EditarSoporte/?id_rel_fy_cc=' + id_rel_fy_cc + '&id_cuenta_sap=' + id_cuenta_sap, title: 'Documento Soporte', w: screen.width * .60, h: screen.height * .60, id_rel_fy_cc: id_rel_fy_cc, id_cuenta_sap: id_cuenta_sap, columnSelected: columnSelected, rowSelected: rowSelected });
+    }
+
+   //determina el mes en base al número de columna
+   function getMonthByColumn(columnSelected) {
+       let m = 0;
+       switch (columnSelected) {
+           case 3:
+           case 4:
+           case 5:
+           case 6:
+               m = 10;
+               break;
+           case 7:
+           case 8:
+           case 9:
+           case 10:
+               m = 11;
+               break;
+           case 11:
+           case 12:
+           case 13:
+           case 14:
+               m = 12;
+               break;
+           case 15:
+           case 16:
+           case 17:
+           case 18:
+               m = 1;
+               break;
+           case 19:
+           case 20:
+           case 21:
+           case 22:
+               m = 2;
+               break;
+           case 23:
+           case 24:
+           case 25:
+           case 26:
+               m = 3;
+               break;
+           case 27:
+           case 28:
+           case 29:
+           case 30:
+               m = 4;
+               break;
+           case 31:
+           case 32:
+           case 33:
+           case 34:
+               m = 5;
+               break;
+           case 35:
+           case 36:
+           case 37:
+           case 38:
+               m = 6;
+               break;
+           case 39:
+           case 40:
+           case 41:
+           case 42:
+               m = 7;
+               break;
+           case 43:
+           case 44:
+           case 45:
+           case 46:
+               m = 8;
+               break;
+           case 47:
+           case 48:
+           case 49:
+           case 50:
+               m = 9;
+               break;
+       }
+
+       return m;
+   }
+
+
+
+   function GetColFromName(data, name) {
+       var n_cols = data.length;
+       var i = 1;
+
+       for (i = 1; i <= n_cols; i++) {
+           if (name.toLowerCase() == data[i].toLowerCase()) {
+               return i;
+           }
+       }
+       return -1; //return -1 if nothing can be found
+   }
+
+    const popupCenterRU = ({ url, title, w, h, id_rel_fy_cc, id_cuenta_sap, columnSelected, rowSelected }) => {
+            // Fixes dual-screen position                             Most browsers      Firefox
+            const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+            const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+
+            const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+            const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+            const systemZoom = width / window.screen.availWidth;
+            var left = (screen.width / 2) - (w / 2);
+            var top = (screen.height / 2) - (h / 2);
+
+            const newWindow = window.open(url, title,                `
+                   scrollbars=yes,
+                   width=${1000},
+                   height=${600},
+                   top=${top},
+                   left=${left}
+                 `
+            )
+
+            if (window.focus) newWindow.focus();
+
+            //DETERMINA SI LA VENTANA HA SIDO CERRADA
+            var tiempo = 0;
+            var interval = setInterval(function () {
+                //Comprobamos que la ventana no este cerrada
+                if (newWindow.closed !== false) {
+                    //Si la ventana ha sido cerrada, limpiamos el contador
+                    window.clearInterval(interval)
+
+                    //window.location.reload();
+                    ActualizaBoton(id_rel_fy_cc, id_cuenta_sap, rowSelected, columnSelected )
+
+                   // hot2.setDataAtCell(rowSelected, columnSelected, "<button>nuevo</button>");
+
+                    //Deshabilita el contador
+                    //stop = false;
+                } else {
+                    //Mientras no se cierra la ventana sumamos los segundos
+                    tiempo += 1;
+                }
+            }, 1000)
+
+        }
+
+    function ActualizaBoton(id_rel_fy_cc, id_cuenta_sap, rowSelected, columnSelected) {
+        //agrega evento OnChange para saber si el empleado tiene usuari
+            $.ajax({
+                type: 'POST',
+                url: '/ResponsableBudget/obtieneBotonDocumento',
+                data: { id_rel_fy_cc: id_rel_fy_cc, id_cuenta_sap: id_cuenta_sap },
+                success: function (data) {
+                    try {
+                        btnText = data[0].existe;
+                        if (data[0].correcto == true)
+                            hot2.setDataAtCell(rowSelected, columnSelected, data[0].html);
+
+                    }
+                    catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error obteniendo la información: ' + error,
+                            confirmButtonText: 'Aceptar',
+                        })
+                    }
+                },
+                error: function (textStatus, errorThrown) {
+                    //en caso de error en la llamada ajax
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ocurrió un error',
+                        text: 'Intente nuevamente.'
+                    })
+                },
+                async: false
+            });
+
+
+    }
+
+        //muestra el modal para bloquear
+        function showLockDialog(idRelFYCentro) {
+            Swal.fire({
+                title: 'Confirmation',
+                text: "Are you sure you want to lock this cost center?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    //bloquea el centro de costo
+                    $.ajax({
+                        type: 'POST',
+                        url: '/BudgetControlling/CambiaEstatusRelFYCentro',
+                        data: { idRelFYCentro: idRelFYCentro, activo: false },
+                        success: function (data) {
+                            try {
+                                console.log(data);
+                                if (data[0].Status == "OK") {
+                                    //en caso de exito
+                                    Swal.fire({
+                                        title: 'Confirmation',
+                                        text: "The cost center has been locked!",
+                                        confirmButtonText: 'OK',
+                                        allowOutsideClick: false
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            // Vuelve a cargar la página actual sin la caché del navegador
+                                            location.reload();
+                                        }
+                                    })
+
+                                } else { //en caso de que el mensaje no sea exitoso muestra mensaje
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Ocurrió un error',
+                                        text: 'Ha ocurrido un error, intente nuevamente.'
+                                    })
+                                }
+                            } catch (error) {
+                                //en caso de que no ser muestre info de ningun tipo muestra error
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Ocurrió un error',
+                                    text: 'Ha ocurrido un error, intente nuevamente.'
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Ha ocurrido un error, intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+
+                }
+            })
+
+        }
+
+        //muestra el modal para desbloquear
+        function showUnlockDialog(idRelFYCentro) {
+            Swal.fire({
+                title: 'Confirmation',
+                text: "Are you sure you want to unlock this cost center?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    //bloquea el centro de costo
+                    $.ajax({
+                        type: 'POST',
+                        url: '/BudgetControlling/CambiaEstatusRelFYCentro',
+                        data: { idRelFYCentro: idRelFYCentro, activo: true },
+                        success: function (data) {
+                            try {
+                                //console.log(data);
+                                if (data[0].Status == "OK") {
+                                    //en caso de exito
+                                    Swal.fire({
+                                        title: 'Confirmation',
+                                        text: "The cost center has been unlocked!",
+                                        confirmButtonText: 'OK',
+                                        allowOutsideClick: false
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            // Vuelve a cargar la página actual sin la caché del navegador
+                                            location.reload();
+                                        }
+                                    })
+
+                                } else { //en caso de que el mensaje no sea exitoso muestra mensaje
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Ocurrió un error',
+                                        text: 'Ha ocurrido un error, intente nuevamente.'
+                                    })
+                                }
+                            } catch (error) {
+                                //en caso de que no ser muestre info de ningun tipo muestra error
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Ocurrió un error',
+                                    text: 'Ha ocurrido un error, intente nuevamente.'
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Ha ocurrido un error, intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+
+                }
+            })
+
+        }
+
+
+   function Recordatorio() {
+       Swal.fire('Recordatorio', 'Recuerde guardar sus cambios constantemente, para evitar la pérdida de información.', 'info')
+       setTimeout(Recordatorio, 600000); //diez minutos
+    }
+
+    function debounce(fn, delay) {
+        let timer = null;
+        return function (...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                fn.apply(this, args);
+            }, delay);
+        };
+    }
+
+</script>
+
+}
