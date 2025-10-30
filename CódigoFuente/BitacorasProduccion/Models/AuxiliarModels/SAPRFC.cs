@@ -15,6 +15,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Planta (Opcional)")]
         public string Plant { get; set; }
 
+        [Display(Name = "Incluir Lotes")]
+        public bool GetBatchChars { get; set; } = false; // Mapea a IV_GET_BATCH_CHARS
+
         // Propiedades de control
         public bool QueryExecuted { get; set; } = false;
         public string ErrorMessage { get; set; }
@@ -86,7 +89,10 @@ namespace Portal_2_0.Models
         public List<DescriptionDataViewModel> Descriptions { get; set; } = new List<DescriptionDataViewModel>();
         public List<PlantDataViewModel> Plants { get; set; } = new List<PlantDataViewModel>();
         public List<CharDataViewModel> Characteristics { get; set; } = new List<CharDataViewModel>();
+        // Representa la tabla BATCH_DATA
+        public List<BatchDataViewModel> Batches { get; set; } = new List<BatchDataViewModel>();
     }
+
 
     // Representa ZSTR_RFC_DESC_DATA
     public class DescriptionDataViewModel
@@ -133,5 +139,24 @@ namespace Portal_2_0.Models
         public string Value_Desc_En { get; set; }
         public string Value_Desc_Es { get; set; }
         public string Unit { get; set; }
+    }
+
+    // Representa una fila de la tabla ZSTR_RFC_BATCH_DATA (implícita en tu ABAP)
+    public class BatchDataViewModel
+    {
+        [Display(Name = "Lote")]
+        public string Charg { get; set; } // MCHA-CHARG
+
+        [Display(Name = "Planta")]
+        public string Werks { get; set; } // MCHA-WERKS
+
+        [Display(Name = "Fecha Creación")]
+        public DateTime? Ersda { get; set; } // MCHA-ERSDA
+
+        [Display(Name = "Fecha Expiración")]
+        public DateTime? Vfdat { get; set; } // MCHA-VFDAT
+
+        // ¡Importante! La lista de características para ESTE lote
+        public List<CharDataViewModel> BatchChars { get; set; } = new List<CharDataViewModel>();
     }
 }
