@@ -4,13 +4,12 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3ed830eec3814b93918f9f12d6ee63ec" Name="Diagram1" ZoomLevel="111">
+      <Diagram DiagramId="3ed830eec3814b93918f9f12d6ee63ec" Name="Diagram1" ZoomLevel="66">
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="162.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetRoles" Width="1.5" PointX="1.5" PointY="159.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetUsers" Width="1.5" PointX="0.75" PointY="163.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.biblioteca_digital" Width="1.5" PointX="5.25" PointY="180" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="5.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.bom_pesos" Width="1.5" PointX="7.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.bom_pesos" PointX="23.375" PointY="23.75" Width="1.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_anio_fiscal" Width="1.5" PointX="0.75" PointY="8.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad" Width="1.5" PointX="15.75" PointY="145.125" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_centro_costo" Width="1.5" PointX="10.5" PointY="154.5" IsExpanded="true" />
@@ -27,7 +26,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_fy_centro" Width="1.5" PointX="12.75" PointY="81.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_responsables" Width="1.5" PointX="12.75" PointY="180.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_tipo_cambio" Width="1.5" PointX="0.75" PointY="5.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="7.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.currency" Width="1.5" PointX="13.5" PointY="209.125" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="7.5" PointY="172.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.GV_medios_transporte" Width="1.5" PointX="13.5" PointY="212.875" IsExpanded="true" />
@@ -140,7 +138,7 @@
         <EntityTypeShape EntityType="Portal_2_0Model.RU_rel_usuarios_planta" Width="1.5" PointX="3" PointY="172.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.RU_usuarios_embarques" Width="1.5" PointX="12.75" PointY="167.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.RU_usuarios_vigilancia" Width="1.5" PointX="3" PointY="209.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_aleacion" Width="1.5" PointX="13.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_aleacion" Width="1.5" PointX="13.625" PointY="7.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_almacenes" Width="1.5" PointX="41" PointY="182.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_centro_recibo" Width="1.5" PointX="13.75" PointY="10.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_clase_aprovisionamiento" Width="1.5" PointX="13.75" PointY="13.75" IsExpanded="true" />
@@ -551,7 +549,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_tipo_cambio_fy_forecast" Width="1.5" PointX="3" PointY="8.375" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_forecast_id_budget_anio_fiscal" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_forecast_id_tipo_cambio" />
-        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="23.375" PointY="23.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_tipo_transporte" Width="1.5" PointX="24.375" PointY="0.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget" Width="1.5" PointX="32" PointY="171" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" Width="1.5" PointX="38" PointY="159.125" />
@@ -638,8 +635,10 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_creacion_referencia" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" />
         <EntityTypeShape EntityType="Portal_2_0Model.Vw_Materiales_Vencimiento" Width="1.5" PointX="24.375" PointY="10.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="6.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="29.375" PointY="0.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" Width="1.5" PointX="3.375" PointY="24.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_fiscal_years" Width="1.5" PointX="24.375" PointY="14.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="24.375" PointY="14.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

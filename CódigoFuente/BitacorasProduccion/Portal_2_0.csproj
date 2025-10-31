@@ -493,8 +493,15 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Auxiliares\HangfireAuthorizationFilter.cs" />
+    <Compile Include="Models\Auxiliares\SAPCharacteristics.cs" />
     <Compile Include="Models\Auxiliares\UtilBulkCopy.cs" />
     <Compile Include="Models\BaseController.cs" />
+    <Compile Include="Models\BatchCharacteristics.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Batches.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\BG_CargaExcel_AniosFiscales.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -584,6 +591,9 @@
     </Compile>
     <Compile Include="Models\biblioteca_digital.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BomItems.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\bom_en_sap.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -910,6 +920,18 @@
     <Compile Include="Models\log_inicio_sesion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\MaterialCharacteristics.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\MaterialDescriptions.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\MaterialPlants.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Materials.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\menu_item.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -1069,6 +1091,21 @@
     <Compile Include="Models\MetadataModels\view_valores_forecastMetatdata.cs" />
     <Compile Include="Models\mm_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ModelServices.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelServices.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ModelServices.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ModelServices.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelServices.edmx</DependentUpon>
     </Compile>
     <Compile Include="Models\ModelViews.cs" />
     <Compile Include="Models\MyRequiredAttributeAdapter.cs" />
@@ -4457,6 +4494,16 @@
     <Content Include="History.txt" />
     <Content Include="KnownIssues.txt" />
     <Content Include="License.txt" />
+    <Content Include="Models\ModelServices.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>ModelServices.edmx</DependentUpon>
+      <LastGenOutput>ModelServices.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Models\ModelServices.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>ModelServices.edmx</DependentUpon>
+      <LastGenOutput>ModelServices.cs</LastGenOutput>
+    </Content>
     <Content Include="Models\NuevoPortalModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
@@ -5298,6 +5345,13 @@
     <Content Include="Content\plantillas_excel\PlantillaCargaForecast.xlsx" />
     <Content Include="Content\plantillas_excel\PlantillaHistoricoScrap.xlsx" />
     <Content Include="Content\plantillas_excel\Reporte_IHS.xlsx" />
+    <EntityDeploy Include="Models\ModelServices.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>ModelServices.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="Models\ModelServices.edmx.diagram">
+      <DependentUpon>ModelServices.edmx</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
