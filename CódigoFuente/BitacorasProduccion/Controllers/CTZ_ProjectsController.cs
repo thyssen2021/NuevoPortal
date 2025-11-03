@@ -2379,13 +2379,15 @@ namespace Portal_2_0.Controllers
                             }
                             if (material.SelectedInterplantRackTypeIds != null && material.SelectedInterplantRackTypeIds.Any())
                             {
-                                foreach (var interplantRackTypeId in material.SelectedInterplantRackTypeIds)
+                                // --- INICIO DE LA MODIFICACIÓN ---
+                                // Filtramos cualquier ID que sea 0 para evitar el error de FK.
+                                foreach (var interplantRackTypeId in material.SelectedInterplantRackTypeIds.Where(id => id > 0))
+                                // --- FIN DE LA MODIFICACIÓN ---
                                 {
                                     // Crea la entidad de enlace y EF la asociará al 'material'
                                     material.CTZ_Material_InterplantRackTypes.Add(new CTZ_Material_InterplantRackTypes { ID_RackType = interplantRackTypeId });
                                 }
                             }
-
                             // Asignamos la colección al objeto material. EF entenderá la relación.
                             material.CTZ_Material_RackTypes = rackTypesToAdd;
                             material.CTZ_Material_Labels = labelsToAdd;

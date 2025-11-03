@@ -794,8 +794,11 @@
 
             materialData.SelectedStrapTypeIds = [];
             $('#straps-container .strap-checkbox:checked').each(function () { materialData.SelectedStrapTypeIds.push($(this).val()); });
-            // ^ ^ ^ --- FIN DE LA LÓGICA AÑADIDA --- ^ ^ ^
 
+            materialData.SelectedInterplantRackTypeIds = [];
+            $('#interplant-rack-types-container .interplant-rack-type-checkbox:checked').each(function () {
+                materialData.SelectedInterplantRackTypeIds.push($(this).val());
+            });
 
             // Aquí: si el input de archivo (#archivo) tiene algún valor, marcamos este material.
             // Consideramos que solo el material que se agregue cuando se tenga un archivo tendrá la bandera.
