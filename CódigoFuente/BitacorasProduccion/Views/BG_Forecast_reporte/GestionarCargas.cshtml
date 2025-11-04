@@ -102,6 +102,12 @@
                     </div>
                     <div class="x_content">
                         <div class="card-box table-responsive">
+
+                            @using (Html.BeginForm("EliminarCarga", "BG_Forecast_reporte", FormMethod.Post, new { id = "formEliminarCarga", style = "display:none;" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" id="idCargaParaEliminar" />
+                            }
                             <table id="datatable_cargas" class="table table-striped table-bordered" style="width:100%">
                                 <thead>
                                     <tr>
@@ -135,6 +141,7 @@
                             </table>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -144,7 +151,7 @@
 @section scripts {
     @Scripts.Render("~/bundles/dataTables_js")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function () {
             // Inicializa la tabla con historial
@@ -159,9 +166,49 @@
         });
 
         function confirmarEliminar(idCarga) {
-            // Aquí puedes agregar la lógica con SweetAlert para confirmar la eliminación
-            // y luego hacer una llamada POST a una acción "EliminarCarga" en tu controlador.
-            alert("Lógica para eliminar la carga con ID: " + idCarga);
+            Swal.fire({
+                title: 'Confirmar Eliminación',
+                // Usamos backticks (`) para crear un string multi-línea
+                text: `¡Esta acción no se puede revertir! Se borrará la Carga ID ${idCarga} y todos sus datos asociados.`,
+                icon: 'warning',
+               
+                input: 'text', // <-- Se agrega un campo de texto
+                inputLabel: 'Para confirmar, por favor escriba el ID de la Carga:',
+                inputPlaceholder: `Escriba "${idCarga}" aquí`,
+                inputAttributes: {
+                    'aria-label': 'Escriba el ID para confirmar'
+                },
+         
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, ¡eliminar!',
+                cancelButtonText: 'Cancelar',
+
+                // ---  Validar antes de confirmar ---
+                preConfirm: (inputValue) => {
+                    // Comparamos el valor escrito (string) con el ID (int),
+                    // por eso convertimos el ID a string.
+                    if (inputValue != idCarga.toString()) {
+                        // Muestra un mensaje de error si no coinciden
+                        Swal.showValidationMessage(`El ID no coincide. Se esperaba "${idCarga}".`);
+                        return false; // Previene que la alerta se cierre
+                    }
+                    return inputValue; // Si coincide, el valor es válido
+                }
+        
+
+            }).then((result) => {
+                // Solo si la alerta se confirmó (y pasó la validación de preConfirm)
+                if (result.isConfirmed) {
+                    // 1. Ponemos el ID en el formulario oculto
+                    $("#idCargaParaEliminar").val(idCarga);
+
+                    // 2. Enviamos el formulario
+                    $("#formEliminarCarga").submit();
+                }
+            });
         }
+
     </script>
 }

@@ -549,6 +549,9 @@
     <Compile Include="Models\BG_IHS_division.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\BG_IHS_division_blackout.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\BG_IHS_item.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -923,6 +926,7 @@
     <Compile Include="Models\MetadataModels\BG_forecast_reporteMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_combinacionMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_divisionMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_division_blackoutMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_itemMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_plantasMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_regionesMetadata.cs" />

@@ -187,6 +187,33 @@
                             }
                         </div>
 
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>PERIODOS DE BLACKOUT</b></span>
+                        </div>
+                        <div id="div_blackouts">
+                            @foreach (var blackout in Model.BG_IHS_division_blackout.OrderBy(b => b.fecha_inicio))
+                            {
+                                <div class="form-group row blackout-row" id="div_blackout_@blackout.id">
+
+                                    <input type="hidden" class="blackout-start-date" value="@blackout.fecha_inicio.ToString("yyyy-MM")" />
+                                    <input type="hidden" class="blackout-end-date" value="@blackout.fecha_fin.ToString("yyyy-MM")" />
+
+                                    <label class="control-label col-md-1"><span class="float-right">Mes Inicio</span></label>
+                                    <div class="col-md-2">
+                                        <input type="month" class="form-control" value="@blackout.fecha_inicio.ToString("yyyy-MM")" readonly />
+                                    </div>
+                                    <label class="control-label col-md-1"><span class="float-right">Mes Fin</span></label>
+                                    <div class="col-md-2">
+                                        <input type="month" class="form-control" value="@blackout.fecha_fin.ToString("yyyy-MM")" readonly />
+                                    </div>
+                                    <label class="control-label col-md-1"><span class="float-right">Comentario</span></label>
+                                    <div class="col-md-5">
+                                        <input type="text" class="form-control" value="@blackout.comentario" readonly />
+                                    </div>
+                                </div>
+                            }
+                        </div>
 
                         <div class="form-group row">
 
@@ -408,7 +435,7 @@
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
 
-    <script>
+<script>
         $(document).ready(function () {
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
@@ -427,6 +454,23 @@
         //variable global para el id
         var num = 0;
 
+        // Función para recolectar datos del form (versión universal)
+        function GetBlackoutData() {
+            var blackouts = [];
+            $('.blackout-row').each(function () {
+                var fila = $(this);
+                var fecha_inicio = fila.find('.blackout-start-date').val(); // "yyyy-MM"
+                var fecha_fin = fila.find('.blackout-end-date').val();       // "yyyy-MM"
+
+                if (fecha_inicio && fecha_fin) {
+                    blackouts.push({
+                        fecha_inicio: fecha_inicio + "-01",
+                        fecha_fin: fecha_fin + "-01"
+                    });
+                }
+            });
+            return blackouts;
+        }
 
     function calculaValoresPorcentaje(demanda) {
         let contador = 1;
@@ -483,11 +527,13 @@
 
 
 
+
         function calculaValores(demanda) {
 
             let ihs_value = $('#@Html.IdFor(model => model.id_ihs_item)').val();
-
-               let porcentaje = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
+            let porcentaje = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
+            let division_id = $('#@Html.IdFor(model => model.id)').val();
+            let blackoutData = GetBlackoutData();
 
             if (isNaN(porcentaje))
                 porcentaje = 0; //100%
@@ -496,8 +542,14 @@
                 $.ajax({
                     type: 'POST',
                     url: '/BG_IHS_division/GetRows',
-                    data: { id_ihs: ihs_value, demanda: demanda, porcentaje: porcentaje },
-                    // contentType: 'application/json',
+                    data: JSON.stringify({
+                        id_ihs: ihs_value,
+                        demanda: demanda,
+                        porcentaje: porcentaje,
+                        id_ihs_division: division_id,
+                        blackouts: blackoutData
+                    }),
+                    contentType: 'application/json',
                     success: function (data) {
                         try {
                             $('#body_conceptos_' + demanda).html(data[0].value);
@@ -531,6 +583,7 @@
 
         }
 
+
         function mostrarDetalles() {
             var value =  $('#@Html.IdFor(model => model.id_ihs_item)').val();
 
@@ -539,7 +592,7 @@
         window.onload = function () {
             //clicMenu(1);
         }
-    </script>
+</script>
 }
 
 

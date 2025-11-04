@@ -308,5 +308,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<Vw_Materiales_Vencimiento> Vw_Materiales_Vencimiento { get; set; }
         public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
         public virtual DbSet<BG_Forecast_cat_fiscal_years> BG_Forecast_cat_fiscal_years { get; set; }
+        public virtual DbSet<BG_IHS_division_blackout> BG_IHS_division_blackout { get; set; }
     }
 }

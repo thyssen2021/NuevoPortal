@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public BG_IHS_division()
         {
             this.BG_IHS_rel_division = new HashSet<BG_IHS_rel_division>();
+            this.BG_IHS_division_blackout = new HashSet<BG_IHS_division_blackout>();
         }
     
         public int id { get; set; }
@@ -31,5 +32,7 @@ namespace Portal_2_0.Models
         public virtual BG_IHS_versiones BG_IHS_versiones { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_rel_division> BG_IHS_rel_division { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_IHS_division_blackout> BG_IHS_division_blackout { get; set; }
     }
 }

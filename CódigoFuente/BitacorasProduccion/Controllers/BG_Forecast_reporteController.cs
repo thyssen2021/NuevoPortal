@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -1509,6 +1510,11 @@ namespace Portal_2_0.Controllers
 
             try
             {
+                // Obtenemos la cadena de conexión nativa de SQL Server, como lo solicitaste.
+                string efConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["Portal_2_0Entities"].ConnectionString;
+                var builder = new System.Data.Entity.Core.EntityClient.EntityConnectionStringBuilder(efConnectionString);
+                string connectionString = builder.ProviderConnectionString;
+
                 // --- Paso A: Preparar estructuras en memoria ---
                 // Usamos un Diccionario para garantizar que cada POS (posición) solo se procese una vez.
                 var uniqueItems = new Dictionary<int, BG_CargaExcel_Items>();
@@ -1739,22 +1745,97 @@ namespace Portal_2_0.Controllers
                     //    EF automáticamente detectará que nuevaCarga es nuevo y que
                     //    todos los 'datosMensuales' y 'resumen' también son nuevos.
                     db.BG_CargaExcel_Items.AddRange(itemsFinales);
+                    //  db.BG_CargaExcel_ResumenPeriodo.AddRange(resumenParaGuardar);
+                    // db.BG_CargaExcel_DatosMensuales.AddRange(datosMensualesParaGuardar);
 
-                    // 5. ¡Guardamos TODO de una sola vez! (Este es el paso lento)
-                    //    EF6 se encargará de:
-                    //    a. Insertar 'nuevaCarga' y obtener su ID.
-                    //    b. Insertar TODOS los 'itemsFinales', asignando el ID_Carga.
-                    //    c. Obtener TODOS los nuevos ID_Item de esos items.
-                    //    d. Insertar TODOS los 'datosMensuales' y 'resumen', asignando los ID_Item correctos.
-                    db.SaveChanges();
+                    // 5. ¡Guardamos los PADRES primero!
+                    db.SaveChanges(); // <-- ¡PUNTO CLAVE!
+
+
+                    // Creamos el DataTable
+                    var dtResumenPeriodo = new System.Data.DataTable();
+
+                    // *** Nombres de columnas DEBEN coincidir con la BD ***
+                    dtResumenPeriodo.Columns.Add("ID_Item", typeof(int));
+                    dtResumenPeriodo.Columns.Add("ID_AnioFiscal", typeof(int));
+                    dtResumenPeriodo.Columns.Add("Gross_Profit_Outgoing_Freight_Part_USD", typeof(double));
+                    dtResumenPeriodo.Columns.Add("Gross_Profit_Outgoing_Freight_TO_USD", typeof(double));
+
+                    // Llenamos el DataTable (manejando nulos)
+                    foreach (var dato in resumenParaGuardar)
+                    {
+                        dtResumenPeriodo.Rows.Add(
+                            dato.BG_CargaExcel_Items.ID_Item, // <-- Obtenemos el FK
+                            dato.ID_AnioFiscal,
+                            (object)dato.Gross_Profit_Outgoing_Freight_Part_USD ?? DBNull.Value,
+                            (object)dato.Gross_Profit_Outgoing_Freight_TO_USD ?? DBNull.Value
+                        );
+                    }
+
+                    // 7. Ejecutamos SqlBulkCopy para ResumenPeriodo --- // <-- NUEVO (Resumen)
+                    using (SqlBulkCopy bulkCopyResumen = new SqlBulkCopy(connectionString, SqlBulkCopyOptions.Default))
+                    {
+                        bulkCopyResumen.BulkCopyTimeout = 300;
+                        bulkCopyResumen.DestinationTableName = "BG_CargaExcel_ResumenPeriodo"; // <-- Nombre exacto de la tabla
+
+                        // Mapeamos columnas
+                        bulkCopyResumen.ColumnMappings.Add("ID_Item", "ID_Item");
+                        bulkCopyResumen.ColumnMappings.Add("ID_AnioFiscal", "ID_AnioFiscal");
+                        bulkCopyResumen.ColumnMappings.Add("Gross_Profit_Outgoing_Freight_Part_USD", "Gross_Profit_Outgoing_Freight_Part_USD");
+                        bulkCopyResumen.ColumnMappings.Add("Gross_Profit_Outgoing_Freight_TO_USD", "Gross_Profit_Outgoing_Freight_TO_USD");
+
+                        // Escribimos en el servidor
+                        bulkCopyResumen.WriteToServer(dtResumenPeriodo);
+                    }
+
+
+                    // --- 8. Preparamos el Bulk Insert para DatosMensuales --- //
+                    var dtDatosMensuales = new System.Data.DataTable();
+
+                    dtDatosMensuales.Columns.Add("ID_Item", typeof(int));
+                    dtDatosMensuales.Columns.Add("ID_AnioFiscal", typeof(int));
+                    dtDatosMensuales.Columns.Add("ID_Metrica", typeof(int));
+                    dtDatosMensuales.Columns.Add("Anio", typeof(int));
+                    dtDatosMensuales.Columns.Add("Mes", typeof(int));
+                    dtDatosMensuales.Columns.Add("Valor", typeof(decimal));
+
+                    // Llenamos el DataTable
+                    foreach (var dato in datosMensualesParaGuardar)
+                    {
+                        dtDatosMensuales.Rows.Add(
+                            dato.BG_CargaExcel_Items.ID_Item, // <-- Obtenemos el FK
+                            dato.ID_AnioFiscal,
+                            dato.ID_Metrica,
+                            dato.Anio,
+                            dato.Mes,
+                            dato.Valor
+                        );
+                    }
+
+                    // 9. Ejecutamos SqlBulkCopy para DatosMensuales --- //
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connectionString, SqlBulkCopyOptions.Default))
+                    {
+                        bulkCopy.BulkCopyTimeout = 300;
+                        bulkCopy.DestinationTableName = "BG_CargaExcel_DatosMensuales";
+
+                        // Mapeamos columnas
+                        bulkCopy.ColumnMappings.Add("ID_Item", "ID_Item");
+                        bulkCopy.ColumnMappings.Add("ID_AnioFiscal", "ID_AnioFiscal");
+                        bulkCopy.ColumnMappings.Add("ID_Metrica", "ID_Metrica");
+                        bulkCopy.ColumnMappings.Add("Anio", "Anio");
+                        bulkCopy.ColumnMappings.Add("Mes", "Mes");
+                        bulkCopy.ColumnMappings.Add("Valor", "Valor");
+
+                        // Escribimos en el servidor
+                        bulkCopy.WriteToServer(dtDatosMensuales);
+                    }
 
                     // Si todo salió bien, confirmamos la transacción.
                     transaction.Commit();
                 }
 
-
-                TempData["AlertMessage"] = $"Archivo procesado exitosamente. Se encontraron y guardaron {uniqueItems.Count} items únicos.";
-                TempData["AlertType"] = "success";
+                // <-- MODIFICADO (Mensaje de éxito) -->
+                TempData["Mensaje"] = new MensajesSweetAlert($"Archivo procesado. Se guardaron {uniqueItems.Count} items, {resumenParaGuardar.Count} resúmenes y {datosMensualesParaGuardar.Count} registros mensuales.", TipoMensajesSweetAlerts.SUCCESS);
                 return RedirectToAction("GestionarCargas");
             }
             catch (Exception ex)
@@ -1873,6 +1954,75 @@ namespace Portal_2_0.Controllers
         }
 
         #endregion
+
+
+        // ... (Justo después de tu método ProcesarCargaExcel)
+
+        // POST: reporte/EliminarCarga
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EliminarCarga(int id) // Recibe el ID desde el formulario
+        {
+            // 1. Validar permisos
+            if (!TieneRol(TipoRoles.BUDGET_IHS))
+                return View("../Home/ErrorPermisos");
+
+            // 2. Buscar la carga (AsNoTracking es más rápido para solo leer)
+            var carga = db.BG_CargaExcel_Cargas.AsNoTracking().FirstOrDefault(c => c.ID_Carga == id);
+            if (carga == null)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("La carga que intenta eliminar no existe.", TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("GestionarCargas");
+            }
+
+            try
+            {
+                // 3. Usar una transacción para la eliminación masiva
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    // Usamos SQL directo para máxima eficiencia.
+                    // Los parámetros previenen la inyección SQL.
+
+                    // 1. Eliminar DatosMensuales (Nietos)
+                    var idParam = new System.Data.SqlClient.SqlParameter("@id", id);
+                    db.Database.ExecuteSqlCommand(
+                        "DELETE FROM BG_CargaExcel_DatosMensuales WHERE ID_Item IN (SELECT ID_Item FROM BG_CargaExcel_Items WHERE ID_Carga = @id)",
+                        idParam);
+
+                    // 2. Eliminar ResumenPeriodo (Nietos)
+                    idParam = new System.Data.SqlClient.SqlParameter("@id", id); // Re-crear parámetro
+                    db.Database.ExecuteSqlCommand(
+                        "DELETE FROM BG_CargaExcel_ResumenPeriodo WHERE ID_Item IN (SELECT ID_Item FROM BG_CargaExcel_Items WHERE ID_Carga = @id)",
+                        idParam);
+
+                    // 3. Eliminar Items (Hijos)
+                    idParam = new System.Data.SqlClient.SqlParameter("@id", id); // Re-crear parámetro
+                    db.Database.ExecuteSqlCommand(
+                        "DELETE FROM BG_CargaExcel_Items WHERE ID_Carga = @id",
+                        idParam);
+
+                    // 4. Eliminar Cargas (Padre)
+                    idParam = new System.Data.SqlClient.SqlParameter("@id", id); // Re-crear parámetro
+                    db.Database.ExecuteSqlCommand(
+                        "DELETE FROM BG_CargaExcel_Cargas WHERE ID_Carga = @id",
+                        idParam);
+
+                    // 5. Confirmar la transacción
+                    transaction.Commit();
+                }
+
+                // 4. Enviar mensaje de éxito (se mostrará como SweetAlert al recargar)
+                TempData["Mensaje"] = new MensajesSweetAlert($"Carga ID {id} (Archivo: {carga.NombreArchivo}) eliminada exitosamente.", TipoMensajesSweetAlerts.SUCCESS);
+            }
+            catch (Exception e)
+            {
+                // 5. Enviar mensaje de error (se mostrará como SweetAlert al recargar)
+                TempData["Mensaje"] = new MensajesSweetAlert($"Error al eliminar la carga ID {id}: {e.Message}", TipoMensajesSweetAlerts.ERROR);
+            }
+
+            // 6. Recargar la página
+            return RedirectToAction("GestionarCargas");
+        }
 
         protected override void Dispose(bool disposing)
         {

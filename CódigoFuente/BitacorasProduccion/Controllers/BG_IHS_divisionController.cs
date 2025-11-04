@@ -150,6 +150,17 @@ namespace Portal_2_0.Controllers
                     rel.porcentaje /= 100;
                 }
 
+                // --- LÓGICA DE BLACKOUT ---
+                if (bG_IHS_division.BG_IHS_division_blackout != null)
+                {
+                    foreach (var blackoutForm in bG_IHS_division.BG_IHS_division_blackout)
+                    {
+                        // El input "month" se enlaza como el primer día ("2025-12-01").
+                        // Ajustamos la fecha_fin para que sea el ÚLTIMO día de ese mes.
+                        blackoutForm.fecha_fin = blackoutForm.fecha_fin.AddMonths(1).AddDays(-1);
+                    }
+                }
+
                 bG_IHS_division.activo = true;
 
                 db.BG_IHS_division.Add(bG_IHS_division);
@@ -248,8 +259,46 @@ namespace Portal_2_0.Controllers
                 // Activity already exist in database and modify it
                 db.Entry(division).CurrentValues.SetValues(bG_IHS_division);
 
+                // --- INICIO LÓGICA DE BLACKOUT ---
+                var blackoutsEnBD = db.BG_IHS_division_blackout
+                                      .Where(b => b.id_ihs_division == division.id)
+                                      .ToList();
 
+                var blackoutsFormulario = bG_IHS_division.BG_IHS_division_blackout ?? new List<BG_IHS_division_blackout>();
 
+                var blackoutsParaEliminar = blackoutsEnBD
+                    .Where(b_bd => !blackoutsFormulario.Any(b_form => b_form.id == b_bd.id))
+                    .ToList();
+
+                foreach (var blackout in blackoutsParaEliminar)
+                {
+                    db.Entry(blackout).State = EntityState.Deleted;
+                }
+
+                foreach (var blackoutForm in blackoutsFormulario)
+                {
+                    // El input "month" ("2025-12") se enlaza como el primer día ("2025-12-01").
+                    // Ajustamos la fecha_fin para que sea el ÚLTIMO día de ese mes.
+                    blackoutForm.fecha_fin = blackoutForm.fecha_fin.AddMonths(1).AddDays(-1);
+
+                    if (blackoutForm.id > 0) // Actualizar
+                    {
+                        var blackoutBD = blackoutsEnBD.FirstOrDefault(b => b.id == blackoutForm.id);
+                        if (blackoutBD != null)
+                        {
+                            blackoutBD.fecha_inicio = blackoutForm.fecha_inicio;
+                            blackoutBD.fecha_fin = blackoutForm.fecha_fin; // Ya está ajustada
+                            blackoutBD.comentario = blackoutForm.comentario;
+                            db.Entry(blackoutBD).State = EntityState.Modified;
+                        }
+                    }
+                    else // Agregar
+                    {
+                        blackoutForm.id_ihs_division = division.id;
+                        db.BG_IHS_division_blackout.Add(blackoutForm); // fecha_fin ya está ajustada
+                    }
+                }
+                // --- FIN LÓGICA DE BLACKOUT ---
 
                 //agrega los conceptos nuevos
                 division.BG_IHS_rel_division = bG_IHS_division.BG_IHS_rel_division.Where(x => x.id == 0).ToList();
@@ -280,13 +329,17 @@ namespace Portal_2_0.Controllers
         }
 
         /// <summary>
-        /// Método que retorna las filas de las tablas de combinacion
+        /// Metodo que rotorna las filas de demanda en formato html
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="id_ihs"></param>
+        /// <param name="demanda"></param>
+        /// <param name="porcentaje"></param>
+        /// <param name="id_ihs_division"></param>
+        /// <param name="blackouts"></param>
         /// <returns></returns>
-        public JsonResult GetRows(int? id_ihs, string demanda, float? porcentaje)
+        [HttpPost]
+        public JsonResult GetRows(int? id_ihs, string demanda, float? porcentaje, int? id_ihs_division, List<BlackoutPeriodoVM> blackouts)
         {
-
             var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
             var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
             var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
@@ -296,27 +349,86 @@ namespace Portal_2_0.Controllers
                 porcentaje = 0;
 
             float porcentaje_scrap = 1 + (porcentaje.Value / 100.0f);
-
             string resultString = string.Empty;
-
-
             var ihs = db.BG_IHS_item.Find(id_ihs);
 
+            // --- INICIO LÓGICA DE BLACKOUT ---
+
+            // 1. Ajustar la lista de blackouts recibida
+            // El JS nos envía "2025-12-01" como fecha_fin. La ajustamos al último día del mes.
+            if (blackouts != null)
+            {
+                foreach (var b in blackouts)
+                {
+                    b.fecha_fin = b.fecha_fin.AddMonths(1).AddDays(-1);
+                }
+            }
+
+            // 2. Aplicar blackout a DEMANDA MENSUAL
             var demandaMeses = ihs.GetDemanda(cabeceraDemanda, demanda);
+            if (blackouts != null && blackouts.Any())
+            {
+                // Iteramos sobre la demanda mensual y aplicamos blackouts
+                foreach (var item_demanda in demandaMeses)
+                {
+                    if (item_demanda != null) // Solo procesar si no es nulo
+                    {
+                        bool enBlackout = false;
+
+                        // Usamos la lista del parámetro
+                        foreach (var blackout in blackouts)
+                        {
+                            // Comprobar si la fecha del item de demanda cae dentro de CUALQUIER periodo de blackout
+                            if (item_demanda.fecha.Date >= blackout.fecha_inicio.Date && item_demanda.fecha.Date <= blackout.fecha_fin.Date)
+                            {
+                                enBlackout = true;
+                                break; // Salir del bucle de blackouts, ya encontramos una coincidencia
+                            }
+                        }
+
+                        if (enBlackout)
+                        {
+                            item_demanda.cantidad = 0; // ¡Aplicamos el blackout poniendo la cantidad a 0!
+                        }
+                    }
+                }
+            }
+
+            // 3. Aplicar blackout a DATOS DE CUARTOS (fallback)
+            // Clonamos la lista original de cuartos para no modificar la data de EF.
+            var cuartosModificados = ihs.BG_IHS_rel_cuartos.Select(c => new BG_IHS_rel_cuartos
+            {
+                id = c.id,
+                id_ihs_item = c.id_ihs_item,
+                cuarto = c.cuarto,
+                anio = c.anio,
+                cantidad = c.cantidad, // <-- Copiamos el valor original
+                fecha_carga = c.fecha_carga
+            }).ToList();
+
+
+            if (blackouts != null && blackouts.Any())
+            {
+                // Llamamos al helper para que modifique la lista 'cuartosModificados'
+                // (Este método debe existir en tu controlador)
+                AplicarBlackoutACuartos_MesCompleto(cuartosModificados, blackouts);
+            }
+            // --- FIN LÓGICA DE BLACKOUT ---
+
 
             if (ihs != null)
                 resultString += @"<tr>
-                                        <td>" + 1 + @"</td>
-                                        <td>" + ihs.origen + @"</td>
-                                        <td>" + ihs.manufacturer_group + @"</td>
-                                        <td>" + ihs.production_plant + @"</td>
-                                        <td>" + ihs.production_brand + @"</td>
-                                        <td>" + ihs.program + @"</td>                                     
-                                        <td>" + ihs.vehicle + @"</td>
-                                        <td>" + ihs.production_nameplate + @"</td>
-                                        <td>" + (ihs.sop_start_of_production.HasValue ? ihs.sop_start_of_production.Value.ToShortDateString() : String.Empty) + @"</td>                                        
-                                        <td>" + (ihs.eop_end_of_production.HasValue ? ihs.eop_end_of_production.Value.ToShortDateString() : String.Empty) + @"</td>
-                                        <td>" + porcentaje + @"%</td>";
+                                <td>" + 1 + @"</td>
+                                <td>" + ihs.origen + @"</td>
+                                <td>" + ihs.manufacturer_group + @"</td>
+                                <td>" + ihs.production_plant + @"</td>
+                                <td>" + ihs.production_brand + @"</td>
+                                <td>" + ihs.program + @"</td>                                     
+                                <td>" + ihs.vehicle + @"</td>
+                                <td>" + ihs.production_nameplate + @"</td>
+                                <td>" + (ihs.sop_start_of_production.HasValue ? ihs.sop_start_of_production.Value.ToShortDateString() : String.Empty) + @"</td>                                        
+                                <td>" + (ihs.eop_end_of_production.HasValue ? ihs.eop_end_of_production.Value.ToShortDateString() : String.Empty) + @"</td>
+                                <td>" + porcentaje + @"%</td>";
 
             string clase_demanda = "valores-" + demanda;
 
@@ -334,8 +446,10 @@ namespace Portal_2_0.Controllers
                                 + "</td>";
 
             }
+
             //obtiene la demanda por cuartos 
-            foreach (var item_cuarto in ihs.GetCuartos(demandaMeses, cabeceraCuartos, demanda))
+            // Se pasa 'cuartosModificados' como parámetro
+            foreach (var item_cuarto in ihs.GetCuartos(demandaMeses, cabeceraCuartos, demanda, cuartosModificados))
             {
 
                 resultString += @"<td class="" " + (
@@ -348,8 +462,10 @@ namespace Portal_2_0.Controllers
                                 + "</td>";
 
             }
+
             //obtiene la demanda por años Ene-Dic 
-            foreach (var item_anio in ihs.GetAnios(demandaMeses, cabeceraAnios, demanda))
+            // Se pasa 'cuartosModificados' como parámetro
+            foreach (var item_anio in ihs.GetAnios(demandaMeses, cabeceraAnios, demanda, cuartosModificados))
             {
                 resultString += @"<td class="" " + (
                                item_anio != null ? item_anio.origen_datos == Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
@@ -361,8 +477,10 @@ namespace Portal_2_0.Controllers
                                 + "</td>";
 
             }
+
             //obtiene la demanda por años FY 
-            foreach (var item_anio in ihs.GetAniosFY(demandaMeses, cabeceraAniosFY, demanda))
+            // Se pasa 'cuartosModificados' como parámetro
+            foreach (var item_anio in ihs.GetAniosFY(demandaMeses, cabeceraAniosFY, demanda, cuartosModificados))
             {
 
                 resultString += @"<td class="" " + (
@@ -383,6 +501,54 @@ namespace Portal_2_0.Controllers
             result[0] = new { value = resultString };
 
             return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Modifica una lista de cuartos (BG_IHS_rel_cuartos) aplicando la reducción basada en MESES COMPLETOS.
+        /// </summary>
+        private void AplicarBlackoutACuartos_MesCompleto(List<BG_IHS_rel_cuartos> cuartos, List<BlackoutPeriodoVM> blackouts)
+        {
+            foreach (var cuarto in cuartos)
+            {
+                if (!cuarto.cantidad.HasValue || cuarto.cantidad == 0) continue;
+
+                // 1. Determinar los 3 meses que componen este cuarto
+                int mesInicioCuarto = (cuarto.cuarto * 3) - 2; // Q1->M1, Q2->M4, Q3->M7, Q4->M10
+                DateTime mes1 = new DateTime(cuarto.anio, mesInicioCuarto, 1);
+                DateTime mes2 = mes1.AddMonths(1);
+                DateTime mes3 = mes1.AddMonths(2);
+
+                var mesesDelCuarto = new List<DateTime> { mes1, mes2, mes3 };
+                int mesesEnBlackout = 0;
+
+                // 2. Contar cuántos de esos 3 meses caen en un período de blackout
+                foreach (var mes in mesesDelCuarto)
+                {
+                    bool enBlackout = false;
+                    foreach (var blackout in blackouts)
+                    {
+                        // Comprueba si el primer día del mes está dentro del rango
+                        if (mes.Date >= blackout.fecha_inicio.Date && mes.Date <= blackout.fecha_fin.Date)
+                        {
+                            enBlackout = true;
+                            break;
+                        }
+                    }
+                    if (enBlackout)
+                    {
+                        mesesEnBlackout++;
+                    }
+                }
+
+                // 3. Aplicar la reducción (0/3, 1/3, 2/3, o 3/3)
+                if (mesesEnBlackout > 0)
+                {
+                    // Usamos decimal para precisión
+                    decimal reduccionPct = (decimal)mesesEnBlackout / 3.0m;
+
+                    cuarto.cantidad = (int)Math.Round(cuarto.cantidad.Value * (1.0m - reduccionPct));
+                }
+            }
         }
 
         // GET: BG_IHS_division/Disable/5
@@ -519,5 +685,10 @@ namespace Portal_2_0.Controllers
             }
             base.Dispose(disposing);
         }
+    }
+    public class BlackoutPeriodoVM
+    {
+        public System.DateTime fecha_inicio { get; set; }
+        public System.DateTime fecha_fin { get; set; }
     }
 }

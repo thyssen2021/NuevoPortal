@@ -9652,6 +9652,11 @@ namespace Portal_2_0.Models
             styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
             styleHeaderFont.Font.Bold = true;
 
+            SLStyle styleDateHeader = styleHeaderFont.Clone();
+            styleDateHeader.FormatCode = "MMM yyyy"; // Formato de fecha local-independiente
+            styleDateHeader.Alignment.Vertical = VerticalAlignmentValues.Center;
+            styleDateHeader.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+
             SLStyle styleMissedIHS = oSLDocument.CreateStyle();
             styleMissedIHS.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#680600");
             styleMissedIHS.Font.Bold = true;
@@ -10715,6 +10720,35 @@ namespace Portal_2_0.Models
                     demandaMeses = division.BG_IHS_item.GetDemanda(cabeceraMeses, model.demanda, demandaPrecargada: demandasParaEsteItem);
                 }
 
+                // --- INICIO Aplica Blackouts ---
+                // Obtenemos los blackouts de ESTA división
+                var blackouts = division.BG_IHS_division_blackout.ToList();
+                if (blackouts.Any())
+                {
+                    foreach (var item_demanda in demandaMeses)
+                    {
+                        if (item_demanda != null)
+                        {
+                            bool enBlackout = false;
+                            foreach (var blackout in blackouts)
+                            {
+                                // La lógica es "mes completo", así que fecha_inicio es el 1ro y fecha_fin es el último día
+                                if (item_demanda.fecha.Date >= blackout.fecha_inicio.Date && item_demanda.fecha.Date <= blackout.fecha_fin.Date)
+                                {
+                                    enBlackout = true;
+                                    break;
+                                }
+                            }
+                            if (enBlackout)
+                            {
+                                item_demanda.cantidad = 0; // Poner a 0
+                            }
+                        }
+                    }
+                }
+                // --- FIN Aplica Blackouts ---
+
+
                 foreach (var item_demanda in demandaMeses)
                 {
                     //si no es nul agrega la cantidad
@@ -10752,21 +10786,35 @@ namespace Portal_2_0.Models
                 #region cuartos
                 indexCabecera = 0;
 
-                // Inicializamos una lista vacía para manejar el caso de que el item sea nulo.
-                var listaDeCuartos = new List<BG_IHS_rel_cuartos>();
-
-                // Verificamos que el item relacionado no sea nulo.
+                // --- INICIO CÓDIGO MODIFICADO: Aplicar Blackouts a Cuartos (Fallback) ---
+                var cuartosParaEsteItem = new List<BG_IHS_rel_cuartos>();
                 if (division.BG_IHS_item != null)
                 {
-                    // 1. Obtenemos los "cuartos" para este item desde el lookup en memoria.
-                    var cuartosParaEsteItem = cuartosAgrupados[division.BG_IHS_item.id];
-
-                    // 2. Llama a GetCuartos UNA VEZ, pasándole los datos precargados.
-                    listaDeCuartos = division.BG_IHS_item.GetCuartos(demandaMeses, cabeceraCuartos, model.demanda, cuartosPrecargados: cuartosParaEsteItem);
+                    // 1. Obtener la lista original del lookup
+                    cuartosParaEsteItem = cuartosAgrupados[division.BG_IHS_item.id].ToList();
                 }
 
-                // 3. Ahora itera sobre la lista que ya tienes en memoria.
-                foreach (var item_demanda in listaDeCuartos)
+                // 2. Clonar la lista de cuartos original para este item
+                var cuartosModificados = cuartosParaEsteItem.Select(c => new BG_IHS_rel_cuartos
+                {
+                    id = c.id,
+                    id_ihs_item = c.id_ihs_item,
+                    cuarto = c.cuarto,
+                    anio = c.anio,
+                    cantidad = c.cantidad, // Copia el valor original
+                    fecha_carga = c.fecha_carga
+                }).ToList();
+
+                // 3. Aplicar la lógica de reducción a la lista clonada
+                if (blackouts.Any()) // Usamos la lista 'blackouts' que ya obtuvimos en la sección de meses
+                {
+                    // Llamamos al helper que acabamos de añadir a ExcelUtil.cs
+                    AplicarBlackoutACuartos_MesCompleto(cuartosModificados, blackouts);
+                }
+                // --- FIN CÓDIGO MODIFICADO ---
+
+                // 4. Usar la lista 'cuartosModificados' en lugar de 'cuartosParaEsteItem'
+                foreach (var item_demanda in division.BG_IHS_item.GetCuartos(demandaMeses, cabeceraCuartos, model.demanda, cuartosModificados))
                 {
                     //si no es nul agrega la cantidad
                     if (item_demanda != null && item_demanda.cantidad != null)
@@ -10798,7 +10846,8 @@ namespace Portal_2_0.Models
 
                 #region años
                 indexCabecera = 0;
-                foreach (var item_demanda in division.BG_IHS_item.GetAnios(demandaMeses, cabeceraAnios, model.demanda))
+                // 5. Usar la lista 'cuartosModificados' también aquí
+                foreach (var item_demanda in division.BG_IHS_item.GetAnios(demandaMeses, cabeceraAnios, model.demanda, cuartosModificados))
                 {
                     //si no es nul agrega la cantidad
                     if (item_demanda != null && item_demanda.cantidad != null)
@@ -10829,6 +10878,7 @@ namespace Portal_2_0.Models
                 }
 
                 #endregion
+
                 #region años FY
                 indexCabecera = 0;
                 //FYReference = indexColumna + 2;
@@ -10838,11 +10888,8 @@ namespace Portal_2_0.Models
                 // Verificamos que el item relacionado no sea nulo.
                 if (division.BG_IHS_item != null)
                 {
-                    // 1. Obtenemos los "cuartos" para este item desde el lookup en memoria.
-                    var cuartosParaEsteItem = cuartosAgrupados[division.BG_IHS_item.id];
-
-                    // 2. Llama a GetAniosFY UNA VEZ, pasándole los datos precargados.
-                    datosAniosFY = division.BG_IHS_item.GetAniosFY(demandaMeses, cabeceraAniosFY, model.demanda, cuartosPrecargados: cuartosParaEsteItem);
+                    // 6. Usar la lista 'cuartosModificados' también aquí
+                    datosAniosFY = division.BG_IHS_item.GetAniosFY(demandaMeses, cabeceraAniosFY, model.demanda, cuartosModificados);
                 }
 
                 listDatosRegionesFY.AddRange(datosAniosFY);
@@ -11852,8 +11899,16 @@ namespace Portal_2_0.Models
                         //aplica el estilo a cada hoja de FY
                         oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + 11 + extra, styleCenterCenter);
                         oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + 11 + extra, styleHeader);
-                        oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + 11 + extra, styleHeaderFont);
+
+                        // Se modifica la aplicación del estilo de fuente.
+                        // La fuente para las columnas de fecha se aplicará en el bucle siguiente
+                        if (extra == 1)
+                        {
+                            // Aplica el estilo de fuente blanca solo a la columna "extra"
+                            oSLDocument.SetCellStyle(4, columnaActual, styleHeaderFont);
+                        }
                         oSLDocument.Filter(4, 1, 4, columnaActual + 11 + extra);
+
                         oSLDocument.AutoFitColumn(columnaActual, columnaActual + 11 + extra);
 
                         //realiza el merge para los titulos de cada tabla
@@ -12126,7 +12181,7 @@ namespace Portal_2_0.Models
                                 string headerCell = $"{GetCellReference(numInicioColumnaDatosBase + j)}$4";
 
                                 // Parte 3: La fórmula completa que une todas las validaciones con funciones en INGLÉS.
-                                nuevaFilaDemanda[j] = $"=IF(AND(${refA_D.celdaReferencia}{excelRowNum}=\"A\", NOT(AND(ISBLANK($E{excelRowNum}), ISBLANK($F{excelRowNum}))), OR(ISBLANK($E{excelRowNum}), DATEVALUE(\"1 \"&{headerCell})>=$E{excelRowNum}), OR(ISBLANK($F{excelRowNum}), DATEVALUE(\"1 \"&{headerCell})<=$F{excelRowNum})), {indexMatchFormula}, \"--\")";
+                                nuevaFilaDemanda[j] = $"=IF(AND(${refA_D.celdaReferencia}{excelRowNum}=\"A\", NOT(AND(ISBLANK($E{excelRowNum}), ISBLANK($F{excelRowNum}))), OR(ISBLANK($E{excelRowNum}), {headerCell}>=$E{excelRowNum}), OR(ISBLANK($F{excelRowNum}), {headerCell}<=$F{excelRowNum})), {indexMatchFormula}, \"--\")";
                             }
                             else
                             {
@@ -12460,7 +12515,12 @@ namespace Portal_2_0.Models
 
                         for (int j = 0; j < 12; j++)
                         {
-                            oSLDocument.SetCellValue(4, columnaActual + extra + +j, mesFY2.ToString("MMM yyyy").ToUpper().Replace(".", String.Empty));
+                            // 1. Escribimos el objeto DateTime real, no un string
+                            oSLDocument.SetCellValue(4, columnaActual + extra +j, mesFY2);
+
+                            // 2. Aplicamos el estilo de formato de fecha "MMM yyyy" que creamos en el Paso 1
+                            oSLDocument.SetCellStyle(4, columnaActual + extra +j, styleDateHeader);
+
                             //aumenta un mes
                             mesFY2 = mesFY2.AddMonths(1);
                         }
@@ -13490,6 +13550,53 @@ namespace Portal_2_0.Models
             return (array);
         }
 
+        /// <summary>
+        /// Modifica una lista de cuartos (BG_IHS_rel_cuartos) aplicando la reducción basada en MESES COMPLETOS.
+        /// </summary>
+        private static void AplicarBlackoutACuartos_MesCompleto(List<BG_IHS_rel_cuartos> cuartos, List<BG_IHS_division_blackout> blackouts)
+        {
+            foreach (var cuarto in cuartos)
+            {
+                if (!cuarto.cantidad.HasValue || cuarto.cantidad == 0) continue;
+
+                // 1. Determinar los 3 meses que componen este cuarto
+                int mesInicioCuarto = (cuarto.cuarto * 3) - 2; // Q1->M1, Q2->M4, Q3->M7, Q4->M10
+                DateTime mes1 = new DateTime(cuarto.anio, mesInicioCuarto, 1);
+                DateTime mes2 = mes1.AddMonths(1);
+                DateTime mes3 = mes1.AddMonths(2);
+
+                var mesesDelCuarto = new List<DateTime> { mes1, mes2, mes3 };
+                int mesesEnBlackout = 0;
+
+                // 2. Contar cuántos de esos 3 meses caen en un período de blackout
+                foreach (var mes in mesesDelCuarto)
+                {
+                    bool enBlackout = false;
+                    foreach (var blackout in blackouts)
+                    {
+                        // Comprueba si el primer día del mes está dentro del rango
+                        if (mes.Date >= blackout.fecha_inicio.Date && mes.Date <= blackout.fecha_fin.Date)
+                        {
+                            enBlackout = true;
+                            break;
+                        }
+                    }
+                    if (enBlackout)
+                    {
+                        mesesEnBlackout++;
+                    }
+                }
+
+                // 3. Aplicar la reducción (0/3, 1/3, 2/3, o 3/3)
+                if (mesesEnBlackout > 0)
+                {
+                    // Usamos decimal para precisión
+                    decimal reduccionPct = (decimal)mesesEnBlackout / 3.0m;
+
+                    cuarto.cantidad = (int)Math.Round(cuarto.cantidad.Value * (1.0m - reduccionPct));
+                }
+            }
+        }
 
         public static string GetCellReference(int col)
         {
