@@ -3,6 +3,8 @@
     // Obtenemos las variables globales que necesitamos para las validaciones
     const config = window.pageConfig;
     const statusId = config.project.statusId;
+    const projectId = config.project.id;
+    const plantId = config.project.plantId;
 
     function validatePiecesPerPackage() {
         const input = $(config.fieldSelectors.PiecesPerPackage);
@@ -2372,16 +2374,20 @@
             console.log("%c--- What-If Slitter Calculation [START] ---", "color: #009ff5; font-weight: bold;");
         }
 
+        const projectIdAjax = config.project.id;
+
         const container = $("#slitterChartContainer");
         container.html("<p style='color:gray;'>Loading Slitter Capacity <i class='fa-solid fa-spinner fa-spin-pulse'></i></p>").slideDown();
-
+              
         let ajaxData = {
             __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(), // AÑADIDO: Token de seguridad
-            projectId: projectId, // <-- AÑADIDO
+            projectId: projectIdAjax, // <-- AÑADIDO
             plantId: config.project.plantId,
             applyDateFilter: true,
             OnlyBDMaterials: OnlyBDMaterials
         };
+
+
 
         // Si es un escenario "what-if", recolectamos y enviamos los datos del formulario
         if (!OnlyBDMaterials) {

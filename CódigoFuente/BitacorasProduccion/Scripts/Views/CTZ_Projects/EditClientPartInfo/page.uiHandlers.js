@@ -7,6 +7,7 @@
     const config = window.pageConfig;
     const requiresInterplant = config.project.requiresInterplant;
     const idProject = config.project.id;
+    const canEditSales = config.permissions.canEditSales;
 
     // 2. Definimos los manejadores de eventos UI
     function handleHeadTailReconciliationChange() {
@@ -1904,7 +1905,7 @@
 
             materialTypeSelect.html('<option>Loading compatible materials...</option>').prop('disabled', true).trigger('change.select2');
 
-            $.getJSON('@Url.Action("GetAvailableMaterialTypesForSlitter", "CTZ_Projects")', { plantId: plantId, slitterLineId: slitterLineId })
+            $.getJSON(config.urls.getMaterialTypesForSlitter, { plantId: plantId, slitterLineId: slitterLineId })
                 .done(function (response) {
                     if (response.success) {
                         materialTypeSelect.empty().append('<option value="">Select Material Type</option>');
@@ -2330,6 +2331,9 @@
             return;
         }
 
+        // Si canEditSales es true, es un string vacío ""; si es false, es "readonly".
+        const readOnlyAttribute = canEditSales ? "" : "readonly";
+
         let inputsHtml = '<div class="row">';
         const colWidth = Math.max(Math.floor(12 / numberOfPlates), 2);
 
@@ -2343,8 +2347,7 @@
                         <label for="${inputId}">Thickness Plate ${i}</label>
                         <input type="number" id="${inputId}" class="form-control welded-thickness-input"
                                placeholder="mm" min="0" step="any"
-                               value="${previousValue}" @(canEditSales ? "" : "readonly") />
-                        <span id="${inputId}Error" class="error-message" style="color: red; display: none;"></span>
+                               value="${previousValue}" ${readOnlyAttribute} /> <span id="${inputId}Error" class="error-message" style="color: red; display: none;"></span>
                     </div>
                 `;
         }
@@ -2541,6 +2544,10 @@
                 const matchingVehicle = vehicleData.find(v => v.Value.startsWith(mnemonic + '_'));
                 const finalVehicleCode = matchingVehicle ? matchingVehicle.Value : vehicleCode;
                 $vehicleDropdown.val(finalVehicleCode).trigger('change.select2');
+
+
+                $vehicleDropdown.prop('disabled', !canEditSales).trigger('change.select2');
+
             }
         });
     }
@@ -2551,22 +2558,41 @@
     function loadVehiclesForDropdown(country, targetVehicleSelector) {
         const $vehicleDropdown = $(targetVehicleSelector);
 
-        // Mostramos un mensaje de "cargando" mientras se obtienen los datos.
+        // 1. Deshabilitamos y mostramos el mensaje de "cargando"
         $vehicleDropdown.prop('disabled', true).html('<option>Loading vehicles...</option>').trigger('change.select2');
 
-        $.getJSON(config.urls.GetIHSByCountry, { country: country }, function (data) {
-            let newOptions = '<option value="">Select a Vehicle</option>';
-            $.each(data, (i, item) => {
-                newOptions += `<option value="${item.Value}" data-sop="${item.SOP}" data-eop="${item.EOP}"
+        // 2. Ejecutamos la llamada AJAX y encadenamos los handlers de promesa.
+        $.ajax({
+            url: config.urls.getIHSByCountry,
+            type: 'GET',
+            data: { country: country },
+            dataType: 'json',
+            success: function (data) {
+                // Éxito: poblamos el dropdown
+                let newOptions = '<option value="">Select a Vehicle</option>';
+                $.each(data, (i, item) => {
+                    newOptions += `<option value="${item.Value}" data-sop="${item.SOP}" data-eop="${item.EOP}"
                                        data-program="${item.Program}" data-maxproduction="${item.MaxProduction}"
                                        data-productionjson='${item.ProductionDataJson}'>${item.Text}</option>`;
-            });
-
-            // Habilitamos y poblamos el dropdown de vehículo con los nuevos datos.
-            $vehicleDropdown.html(newOptions).prop('disabled', !canEditSales).trigger('change.select2');
+                });
+                $vehicleDropdown.html(newOptions);
+            },
+            error: function (xhr, status, error) {
+                // Error: Notificamos y reseteamos el dropdown
+                console.error("Error en loadVehiclesForDropdown:", status, error);
+                toastr.error("Error loading vehicles for the selected country.", "AJAX Error");
+                $vehicleDropdown.html('<option value="">Error loading data</option>');
+            }
+        })
+        // Usamos .always() encadenado para garantizar que la re-habilitación se ejecute SIEMPRE,
+        // sin importar si fue success o error.
+        .always(function () {
+            // 3. Siempre: Re-habilitamos el dropdown (respetando el permiso)
+            console.log('CanEditSales: ' + canEditSales)
+            $vehicleDropdown.prop('disabled', !canEditSales).trigger('change.select2');
         });
-    }
 
+    }
     // --- FUNCIONES AUXILIARES PARA IHS ---
     function loadRowDataIntoForm(row) {
 
