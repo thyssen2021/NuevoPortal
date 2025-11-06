@@ -57,7 +57,7 @@ namespace Portal_2_0.Models
         [NotMapped]
         [Display(Name = "¿Segunda Platina?")]
         public bool segunda_platina { get; set; }
-        
+
 
         //retorna el objeto mm y el cobjeto class asociado
         [NotMapped]
@@ -65,9 +65,30 @@ namespace Portal_2_0.Models
         {
             get
             {
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == this.sap_platina);
-                if (mm == null)
-                    mm = new mm_v3 { };
+                // 1. Obtiene los datos base de SAP usando la clase de utilidad
+                // 'this.plantas' es la propiedad de navegación de produccion_registros
+                // Se asume que 'this.plantas' se carga (eager loading) o está disponible 
+                // cuando se accede a esta propiedad.
+                string plantCodigo = this.plantas?.codigoSap ?? string.Empty;
+
+                mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(this.sap_platina, plantCodigo);
+
+                // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
+                // 'db' es el Portal_2_0Entities instanciado en esta clase parcial
+                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == this.sap_platina && x.plant == plantCodigo);
+
+                // Se usa 'this.fecha.Value' (la fecha del registro)
+                if (pesos_bom_1 != null && this.fecha.HasValue)
+                {
+                    string sqlQueryGross = $"SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '{this.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff")}' where plant ='{plantCodigo}' AND material ='{this.sap_platina}'";
+                    string sqlQueryNet = $"SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '{this.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff")}' where plant ='{plantCodigo}' AND material ='{this.sap_platina}'";
+
+                    double stringGross = db.Database.SqlQuery<double>(sqlQueryGross).FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>(sqlQueryNet).FirstOrDefault();
+
+                    mm.Gross_weight = stringGross;
+                    mm.Net_weight = stringNet;
+                }
 
                 return mm;
             }
@@ -78,10 +99,8 @@ namespace Portal_2_0.Models
         {
             get
             {
-                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == this.sap_platina);
-                if (class_ == null)
-                    class_ = new class_v3 { };
-
+                // Llama a la nueva clase de utilidad estática
+                class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(this.sap_platina);
                 return class_;
             }
         }

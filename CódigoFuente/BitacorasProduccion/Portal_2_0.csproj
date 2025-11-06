@@ -38,6 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -47,6 +48,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
@@ -183,6 +185,18 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="QRCoder, Version=1.5.1.0, Culture=neutral, PublicKeyToken=c4ed5b9ae8358a28, processorArchitecture=MSIL">
       <HintPath>..\packages\QRCoder.1.5.1\lib\net40\QRCoder.dll</HintPath>
+    </Reference>
+    <Reference Include="RequeraSapConnector, Version=1.3.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\RequeraSapConnector.dll</HintPath>
+    </Reference>
+    <Reference Include="RequeraSapConnector.Native, Version=1.3.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\RequeraSapConnector.Native.dll</HintPath>
+    </Reference>
+    <Reference Include="sapnco, Version=3.0.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\sapnco.dll</HintPath>
+    </Reference>
+    <Reference Include="sapnco_utils, Version=3.0.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\sapnco_utils.dll</HintPath>
     </Reference>
     <Reference Include="SpreadsheetLight, Version=3.5.0.0, Culture=neutral, PublicKeyToken=32fbb46dc1730c57, processorArchitecture=MSIL">
       <HintPath>..\packages\SpreadsheetLight.3.5.0\lib\netstandard2.0\SpreadsheetLight.dll</HintPath>
@@ -493,7 +507,10 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Auxiliares\HangfireAuthorizationFilter.cs" />
+    <Compile Include="Models\Auxiliares\RfcConnectionService.cs" />
     <Compile Include="Models\Auxiliares\SAPCharacteristics.cs" />
+    <Compile Include="Models\Auxiliares\SapDataViewModels.cs" />
+    <Compile Include="Models\Auxiliares\SapSyncService.cs" />
     <Compile Include="Models\Auxiliares\UtilBulkCopy.cs" />
     <Compile Include="Models\Auxiliares\UtilMapeoMateriales.cs" />
     <Compile Include="Models\BaseController.cs" />

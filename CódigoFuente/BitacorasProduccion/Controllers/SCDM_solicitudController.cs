@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Entity;
 using System.Diagnostics;
@@ -13,23 +12,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Mvc.Routing.Constraints;
-using System.Web.Script.Serialization;
-using System.Web.Security;
-using System.Web.UI;
-using System.Windows.Media.Media3D;
 using Bitacoras.Util;
 using Clases.Util;
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
-using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.SignalR;
-using Newtonsoft.Json;
-using Org.BouncyCastle.Math;
 using Portal_2_0.Models;
 using Portal_2_0.Models.Auxiliares;
 using SpreadsheetLight;
@@ -41,6 +28,13 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
         private Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
+        private readonly SapSyncService _sapSyncService;
+
+        public SCDM_solicitudController()
+        {
+            // Inicializar el servicio
+            _sapSyncService = new SapSyncService();
+        }
 
         // GET: SCDM_solicitud
         public ActionResult Index(string estatus, int? id_solicitud, int pagina = 1)
@@ -4609,7 +4603,14 @@ namespace Portal_2_0.Controllers
         /// </summary>
         /// <param name="material"></param>
         /// <returns></returns>
-        public JsonResult ObtieneValoresMaterialReferencia(string material, string plantaSolicitud)
+        /// <summary>
+        /// Obtiene los datos del material (Local-First con Sincronización On-Demand).
+        /// </summary>
+        /// <param name="material"></param>
+        /// <returns></returns>
+        // --- INICIO MODIFICACIÓN: Cambiar firma a async Task ---
+        public async Task<JsonResult> ObtieneValoresMaterialReferencia(string material, string plantaSolicitud)
+        // --- FIN MODIFICACIÓN ---
         {
             // Asegurarnos de comparar en mayúsculas sin espacios adicionales
             material = material?.Trim().ToUpper();
@@ -4618,32 +4619,61 @@ namespace Portal_2_0.Controllers
             // Prepara el arreglo de respuesta
             var respuesta = new object[1];
 
-            // Se intenta buscar por Matnr (Material)
-            var mm = db_sap.Materials
-                .FirstOrDefault(x => x.Matnr == material);
+            // --- INICIO MODIFICACIÓN: Lógica Híbrida (Local-First + On-Demand) ---
 
-            // 1b) Buscar en MaterialPlants (se utiliza para obtener el Plnt y status)
-            var mmPlant = db_sap.MaterialPlants
-                .FirstOrDefault(x => x.Matnr == material && x.Werks == plantaSolicitud)
-                ?? db_sap.MaterialPlants.FirstOrDefault(x => x.Matnr == material);
+            // 1. INTENTO LOCAL (Fast Path)
+            // Usamos AsNoTracking() para optimizar consultas de solo lectura
+            var mm = db_sap.Materials.AsNoTracking().FirstOrDefault(x => x.Matnr == material);
 
+            // 2. SI NO EXISTE, INTENTA SINCRONIZACIÓN ON-DEMAND (Slow Path)
             if (mm == null)
             {
+                // Prepara las plantas para la búsqueda
+                List<string> plantasConsulta = new List<string>();
+                if (!string.IsNullOrEmpty(plantaSolicitud))
+                {
+                    plantasConsulta.Add(plantaSolicitud);
+                }
+                // (Opcional: puedes agregar aquí plantas default si es necesario)
+
+                // Llama al servicio de sincronización (maneja concurrencia, RFC y write-back)
+                bool syncSuccess = await _sapSyncService.SyncMaterialOnDemandAsync(material, plantasConsulta);
+
+                if (syncSuccess)
+                {
+                    // Vuelve a consultar la BD local. Ahora debería existir.
+                    mm = db_sap.Materials.AsNoTracking().FirstOrDefault(x => x.Matnr == material);
+                }
+            }
+
+            // 3. VERIFICACIÓN FINAL Y FALLBACK
+            if (mm == null)
+            {
+                // Si 'mm' sigue siendo nulo (la sincronización falló o SAP no lo encontró),
+                // retornamos el error de "No encontrado" (Fallback).
                 respuesta[0] = new
                 {
                     existe = "0",
-                    mensaje = $"No se encontró referencia al material {material} en SAP."
+                    mensaje = $"No se encontró referencia al material {material} en la BD local ni en SAP (la sincronización falló o el material no existe)."
                 };
                 return Json(respuesta, JsonRequestBehavior.AllowGet);
             }
 
+            // --- FIN MODIFICACIÓN ---
+
+
+            // 1b) Buscar en MaterialPlants (se utiliza para obtener el Plnt y status)
+            var mmPlant = db_sap.MaterialPlants.AsNoTracking()
+                .FirstOrDefault(x => x.Matnr == material && x.Werks == plantaSolicitud)
+                ?? db_sap.MaterialPlants.AsNoTracking().FirstOrDefault(x => x.Matnr == material);
+
             // 2) Obtener la descripción en español e inglés
-            var mmDescES = db_sap.MaterialDescriptions.FirstOrDefault(x => x.Matnr == material && x.Spras == "S");
-            var mmDescEN = db_sap.MaterialDescriptions.FirstOrDefault(x => x.Matnr == material && x.Spras == "E");
+            var mmDescES = db_sap.MaterialDescriptions.AsNoTracking().FirstOrDefault(x => x.Matnr == material && x.Spras == "S");
+            var mmDescEN = db_sap.MaterialDescriptions.AsNoTracking().FirstOrDefault(x => x.Matnr == material && x.Spras == "E");
 
             // 3) Obtener todas las características del material (class_v3 equivalente)
             // Se cargan todas las características en un diccionario para un acceso rápido y simple.
-            var characteristics = db_sap.MaterialCharacteristics
+            var characteristics = db_sap.MaterialCharacteristics.AsNoTracking()
                 .Where(x => x.Matnr == material)
                 .ToList()
                 .ToDictionary(x => x.Charact, x => x, StringComparer.OrdinalIgnoreCase);
@@ -4774,10 +4804,6 @@ namespace Portal_2_0.Controllers
             string pesoMinimoTolPositivaString = mm.ZZMNWTTOLP?.ToString() ?? string.Empty;
             string pesoMinimoTolNegativaString = mm.ZZMNWTTOLN?.ToString() ?? string.Empty;
 
-            ///////////////////////////
-            ////////////////////////////
-
-
             // 3) Preparar lista de descripciones IHS (en mayúsculas) y consultar en una sola pasada
             var ihsDescs = new[]
             {
@@ -4891,7 +4917,6 @@ namespace Portal_2_0.Controllers
 
             return Json(respuesta, JsonRequestBehavior.AllowGet);
         }
-
 
         [NonAction]
         public string ExtractIntegerValue(string value)
