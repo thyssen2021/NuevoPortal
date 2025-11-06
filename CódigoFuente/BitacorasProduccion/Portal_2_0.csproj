@@ -406,6 +406,7 @@
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\notificaciones_correoController.cs" />
     <Compile Include="Controllers\OrdenesTrabajoController.cs" />
+    <Compile Include="Controllers\OT_CargasController.cs" />
     <Compile Include="Controllers\OT_GruposController.cs" />
     <Compile Include="Controllers\OT_rel_depto_aplica_lineaController.cs" />
     <Compile Include="Controllers\OT_responsablesController.cs" />
@@ -1096,6 +1097,12 @@
     </Compile>
     <Compile Include="Models\OpenHours.cs" />
     <Compile Include="Models\orden_trabajo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\OT_Cargas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\OT_Datos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\OT_grupo_trabajo.cs">
@@ -6101,6 +6108,7 @@
     <Content Include="Views\BG_Forecast_reporte\GestionarCargas.cshtml" />
     <Content Include="Views\SCDM_solicitud\ReporteVencimientos.cshtml" />
     <Content Include="Views\BG_Forecast_cat_fiscal_years\Index.cshtml" />
+    <Content Include="Views\OT_Cargas\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -309,5 +309,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
         public virtual DbSet<BG_Forecast_cat_fiscal_years> BG_Forecast_cat_fiscal_years { get; set; }
         public virtual DbSet<BG_IHS_division_blackout> BG_IHS_division_blackout { get; set; }
+        public virtual DbSet<OT_Cargas> OT_Cargas { get; set; }
+        public virtual DbSet<OT_Datos> OT_Datos { get; set; }
     }
 }

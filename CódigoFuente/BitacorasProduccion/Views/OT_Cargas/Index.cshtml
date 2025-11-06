@@ -1,0 +1,217 @@
+﻿@model Portal_2_0.Models.OT_CargasViewModel
+@using Clases.Util 
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Gestión de Cargas de Ordenes de Transporte";
+    ViewBag.PrimerNivel = "budget_forecast";
+    ViewBag.SegundoNivel = "ordenes_transporte";
+    ViewBag.nav_style = "nav-sm";}
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>@ViewBag.Title</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-upload"></i> Cargar Nuevo Archivo</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        @* --- FORMULARIO DE CARGA --- *@
+                        @using (Html.BeginForm("ProcesarCarga", "OT_Cargas", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            if (!string.IsNullOrEmpty(Model.AlertMessage))
+                            {
+                                <div class="alert alert-@(Model.AlertType ?? "danger") alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    @Model.AlertMessage
+                                </div>
+                            }
+
+                            <div class="form-group">
+                                <label>Archivo Excel (Hoja 'General')</label>
+                                @Html.TextBoxFor(model => model.ArchivoExcel, new { type = "file", @class = "form-control", accept = ".xlsx" })
+                                @Html.ValidationMessageFor(model => model.ArchivoExcel, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="form-group">
+                                <label>Comentarios (Opcional)</label>
+                                @Html.TextAreaFor(model => model.Comentarios, new { @class = "form-control", rows = 3, placeholder = "Ej. Carga inicial Q1...", required = "required" })
+                                @Html.ValidationMessageFor(model => model.Comentarios, "", new { @class = "text-danger" })
+                            </div>
+
+                            <hr />
+
+                            <button typeaction="submit" class="btn btn-success btn-block">
+                                <i class="fa fa-cogs"></i> Procesar y Guardar Archivo
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-history"></i> Historial de Cargas</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        @* --- TABLA DE HISTORIAL --- *@
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover jambo_table">
+                                <thead>
+                                    <tr class="headings">
+                                        <th>ID</th>
+                                        <th>Fecha Carga</th>
+                                        <th>Usuario</th>
+                                        <th>Archivo</th>
+                                        <th>Registros</th>
+                                        <th>Comentarios</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (!Model.CargasExistentes.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="7" class="text-center">No hay cargas para mostrar.</td>
+                                        </tr>
+                                    }
+
+                                    @foreach (var carga in Model.CargasExistentes)
+                                    {
+                                        <tr id="carga-row-@carga.ID_CargaOT">
+                                            <td>@carga.ID_CargaOT</td>
+                                            <td>@carga.FechaCarga.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@carga.UsuarioCarga</td>
+                                            <td>@carga.NombreArchivo</td>
+                                            <td>@carga.TotalRegistros</td>
+                                            <td>@carga.Comentarios</td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger btn-xs btn-eliminar" data-id="@carga.ID_CargaOT" title="Eliminar Carga (¡Esto borrará todos los datos asociados!)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+
+            // Interceptar el clic en cualquier botón con la clase 'btn-eliminar'
+            $('.table-responsive').on('click', '.btn-eliminar', function () {
+                var cargaId = $(this).data('id');
+                var $fila = $('#carga-row-' + cargaId);
+                var totalRegistros = $fila.find('td:eq(4)').text(); // Obtenemos el total de registros para el mensaje
+
+                /* --- MARCADOR: INICIO DEL CÓDIGO MODIFICADO --- */
+                Swal.fire({
+                    title: 'Confirmación Adicional',
+                    // Usamos 'html' para dar instrucciones claras
+                    html: `
+                        <p>Esto eliminará la carga <strong>ID ${cargaId}</strong> y sus <strong>${totalRegistros}</strong> registros permanentemente.</p>
+                        <p>Para confirmar, por favor ingrese el ID <strong>${cargaId}</strong> en el siguiente campo:</p>
+                    `,
+                    icon: 'warning',
+                    input: 'text', // Agregamos un campo de texto
+                    inputPlaceholder: 'Ingrese el ID ' + cargaId,
+                    inputAttributes: {
+                        'aria-label': 'Ingrese el ID para confirmar'
+                    },
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: '¡Eliminar!',
+                    cancelButtonText: 'Cancelar',
+
+                    // Esta función valida el input ANTES de confirmar
+                    preConfirm: (inputValue) => {
+                        if (inputValue !== cargaId.toString()) {
+                            // Si no coincide, mostramos un mensaje de error de validación
+                            Swal.showValidationMessage(`El ID ingresado ("${inputValue}") no coincide. Se esperaba el ID ${cargaId}.`);
+                            return false; // Evita que se cierre el modal
+                        }
+                        return inputValue; // Si coincide, procede
+                    }
+                }).then((result) => {
+                    // Esta parte solo se ejecuta si la validación (preConfirm) fue exitosa
+                    // y el usuario hizo clic en "¡Eliminar!"
+                    if (result.isConfirmed) {
+                /* --- MARCADOR: FIN DEL CÓDIGO MODIFICADO --- */
+
+                        // Bloquear la UI (como en tu ejemplo)
+                        $.blockUI({ message: '<h1><i class="fa fa-spinner fa-spin"></i> Eliminando...</h1>' });
+
+                        // Petición AJAX al controlador (Esta lógica no cambia)
+                        $.ajax({
+                            url: '@Url.Action("Delete", "OT_Cargas")',
+                            type: 'POST',
+                            data: { id: cargaId },
+                            success: function (response) {
+                                $.unblockUI();
+                                if (response.success) {
+                                    $fila.fadeOut(500, function () {
+                                        $(this).remove();
+                                    });
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        response.message,
+                                        'success'
+                                    );
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        response.message,
+                                        'error'
+                                    );
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                $.unblockUI();
+                                Swal.fire(
+                                    'Error de Petición',
+                                    'No se pudo conectar al servidor: ' + error,
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
+
+        });
+    </script>
+}

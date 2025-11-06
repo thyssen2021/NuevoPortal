@@ -2033,6 +2033,50 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="comentario" Type="varchar" MaxLength="300" />
           <Property Name="id_zona_falla" Type="int" />
         </EntityType>
+        <EntityType Name="OT_Cargas">
+          <Key>
+            <PropertyRef Name="ID_CargaOT" />
+          </Key>
+          <Property Name="ID_CargaOT" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FechaCarga" Type="datetime" Nullable="false" />
+          <Property Name="UsuarioCarga" Type="varchar" MaxLength="100" />
+          <Property Name="NombreArchivo" Type="varchar" MaxLength="255" />
+          <Property Name="Comentarios" Type="varchar" MaxLength="500" />
+          <Property Name="TotalRegistros" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OT_Datos">
+          <Key>
+            <PropertyRef Name="ID_DatoOT" />
+          </Key>
+          <Property Name="ID_DatoOT" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_CargaOT" Type="int" Nullable="false" />
+          <Property Name="Posicion" Type="int" />
+          <Property Name="ClDocumentoCompras" Type="varchar" MaxLength="10" />
+          <Property Name="TipoDocCompras" Type="varchar" MaxLength="10" />
+          <Property Name="GrupoCompras" Type="varchar" MaxLength="10" />
+          <Property Name="FechaDocumento" Type="date" />
+          <Property Name="Material" Type="varchar" MaxLength="100" />
+          <Property Name="TextoBreve" Type="varchar" MaxLength="255" />
+          <Property Name="IndicadorBorrado" Type="varchar" MaxLength="10" />
+          <Property Name="Centro" Type="varchar" MaxLength="10" />
+          <Property Name="Almacen" Type="varchar" MaxLength="10" />
+          <Property Name="CantidadPedido" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="UnidadMedidaPedido" Type="varchar" MaxLength="10" />
+          <Property Name="CantidadUMA" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="UnidadMedidaAlmacen" Type="varchar" MaxLength="10" />
+          <Property Name="PrecioNeto" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Moneda" Type="varchar" MaxLength="5" />
+          <Property Name="CantidadBase" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="CtdPrevPendiente" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="PorEntregarCantidad" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="PorEntregarValor" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="PorCalcularCantidad" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="TipoImputacion" Type="varchar" MaxLength="5" />
+          <Property Name="PorCalcularValor" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="IndLiberacion" Type="varchar" MaxLength="5" />
+          <Property Name="DocumentoCompras" Type="varchar" MaxLength="20" />
+          <Property Name="ProveedorCentroSuministrador" Type="varchar" MaxLength="255" />
+        </EntityType>
         <EntityType Name="OT_grupo_trabajo">
           <Key>
             <PropertyRef Name="id" />
@@ -6620,6 +6664,20 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_OT_Datos_OT_Cargas">
+          <End Role="OT_Cargas" Type="Self.OT_Cargas" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="OT_Datos" Type="Self.OT_Datos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OT_Cargas">
+              <PropertyRef Name="ID_CargaOT" />
+            </Principal>
+            <Dependent Role="OT_Datos">
+              <PropertyRef Name="ID_CargaOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_OT_refacciones_id_orden_trabajo">
           <End Role="orden_trabajo" Type="Self.orden_trabajo" Multiplicity="1" />
           <End Role="OT_refacciones" Type="Self.OT_refacciones" Multiplicity="*" />
@@ -8592,6 +8650,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="notificaciones_correo" EntityType="Self.notificaciones_correo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="orden_trabajo" EntityType="Self.orden_trabajo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OT_Cargas" EntityType="Self.OT_Cargas" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OT_Datos" EntityType="Self.OT_Datos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_grupo_trabajo" EntityType="Self.OT_grupo_trabajo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_refacciones" EntityType="Self.OT_refacciones" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_rel_archivos" EntityType="Self.OT_rel_archivos" Schema="dbo" store:Type="Tables" />
@@ -9942,6 +10002,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <AssociationSet Name="FK_orden_trabajo_id_solicitante" Association="Self.FK_orden_trabajo_id_solicitante">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OT_Datos_OT_Cargas" Association="Self.FK_OT_Datos_OT_Cargas">
+            <End Role="OT_Cargas" EntitySet="OT_Cargas" />
+            <End Role="OT_Datos" EntitySet="OT_Datos" />
           </AssociationSet>
           <AssociationSet Name="FK_OT_refacciones_id_orden_trabajo" Association="Self.FK_OT_refacciones_id_orden_trabajo">
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
@@ -18393,6 +18457,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
             <End Role="BG_IHS_division_blackout" EntitySet="BG_IHS_division_blackout" />
           </AssociationSet>
+          <EntitySet Name="OT_Cargas" EntityType="Portal_2_0Model.OT_Cargas" />
+          <EntitySet Name="OT_Datos" EntityType="Portal_2_0Model.OT_Datos" />
+          <AssociationSet Name="FK_OT_Datos_OT_Cargas" Association="Portal_2_0Model.FK_OT_Datos_OT_Cargas">
+            <End Role="OT_Cargas" EntitySet="OT_Cargas" />
+            <End Role="OT_Datos" EntitySet="OT_Datos" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -21344,6 +21414,66 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             </Principal>
             <Dependent Role="BG_IHS_division_blackout">
               <PropertyRef Name="id_ihs_division" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OT_Cargas">
+          <Key>
+            <PropertyRef Name="ID_CargaOT" />
+          </Key>
+          <Property Name="ID_CargaOT" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FechaCarga" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UsuarioCarga" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="NombreArchivo" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Comentarios" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="TotalRegistros" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="OT_Datos" Relationship="Portal_2_0Model.FK_OT_Datos_OT_Cargas" FromRole="OT_Cargas" ToRole="OT_Datos" />
+        </EntityType>
+        <EntityType Name="OT_Datos">
+          <Key>
+            <PropertyRef Name="ID_DatoOT" />
+          </Key>
+          <Property Name="ID_DatoOT" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_CargaOT" Type="Int32" Nullable="false" />
+          <Property Name="Posicion" Type="Int32" />
+          <Property Name="ClDocumentoCompras" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="TipoDocCompras" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="GrupoCompras" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="FechaDocumento" Type="DateTime" Precision="0" />
+          <Property Name="Material" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="TextoBreve" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="IndicadorBorrado" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="Centro" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="Almacen" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CantidadPedido" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="UnidadMedidaPedido" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CantidadUMA" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="UnidadMedidaAlmacen" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="PrecioNeto" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Moneda" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="CantidadBase" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="CtdPrevPendiente" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PorEntregarCantidad" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PorEntregarValor" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="PorCalcularCantidad" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="TipoImputacion" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="PorCalcularValor" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="IndLiberacion" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="DocumentoCompras" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ProveedorCentroSuministrador" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OT_Cargas" Relationship="Portal_2_0Model.FK_OT_Datos_OT_Cargas" FromRole="OT_Datos" ToRole="OT_Cargas" />
+        </EntityType>
+        <Association Name="FK_OT_Datos_OT_Cargas">
+          <End Type="Portal_2_0Model.OT_Cargas" Role="OT_Cargas" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Portal_2_0Model.OT_Datos" Role="OT_Datos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OT_Cargas">
+              <PropertyRef Name="ID_CargaOT" />
+            </Principal>
+            <Dependent Role="OT_Datos">
+              <PropertyRef Name="ID_CargaOT" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -25742,6 +25872,52 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
                 <ScalarProperty Name="fecha_inicio" ColumnName="fecha_inicio" />
                 <ScalarProperty Name="id_ihs_division" ColumnName="id_ihs_division" />
                 <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OT_Cargas">
+            <EntityTypeMapping TypeName="Portal_2_0Model.OT_Cargas">
+              <MappingFragment StoreEntitySet="OT_Cargas">
+                <ScalarProperty Name="TotalRegistros" ColumnName="TotalRegistros" />
+                <ScalarProperty Name="Comentarios" ColumnName="Comentarios" />
+                <ScalarProperty Name="NombreArchivo" ColumnName="NombreArchivo" />
+                <ScalarProperty Name="UsuarioCarga" ColumnName="UsuarioCarga" />
+                <ScalarProperty Name="FechaCarga" ColumnName="FechaCarga" />
+                <ScalarProperty Name="ID_CargaOT" ColumnName="ID_CargaOT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OT_Datos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.OT_Datos">
+              <MappingFragment StoreEntitySet="OT_Datos">
+                <ScalarProperty Name="ProveedorCentroSuministrador" ColumnName="ProveedorCentroSuministrador" />
+                <ScalarProperty Name="DocumentoCompras" ColumnName="DocumentoCompras" />
+                <ScalarProperty Name="IndLiberacion" ColumnName="IndLiberacion" />
+                <ScalarProperty Name="PorCalcularValor" ColumnName="PorCalcularValor" />
+                <ScalarProperty Name="TipoImputacion" ColumnName="TipoImputacion" />
+                <ScalarProperty Name="PorCalcularCantidad" ColumnName="PorCalcularCantidad" />
+                <ScalarProperty Name="PorEntregarValor" ColumnName="PorEntregarValor" />
+                <ScalarProperty Name="PorEntregarCantidad" ColumnName="PorEntregarCantidad" />
+                <ScalarProperty Name="CtdPrevPendiente" ColumnName="CtdPrevPendiente" />
+                <ScalarProperty Name="CantidadBase" ColumnName="CantidadBase" />
+                <ScalarProperty Name="Moneda" ColumnName="Moneda" />
+                <ScalarProperty Name="PrecioNeto" ColumnName="PrecioNeto" />
+                <ScalarProperty Name="UnidadMedidaAlmacen" ColumnName="UnidadMedidaAlmacen" />
+                <ScalarProperty Name="CantidadUMA" ColumnName="CantidadUMA" />
+                <ScalarProperty Name="UnidadMedidaPedido" ColumnName="UnidadMedidaPedido" />
+                <ScalarProperty Name="CantidadPedido" ColumnName="CantidadPedido" />
+                <ScalarProperty Name="Almacen" ColumnName="Almacen" />
+                <ScalarProperty Name="Centro" ColumnName="Centro" />
+                <ScalarProperty Name="IndicadorBorrado" ColumnName="IndicadorBorrado" />
+                <ScalarProperty Name="TextoBreve" ColumnName="TextoBreve" />
+                <ScalarProperty Name="Material" ColumnName="Material" />
+                <ScalarProperty Name="FechaDocumento" ColumnName="FechaDocumento" />
+                <ScalarProperty Name="GrupoCompras" ColumnName="GrupoCompras" />
+                <ScalarProperty Name="TipoDocCompras" ColumnName="TipoDocCompras" />
+                <ScalarProperty Name="ClDocumentoCompras" ColumnName="ClDocumentoCompras" />
+                <ScalarProperty Name="Posicion" ColumnName="Posicion" />
+                <ScalarProperty Name="ID_CargaOT" ColumnName="ID_CargaOT" />
+                <ScalarProperty Name="ID_DatoOT" ColumnName="ID_DatoOT" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

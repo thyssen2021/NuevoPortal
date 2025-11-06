@@ -474,4 +474,29 @@ namespace Portal_2_0.Models
         public string RechazadoPor { get; set; }
         public int? MotivoAsignacionIncorrecta { get; set; }
     }
+
+    public class OT_CargasViewModel
+    {
+        // 1. Para mostrar el listado de cargas existentes
+        public List<OT_Cargas> CargasExistentes { get; set; }
+
+        // 2. Para el formulario de subida
+        [Required(ErrorMessage = "Debe seleccionar un archivo .xlsx")]
+        public HttpPostedFileBase ArchivoExcel { get; set; }
+
+        [Display(Name = "Comentarios")]
+        [StringLength(500, ErrorMessage = "Los comentarios no pueden exceder 500 caracteres.")]
+        public string Comentarios { get; set; }
+
+        // 3. Para mensajes de error
+        public string AlertMessage { get; set; }
+        public string AlertType { get; set; } // "danger", "success", etc.
+
+        // Constructor para inicializar la lista
+        public OT_CargasViewModel()
+        {
+            this.CargasExistentes = new List<OT_Cargas>();
+        }
+    }
+
 }

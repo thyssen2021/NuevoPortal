@@ -510,6 +510,8 @@
                                                     <li class="@(ViewBag.SegundoNivel == "carga_masiva_ihs" ? "current-page" : null )"><a href="@Url.Action("CargaMasiva", "BG_IHS_item")">Carga Masiva IHS</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "carga_masiva_ihs_cliente" ? "current-page" : null )"><a href="@Url.Action("CargaMasivaCliente", "BG_IHS_item")">Carga Masiva IHS-Cliente</a></li>
                                                 }
+                                                <li class="@(ViewBag.SegundoNivel == "ordenes_transporte" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_Cargas")">Gestionar Cargas OT</a></li>
+
                                             </ul>
                                         </li>
                                     }
