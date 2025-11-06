@@ -15,6 +15,27 @@ namespace Portal_2_0.Models
     [MetadataType(typeof(class_v3Metadata))]
     public partial class class_v3 : IEquatable<class_v3>
     {
+        ///*
+        public string Object { get; set; }
+        public string Grade { get; set; }
+        public string Customer { get; set; }
+        public string Shape { get; set; }
+        public string Customer_part_number { get; set; }
+        public string Surface { get; set; }
+        public string Gauge___Metric { get; set; }
+        public string Mill { get; set; }
+        public string Width___Metr { get; set; }
+        public string Length_mm_ { get; set; }
+        public bool activo { get; set; }
+        public string commodity { get; set; }
+        public string flatness_metric { get; set; }
+        public string surface_treatment { get; set; }
+        public string coating_weight { get; set; }
+        public string customer_part_msa { get; set; }
+        public string outer_diameter_coil { get; set; }
+        public string inner_diameter_coil { get; set; }
+        //*/
+
         //para realizar la comparacion    
         public bool Equals(class_v3 other)
         {

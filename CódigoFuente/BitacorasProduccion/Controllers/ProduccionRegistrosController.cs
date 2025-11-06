@@ -409,49 +409,51 @@ namespace Portal_2_0.Controllers
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
-                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
+                // --- INICIO MODIFICACIÓN (Platina 1) ---
+                // 1. Obtiene los datos base de SAP y los mapea a los objetos antiguos
+                mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina, produccion.plantas.codigoSap);
+                class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina); // Aún usamos la función local para class_
 
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina) ?? new mm_v3();
-           
+                // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
+                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
+                DateTime now = DateTime.Now;
+
                 if (pesos_bom_1 != null)
                 {
-                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='"+ 
-                            produccion.plantas.codigoSap + "' AND material ='"+produccion.sap_platina+"'").FirstOrDefault();
-                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='"+ 
-                            produccion.plantas.codigoSap + "' AND material ='"+produccion.sap_platina+"'").FirstOrDefault();
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
 
                     mm.Gross_weight = stringGross;
                     mm.Net_weight = stringNet;
-                                        
-                }                
+
+                }
 
 
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
-                if (class_ == null)
-                    class_ = new class_v3 { };
+                // --- INICIO MODIFICACIÓN (Platina 2) ---
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
+                // 3. Obtiene los datos base de SAP para Platina 2
+                mm_v3 mm_2 = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina_2, produccion.plantas.codigoSap);
+                class_v3 class_2 = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina_2); // Aún usamos la función local para class_
+
+                // 4. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
                 bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina_2 && x.plant == produccion.plantas.codigoSap);
 
-                var mm_2 = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina_2) ?? new mm_v3();
+                if (pesos_bom_2 != null)
+                {
 
-                if (pesos_bom_2 != null) {
-
-                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
-                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
 
                     mm_2.Gross_weight = stringGross;
                     mm_2.Net_weight = stringNet;
                 }
-                
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina_2);
-                if (class_2 == null)
-                    class_2 = new class_v3 { };
+
+                // --- FIN MODIFICACIÓN (Platina 2) ---
+
 
                 //agrega las piezas por golpe en caso de existir
                 if (produccion.produccion_datos_entrada.piezas_por_golpe == null && mm.num_piezas_golpe != null) {
@@ -482,28 +484,7 @@ namespace Portal_2_0.Controllers
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
         {
             var produccionBD = db.produccion_registros.Find(produccion_registros.id);
-            //comprueba si hay un margen del 3% de toleracnicia
-            //try
-            //{
-            //    //sumatoria de ambas
-            //    double peso_bascula = produccion_registros.produccion_datos_entrada.peso_bascula_kgs.HasValue ? produccion_registros.produccion_datos_entrada.peso_bascula_kgs.Value : 0;
-            //    double peso_regreso_rollo = produccion_registros.produccion_datos_entrada.peso_regreso_rollo_real.HasValue ? produccion_registros.produccion_datos_entrada.peso_regreso_rollo_real.Value : 0;
-            //    double peso_etiqueta = produccion_registros.produccion_datos_entrada.peso_etiqueta.HasValue ? produccion_registros.produccion_datos_entrada.peso_etiqueta.Value : 0;
-            //    double peso_de_rollo_usado_real = peso_bascula - peso_regreso_rollo;
-            //    double dif_abs = Math.Abs(peso_bascula - peso_de_rollo_usado_real);
-            //    double porcentaje_dif = (dif_abs / peso_de_rollo_usado_real) * 100;
-
-            //    if (porcentaje_dif > 3)
-            //        ModelState.AddModelError("", "La diferencia entre el Peso de Rollo Usado Real y el Peso de Báscula es mayor al 3%. Favor de verificar los datos.");
-
-            //}
-            //catch (Exception e)
-            //{
-            //    //do nothing
-            //    //ModelState.AddModelError("", "Ocurrió un error al calcular el porcentaje de diferencia: " + e.Message);
-            //}
-
-
+          
             bool error = false;
             bool errorDoble = false;
 
@@ -594,10 +575,15 @@ namespace Portal_2_0.Controllers
             produccion_registros.produccion_lineas = db.produccion_lineas.Find(produccion_registros.id_linea);
             produccion_registros.produccion_turnos = db.produccion_turnos.Find(produccion_registros.id_turno);
 
-            //obtiene el primer valor de mm
+            // --- INICIO MODIFICACIÓN ---
+
+            // 1. Obtiene los datos base de SAP usando la clase de utilidad
+            mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(produccionBD.sap_platina, produccionBD.plantas.codigoSap);
+            class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(produccionBD.sap_platina);
+
+            // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
             bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccionBD.sap_platina && x.plant == produccionBD.plantas.codigoSap);
 
-            mm_v3 mm = new mm_v3 { };
             if (pesos_bom_1 != null)
             {
                 double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccionBD.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
@@ -608,17 +594,16 @@ namespace Portal_2_0.Controllers
                 mm.Gross_weight = stringGross;
                 mm.Net_weight = stringNet;
             }
-            //ENVIAR cLASS SEGUN EL MATERIAL
-            class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion_registros.sap_platina);
-            if (class_ == null)
-                class_ = new class_v3 { };
 
-            //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
+            // 3. Obtiene los datos base de SAP para Platina 2
+            mm_v3 mm_2 = UtilMapeoMateriales.GetSAPMaterialData(produccionBD.sap_platina_2, produccionBD.plantas.codigoSap);
+            class_v3 class_2 = UtilMapeoMateriales.GetSAPClassData(produccionBD.sap_platina_2);
+
+            // 4. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
             bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccionBD.sap_platina_2 && x.plant == produccionBD.plantas.codigoSap);
-            mm_v3 mm_2 = new mm_v3 { };
+
             if (pesos_bom_2 != null)
             {
-
                 double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccionBD.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                         produccionBD.plantas.codigoSap + "' AND material ='" + produccionBD.sap_platina_2 + "'").FirstOrDefault();
                 double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccionBD.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
@@ -628,15 +613,12 @@ namespace Portal_2_0.Controllers
                 mm_2.Net_weight = stringNet;
             }
 
-            //ENVIAR cLASS SEGUN EL MATERIAL
-            class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion_registros.sap_platina_2);
-            if (class_2 == null)
-                class_2 = new class_v3 { };
-
             ViewBag.MM = mm;
             ViewBag.Class = class_;
             ViewBag.MM_2 = mm_2;
             ViewBag.Class_2 = class_2;
+
+            // --- FIN MODIFICACIÓN ---
 
             //para agregar sap platina 2
             ViewBag.produccion_datos_entrada_sap_platina_2 = ComboSelect.obtieneMaterial_BOM();
@@ -681,49 +663,60 @@ namespace Portal_2_0.Controllers
                 //agrega datos entrada a la produccion
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
+                // --- INICIO MODIFICACIÓN (Platina 1) ---
+
+                // 1. Obtiene los datos base de SAP usando la clase de utilidad
+                mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina, produccion.plantas.codigoSap);
+                class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina);
+
+                // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
                 bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
 
-                mm_v3 mm = new mm_v3 { };
-                if (pesos_bom_1 != null)
+                DateTime now = DateTime.Now;
+
+                // Asegurarse que la fecha de producción no sea nula para la consulta histórica
+                if (pesos_bom_1 != null && produccion.fecha.HasValue)
                 {
-                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
-                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
 
                     mm.Gross_weight = stringGross;
                     mm.Net_weight = stringNet;
                 }
 
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
-                if (class_ == null)
-                    class_ = new class_v3 { };
+                // --- FIN MODIFICACIÓN (Platina 1) ---
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
+
+                // --- INICIO MODIFICACIÓN (Platina 2) ---
+
+                // 3. Obtiene los datos base de SAP para Platina 2
+                mm_v3 mm_2 = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina_2, produccion.plantas.codigoSap);
+                class_v3 class_2 = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina_2);
+
+                // 4. Lógica de bom_pesos para Platina 2 (SE MANTIENE)
                 bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina_2 && x.plant == produccion.plantas.codigoSap);
-                mm_v3 mm_2 = new mm_v3 { };
-                if (pesos_bom_2 != null)
-                {
 
-                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                if (pesos_bom_2 != null && produccion.fecha.HasValue)
+                {                   
+
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
-                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
 
                     mm_2.Gross_weight = stringGross;
                     mm_2.Net_weight = stringNet;
                 }
 
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina_2);
-                if (class_2 == null)
-                    class_2 = new class_v3 { };
+                // --- FIN MODIFICACIÓN (Platina 2) ---
 
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
                 ViewBag.MM_2 = mm_2;
                 ViewBag.Class_2 = class_2;
+
                 return View(produccion);
             }
             else
@@ -770,19 +763,59 @@ namespace Portal_2_0.Controllers
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
-                if (mm == null)
-                    mm = new mm_v3 { };
+                // --- INICIO MODIFICACIÓN (Platina 1) ---
 
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
-                if (class_ == null)
-                    class_ = new class_v3 { };
+                // 1. Obtiene los datos base de SAP usando la clase de utilidad
+                mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina, produccion.plantas.codigoSap);
+                class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina);
 
+                // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
+                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
+
+                DateTime now = DateTime.Now;
+
+                // Se usa la fecha del registro 'now'
+                if (pesos_bom_1 != null && produccion.fecha.HasValue)
+                {
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+
+                    mm.Gross_weight = stringGross;
+                    mm.Net_weight = stringNet;
+                }
+
+                // --- FIN MODIFICACIÓN (Platina 1) ---
+
+
+                // --- INICIO MODIFICACIÓN (Platina 2) ---
+
+                // 3. Obtiene los datos base de SAP para Platina 2
+                mm_v3 mm_2 = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina_2, produccion.plantas.codigoSap);
+                class_v3 class_2 = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina_2);
+
+                // 4. Lógica de bom_pesos para Platina 2 (SE MANTIENE)
+                bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina_2 && x.plant == produccion.plantas.codigoSap);
+
+                if (pesos_bom_2 != null && produccion.fecha.HasValue)
+                {
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
+
+                    mm_2.Gross_weight = stringGross;
+                    mm_2.Net_weight = stringNet;
+                }
+
+                // --- FIN MODIFICACIÓN (Platina 2) ---
 
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
+                ViewBag.MM_2 = mm_2;
+                ViewBag.Class_2 = class_2;
+
                 return View(produccion);
             }
             else
@@ -881,18 +914,30 @@ namespace Portal_2_0.Controllers
                 //agrega datos entrada a la produccion
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
+                // --- INICIO MODIFICACIÓN (Platina 1) ---
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
-                if (mm == null)
-                    mm = new mm_v3 { };
+                // 1. Obtiene los datos base de SAP usando la clase de utilidad
+                mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina, produccion.plantas.codigoSap);
+                class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina);
 
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
-                if (class_ == null)
-                    class_ = new class_v3 { };
+                // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
+                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
 
+                DateTime now = DateTime.Now;
 
+                
+                if (pesos_bom_1 != null && produccion.fecha.HasValue)
+                {
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+
+                    mm.Gross_weight = stringGross;
+                    mm.Net_weight = stringNet;
+                }
+
+                // --- FIN MODIFICACIÓN (Platina 1) ---
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
                 return View(produccion);
@@ -956,6 +1001,8 @@ namespace Portal_2_0.Controllers
                 linea = registros.id_linea
             });
         }
+
+       
 
         protected override void Dispose(bool disposing)
         {

@@ -212,13 +212,13 @@ namespace Portal_2_0.Models
         ///retorna un List<SelectListItem> con las opciones disponibles
         public static List<SelectListItem> obtieneMaterial_BOM()
         {
-            Portal_2_0Entities db = new Portal_2_0Entities();
+            Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
 
-            //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.Quantity > 0 && !p.Material.StartsWith("sm")).ToList();
-
-            //realiza un distict de los materiales
-            List<string> distinctList = listado.Select(m => m.Material).Distinct().ToList();
+            List<string> distinctList = db_sap.BomItems
+             .Where(p => p.Quantity.HasValue && p.Quantity > 0 && !p.Matnr.StartsWith("sm"))
+             .Select(m => m.Matnr) 
+             .Distinct()
+             .ToList();
 
             var items = new List<SelectListItem>();
 
@@ -254,13 +254,17 @@ namespace Portal_2_0.Models
         ///retorna un List<SelectListItem> con las opciones disponibles
         public static List<SelectListItem> obtieneRollo_BOM(string material = "")
         {
-            Portal_2_0Entities db = new Portal_2_0Entities();
-
+            Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
+     
             //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
-
-            //realiza un distict de los materiales
-            List<string> distinctList = listado.Select(m => m.Component).Distinct().ToList();
+            List<string> distinctList = db_sap.BomItems
+                .Where(p => p.Quantity.HasValue && p.Quantity > 0 && // Maneja float?
+                            !p.Matnr.StartsWith("sm") &&
+                            p.Matnr == material)
+                .Select(m => m.Component) // Obtiene el Componente (rollo)
+                .Distinct()
+                .ToList();
+     
 
             var items = new List<SelectListItem>();
 

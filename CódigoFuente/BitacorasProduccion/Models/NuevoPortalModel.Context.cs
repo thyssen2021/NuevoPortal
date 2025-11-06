@@ -29,7 +29,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<biblioteca_digital> biblioteca_digital { get; set; }
-        public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
         public virtual DbSet<bom_pesos> bom_pesos { get; set; }
         public virtual DbSet<budget_anio_fiscal> budget_anio_fiscal { get; set; }
         public virtual DbSet<budget_cantidad> budget_cantidad { get; set; }
@@ -47,7 +46,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
         public virtual DbSet<budget_responsables> budget_responsables { get; set; }
         public virtual DbSet<budget_tipo_cambio> budget_tipo_cambio { get; set; }
-        public virtual DbSet<class_v3> class_v3 { get; set; }
         public virtual DbSet<currency> currency { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<GV_medios_transporte> GV_medios_transporte { get; set; }
@@ -270,7 +268,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_conceptos_cantidades_forecast> budget_rel_conceptos_cantidades_forecast { get; set; }
         public virtual DbSet<view_valores_forecast> view_valores_forecast { get; set; }
         public virtual DbSet<budget_rel_tipo_cambio_fy_forecast> budget_rel_tipo_cambio_fy_forecast { get; set; }
-        public virtual DbSet<mm_v3> mm_v3 { get; set; }
         public virtual DbSet<SCDM_cat_tipo_transporte> SCDM_cat_tipo_transporte { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
@@ -306,7 +303,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_CargaExcel_Cargas> BG_CargaExcel_Cargas { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<Vw_Materiales_Vencimiento> Vw_Materiales_Vencimiento { get; set; }
-        public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
         public virtual DbSet<BG_Forecast_cat_fiscal_years> BG_Forecast_cat_fiscal_years { get; set; }
+        public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
     }
 }

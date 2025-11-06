@@ -495,6 +495,7 @@
     <Compile Include="Models\Auxiliares\HangfireAuthorizationFilter.cs" />
     <Compile Include="Models\Auxiliares\SAPCharacteristics.cs" />
     <Compile Include="Models\Auxiliares\UtilBulkCopy.cs" />
+    <Compile Include="Models\Auxiliares\UtilMapeoMateriales.cs" />
     <Compile Include="Models\BaseController.cs" />
     <Compile Include="Models\BatchCharacteristics.cs">
       <DependentUpon>ModelServices.tt</DependentUpon>
@@ -595,9 +596,6 @@
     <Compile Include="Models\BomItems.cs">
       <DependentUpon>ModelServices.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\bom_en_sap.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Models\bom_pesos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -669,9 +667,6 @@
     </Compile>
     <Compile Include="Models\Calculation.cs" />
     <Compile Include="Models\CI_conteo_inventario.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\class_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\clientes.cs">
@@ -1089,9 +1084,6 @@
     <Compile Include="Models\MetadataModels\view_SCDM_materiales_x_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_forecastMetatdata.cs" />
-    <Compile Include="Models\mm_v3.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Models\ModelServices.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
