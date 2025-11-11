@@ -337,6 +337,12 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_plants> CTZ_plants { get; set; }
         public virtual DbSet<CTZ_Material_InterplantRackTypes> CTZ_Material_InterplantRackTypes { get; set; }
         public virtual DbSet<CTZ_Material_InterplantRackTypes_History> CTZ_Material_InterplantRackTypes_History { get; set; }
+        public virtual DbSet<CTZ_Material_InterplantLabelTypes> CTZ_Material_InterplantLabelTypes { get; set; }
+        public virtual DbSet<CTZ_Material_InterplantLabelTypes_History> CTZ_Material_InterplantLabelTypes_History { get; set; }
+        public virtual DbSet<CTZ_Material_InterplantAdditionals> CTZ_Material_InterplantAdditionals { get; set; }
+        public virtual DbSet<CTZ_Material_InterplantAdditionals_History> CTZ_Material_InterplantAdditionals_History { get; set; }
+        public virtual DbSet<CTZ_Material_InterplantStrapTypes> CTZ_Material_InterplantStrapTypes { get; set; }
+        public virtual DbSet<CTZ_Material_InterplantStrapTypes_History> CTZ_Material_InterplantStrapTypes_History { get; set; }
         public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
     }

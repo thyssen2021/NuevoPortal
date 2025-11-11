@@ -242,6 +242,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Returnable Rack")]
         public Nullable<bool> IsReturnableRack { get; set; }
 
+        [Display(Name = "Freight Type")]
+        public Nullable<int> ID_FreightType { get; set; }
+
         [Display(Name = "Number of Uses")]
         public Nullable<int> ReturnableUses { get; set; }
 
@@ -407,7 +410,75 @@ namespace Portal_2_0.Models
         [Display(Name = "Interplant Package Weight (kg)")]
         public Nullable<double> InterplantPackageWeight { get; set; }
 
-        
+        [Display(Name = "Interplant Other Label")]
+        [StringLength(120)]
+        public string InterplantLabelOtherDescription { get; set; }
+
+        [Display(Name = "Interplant Other Additional")]
+        [StringLength(120)]
+        public string InterplantAdditionalsOtherDescription { get; set; }
+
+        [Display(Name = "Interplant Strap Observations")]
+        [StringLength(120)]
+        public string InterplantStrapTypeObservations { get; set; }
+
+
+        [Display(Name = "Interplant Special Requirement")]
+        [StringLength(350)]
+        public string InterplantSpecialRequirement { get; set; }
+
+        [Display(Name = "Interplant Special Packaging")]
+        [StringLength(350)]
+        public string InterplantSpecialPackaging { get; set; }
+
+        [Display(Name = "Interplant Packaging File")]
+        public Nullable<int> ID_File_InterplantPackaging { get; set; }
+
+        [Display(Name = "Interplant Returnable Rack")]
+        public Nullable<bool> IsInterplantReturnableRack { get; set; }
+
+        [Display(Name = "Interplant Returnable Uses")]
+        public Nullable<int> InterplantReturnableUses { get; set; }
+
+        [Display(Name = "Interplant Freight Type")]
+        public Nullable<int> ID_Interplant_FreightType { get; set; }
+
+        [Display(Name = "Interplant Delivery Conditions")]
+        [StringLength(350)]
+        public string InterplantDeliveryConditions { get; set; }
+
+        [Display(Name = "Interplant Scrap Reconciliation")]
+        public Nullable<bool> InterplantScrapReconciliation { get; set; }
+
+        [Display(Name = "Interplant Scrap Min %")]
+        public Nullable<double> InterplantScrapReconciliationPercent_Min { get; set; }
+
+        [Display(Name = "Interplant Scrap Optimal %")]
+        public Nullable<double> InterplantScrapReconciliationPercent { get; set; }
+
+        [Display(Name = "Interplant Scrap Max %")]
+        public Nullable<double> InterplantScrapReconciliationPercent_Max { get; set; }
+
+        [Display(Name = "Interplant Client Scrap %")]
+        public Nullable<double> InterplantClientScrapReconciliationPercent { get; set; }
+
+        [Display(Name = "Interplant Head/Tail Reconciliation")]
+        public Nullable<bool> InterplantHeadTailReconciliation { get; set; }
+
+        [Display(Name = "Interplant H/T Min %")]
+        public Nullable<double> InterplantHeadTailReconciliationPercent_Min { get; set; }
+
+        [Display(Name = "Interplant H/T Optimal %")]
+        public Nullable<double> InterplantHeadTailReconciliationPercent { get; set; }
+
+        [Display(Name = "Interplant H/T Max %")]
+        public Nullable<double> InterplantHeadTailReconciliationPercent_Max { get; set; }
+
+        [Display(Name = "Interplant Client H/T %")]
+        public Nullable<double> InterplantClientHeadTailReconciliationPercent { get; set; }
+
+        [Display(Name = "Interplant Outbound Freight File")]
+        public Nullable<int> ID_File_InterplantOutboundFreight { get; set; }
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
@@ -443,7 +514,15 @@ namespace Portal_2_0.Models
 
         [NotMapped]
         public List<int> SelectedInterplantRackTypeIds { get; set; } // Add this line
-        
+        [NotMapped]
+        public List<int> SelectedInterplantLabelIds { get; set; }
+
+        [NotMapped]
+        public List<int> SelectedInterplantAdditionalIds { get; set; }
+        [NotMapped]
+        public List<int> SelectedInterplantStrapTypeIds { get; set; }
+ 
+
         //*** Variales para agregar archivos *** 
         [NotMapped]
         public bool? IsFile { get; set; }
@@ -483,6 +562,17 @@ namespace Portal_2_0.Models
         public bool? IsDeliveryPackagingAdditionalFile { get; set; }
         [NotMapped]
         public string DeliveryPackagingAdditionalFileName { get; set; }
+
+        [NotMapped]
+        public bool IsInterplantPackagingFile { get; set; }
+        [NotMapped]
+        public string InterplantPackagingFileName { get; set; }
+        [NotMapped]
+        public bool IsInterplantOutboundFreightFile { get; set; }
+        [NotMapped]
+        public string InterplantOutboundFreightFileName { get; set; }
+
+
 
         [NotMapped]
         public string WeldedPlatesJson { get; set; }

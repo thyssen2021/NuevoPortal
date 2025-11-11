@@ -19,6 +19,8 @@ namespace Portal_2_0.Models
         {
             this.CTZ_Material_Labels_History = new HashSet<CTZ_Material_Labels_History>();
             this.CTZ_Material_Labels = new HashSet<CTZ_Material_Labels>();
+            this.CTZ_Material_InterplantLabelTypes = new HashSet<CTZ_Material_InterplantLabelTypes>();
+            this.CTZ_Material_InterplantLabelTypes_History = new HashSet<CTZ_Material_InterplantLabelTypes_History>();
         }
     
         public int ID_LabelType { get; set; }
@@ -29,5 +31,9 @@ namespace Portal_2_0.Models
         public virtual ICollection<CTZ_Material_Labels_History> CTZ_Material_Labels_History { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_Labels> CTZ_Material_Labels { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Material_InterplantLabelTypes> CTZ_Material_InterplantLabelTypes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Material_InterplantLabelTypes_History> CTZ_Material_InterplantLabelTypes_History { get; set; }
     }
 }

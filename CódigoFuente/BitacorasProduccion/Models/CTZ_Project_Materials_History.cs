@@ -18,7 +18,10 @@ namespace Portal_2_0.Models
         public CTZ_Project_Materials_History()
         {
             this.CTZ_Material_Additionals_History = new HashSet<CTZ_Material_Additionals_History>();
+            this.CTZ_Material_InterplantAdditionals_History = new HashSet<CTZ_Material_InterplantAdditionals_History>();
+            this.CTZ_Material_InterplantLabelTypes_History = new HashSet<CTZ_Material_InterplantLabelTypes_History>();
             this.CTZ_Material_InterplantRackTypes_History = new HashSet<CTZ_Material_InterplantRackTypes_History>();
+            this.CTZ_Material_InterplantStrapTypes_History = new HashSet<CTZ_Material_InterplantStrapTypes_History>();
             this.CTZ_Material_Labels_History = new HashSet<CTZ_Material_Labels_History>();
             this.CTZ_Material_RackTypes_History = new HashSet<CTZ_Material_RackTypes_History>();
             this.CTZ_Material_StrapTypes_History = new HashSet<CTZ_Material_StrapTypes_History>();
@@ -183,6 +186,27 @@ namespace Portal_2_0.Models
         public Nullable<int> InterplantPiecesPerPackage { get; set; }
         public Nullable<int> InterplantStacksPerPackage { get; set; }
         public Nullable<double> InterplantPackageWeight { get; set; }
+        public string InterplantLabelOtherDescription { get; set; }
+        public string InterplantAdditionalsOtherDescription { get; set; }
+        public string InterplantStrapTypeObservations { get; set; }
+        public string InterplantSpecialRequirement { get; set; }
+        public string InterplantSpecialPackaging { get; set; }
+        public Nullable<int> ID_File_InterplantPackaging { get; set; }
+        public Nullable<bool> IsInterplantReturnableRack { get; set; }
+        public Nullable<int> InterplantReturnableUses { get; set; }
+        public Nullable<int> ID_Interplant_FreightType { get; set; }
+        public string InterplantDeliveryConditions { get; set; }
+        public Nullable<bool> InterplantScrapReconciliation { get; set; }
+        public Nullable<double> InterplantScrapReconciliationPercent_Min { get; set; }
+        public Nullable<double> InterplantScrapReconciliationPercent { get; set; }
+        public Nullable<double> InterplantScrapReconciliationPercent_Max { get; set; }
+        public Nullable<double> InterplantClientScrapReconciliationPercent { get; set; }
+        public Nullable<bool> InterplantHeadTailReconciliation { get; set; }
+        public Nullable<double> InterplantHeadTailReconciliationPercent_Min { get; set; }
+        public Nullable<double> InterplantHeadTailReconciliationPercent { get; set; }
+        public Nullable<double> InterplantHeadTailReconciliationPercent_Max { get; set; }
+        public Nullable<double> InterplantClientHeadTailReconciliationPercent { get; set; }
+        public Nullable<int> ID_File_InterplantOutboundFreight { get; set; }
     
         public virtual CTZ_Arrival_Warehouses CTZ_Arrival_Warehouses { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }
@@ -198,11 +222,20 @@ namespace Portal_2_0.Models
         public virtual CTZ_Files CTZ_Files7 { get; set; }
         public virtual CTZ_Files CTZ_Files8 { get; set; }
         public virtual CTZ_Files CTZ_Files9 { get; set; }
+        public virtual CTZ_Files CTZ_Files10 { get; set; }
+        public virtual CTZ_Files CTZ_Files11 { get; set; }
         public virtual CTZ_FreightTypes CTZ_FreightTypes { get; set; }
+        public virtual CTZ_FreightTypes CTZ_FreightTypes1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_Additionals_History> CTZ_Material_Additionals_History { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Material_InterplantAdditionals_History> CTZ_Material_InterplantAdditionals_History { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Material_InterplantLabelTypes_History> CTZ_Material_InterplantLabelTypes_History { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_InterplantRackTypes_History> CTZ_Material_InterplantRackTypes_History { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Material_InterplantStrapTypes_History> CTZ_Material_InterplantStrapTypes_History { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_Labels_History> CTZ_Material_Labels_History { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

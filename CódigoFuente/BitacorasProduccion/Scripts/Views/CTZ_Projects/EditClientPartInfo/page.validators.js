@@ -911,7 +911,7 @@
         input.css("border", "");
 
         // Validar selección
-        if (!val || val === "") {
+        if (!val) {
             if (requiredStatus.includes(status)) {
                 errorEl
                     .text("Coil Position is required.")
@@ -1775,6 +1775,39 @@
         return true;
     }
 
+    function validateInterplantLabelOtherDescription() {
+        const input = $("#InterplantLabelOtherDescription");
+        const errorEl = $("#InterplantLabelOtherDescriptionError"); // Asumiendo que el span de error sigue este patrón
+        const container = $("#InterplantLabelOtherDescription_container");
+        const limit = 120; // O el límite que prefieras
+
+        // Si el contenedor no está visible, la validación pasa.
+        if (!container.is(":visible")) {
+            errorEl.text("").hide();
+            input.css("border", "");
+            return true;
+        }
+
+        // Si es visible, es obligatorio
+        const value = input.val().trim();
+        errorEl.text("").hide();
+        input.css("border", "");
+
+        if (!value) {
+            errorEl.text("Please specify the 'Other' Interplant Label.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        if (value.length > limit) {
+            errorEl.text(`Description cannot exceed ${limit} characters.`).show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        return true;
+    }
+
     function validateMaterialType() {
         const input = $("#ID_Material_type");
         const errorEl = $("#ID_Material_typeError");
@@ -2113,6 +2146,27 @@
             let validInterplantPlant = validateInterplant_Plant();
             let validInterplantPiecesPerPackage = validateInterplantPiecesPerPackage();
             let validInterplantStacksPerPackage = validateInterplantStacksPerPackage();
+            let validInterplantLabelOtherDescription = validateInterplantLabelOtherDescription();
+            let validInterplantAdditionalOther = validateInterplantAdditionalsOtherDescription();
+            let validInterplantStrapObs = validateInterplantStrapTypeObservations();
+            let validInterplantSpecialReq = validateInterplantSpecialRequirement();
+            let validInterplantSpecialPack = validateInterplantSpecialPackaging();
+            let validInterplantPackFile = validateInterplantPackagingFile();
+            let validInterplantReturnableRack = validateIsInterplantReturnableRack();
+            let validInterplantReturnableUses = validateInterplantReturnableUses();
+            let validInterplantFreightType = validateInterplantFreightType();
+            let validInterplantDeliveryCond = validateInterplantDeliveryConditions();
+            let validInterplantScrapRec = validateInterplantScrapReconciliation();
+            let validInterplantScrapMin = validateInterplantScrapReconciliationPercent_Min();
+            let validInterplantScrapOpt = validateInterplantScrapReconciliationPercent();
+            let validInterplantScrapMax = validateInterplantScrapReconciliationPercent_Max();
+            let validInterplantScrapClient = validateInterplantClientScrapReconciliationPercent();
+            let validInterplantHeadTailRec = validateInterplantHeadTailReconciliation();
+            let validInterplantHeadTailMin = validateInterplantHeadTailReconciliationPercent_Min();
+            let validInterplantHeadTailOpt = validateInterplantHeadTailReconciliationPercent();
+            let validInterplantHeadTailMax = validateInterplantHeadTailReconciliationPercent_Max();
+            let validInterplantHeadTailClient = validateInterplantClientHeadTailReconciliationPercent();
+            let validInterplantOutboundFile = validateInterplantOutboundFreightFile();
 
             return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
                 && validRealSOP && validRealEOP && validShipTo && validRoute && validTensile && validMaterialType
@@ -2140,7 +2194,13 @@
                 && validShearing_Weight && validShearing_Weight_Tol_Pos && validShearing_Weight_Tol_Neg && validShearing_Pieces_Per_Stroke
                 && validShearing_Pieces_Per_Car && validInterplantPlant && validateInterplantDeliveryCoilPosition() && validateInterplantDeliveryTransportType()
                 && validateInterplantDeliveryTransportTypeOther() && validateInterplantPackagingStandard() && validateInterplantRequiresRackManufacturing()
-                && validateInterplantRequiresDieManufacturing() && validInterplantPiecesPerPackage && validInterplantStacksPerPackage
+                && validateInterplantRequiresDieManufacturing() && validInterplantPiecesPerPackage && validInterplantStacksPerPackage && validInterplantLabelOtherDescription
+                && validInterplantAdditionalOther && validInterplantStrapObs && validInterplantSpecialReq && validInterplantSpecialPack && validInterplantPackFile
+                && validInterplantReturnableRack && validInterplantReturnableUses && validInterplantFreightType
+                && validInterplantDeliveryCond && validInterplantScrapRec && validInterplantScrapMin
+                && validInterplantScrapOpt && validInterplantScrapMax && validInterplantScrapClient
+                && validInterplantHeadTailRec && validInterplantHeadTailMin && validInterplantHeadTailOpt
+                && validInterplantHeadTailMax && validInterplantHeadTailClient && validInterplantOutboundFile
                 ;
         }
 
@@ -2303,23 +2363,15 @@
             case "IsReturnableRack":
                 return validateReturnableUses(); // Validar el hijo cuando el padre cambia
             case "ReturnableUses":
-                return validateReturnableUses();
-            case "ScrapReconciliation":
+                return validateReturnableUses(); case "ScrapReconciliation":
                 return validateScrapReconciliationPercent(); // Validar el hijo
-            case "ScrapReconciliationPercent":
-                return validateScrapReconciliationPercent();
-            case "ID_Delivery_Coil_Position":
-                return validateDeliveryCoilPosition();
-            case "ID_Delivery_Transport_Type":
-                return validateDeliveryTransportType();
-            case "Delivery_Transport_Type_Other":
-                return validateDeliveryTransportTypeOther();
-            case "ID_FreightType":
-                return validateFreightType();
-            case "ID_Arrival_Warehouse":
-                return validateArrivalWarehouse();
-            case "ClientNetWeight":
-                return validateClientNetWeight();
+            case "ScrapReconciliationPercent": return validateScrapReconciliationPercent();
+            case "ID_Delivery_Coil_Position": return validateDeliveryCoilPosition();
+            case "ID_Delivery_Transport_Type": return validateDeliveryTransportType();
+            case "Delivery_Transport_Type_Other": return validateDeliveryTransportTypeOther();
+            case "ID_FreightType": return validateFreightType();
+            case "ID_Arrival_Warehouse": return validateArrivalWarehouse();
+            case "ClientNetWeight": return validateClientNetWeight();
             case "isRunningChange": return validateIsRunningChange();
             case "IsWeldedBlank": return validateNumberOfPlates() && validateWeldedThicknesses();
             case "numberOfPlates": return validateNumberOfPlates() && validateWeldedThicknesses();
@@ -2350,23 +2402,98 @@
             case "Shearing_Pieces_Per_Stroke": return validateShearing_Pieces_Per_Stroke();
             case "Shearing_Pieces_Per_Car": return validateShearing_Pieces_Per_Car();
             case "ID_Interplant_Plant": return validateInterplant_Plant();
-            case "ID_InterplantDelivery_Coil_Position":
-                return validateInterplantDeliveryCoilPosition();
-            case "ID_InterplantDelivery_Transport_Type":
-                return validateInterplantDeliveryTransportType();
-            case "InterplantDelivery_Transport_Type_Other":
-                return validateInterplantDeliveryTransportTypeOther();
-            case "InterplantPackagingStandard":
-                return validateInterplantPackagingStandard();
-            case "InterplantRequiresRackManufacturing":
-                return validateInterplantRequiresRackManufacturing();
-            case "InterplantRequiresDieManufacturing":
-                return validateInterplantRequiresDieManufacturing();
+            case "ID_InterplantDelivery_Coil_Position": return validateInterplantDeliveryCoilPosition();
+            case "ID_InterplantDelivery_Transport_Type": return validateInterplantDeliveryTransportType();
+            case "InterplantDelivery_Transport_Type_Other": return validateInterplantDeliveryTransportTypeOther();
+            case "InterplantPackagingStandard": return validateInterplantPackagingStandard();
+            case "InterplantRequiresRackManufacturing": return validateInterplantRequiresRackManufacturing();
+            case "InterplantRequiresDieManufacturing": return validateInterplantRequiresDieManufacturing();
+            case "InterplantLabelOtherDescription": return validateInterplantLabelOtherDescription();
+            case "InterplantAdditionalsOtherDescription": return validateInterplantAdditionalsOtherDescription();
+            case "InterplantStrapTypeObservations": return validateInterplantStrapTypeObservations();
+            case "InterplantSpecialRequirement": return validateInterplantSpecialRequirement();
+            case "InterplantSpecialPackaging": return validateInterplantSpecialPackaging();
+            case "interplant_packaging_archivo": return validateInterplantPackagingFile();
+            case "IsInterplantReturnableRack": return validateIsInterplantReturnableRack();
+            case "InterplantReturnableUses": return validateInterplantReturnableUses();
+            case "ID_Interplant_FreightType": return validateInterplantFreightType();
+            case "InterplantDeliveryConditions": return validateInterplantDeliveryConditions();
+            case "InterplantScrapReconciliation": return validateInterplantScrapReconciliation();
+            case "InterplantScrapReconciliationPercent_Min": return validateInterplantScrapReconciliationPercent_Min();
+            case "InterplantScrapReconciliationPercent": return validateInterplantScrapReconciliationPercent();
+            case "InterplantScrapReconciliationPercent_Max": return validateInterplantScrapReconciliationPercent_Max();
+            case "InterplantClientScrapReconciliationPercent": return validateInterplantClientScrapReconciliationPercent();
+            case "InterplantHeadTailReconciliation": return validateInterplantHeadTailReconciliation();
+            case "InterplantHeadTailReconciliationPercent_Min": return validateInterplantHeadTailReconciliationPercent_Min();
+            case "InterplantHeadTailReconciliationPercent": return validateInterplantHeadTailReconciliationPercent();
+            case "InterplantHeadTailReconciliationPercent_Max": return validateInterplantHeadTailReconciliationPercent_Max();
+            case "InterplantClientHeadTailReconciliationPercent": return validateInterplantClientHeadTailReconciliationPercent();
+            case "interplantOutboundFreightAdditionalFile": return validateInterplantOutboundFreightFile();
             default:
                 return true;
         }
     }
 
+    // --- INICIO DE LA MODIFICACIÓN ---
+    function validateInterplantAdditionalsOtherDescription() {
+        const input = $("#InterplantAdditionalsOtherDescription");
+        const errorEl = $("#InterplantAdditionalsOtherDescriptionError"); // Asumiendo que el span de error sigue este patrón
+        const container = $("#InterplantAdditionalsOtherDescription_container");
+        const limit = 120; // O el límite que prefieras
+
+        // Si el contenedor no está visible, la validación pasa.
+        if (!container.is(":visible")) {
+            errorEl.text("").hide();
+            input.css("border", "");
+            return true;
+        }
+
+        // Si es visible, es obligatorio
+        const value = input.val().trim();
+        errorEl.text("").hide();
+        input.css("border", "");
+
+        if (!value) {
+            errorEl.text("Please specify the 'Other' Interplant Additional.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        if (value.length > limit) {
+            errorEl.text(`Description cannot exceed ${limit} characters.`).show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateInterplantStrapTypeObservations() {
+        const input = $("#InterplantStrapTypeObservations");
+        const errorEl = $("#InterplantStrapTypeObservationsError"); // Asumiendo que el span de error sigue este patrón
+        const container = $("#InterplantStrapTypeObservations").closest('.other-description-wrapper'); // Contenedor
+        const limit = 120; // O el límite que prefieras
+
+        // Si el contenedor no está visible, la validación pasa.
+        if (!container.is(":visible")) {
+            errorEl.text("").hide();
+            input.css("border", "");
+            return true;
+        }
+
+        const value = input.val().trim();
+        errorEl.text("").hide();
+        input.css("border", "");
+
+        // Este campo es opcional, solo validamos la longitud si hay algo escrito
+        if (value.length > limit) {
+            errorEl.text(`Observations cannot exceed ${limit} characters.`).show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        return true;
+    }
     function updateSlitterCapacityChart(OnlyBDMaterials = false, projectId) {
         // Limpiamos la consola para tener una salida limpia en cada ejecución de "what-if"
         if (!OnlyBDMaterials) {
@@ -4806,6 +4933,273 @@
     }
 
 
+    // Valida InterplantSpecialRequirement (opcional, límite 350)
+    function validateInterplantSpecialRequirement() {
+        const input = $("#InterplantSpecialRequirement");
+        const errorEl = $("#InterplantSpecialRequirementError");
+        if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+        errorEl.text("").hide(); input.css("border", "");
+        if (input.val().length > 350) {
+            errorEl.text("Cannot exceed 350 characters.").show(); input.css("border", "1px solid red"); return false;
+        }
+        return true;
+    }
+
+    // Valida InterplantSpecialPackaging (opcional, límite 350)
+    function validateInterplantSpecialPackaging() {
+        const input = $("#InterplantSpecialPackaging");
+        const errorEl = $("#InterplantSpecialPackagingError");
+        if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+        errorEl.text("").hide(); input.css("border", "");
+        if (input.val().length > 350) {
+            errorEl.text("Cannot exceed 350 characters.").show(); input.css("border", "1px solid red"); return false;
+        }
+        return true;
+    }
+
+    // Valida InterplantPackagingFile (opcional, valida extensión y tamaño)
+    function validateInterplantPackagingFile() {
+        const input = $("#interplant_packaging_archivo");
+        const errorEl = $("#interplant_packaging_archivoError");
+        if (!input.is(":visible")) return true; // No visible, no se valida
+        errorEl.text("").hide(); input.css("border", "");
+        if (input[0].files.length === 0) return true; // Opcional
+        const file = input[0].files[0];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        const allowedExtensions = [".dwg", ".dxf", ".dwt", ".pdf", ".zip", ".rar"];
+        if (file.size > maxSize) {
+            errorEl.text("File size must be 10MB or less.").show(); input.css("border", "1px solid red"); return false;
+        }
+        const fileName = file.name.toLowerCase();
+        if (!allowedExtensions.some(ext => fileName.endsWith(ext))) {
+            errorEl.text("Only DWG, DXF, DWT, PDF, ZIP and RAR files are allowed.").show(); input.css("border", "1px solid red"); return false;
+        }
+        return true;
+    }
+
+    // Valida IsInterplantReturnableRack (depende de los checkboxes de rack)
+    function validateIsInterplantReturnableRack() {
+        // Llama a la función de validación del hijo (ReturnableUses)
+        return validateInterplantReturnableUses();
+    }
+
+    // Valida InterplantReturnableUses
+    function validateInterplantReturnableUses() {
+        const input = $("#InterplantReturnableUses");
+        const errorEl = $("#InterplantReturnableUsesError");
+        if (!input.closest('div').is(":visible")) {
+            errorEl.text("").hide(); input.css("border", ""); return true;
+        }
+        // Lógica de obligatoriedad (ej. si rack de madera está chequeado)
+        // const isWoodRack = $("#interplant-rack-type-2").is(":checked") || $("#interplant-rack-type-4").is(":checked");
+        // if (isWoodRack && !input.val()) {
+        //     errorEl.text("Number of uses is required for wood racks.").show(); input.css("border", "1px solid red"); return false;
+        // }
+
+        let raw = input.val() ? input.val().trim() : "";
+        if (raw) {
+            let val = parseInt(raw, 10);
+            if (isNaN(val) || val <= 0 || raw.includes('.')) {
+                errorEl.text("Must be a positive whole number.").show(); input.css("border", "1px solid red"); return false;
+            }
+        }
+        errorEl.text("").hide(); input.css("border", "");
+        return true;
+    }
+
+    // Valida ID_Interplant_FreightType (opcional)
+    function validateInterplantFreightType() {
+        const input = $("#ID_Interplant_FreightType");
+        const errorEl = $("#ID_Interplant_FreightTypeError");
+        if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
+            errorEl.text("").hide(); input.next(".select2-container").find(".select2-selection").css("border", ""); return true;
+        }
+        // Puedes añadir lógica de obligatoriedad si es necesario
+        errorEl.text("").hide(); input.next(".select2-container").find(".select2-selection").css("border", "");
+        return true;
+    }
+
+    // Valida InterplantDeliveryConditions (opcional, límite 350)
+    function validateInterplantDeliveryConditions() {
+        const input = $("#InterplantDeliveryConditions");
+        const errorEl = $("#InterplantDeliveryConditionsError");
+        if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+        errorEl.text("").hide(); input.css("border", "");
+        if (input.val().length > 350) {
+            errorEl.text("Cannot exceed 350 characters.").show(); input.css("border", "1px solid red"); return false;
+        }
+        return true;
+    }
+
+    // Valida InterplantScrapReconciliation (depende del checkbox)
+    function validateInterplantScrapReconciliation() {
+        // Dispara la validación de los campos hijos
+        validateInterplantScrapReconciliationPercent_Min();
+        validateInterplantScrapReconciliationPercent();
+        validateInterplantScrapReconciliationPercent_Max();
+        validateInterplantClientScrapReconciliationPercent();
+        return true; // El checkbox en sí siempre es válido
+    }
+
+    // Valida InterplantScrapReconciliationPercent_Min (rango 0-100, Min <= Optimal <= Max)
+    function validateInterplantScrapReconciliationPercent_Min() {
+        const input = $("#InterplantScrapReconciliationPercent_Min");
+        const errorEl = $("#InterplantScrapReconciliationPercent_MinError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true; // Opcional
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        // Lógica de rangos
+        let optVal = parseFloat($("#InterplantScrapReconciliationPercent").val());
+        let maxVal = parseFloat($("#InterplantScrapReconciliationPercent_Max").val());
+        if (!isNaN(optVal) && val > optVal) { errorEl.text("Min <= Optimal").show(); input.css("border", "1px solid red"); return false; }
+        if (!isNaN(maxVal) && val > maxVal) { errorEl.text("Min <= Max").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    // Valida InterplantScrapReconciliationPercent (rango 0-100, obligatorio si el check está activo)
+    function validateInterplantScrapReconciliationPercent() {
+        const input = $("#InterplantScrapReconciliationPercent");
+        const errorEl = $("#InterplantScrapReconciliationPercentError");
+        const container = $("#InterplantScrapReconciliationPercent_container");
+        if (!container.is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw && $("#InterplantScrapReconciliation").is(":checked")) {
+            errorEl.text("Optimal % is required.").show(); input.css("border", "1px solid red"); return false;
+        }
+        if (raw) {
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        }
+        return true;
+    }
+
+    // ... (Crea funciones similares para _Max y Client)
+    function validateInterplantScrapReconciliationPercent_Max() {
+        const input = $("#InterplantScrapReconciliationPercent_Max");
+        const errorEl = $("#InterplantScrapReconciliationPercent_MaxError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true;
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        let optVal = parseFloat($("#InterplantScrapReconciliationPercent").val());
+        let minVal = parseFloat($("#InterplantScrapReconciliationPercent_Min").val());
+        if (!isNaN(optVal) && val < optVal) { errorEl.text("Max >= Optimal").show(); input.css("border", "1px solid red"); return false; }
+        if (!isNaN(minVal) && val < minVal) { errorEl.text("Max >= Min").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    function validateInterplantClientScrapReconciliationPercent() {
+        const input = $("#InterplantClientScrapReconciliationPercent");
+        const errorEl = $("#InterplantClientScrapReconciliationPercentError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true;
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    // Valida InterplantHeadTailReconciliation (depende del checkbox)
+    function validateInterplantHeadTailReconciliation() {
+        // Dispara la validación de los campos hijos
+        validateInterplantHeadTailReconciliationPercent_Min();
+        validateInterplantHeadTailReconciliationPercent();
+        validateInterplantHeadTailReconciliationPercent_Max();
+        validateInterplantClientHeadTailReconciliationPercent();
+        return true;
+    }
+
+    // ... (Crea 4 funciones de validación para Head/Tail, idénticas a las de Scrap) ...
+    function validateInterplantHeadTailReconciliationPercent_Min() {
+        const input = $("#InterplantHeadTailReconciliationPercent_Min");
+        const errorEl = $("#InterplantHeadTailReconciliationPercent_MinError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true;
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        let optVal = parseFloat($("#InterplantHeadTailReconciliationPercent").val());
+        let maxVal = parseFloat($("#InterplantHeadTailReconciliationPercent_Max").val());
+        if (!isNaN(optVal) && val > optVal) { errorEl.text("Min <= Optimal").show(); input.css("border", "1px solid red"); return false; }
+        if (!isNaN(maxVal) && val > maxVal) { errorEl.text("Min <= Max").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    function validateInterplantHeadTailReconciliationPercent() {
+        const input = $("#InterplantHeadTailReconciliationPercent");
+        const errorEl = $("#InterplantHeadTailReconciliationPercentError");
+        const container = $("#InterplantHeadTailReconciliationPercent_container");
+        if (!container.is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw && $("#InterplantHeadTailReconciliation").is(":checked")) {
+            errorEl.text("Optimal % is required.").show(); input.css("border", "1px solid red"); return false;
+        }
+        if (raw) {
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        }
+        return true;
+    }
+
+    function validateInterplantHeadTailReconciliationPercent_Max() {
+        const input = $("#InterplantHeadTailReconciliationPercent_Max");
+        const errorEl = $("#InterplantHeadTailReconciliationPercent_MaxError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true;
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        let optVal = parseFloat($("#InterplantHeadTailReconciliationPercent").val());
+        let minVal = parseFloat($("#InterplantHeadTailReconciliationPercent_Min").val());
+        if (!isNaN(optVal) && val < optVal) { errorEl.text("Max >= Optimal").show(); input.css("border", "1px solid red"); return false; }
+        if (!isNaN(minVal) && val < minVal) { errorEl.text("Max >= Min").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    function validateInterplantClientHeadTailReconciliationPercent() {
+        const input = $("#InterplantClientHeadTailReconciliationPercent");
+        const errorEl = $("#InterplantClientHeadTailReconciliationPercentError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true;
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    // Valida InterplantOutboundFreightFile (opcional, valida extensión y tamaño)
+    function validateInterplantOutboundFreightFile() {
+        const input = $("#interplantOutboundFreightAdditionalFile");
+        const errorEl = $("#interplantOutboundFreightAdditionalFileError");
+        if (!input.is(":visible")) return true;
+        errorEl.text("").hide(); input.css("border", "");
+        if (input[0].files.length === 0) return true; // Opcional
+        const file = input[0].files[0];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        const allowedExtensions = [".dwg", ".dxf", ".dwt", ".pdf", ".zip", ".rar"];
+        if (file.size > maxSize) {
+            errorEl.text("File size must be 10MB or less.").show(); input.css("border", "1px solid red"); return false;
+        }
+        const fileName = file.name.toLowerCase();
+        if (!allowedExtensions.some(ext => fileName.endsWith(ext))) {
+            errorEl.text("Only DWG, DXF, DWT, PDF, ZIP and RAR files are allowed.").show(); input.css("border", "1px solid red"); return false;
+        }
+        return true;
+    }
+
+
+
     // --- Publicación (no se necesitan más cambio en el resto de los archivos)---        
     window.validatePiecesPerPackage = validatePiecesPerPackage;
     window.validatePartName = validatePartName;
@@ -4932,7 +5326,26 @@
     window.validateQuality = validateQuality;
     window.validateIdealCycleTimePerTool = validateIdealCycleTimePerTool;
     window.validateOEE = validateOEE;
-
-
+    window.validateInterplantLabelOtherDescription = validateInterplantLabelOtherDescription;
+    window.validateInterplantAdditionalsOtherDescription = validateInterplantAdditionalsOtherDescription;
+    window.validateInterplantStrapTypeObservations = validateInterplantStrapTypeObservations;
+    window.validateInterplantSpecialRequirement = validateInterplantSpecialRequirement;
+    window.validateInterplantSpecialPackaging = validateInterplantSpecialPackaging;
+    window.validateInterplantPackagingFile = validateInterplantPackagingFile;
+    window.validateIsInterplantReturnableRack = validateIsInterplantReturnableRack;
+    window.validateInterplantReturnableUses = validateInterplantReturnableUses;
+    window.validateInterplantFreightType = validateInterplantFreightType;
+    window.validateInterplantDeliveryConditions = validateInterplantDeliveryConditions;
+    window.validateInterplantScrapReconciliation = validateInterplantScrapReconciliation;
+    window.validateInterplantScrapReconciliationPercent_Min = validateInterplantScrapReconciliationPercent_Min;
+    window.validateInterplantScrapReconciliationPercent = validateInterplantScrapReconciliationPercent;
+    window.validateInterplantScrapReconciliationPercent_Max = validateInterplantScrapReconciliationPercent_Max;
+    window.validateInterplantClientScrapReconciliationPercent = validateInterplantClientScrapReconciliationPercent;
+    window.validateInterplantHeadTailReconciliation = validateInterplantHeadTailReconciliation;
+    window.validateInterplantHeadTailReconciliationPercent_Min = validateInterplantHeadTailReconciliationPercent_Min;
+    window.validateInterplantHeadTailReconciliationPercent = validateInterplantHeadTailReconciliationPercent;
+    window.validateInterplantHeadTailReconciliationPercent_Max = validateInterplantHeadTailReconciliationPercent_Max;
+    window.validateInterplantClientHeadTailReconciliationPercent = validateInterplantClientHeadTailReconciliationPercent;
+    window.validateInterplantOutboundFreightFile = validateInterplantOutboundFreightFile;
 
 })(); // <-- Fin de la IIFE

@@ -278,8 +278,12 @@
     const debouncedUpdateCapacityGraphs = debounce(function () {
         UpdateCapacityGraphs();
         //llama al metodo para actualizar el ht de capacidad.
+        //UpdateCapacityHansontable();
+    }, 500); // 300 ms de espera
+
+    const debouncedUpdateCapacityHansontable = debounce(function () {
         UpdateCapacityHansontable();
-    }, 300); // 300 ms de espera
+    }, 500); // 300 ms de espera (puedes ajustar este valor si lo deseas)
 
     function UpdateCapacityGraphs(OnlyBDMaterials = false) {
         console.log('entra UpdateCapacityGraphs');
@@ -371,6 +375,7 @@
                 realSOP: realSOP,
                 realEOP: realEOP,
                 annualVol: annualVol,
+                partNumber: $("#partNumber").val() || null,
                 OnlyBDMaterials: OnlyBDMaterials
             },
             success: function (response) {
@@ -397,14 +402,25 @@
                     });
 
                     // 3) Relleno el campo de texto "Status DM" para el material seleccionado
+                    // 3) Relleno el campo de texto "Status DM" para el material seleccionado
                     var selMatId = $("#materialId").val();
-                    var dm = response.dmStatuses[selMatId];
+
+                    // <<<<< INICIO DE MODIFICACIÓN >>>>>
+                    // Si selMatId es "" (un material nuevo), el controlador usa el ID 0 como clave.
+                    var keyToSearch = (selMatId === "") ? "0" : selMatId;
+
+                    var dm = response.dmStatuses[keyToSearch];
+                    // <<<<< FIN DE MODIFICACIÓN >>>>>
+
                     if (dm !== undefined) {
                         // este es tu input de texto
                         $("#DM_status").val(dm);
                     }
 
-                    var dmc = response.dmStatusComments[selMatId];
+                    // <<<<< INICIO DE MODIFICACIÓN >>>>>
+                    var dmc = response.dmStatusComments[keyToSearch];
+                    // <<<<< FIN DE MODIFICACIÓN >>>>>
+
                     if (dmc !== undefined) {
                         // este es tu input de texto
                         $("#DM_status_comment").html(dmc);
@@ -1221,20 +1237,53 @@
     }
 
     function updateFileUIGeneric(fileIdText, fileNameText, fileContainerText, fileActionContainer, downloadContainer) {
+
+        // --- INICIO DE DEPURACIÓN ---
+        console.groupCollapsed(`--- DEPURANDO: ${fileIdText} ---`);
+        console.log(`Parámetros recibidos:
+        ID Field (Hidden): ${fileIdText}
+        Name Field (Hidden): ${fileNameText}
+        File Container (Input): ${fileContainerText}
+        Action Container (Download): ${fileActionContainer}`);
+        // --- FIN DE DEPURACIÓN ---
+
         let fileId = $("#" + fileIdText).val();
         let fileName = $("#" + fileNameText).val();
 
-        if (fileId && fileName) {
+        // --- INICIO DE DEPURACIÓN ---
+        console.log(`Valor de ID_File (${fileIdText}): "${fileId}"`);
+        console.log(`Valor de FileName (${fileNameText}): "${fileName}"`);
+
+        const hasFile = fileId && fileName && fileId.trim() !== "" && fileName.trim() !== "";
+        console.log(`Condición de existencia (fileId && fileName): ${hasFile}`);
+        // --- FIN DE DEPURACIÓN ---
+
+        if (hasFile) {
+            // --- CASO 1: Archivo existe en BD (se muestra el enlace) ---
             $("#" + fileContainerText).hide();
             $("#" + fileActionContainer).show();
+
+            // Configuramos el enlace de descarga
             $("#" + downloadContainer)
                 .attr("href", "/CTZ_Projects/DownloadFile?fileId=" + fileId)
-                .attr("title", fileName) // <-- AÑADE ESTA LÍNEA
+                .attr("title", fileName)
                 .html('<i class="fa-solid fa-download"></i> ' + fileName);
+
+            // --- INICIO DE DEPURACIÓN ---
+            console.log(`✅ Resultado: Mostrando enlace de descarga en #${fileActionContainer}.`);
+            // --- FIN DE DEPURACIÓN ---
+
         } else {
+            // --- CASO 2: Archivo NO existe (se muestra el input de carga) ---
             $("#" + fileContainerText).show();
             $("#" + fileActionContainer).hide();
+
+            // --- INICIO DE DEPURACIÓN ---
+            console.log(`❌ Resultado: Mostrando input de archivo en #${fileContainerText}.`);
+            // --- FIN DE DEPURACIÓN ---
         }
+
+        console.groupEnd(); // Cierra el grupo de depuración
     }
 
     function updateRealStrokes() {
@@ -1644,16 +1693,21 @@
                 realSOP: realSOP,
                 realEOP: realEOP,
                 annualVol: annualVol,
+                partNumber: $("#partNumber").val() || null, 
                 OnlyBDMaterials: OnlyBDMaterials
             },
             success: function (response) {
                 var container = document.getElementById("capacityTableContainer");
                 container.innerHTML = ""; // Limpiar contenedor
                 if (response.success) {
+
+
                     // 1. Actualizamos el input status_dm con el valor calculado en el servidor
                     if (OnlyBDMaterials == false) {
-                        $("#status_dm").val(response.status_dm);
+                        $("#status_dm").val(response.status_dm);              
                     }
+
+                    //$("#DM_status_comment").html(response.status_dm_comment);
                     // 2. Convertir la data (array de objetos) a una matriz para Handsontable
                     var arrayData = convertToHandsontableMatrix(response.data);
                     // arrayData.rows es una matriz donde:
@@ -2604,6 +2658,9 @@
         // Limpiar todos
         $('.rack-type-checkbox, .additional-checkbox, .label-checkbox, .strap-checkbox').prop('checked', false);
         $('#interplant-rack-types-container .interplant-rack-type-checkbox').prop('checked', false);
+        $('#interplant-labels-container .form-check-input').prop('checked', false); // <-- LÍNEA AÑADIDA
+        $('#interplant-additionals-container .form-check-input').prop('checked', false);
+        $('#interplant-straps-container .form-check-input').prop('checked', false);
 
         // 2. Poblar los campos del formulario
         hiddenInputs.each(function () {
@@ -2642,6 +2699,25 @@
                 }
                 return; // Continúa con el siguiente input oculto
             }
+            if (nameAttr.endsWith('.SelectedInterplantLabelIds')) {
+                if (val) {
+                    // Busca el checkbox con ese valor y lo marca
+                    $(`#interplant-label-${val}`).prop('checked', true);
+                }
+                return; // Continúa con el siguiente input oculto
+            }
+            if (nameAttr.endsWith('.SelectedInterplantAdditionalIds')) {
+                if (val) {
+                    $(`#interplant-additional-${val}`).prop('checked', true);
+                }
+                return; // Continúa con el siguiente input oculto
+            }
+            if (nameAttr.endsWith('.SelectedInterplantStrapTypeIds')) {
+                if (val) {
+                    $(`#interplant-strap-${val}`).prop('checked', true);
+                }
+                return; // Continúa con el siguiente input oculto
+            }
 
             for (let col of columnDefs) {
                 if (nameAttr.endsWith(`.${col.key}`)) {
@@ -2663,8 +2739,23 @@
                         $qualitySelect.val(val).trigger('change');
                     }
                     else {
-                        // Manejo normal para otros campos
-                        $(col.selector).val(val);
+                        // --- INICIO DE LA MODIFICACIÓN (Manejar N/A al cargar) ---
+                        // Comprobamos si la clave es uno de los campos de Coil Position
+                        if (col.key === 'ID_Coil_Position' ||
+                            col.key === 'ID_Delivery_Coil_Position' ||
+                            col.key === 'ID_InterplantDelivery_Coil_Position' ||
+                            col.key === 'ID_Arrival_Packaging_Type' || // <-- AÑADIDO
+                            col.key === 'ID_Arrival_Protective_Material') { // <-- AÑADIDO
+
+                            // Si el valor es nulo o vacío (vino como null de la BD),
+                            // lo forzamos a "0" para que seleccione "N/A".
+                            // Si tiene un valor (como 1, 2, etc.), usa ese valor.
+                            $(col.selector).val(val || "0");
+                        } else {
+                            // Manejo normal para todos los demás campos
+                            $(col.selector).val(val);
+                        }
+                        // --- FIN DE LA MODIFICACIÓN ---
                     }
                 }
             }
@@ -2734,7 +2825,8 @@
         updateFileUIGeneric('ID_File_VolumeAdditional', 'VolumeAdditionalFileName', 'file_container_volumeAdditionalFile', 'fileActions_containerVolumeAdditionalFile', 'downloadVolumeAdditionalFile');
         updateFileUIGeneric('ID_File_OutboundFreightAdditional', 'OutboundFreightAdditionalFileName', 'file_container_outboundFreightAdditionalFile', 'fileActions_containerOutboundFreightAdditionalFile', 'downloadOutboundFreightAdditionalFile');
         updateFileUIGeneric('ID_File_DeliveryPackagingAdditional', 'DeliveryPackagingAdditionalFileName', 'file_container_deliveryPackagingAdditionalFile', 'fileActions_containerDeliveryPackagingAdditionalFile', 'downloadDeliveryPackagingAdditionalFile');
-
+        updateFileUIGeneric('ID_File_InterplantPackaging', 'InterplantPackagingFileName', 'file_container_interplant_packaging_archivo', 'fileActions_containerInterplantPackagingFile', 'downloadInterplantPackagingFile');
+        updateFileUIGeneric('ID_File_InterplantOutboundFreight', 'InterplantOutboundFreightFileName', 'file_container_interplantOutboundFreightAdditionalFile', 'fileActions_containerInterplantOutboundFreightFile', 'downloadInterplantOutboundFreightFile');
 
         toggleTkmmPackagingFields(); // <-- Añadir esta llamada
         handleArrivalProtectiveMaterialChange();
@@ -2781,6 +2873,24 @@
         $('#ID_InterplantDelivery_Transport_Type').trigger('change');
         $('#InterplantPackagingStandard').trigger('change');
 
+        $('#InterplantScrapReconciliation').trigger('change');
+        $('#InterplantHeadTailReconciliation').trigger('change');
+
+        // Dispara los eventos 'change' de los checkboxes "Other" (Final Delivery e Interplant)
+        // para asegurar que sus textareas se muestren u oculten correctamente al cargar.
+        $('#additional-6').trigger('change');
+        $('#label-3').trigger('change');
+        $('#interplant-additional-6').trigger('change');
+        $('#interplant-label-3').trigger('change');
+
+        updateInterplantReturnableFieldsVisibility();
+
+        // Disparar handlers para los nuevos campos de Interplant
+        $('#IsInterplantReturnableRack').trigger('change');
+        $('#InterplantScrapReconciliation').trigger('change');
+        $('#InterplantHeadTailReconciliation').trigger('change');
+
+     
         // Usamos 'false' porque estamos cargando datos al formulario para una posible edición (escenario what-if).
         debouncedUpdateSlitterChart();
 
@@ -2850,6 +2960,12 @@
 
         let hiddenInputs = "";
         for (let col of columnDefs) {
+            // Ignoramos los checkboxGroup en este bucle, porque
+            // tienen su propia lógica de bucle 'forEach' más abajo.
+            if (col.type === "checkboxGroup") {
+                continue; // Salta a la siguiente iteración
+            }
+
             let inputValue;
 
             if (col.type === "check") {
@@ -2882,6 +2998,28 @@
         if (materialData.SelectedLabelIds) { materialData.SelectedLabelIds.forEach(function (id) { hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedLabelIds" value="${id}" />`; }); }
         if (materialData.SelectedStrapTypeIds) { materialData.SelectedStrapTypeIds.forEach(function (id) { hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedStrapTypeIds" value="${id}" />`; }); }
 
+        // --- INICIO DE LA MODIFICACIÓN (Añadir bucles para Interplant) ---
+        if (materialData.SelectedInterplantRackTypeIds && materialData.SelectedInterplantRackTypeIds.length > 0) {
+            materialData.SelectedInterplantRackTypeIds.forEach(function (id) {
+                hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedInterplantRackTypeIds" value="${id}" />`;
+            });
+        }
+        if (materialData.SelectedInterplantLabelIds && materialData.SelectedInterplantLabelIds.length > 0) {
+            materialData.SelectedInterplantLabelIds.forEach(function (id) {
+                hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedInterplantLabelIds" value="${id}" />`;
+            });
+        }
+        if (materialData.SelectedInterplantAdditionalIds && materialData.SelectedInterplantAdditionalIds.length > 0) {
+            materialData.SelectedInterplantAdditionalIds.forEach(function (id) {
+                hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedInterplantAdditionalIds" value="${id}" />`;
+            });
+        }
+        if (materialData.SelectedInterplantStrapTypeIds && materialData.SelectedInterplantStrapTypeIds.length > 0) {
+            materialData.SelectedInterplantStrapTypeIds.forEach(function (id) {
+                hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedInterplantStrapTypeIds" value="${id}" />`;
+            });
+        }
+
         // Agregar bandera para identificar que este material es el que tendrá el archivo.
         // Si materialData["IsFile"] está definido, úsalo; en caso contrario, asigna "false".
         hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsFile" value="${materialData["IsFile"] || "false"}" />`;
@@ -2894,6 +3032,8 @@
         hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsVolumeAdditionalFile" value="${materialData["IsVolumeAdditionalFile"] || "false"}" />`;
         hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsOutboundFreightAdditionalFile" value="${materialData["IsOutboundFreightAdditionalFile"] || "false"}" />`;
         hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsDeliveryPackagingAdditionalFile" value="${materialData["IsDeliveryPackagingAdditionalFile"] || "false"}" />`;
+        hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsInterplantPackagingFile" value="${materialData["IsInterplantPackagingFile"] || "false"}" />`;
+        hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsInterplantOutboundFreightFile" value="${materialData["IsInterplantOutboundFreightFile"] || "false"}" />`;
 
         let tdActions = `
                             <td nowrap>
@@ -2982,6 +3122,13 @@
         $("#ID_File_OutboundFreightAdditional").val(""); $("#OutboundFreightAdditionalFileName").val("");
         $("#ID_File_DeliveryPackagingAdditional").val(""); $("#DeliveryPackagingAdditionalFileName").val("");
         $("#InterplantPackageWeight").val("");
+        $('#InterplantSpecialRequirement, #InterplantSpecialPackaging, #InterplantDeliveryConditions').val('');
+        $('#interplant_packaging_archivo, #interplantOutboundFreightAdditionalFile').val('');
+        $('#IsInterplantReturnableRack, #InterplantScrapReconciliation, #InterplantHeadTailReconciliation').prop('checked', false);
+        $('#InterplantReturnableUses').val('');
+        $('#ID_Interplant_FreightType').val('').trigger('change');
+        $('#InterplantScrapReconciliationPercent_container').find('input').val('');
+        $('#InterplantHeadTailReconciliationPercent_container').find('input').val('');
         // Limpiar también los errores asociados si existen
         $("#InterplantPackageWeightError").text("").hide();
         $("#InterplantPiecesPerPackageError").text("").hide(); // Limpia error pieces
@@ -2996,6 +3143,8 @@
         updateFileUIGeneric('ID_File_VolumeAdditional', 'VolumeAdditionalFileName', 'file_container_volumeAdditionalFile', 'fileActions_containerVolumeAdditionalFile', 'downloadVolumeAdditionalFile');
         updateFileUIGeneric('ID_File_OutboundFreightAdditional', 'OutboundFreightAdditionalFileName', 'file_container_outboundFreightAdditionalFile', 'fileActions_containerOutboundFreightAdditionalFile', 'downloadOutboundFreightAdditionalFile');
         updateFileUIGeneric('ID_File_DeliveryPackagingAdditional', 'DeliveryPackagingAdditionalFileName', 'file_container_deliveryPackagingAdditionalFile', 'fileActions_containerDeliveryPackagingAdditionalFile', 'downloadDeliveryPackagingAdditionalFile');
+        updateFileUIGeneric('ID_File_InterplantPackaging', 'InterplantPackagingFileName', 'file_container_interplant_packaging_archivo', 'fileActions_containerInterplantPackagingFile', 'downloadInterplantPackagingFile');
+        updateFileUIGeneric('ID_File_InterplantOutboundFreight', 'InterplantOutboundFreightFileName', 'file_container_interplantOutboundFreightAdditionalFile', 'fileActions_containerInterplantOutboundFreightFile', 'downloadInterplantOutboundFreightFile');
 
         toggleRunningChangeWarning();
 
@@ -3010,9 +3159,31 @@
         // 2. Limpiar TODOS los checkboxes con un solo selector
         $('.rack-type-checkbox, .additional-checkbox, .label-checkbox, .strap-checkbox').prop('checked', false);
         $('#interplant-rack-types-container .interplant-rack-type-checkbox').prop('checked', false);
+        $('#interplant-labels-container .form-check-input').prop('checked', false);
+        $('#interplant-labels-container .form-check-input').prop('checked', false);
+        $('#interplant-additionals-container .form-check-input').prop('checked', false);
+        $('#interplant-straps-container .form-check-input').prop('checked', false);
         // 3. Ocultar y limpiar los campos de "Other"
-        $('#AdditionalsOtherDescription_container, #LabelOtherDescription_container').hide();
-        $('#AdditionalsOtherDescription, #LabelOtherDescription').val('');
+        $('#AdditionalsOtherDescription_container, #LabelOtherDescription_container, #InterplantLabelOtherDescription_container').hide();
+        $('#AdditionalsOtherDescription, #LabelOtherDescription, #InterplantLabelOtherDescription').val('');
+        $('#InterplantAdditionalsOtherDescription_container, #InterplantStrapTypeObservations').closest('.other-description-wrapper').hide();
+        $('#InterplantAdditionalsOtherDescription, #InterplantStrapTypeObservations').val('');
+
+        $('#InterplantScrapReconciliation').prop('checked', false);
+        $('#InterplantHeadTailReconciliation').prop('checked', false);
+        // Limpiamos los inputs de %
+        $('#InterplantScrapReconciliationPercent_container').find('input').val('');
+        $('#InterplantHeadTailReconciliationPercent_container').find('input').val('');
+        // Disparamos los handlers para que oculten los contenedores
+        handleInterplantScrapReconciliationChange();
+        handleInterplantHeadTailReconciliationChange();
+
+        // Dispara los handlers para ocultar los contenedores
+        handleInterplantReturnableRackChange(); // Función nueva
+
+        // Limpia los file inputs genéricos
+        clearFileUIGeneric('ID_File_InterplantPackaging', 'interplant_packaging_archivo', 'file_container_interplant_packaging_archivo', 'fileActions_containerInterplantPackagingFile', 'interplant_packaging_archivoCancelButton');
+        clearFileUIGeneric('ID_File_InterplantOutboundFreight', 'interplantOutboundFreightAdditionalFile', 'file_container_interplantOutboundFreightAdditionalFile', 'fileActions_containerInterplantOutboundFreightFile', 'interplantOutboundFreightAdditionalFileCancelButton');
 
         $('#InitialWeightPerPart').val('');
         $('#ShippingTons').val('');
@@ -3030,6 +3201,85 @@
         $("#Arrival_Transport_Type_Other_container").hide();
         $("#Arrival_Transport_Type_Other").val('');
 
+    }
+
+    function handleInterplantReturnableRackChange() {
+        const usesContainer = $('#InterplantReturnableUses_container');
+        if ($('#IsInterplantReturnableRack').is(':checked')) {
+            usesContainer.slideDown();
+        } else {
+            usesContainer.slideUp();
+            usesContainer.find('input').val('');
+            validateInterplantReturnableUses(); // Limpiar error
+        }
+    }
+
+    // Función genérica para limpiar un file input
+    function clearFileUIGeneric(idField, inputFileId, fileContainerId, actionsContainerId, cancelBtnId) {
+        $("#" + idField).val("");
+        $("#" + inputFileId).val("").prop("disabled", !canEditSales);
+        $("#" + fileContainerId).show();
+        $("#" + actionsContainerId).hide();
+        $("#" + cancelBtnId).hide();
+    }
+
+
+    // --- INICIO DE LA MODIFICACIÓN ---
+    function handleInterplantScrapReconciliationChange() {
+        const percentContainer = $('#InterplantScrapReconciliationPercent_container');
+        if ($('#InterplantScrapReconciliation').is(':checked')) {
+            percentContainer.slideDown();
+        } else {
+            percentContainer.slideUp();
+            // Opcional: Limpiamos los inputs si se desmarca
+            // percentContainer.find('input').val('');
+        }
+    }
+
+    function handleInterplantHeadTailReconciliationChange() {
+        const percentContainer = $('#InterplantHeadTailReconciliationPercent_container');
+        if ($('#InterplantHeadTailReconciliation').is(':checked')) {
+            percentContainer.slideDown();
+        } else {
+            percentContainer.slideUp();
+            // Opcional: Limpiamos los inputs si se desmarca
+            // percentContainer.find('input').val('');
+        }
+    }
+
+    function updateInterplantReturnableFieldsVisibility() {
+        console.log("%c--- updateInterplantReturnableFieldsVisibility [START] ---", "color: #009ff5; font-weight: bold;");
+
+        const $returnableContainer = $("#IsInterplantReturnableRack_container");
+        const $returnableCheckbox = $("#IsInterplantReturnableRack");
+
+        // 1. Obtenemos los IDs de los checkboxes de Interplant Rack Type que están marcados.
+        const selectedRackIds = $('.interplant-rack-type-checkbox:checked').map(function () {
+            return parseInt($(this).val(), 10);
+        }).get();
+
+        console.log("Interplant Rack IDs seleccionados:", selectedRackIds);
+        console.log("Racks que permiten 'Returnable':", window.showReturnableOptionFor); // Usamos la constante global [3, 2, 4]
+
+        // 2. Comprobamos si alguno de los seleccionados está en nuestra lista de permitidos.
+        // Usamos la constante global 'showReturnableOptionFor' definida en page.constants.js [cite: 4, 770]
+        const shouldShowReturnableOption = selectedRackIds.some(id => window.showReturnableOptionFor.includes(id));
+
+        console.log("¿Debería mostrarse 'Interplant Returnable'?", shouldShowReturnableOption);
+
+        // 3. Mostramos u ocultamos el campo "Returnable Rack"
+        if (shouldShowReturnableOption) {
+            console.log("Resultado: MOSTRANDO 'Interplant Returnable Rack'.");
+            $returnableContainer.slideDown();
+            // No habilitamos el check, eso lo hace la lógica de permisos
+        } else {
+            console.log("Resultado: OCULTANDO 'Interplant Returnable Rack' y reseteando.");
+            $returnableContainer.slideUp();
+            // Si lo ocultamos, forzamos que se desmarque y disparamos 'change'
+            // para que también se oculte el campo "Returnable Uses".
+            $returnableCheckbox.prop('checked', false).trigger('change');
+        }
+        console.log("%c--- updateInterplantReturnableFieldsVisibility [END] ---", "color: #dc3545;");
     }
 
 
@@ -3102,5 +3352,13 @@
     window.buildRowHtml = buildRowHtml;
     window.clearMaterialForm = clearMaterialForm;
     window.requiresInterplant = requiresInterplant;
-
+    window.handleHeadTailReconciliationChange = handleHeadTailReconciliationChange;
+    window.handleScrapReconciliationChange = handleScrapReconciliationChange;
+    window.handleInterplantScrapReconciliationChange = handleInterplantScrapReconciliationChange;
+    window.handleInterplantHeadTailReconciliationChange = handleInterplantHeadTailReconciliationChange;
+    window.handleInterplantReturnableRackChange = handleInterplantReturnableRackChange;
+    window.clearFileUIGeneric = clearFileUIGeneric;
+    window.updateInterplantReturnableFieldsVisibility = updateInterplantReturnableFieldsVisibility;
+    window.debouncedUpdateCapacityHansontable = debouncedUpdateCapacityHansontable;
+    //
 })();
