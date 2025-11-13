@@ -21,7 +21,7 @@ namespace Portal_2_0.Models
         public System.DateTime LastSyncTimestamp { get; set; }
         public string Component { get; set; }
         public string Comp_Desc { get; set; }
-        public Nullable<double> Quantity { get; set; }
+        public Nullable<decimal> Quantity { get; set; }
         public string Uom { get; set; }
         public Nullable<System.DateTime> Valid_From { get; set; }
         public Nullable<System.DateTime> Created_On { get; set; }

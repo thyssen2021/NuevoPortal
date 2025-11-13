@@ -5,6 +5,7 @@
     ViewBag.PrimerNivel = "bitacoras_produccion";
     ViewBag.SegundoNivel = "produccion_registros";
     ViewBag.ControllerName = "ProduccionRegistros";
+    ViewBag.nav_style = "nav-sm";
 
 }
 
@@ -15,6 +16,7 @@
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
 
 
 }
@@ -92,6 +94,12 @@
                                     @Html.DropDownList("sap_platina", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.sap_platina, "", new { @class = "text-danger" })
                                 </div>
+                                <div class="col-md-3 col-sm-3" style="padding-left: 0;">
+                                    <button type="button" id="btnSyncPlatina1" class="btn btn-info btn-sm" style="display: none; margin-top: 5px;">
+                                        <i class="fa fa-refresh"></i> Buscar Material
+                                    </button>
+                                    <span id="loaderPlatina1" class="fa fa-spinner fa-spin" style="display: none; font-size: 20px; vertical-align: middle;"></span>
+                                </div>
                             </div>
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.sap_rollo, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
@@ -114,6 +122,12 @@
                                 <div class="col-md-6 col-sm-6 ">
                                     @Html.DropDownList("sap_platina_2", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.sap_platina_2, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-3 col-sm-3" style="padding-left: 0;">
+                                    <button type="button" id="btnSyncPlatina2" class="btn btn-info btn-sm" style="display: none; margin-top: 5px;">
+                                        <i class="fa fa-refresh"></i> Buscar Material
+                                    </button>
+                                    <span id="loaderPlatina2" class="fa fa-spinner fa-spin" style="display: none; font-size: 20px; vertical-align: middle;"></span>
                                 </div>
                             </div>
                             <div class="ln_solid"></div>
@@ -145,6 +159,234 @@
 
     @*@Scripts.Render(Url.Content("~/Scripts/Forms/ProduccionRegistrosCreate.js"))*@
     <script src="~/Scripts/Forms/ProduccionRegistrosEdit.js?time=@DateTime.Now"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
+    <script>
+
+
+        $(document).ready(function () {
+
+            // Configuración de Toastr (sin cambios)
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "6000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+
+            // Variable global para que el botón 'click' sepa qué material sincronizar
+            var materialParaSincronizar_P1 = '';
+            var materialParaSincronizar_P2 = '';
+
+            // =================================================
+            // INICIALIZACIÓN DE SELECT2 (NUEVA LÓGICA AJAX)
+            // =================================================
+
+         
+            function initSelect2Ajax(selector, syncButtonId, variableGlobal) {
+                $(selector).select2({
+                    placeholder: "-- Escriba 3 o más caracteres para buscar --",
+                    allowClear: true,
+                    minimumInputLength: 3, // No buscar hasta que haya 3 caracteres
+
+                    // --- INICIO LÓGICA AJAX ---
+                    ajax: {
+                        url: '@Url.Action("SearchMaterials", "ProduccionRegistros")', // Llama a nuestra nueva acción
+                        dataType: 'json',
+                        delay: 250, // Espera 250ms después de teclear
+                        data: function (params) {
+                            return {
+                                term: params.term // El texto que el usuario escribe
+                            };
+                        },
+                        processResults: function (data) {
+                            // Transforma la respuesta JSON al formato que Select2 espera
+                            return {
+                                results: data.results
+                            };
+                        },
+                        cache: true
+                    },
+                    // --- FIN LÓGICA AJAX ---
+
+                    // --- Lógica para el botón "Sincronizar" ---
+                    language: {
+                        // Se dispara cuando AJAX no devuelve resultados
+                        noResults: function () {
+                            // Capturamos el texto que el usuario escribió
+                            var term = $('.select2-search__field').val();
+
+                            // Guardamos el término en la variable global correspondiente
+                            if (variableGlobal === 'P1') materialParaSincronizar_P1 = term;
+                            if (variableGlobal === 'P2') materialParaSincronizar_P2 = term;
+
+                            // Mostramos el botón de Sincronizar
+                            $(syncButtonId).show();
+
+                            return "Material no encontrado. Haga clic en Buscar para intentar cargar los datos.";
+                        },
+                        searching: function () {
+                            return "Buscando...";
+                        },
+                        inputTooShort: function () {
+                            return "Escriba 3 caracteres o más...";
+                        }
+                    }
+                });
+            }
+
+            // Inicializamos ambas platinas con la nueva función AJAX
+            initSelect2Ajax('#sap_platina', '#btnSyncPlatina1', 'P1');
+            initSelect2Ajax('#sap_platina_2', '#btnSyncPlatina2', 'P2');
+
+            // El Select2 de Rollo sigue siendo local y simple
+            $('#sap_rollo').select2({
+                placeholder: "Seleccione una platina primero",
+                allowClear: true
+            });
+
+
+            // =================================================
+            // LÓGICA DE EVENTOS (ADAPTADA PARA EDIT)
+            // =================================================
+
+            // 1. Lógica para Platina 1 (en el evento CHANGE)
+            $('#sap_platina').on('change', function () {
+                var materialId = $(this).val();
+                var $selectRollo = $('#sap_rollo');
+                var plantCode = '@ViewBag.PlantaCodigoSap';
+
+                // Si se selecciona un material (de la lista AJAX), ocultamos el botón
+                $('#btnSyncPlatina1').hide();
+                materialParaSincronizar_P1 = ''; // Limpiamos
+
+                // --- Lógica de Cargar Rollos ---
+                $selectRollo.empty();
+                $selectRollo.append(new Option("Cargando rollos...", ""));
+                $selectRollo.prop('disabled', true);
+
+                if (materialId) {
+                    $.getJSON('@Url.Action("GetRollosPorPlatina", "ProduccionRegistros")',
+                              { material: materialId, plantCode: plantCode },
+                              function (rollos) {
+                                  $selectRollo.empty();
+                                  $.each(rollos, function (i, rollo) {
+                                      $selectRollo.append(new Option(rollo.Text, rollo.Value));
+                                  });
+                                  $selectRollo.prop('disabled', false);
+
+                                  // --- INICIO LÓGICA DE EDIT ---
+                                  // Seleccionamos el rollo que ya estaba guardado en el Modelo
+                                  var selectedRollo = '@Model.sap_rollo';
+                                  if (selectedRollo) {
+                                      $selectRollo.val(selectedRollo).trigger('change.select2');
+                                  }
+                                  // --- FIN LÓGICA DE EDIT ---
+                              });
+                } else {
+                    $selectRollo.empty();
+                    $selectRollo.append(new Option("Seleccione una platina primero", ""));
+                    $selectRollo.prop('disabled', true);
+                }
+            });
+
+            // 2. Lógica para Platina 2 (en el evento CHANGE)
+            $('#sap_platina_2').on('change', function () {
+                // Si se selecciona un material, ocultamos el botón
+                $('#btnSyncPlatina2').hide();
+                materialParaSincronizar_P2 = '';
+            });
+
+            // --- INICIO LÓGICA DE EDIT ---
+            // Disparamos 'change' en Platina 1 AL CARGAR LA PÁGINA
+            // para que la lista de rollos se cargue automáticamente
+            if ($('#sap_platina').val()) {
+                $('#sap_platina').trigger('change');
+            }
+            // --- FIN LÓGICA DE EDIT ---
+
+            // 3. Click del Botón 1
+            $('#btnSyncPlatina1').on('click', function() {
+                syncMaterial(materialParaSincronizar_P1, '#btnSyncPlatina1', '#loaderPlatina1', '#sap_platina');
+            });
+
+            // 4. Click del Botón 2
+            $('#btnSyncPlatina2').on('click', function() {
+                syncMaterial(materialParaSincronizar_P2, '#btnSyncPlatina2', '#loaderPlatina2', '#sap_platina_2');
+            });
+
+            // 5. Función de Sincronización (AJAX)
+            function syncMaterial(materialId, btnId, loaderId, selectId) {
+                var plantCode = '@ViewBag.PlantaCodigoSap';
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                if (!materialId || !plantCode) {
+                    toastr.warning("No se pudo obtener el Material.", "Advertencia");
+                    return;
+                }
+
+                $(btnId).hide();
+                $(loaderId).show();
+                $.ajax({
+                    url: '@Url.Action("SyncSapMaterial", "ProduccionRegistros")',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        __RequestVerificationToken: token,
+                        materialId: materialId,
+                        plantCode: plantCode
+                    },
+                    success: function (response) {
+                        $(loaderId).hide();
+                        if (response.success) {
+                            toastr.success(response.message, "Sincronización Exitosa");
+
+                            // Añadimos la <option> al select y la seleccionamos
+                            var newOption = new Option(materialId, materialId, true, true);
+                            $(selectId).append(newOption).trigger('change');
+
+                            if (selectId === '#sap_platina') {
+                                repopulateSelect2('#sap_rollo', response.rollos, null);
+                            }
+                        } else {
+                            toastr.error(response.message, "Error de Sincronización");
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $(loaderId).hide();
+                        toastr.error("No se pudo conectar con el servidor. " + error, "Error de Red");
+                    }
+                });
+            }
+
+            // 6. Función Helper para Repoblar (solo para Rollos)
+            function repopulateSelect2(selectId, data, valueToSelect) {
+                var $select = $(selectId);
+                $select.empty();
+
+                $.each(data, function (index, item) {
+                    $select.append(new Option(item.text, item.value, false, false));
+                });
+                if (valueToSelect) {
+                    $select.val(valueToSelect);
+                } else {
+                    $select.val($select.find('option:first').val());
+                }
+                $select.trigger('change.select2');
+            }
+
+        });
+    </script>
 }
 

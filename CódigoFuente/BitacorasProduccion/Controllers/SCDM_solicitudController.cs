@@ -4608,9 +4608,7 @@ namespace Portal_2_0.Controllers
         /// </summary>
         /// <param name="material"></param>
         /// <returns></returns>
-        // --- INICIO MODIFICACIÓN: Cambiar firma a async Task ---
         public async Task<JsonResult> ObtieneValoresMaterialReferencia(string material, string plantaSolicitud)
-        // --- FIN MODIFICACIÓN ---
         {
             // Asegurarnos de comparar en mayúsculas sin espacios adicionales
             material = material?.Trim().ToUpper();
@@ -4619,7 +4617,7 @@ namespace Portal_2_0.Controllers
             // Prepara el arreglo de respuesta
             var respuesta = new object[1];
 
-            // --- INICIO MODIFICACIÓN: Lógica Híbrida (Local-First + On-Demand) ---
+            // Lógica Híbrida (Local-First + On-Demand) ---
 
             // 1. INTENTO LOCAL (Fast Path)
             // Usamos AsNoTracking() para optimizar consultas de solo lectura
@@ -4628,13 +4626,9 @@ namespace Portal_2_0.Controllers
             // 2. SI NO EXISTE, INTENTA SINCRONIZACIÓN ON-DEMAND (Slow Path)
             if (mm == null)
             {
+                System.Diagnostics.Debug.WriteLine("-----> El material " + material + " no existe, intentando on demand...");
                 // Prepara las plantas para la búsqueda
-                List<string> plantasConsulta = new List<string>();
-                if (!string.IsNullOrEmpty(plantaSolicitud))
-                {
-                    plantasConsulta.Add(plantaSolicitud);
-                }
-                // (Opcional: puedes agregar aquí plantas default si es necesario)
+                List<string> plantasConsulta = new List<string> { "5190", "5390", "5490", "5590", "5890" };
 
                 // Llama al servicio de sincronización (maneja concurrencia, RFC y write-back)
                 bool syncSuccess = await _sapSyncService.SyncMaterialOnDemandAsync(material, plantasConsulta);
@@ -4644,6 +4638,9 @@ namespace Portal_2_0.Controllers
                     // Vuelve a consultar la BD local. Ahora debería existir.
                     mm = db_sap.Materials.AsNoTracking().FirstOrDefault(x => x.Matnr == material);
                 }
+            }
+            else {
+                System.Diagnostics.Debug.WriteLine("-----> El material " + material + " existe, cargando desde BD");
             }
 
             // 3. VERIFICACIÓN FINAL Y FALLBACK
@@ -4659,7 +4656,7 @@ namespace Portal_2_0.Controllers
                 return Json(respuesta, JsonRequestBehavior.AllowGet);
             }
 
-            // --- FIN MODIFICACIÓN ---
+            
 
 
             // 1b) Buscar en MaterialPlants (se utiliza para obtener el Plnt y status)

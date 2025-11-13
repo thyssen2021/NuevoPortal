@@ -27,10 +27,10 @@ namespace Portal_2_0.Models
     
         public virtual DbSet<BatchCharacteristics> BatchCharacteristics { get; set; }
         public virtual DbSet<Batches> Batches { get; set; }
-        public virtual DbSet<BomItems> BomItems { get; set; }
         public virtual DbSet<MaterialCharacteristics> MaterialCharacteristics { get; set; }
         public virtual DbSet<MaterialDescriptions> MaterialDescriptions { get; set; }
         public virtual DbSet<MaterialPlants> MaterialPlants { get; set; }
         public virtual DbSet<Materials> Materials { get; set; }
+        public virtual DbSet<BomItems> BomItems { get; set; }
     }
 }

@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="Portal_2_0_ServicesModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="Portal_2_0_ServicesModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="BatchCharacteristics">
           <Key>
             <PropertyRef Name="Matnr" />
@@ -51,7 +51,7 @@
           <Property Name="LastSyncTimestamp" Type="datetime" Nullable="false" />
           <Property Name="Component" Type="nvarchar" MaxLength="40" />
           <Property Name="Comp_Desc" Type="nvarchar" MaxLength="40" />
-          <Property Name="Quantity" Type="float" />
+          <Property Name="Quantity" Type="decimal" Precision="15" Scale="3" />
           <Property Name="Uom" Type="nvarchar" MaxLength="3" />
           <Property Name="Valid_From" Type="date" />
           <Property Name="Created_On" Type="date" />
@@ -161,8 +161,7 @@
           <EntitySet Name="MaterialPlants" EntityType="Self.MaterialPlants" Schema="SAP" store:Type="Tables" />
           <EntitySet Name="Materials" EntityType="Self.Materials" Schema="SAP" store:Type="Tables" />
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="Portal_2_0_ServicesModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -197,25 +196,6 @@
           <Property Name="LastSyncTimestamp" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="Ersda" Type="DateTime" Precision="0" />
           <Property Name="Vfdat" Type="DateTime" Precision="0" />
-        </EntityType>
-        <EntityType Name="BomItems">
-          <Key>
-            <PropertyRef Name="Matnr" />
-            <PropertyRef Name="Werks" />
-            <PropertyRef Name="Alt_Bom" />
-            <PropertyRef Name="Item_No" />
-          </Key>
-          <Property Name="Matnr" Type="String" MaxLength="40" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Werks" Type="String" MaxLength="4" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Alt_Bom" Type="String" MaxLength="2" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Item_No" Type="String" MaxLength="4" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="LastSyncTimestamp" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Component" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
-          <Property Name="Comp_Desc" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
-          <Property Name="Quantity" Type="Double" />
-          <Property Name="Uom" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
-          <Property Name="Valid_From" Type="DateTime" Precision="0" />
-          <Property Name="Created_On" Type="DateTime" Precision="0" />
         </EntityType>
         <EntityType Name="MaterialCharacteristics">
           <Key>
@@ -316,12 +296,31 @@
         <EntityContainer Name="Portal_2_0_ServicesEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="BatchCharacteristics" EntityType="Self.BatchCharacteristics" />
           <EntitySet Name="Batches" EntityType="Self.Batches" />
-          <EntitySet Name="BomItems" EntityType="Self.BomItems" />
           <EntitySet Name="MaterialCharacteristics" EntityType="Self.MaterialCharacteristics" />
           <EntitySet Name="MaterialDescriptions" EntityType="Self.MaterialDescriptions" />
           <EntitySet Name="MaterialPlants" EntityType="Self.MaterialPlants" />
           <EntitySet Name="Materials" EntityType="Self.Materials" />
+          <EntitySet Name="BomItems" EntityType="Portal_2_0_ServicesModel.BomItems" />
         </EntityContainer>
+        <EntityType Name="BomItems">
+          <Key>
+            <PropertyRef Name="Matnr" />
+            <PropertyRef Name="Werks" />
+            <PropertyRef Name="Alt_Bom" />
+            <PropertyRef Name="Item_No" />
+          </Key>
+          <Property Name="Matnr" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="Werks" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="true" />
+          <Property Name="Alt_Bom" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="true" />
+          <Property Name="Item_No" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="true" />
+          <Property Name="LastSyncTimestamp" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Component" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="Comp_Desc" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="Quantity" Type="Decimal" Precision="15" Scale="3" />
+          <Property Name="Uom" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
+          <Property Name="Valid_From" Type="DateTime" Precision="0" />
+          <Property Name="Created_On" Type="DateTime" Precision="0" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -354,23 +353,6 @@
                 <ScalarProperty Name="LastSyncTimestamp" ColumnName="LastSyncTimestamp" />
                 <ScalarProperty Name="Ersda" ColumnName="Ersda" />
                 <ScalarProperty Name="Vfdat" ColumnName="Vfdat" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="BomItems">
-            <EntityTypeMapping TypeName="Portal_2_0_ServicesModel.BomItems">
-              <MappingFragment StoreEntitySet="BomItems">
-                <ScalarProperty Name="Matnr" ColumnName="Matnr" />
-                <ScalarProperty Name="Werks" ColumnName="Werks" />
-                <ScalarProperty Name="Alt_Bom" ColumnName="Alt_Bom" />
-                <ScalarProperty Name="Item_No" ColumnName="Item_No" />
-                <ScalarProperty Name="LastSyncTimestamp" ColumnName="LastSyncTimestamp" />
-                <ScalarProperty Name="Component" ColumnName="Component" />
-                <ScalarProperty Name="Comp_Desc" ColumnName="Comp_Desc" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="Uom" ColumnName="Uom" />
-                <ScalarProperty Name="Valid_From" ColumnName="Valid_From" />
-                <ScalarProperty Name="Created_On" ColumnName="Created_On" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -468,6 +450,23 @@
                 <ScalarProperty Name="ZZMTLTYP" ColumnName="ZZMTLTYP" />
                 <ScalarProperty Name="ZZSELLTYP" ColumnName="ZZSELLTYP" />
                 <ScalarProperty Name="ZZBUSSMODL" ColumnName="ZZBUSSMODL" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BomItems">
+            <EntityTypeMapping TypeName="Portal_2_0_ServicesModel.BomItems">
+              <MappingFragment StoreEntitySet="BomItems">
+                <ScalarProperty Name="Created_On" ColumnName="Created_On" />
+                <ScalarProperty Name="Valid_From" ColumnName="Valid_From" />
+                <ScalarProperty Name="Uom" ColumnName="Uom" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Comp_Desc" ColumnName="Comp_Desc" />
+                <ScalarProperty Name="Component" ColumnName="Component" />
+                <ScalarProperty Name="LastSyncTimestamp" ColumnName="LastSyncTimestamp" />
+                <ScalarProperty Name="Item_No" ColumnName="Item_No" />
+                <ScalarProperty Name="Alt_Bom" ColumnName="Alt_Bom" />
+                <ScalarProperty Name="Werks" ColumnName="Werks" />
+                <ScalarProperty Name="Matnr" ColumnName="Matnr" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

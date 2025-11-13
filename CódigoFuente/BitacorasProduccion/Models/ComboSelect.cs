@@ -214,11 +214,11 @@ namespace Portal_2_0.Models
         {
             Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
 
-            List<string> distinctList = db_sap.BomItems
-             .Where(p => p.Quantity.HasValue && p.Quantity > 0 && !p.Matnr.StartsWith("sm"))
-             .Select(m => m.Matnr) 
-             .Distinct()
-             .ToList();
+            List<string> distinctList = db_sap.Materials
+              .Where(p => !p.Matnr.StartsWith("SM")) // Mantenemos la exclusión de 'sm'
+              .Select(m => m.Matnr)
+              .Distinct()
+              .ToList();
 
             var items = new List<SelectListItem>();
 
@@ -252,19 +252,28 @@ namespace Portal_2_0.Models
         ///</summary>
         ///<return>
         ///retorna un List<SelectListItem> con las opciones disponibles
-        public static List<SelectListItem> obtieneRollo_BOM(string material = "")
+        public static List<SelectListItem> obtieneRollo_BOM(string material = "", string plantCode = "")
         {
             Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
-     
+
             //obtiene todos los posibles valores
-            List<string> distinctList = db_sap.BomItems
-                .Where(p => p.Quantity.HasValue && p.Quantity > 0 && // Maneja float?
+            var query = db_sap.BomItems
+                .Where(p => p.Quantity.HasValue && p.Quantity > 0 &&
                             !p.Matnr.StartsWith("sm") &&
-                            p.Matnr == material)
+                            p.Matnr == material);
+
+            // --- INICIO MODIFICACIÓN (Filtrar por planta) ---
+            // Si se proporciona un código de planta, filtramos los componentes (rollos)
+            // para esa planta específica.
+            if (!string.IsNullOrEmpty(plantCode))
+            {
+                query = query.Where(p => p.Werks == plantCode);
+            }
+
+            List<string> distinctList = query
                 .Select(m => m.Component) // Obtiene el Componente (rollo)
                 .Distinct()
                 .ToList();
-     
 
             var items = new List<SelectListItem>();
 

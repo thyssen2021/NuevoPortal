@@ -8,6 +8,11 @@ using System.Web;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SAP.Middleware.Connector;
 using System.Windows.Media.Media3D;
+using System.Data.Entity;
+using System.Data.SqlClient;
+using System.Data;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace Portal_2_0.Models
 {
@@ -19,17 +24,28 @@ namespace Portal_2_0.Models
         // Usamos un Func<T> para instanciar el DbContext solo cuando sea necesario
         // Esto evita problemas de DbContext en hilos (común en 'static')
         private readonly Func<Portal_2_0_ServicesEntities> _contextFactory;
-
+        private readonly Func<Portal_2_0Entities> _dbFactory;
         public SapSyncService()
         {
             _contextFactory = () => new Portal_2_0_ServicesEntities();
+            _dbFactory = () => new Portal_2_0Entities(); // Instancia el contexto principal
+        }
+
+        /// <summary>
+        /// Flujo principal "On-Demand" PÚBLICO.
+        /// Llama al método privado con 'syncComponents = true' para iniciar la sincronización.
+        /// </summary>
+        public async Task<bool> SyncMaterialOnDemandAsync(string materialId, List<string> plants)
+        {
+            // Llama al método principal con 'syncComponents' en 'true' por defecto.
+            return await SyncMaterialOnDemandAsync(materialId, plants, true);
         }
 
         /// <summary>
         /// Flujo principal "On-Demand": Busca un material; si no existe, lo trae de SAP y lo guarda.
         /// Maneja la concurrencia.
         /// </summary>
-        public async Task<bool> SyncMaterialOnDemandAsync(string materialId, List<string> plants)
+        private async Task<bool> SyncMaterialOnDemandAsync(string materialId, List<string> plants, bool syncComponents)
         {
             materialId = materialId.ToUpper();
 
@@ -68,6 +84,76 @@ namespace Portal_2_0.Models
                         // 5. WRITE-BACK (Guardar en BD local)
                         // Esta es la lógica adaptada de tu SapDbRepository.cs
                         SaveMaterialsToDatabase(materialsFromSap, DateTime.Now);
+
+                        // Solo ejecutar este bloque si syncComponents es 'true' (la primera llamada)
+                        if (syncComponents)
+                        {
+                            try
+                            {
+                                var allComponentsToSync = new List<string>();
+                                foreach (var mat in materialsFromSap)
+                                {
+                                    foreach (var plant in mat.Plants)
+                                    {
+                                        foreach (var bomItem in plant.BomItems)
+                                        {
+                                            if (!string.IsNullOrEmpty(bomItem.Component) && !bomItem.Component.StartsWith("sm"))
+                                            {
+                                                allComponentsToSync.Add(bomItem.Component.ToUpper());
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Obtenemos los componentes únicos
+                                var uniqueComponents = allComponentsToSync.Distinct().ToList();
+
+                                if (uniqueComponents.Any())
+                                {
+                                    Task.Run(async () =>
+                                    {
+                                        var syncTasks = new List<Task>();
+                                        foreach (var componentId in uniqueComponents)
+                                        {
+                                            // --- INICIO MODIFICACIÓN 4 ---
+                                            // Llamada recursiva con 'syncComponents = false' para DETENER
+                                            // la recursión en el siguiente nivel.
+                                            syncTasks.Add(SyncMaterialOnDemandAsync(componentId, plants, false));
+                                            // --- FIN MODIFICACIÓN 4 ---
+                                        }
+                                        await Task.WhenAll(syncTasks);
+                                    }).Wait(); // .Wait() es crucial aquí
+                                }
+                            }
+                            catch (Exception ex_recursive)
+                            {
+                                // Loguear error de la sincronización recursiva, pero no fallar la principal
+                                // LogWriter.LogInfo($"<!!!> [SapSyncService] ERROR Sinc. Recursiva para '{materialId}': {ex_recursive.Message}");
+                            }
+                        } // <-- Fin del 'if (syncComponents)'
+
+                        // --- INICIO: Calcular y Guardar Pesos BOM ---
+                        try
+                        {
+                            // Obtenemos los materiales (platinas) que acabamos de sincronizar
+                            var platinasSincronizadas = materialsFromSap
+                                .Where(m => !m.Matnr.StartsWith("sm")) // Excluir 'sm'
+                                .Select(m => m.Matnr)
+                                .Distinct()
+                                .ToList();
+
+                            if (platinasSincronizadas.Any())
+                            {
+                                // Llamamos a la nueva lógica de cálculo (no es async, se ejecuta síncrono)
+                                CalculateAndSaveBomWeights(platinasSincronizadas);
+                            }
+                        }
+                        catch (Exception ex_pesos)
+                        {
+                            // Loguear error de cálculo de pesos, pero no fallar la sincronización principal
+                            // LogWriter.LogInfo($"<!!!> [SapSyncService] ERROR Calculando Pesos BOM para '{materialId}': {ex_pesos.Message}");
+                        }
+                        // --- FIN Calulo BOM ---
 
                         return true;
                     }
@@ -116,8 +202,8 @@ namespace Portal_2_0.Models
                 }
             }
 
-     
-            rfcFunction.SetValue("IV_GET_BATCH_CHARS", ""); // Vacío para NO obtener lotes
+            // Vacío para NO obtener lotes
+            rfcFunction.SetValue("IV_GET_BATCH_CHARS", ""); 
 
             // --- Invocar la función RFC (Bloqueante, por eso está en Task.Run) ---
             RfcConnectionService.InvokeFunction(rfcFunction);
@@ -193,8 +279,7 @@ namespace Portal_2_0.Models
                     Batches = new List<BatchDataViewModel>()
                 };
 
-                // (Mapeo de tablas anidadas: DESC_DATA, PLANT_DATA, BOM_DATA, CHAR_DATA, BATCH_DATA, BATCH_CHARS)
-                // ... (Este código se copia/pega de tu SapRfcRepository.cs) ...
+                // (Mapeo de tablas anidadas: DESC_DATA, PLANT_DATA, BOM_DATA, CHAR_DATA, BATCH_DATA, BATCH_CHARS)         
 
                 // Leer tabla anidada de Descripciones (DESC_DATA)
                 IRfcTable descTable = materialRow.GetTable("DESC_DATA");
@@ -288,6 +373,15 @@ namespace Portal_2_0.Models
             }
 
             return resultList;
+        }
+
+        /// <summary>
+        /// Trunca un valor decimal a un número específico de decimales.
+        /// </summary>
+        private decimal TruncateDecimal(decimal value, int precision)
+        {
+            decimal step = (decimal)Math.Pow(10, precision);
+            return Math.Truncate(value * step) / step;
         }
 
         /// <summary>
@@ -388,6 +482,9 @@ namespace Portal_2_0.Models
                         // 4. Mapear BOM Items (Anidados en Plantas)
                         foreach (var b in p.BomItems)
                         {
+                            decimal qty_truncada_decimal = TruncateDecimal(b.Quantity, 3);
+
+
                             db.BomItems.Add(new BomItems
                             {
                                 Matnr = m.Matnr,
@@ -396,7 +493,7 @@ namespace Portal_2_0.Models
                                 Item_No = b.Item_No,
                                 Component = b.Component,
                                 Comp_Desc = b.Comp_Desc,
-                                Quantity = (float?)b.Quantity,
+                                Quantity = qty_truncada_decimal,
                                 Uom = b.Uom,
                                 Valid_From = b.Valid_From,
                                 Created_On = b.Created_On,
@@ -458,6 +555,205 @@ namespace Portal_2_0.Models
 
                 db.SaveChanges();
             }
+        }
+
+        /// <summary>
+        /// (Adaptado de CargaBom) Calcula los pesos Bruto/Neto basados en SAP.BomItems 
+        /// y los guarda en Portal_2_0.bom_pesos.
+        /// </summary>
+        private void CalculateAndSaveBomWeights(List<string> materialIds)
+        {
+            var pesosParaSincronizar = new List<bom_pesos>();
+
+            // Usamos ambos contextos
+            using (var db_sap = _contextFactory())
+            using (var db = _dbFactory())
+            {
+                // 1. Obtener los BOMs de los materiales recién sincronizados
+                var bomItems = db_sap.BomItems
+                   .Where(b => materialIds.Contains(b.Matnr) &&
+                                b.Quantity.HasValue && b.Quantity != 0 && 
+                                !b.Component.StartsWith("SM"))
+                    .ToList();
+
+                // 2. Agrupar por Material y Planta
+                var bomGroups = bomItems.GroupBy(b => new { b.Matnr, b.Werks });
+
+                // 3. Cargar pesos existentes de la BD principal (db)
+                var pesosDict = db.bom_pesos
+                    .Where(p => materialIds.Contains(p.material))
+                    .ToDictionary(p => $"{p.plant}|{p.material}", p => p);
+
+                foreach (var group in bomGroups)
+                {
+                    var listTemporalBOM = group.ToList();
+
+                    // 4. Lógica de cálculo (Adaptada a 'Valid_From' y regla -0.001)
+
+                    // Encontramos la fecha MÁXIMA de inicio de validez (el BOM más reciente)
+                    // (Se ignora el 'Created_On' que se usaba en CargaBom)
+                    DateTime? fechaValida = listTemporalBOM.Max(b => b.Valid_From);
+
+                    double? peso_neto_final = null;
+                    double? peso_bruto_final = null;
+
+                    if (fechaValida.HasValue)
+                    {
+                        var bomVersionActual = group.Where(x => x.Valid_From == fechaValida).ToList();
+
+
+                        // Peso Bruto: El máximo componente positivo (Máximo de decimales)
+                        decimal pesoBrutoDecimal = bomVersionActual
+                                     .Where(x => x.Quantity > 0)
+                                     .Select(x => x.Quantity.Value) // Aseguramos el valor decimal
+                                     .DefaultIfEmpty(0m)
+                                     .Max();
+
+                        // 1. Sumamos solo los componentes negativos (excluyendo -0.001m)
+                        decimal sumOfNegatives = bomVersionActual
+                            .Where(x => x.Quantity < 0m && x.Quantity.Value != -0.001m)
+                            .Sum(x => x.Quantity.Value);
+
+                        decimal pesoNetoDecimal = pesoBrutoDecimal + sumOfNegatives;
+
+                        // Asignamos a las variables que serán truncadas y guardadas
+                        peso_bruto_final = (double)pesoBrutoDecimal;
+                        peso_neto_final = (double)pesoNetoDecimal;
+
+                    }
+
+                    // 5. Preparar la lista para MERGE
+                    if (peso_neto_final.HasValue && peso_bruto_final.HasValue)
+                    {
+                        double peso_neto_truncado = Math.Truncate(peso_neto_final.Value * 1000) / 1000.0;
+                        double peso_bruto_truncado = Math.Truncate(peso_bruto_final.Value * 1000) / 1000.0;
+
+                        // ... (Lógica de Debug.WriteLine y Merge) ...
+                        string key = $"{group.Key.Werks}|{group.Key.Matnr}";
+
+                        if (pesosDict.TryGetValue(key, out var pesoExistente))
+                        {
+                            if (pesoExistente.net_weight != peso_neto_truncado || pesoExistente.gross_weight != peso_bruto_truncado)
+                            {
+                                Debug.WriteLine($"[SapSyncService.BomWeights] ACTUALIZANDO (Pesos cambiaron): Material={group.Key.Matnr}, Planta={group.Key.Werks}. NETO: {pesoExistente.net_weight} -> {peso_neto_truncado}, BRUTO: {pesoExistente.gross_weight} -> {peso_bruto_truncado}");
+                                pesoExistente.net_weight = peso_neto_truncado;
+                                pesoExistente.gross_weight = peso_bruto_truncado;
+                                pesosParaSincronizar.Add(pesoExistente);
+                            }
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"[SapSyncService.BomWeights] INSERTANDO (Nuevo): Material={group.Key.Matnr}, Planta={group.Key.Werks}. NETO: {peso_neto_truncado}, BRUTO: {peso_bruto_truncado}");
+                            pesosParaSincronizar.Add(new bom_pesos
+                            {
+                                plant = group.Key.Werks,
+                                material = group.Key.Matnr,
+                                gross_weight = peso_bruto_truncado,
+                                net_weight = peso_neto_truncado,
+                            });
+                        }
+                    }
+                } // fin foreach group
+
+                // 6. Sincronizar (Insertar/Actualizar) pesos usando MERGE
+                if (pesosParaSincronizar.Any())
+                {
+                    MergeBomPesos(db, pesosParaSincronizar);
+                }
+            }
+        }
+
+        /// <summary>
+        /// (Adaptado de CargaBom) Ejecuta un BulkCopy a #Temp y luego un MERGE en bom_pesos.
+        /// </summary>
+        private void MergeBomPesos(Portal_2_0Entities db, List<bom_pesos> pesosParaSincronizar)
+        {
+            // Obtenemos la conexión del contexto 'db' (Portal_2_0)
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                var sqlConnection = db.Database.Connection as SqlConnection;
+                var sqlTransaction = transaction.UnderlyingTransaction as SqlTransaction;
+
+                try
+                {
+                    // 1. Convertir a DataTable (Usando el helper)
+                    System.Data.DataTable dataTablePesos = ConvertToDataTable(pesosParaSincronizar, new HashSet<string> { "plant", "material", "gross_weight", "net_weight" });
+
+                    // 2. Subir datos a #TempPesos
+                    using (var bulkCopyPesos = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+                    {
+                        bulkCopyPesos.DestinationTableName = "#TempPesos";
+                        bulkCopyPesos.ColumnMappings.Add("plant", "plant");
+                        bulkCopyPesos.ColumnMappings.Add("material", "material");
+                        bulkCopyPesos.ColumnMappings.Add("gross_weight", "gross_weight");
+                        bulkCopyPesos.ColumnMappings.Add("net_weight", "net_weight");
+
+                        // 3. Crear la tabla temporal
+                        db.Database.ExecuteSqlCommand(TransactionalBehavior.DoNotEnsureTransaction, @"
+                            CREATE TABLE #TempPesos (
+                                [plant] [varchar](4) NOT NULL,
+                                [material] [varchar](10) NOT NULL,
+                                [gross_weight] [float] NOT NULL,
+                                [net_weight] [float] NOT NULL
+                            );");
+
+                        bulkCopyPesos.WriteToServer(dataTablePesos);
+                    }
+
+                    // 4. Ejecutar el MERGE (Actualiza la tabla 'bom_pesos' con versión de sistema)
+                    string mergeSql = @"
+                        MERGE INTO bom_pesos AS T
+                        USING #TempPesos AS S
+                        ON (T.plant = S.plant AND T.material = S.material)
+                        WHEN MATCHED THEN
+                            UPDATE SET
+                                T.gross_weight = S.gross_weight,
+                                T.net_weight = S.net_weight
+                        WHEN NOT MATCHED BY TARGET THEN
+                            INSERT (plant, material, gross_weight, net_weight)
+                            VALUES (S.plant, S.material, S.gross_weight, S.net_weight);
+                    ";
+
+                    db.Database.ExecuteSqlCommand(TransactionalBehavior.DoNotEnsureTransaction, mergeSql);
+
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw; // Lanza la excepción para que el log principal la capture
+                }
+            }
+        }
+
+        private DataTable ConvertToDataTable<T>(IEnumerable<T> data, HashSet<string> allowedProps = null)
+        {
+            DataTable table = new DataTable();
+            if (!data.Any()) return table;
+
+            PropertyInfo[] props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            // Filtra las propiedades si se proporciona una lista
+            if (allowedProps != null)
+            {
+                props = props.Where(p => allowedProps.Contains(p.Name)).ToArray();
+            }
+
+            foreach (var prop in props)
+            {
+                Type propType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                table.Columns.Add(prop.Name, propType);
+            }
+            foreach (T item in data)
+            {
+                DataRow row = table.NewRow();
+                foreach (var prop in props)
+                {
+                    row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                }
+                table.Rows.Add(row);
+            }
+            return table;
         }
 
         #region Helpers SAP Data Parsing (Copiados de tus archivos)
