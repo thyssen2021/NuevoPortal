@@ -637,6 +637,8 @@
         <EntityTypeShape EntityType="Portal_2_0Model.Vw_Materiales_Vencimiento" Width="1.5" PointX="24.375" PointY="10.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_fiscal_years" Width="1.5" PointX="24.375" PointY="20.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" Width="1.5" PointX="3.375" PointY="24.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_division_blackout" Width="1.5" PointX="35.125" PointY="30.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_division_blackout_BG_IHS_division" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

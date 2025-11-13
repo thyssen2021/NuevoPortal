@@ -349,6 +349,16 @@
           <Property Name="porcentaje_scrap" Type="decimal" Precision="7" Scale="4" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="BG_IHS_division_blackout">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_ihs_division" Type="int" Nullable="false" />
+          <Property Name="fecha_inicio" Type="date" Nullable="false" />
+          <Property Name="fecha_fin" Type="date" Nullable="false" />
+          <Property Name="comentario" Type="varchar" MaxLength="255" />
+        </EntityType>
         <EntityType Name="BG_IHS_item">
           <Key>
             <PropertyRef Name="id" />
@@ -4427,6 +4437,20 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_BG_IHS_division_blackout_BG_IHS_division">
+          <End Role="BG_IHS_division" Type="Self.BG_IHS_division" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="BG_IHS_division_blackout" Type="Self.BG_IHS_division_blackout" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_division">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_division_blackout">
+              <PropertyRef Name="id_ihs_division" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_BG_IHS_division_id_ihs_item">
           <End Role="BG_IHS_item" Type="Self.BG_IHS_item" Multiplicity="1" />
           <End Role="BG_IHS_division" Type="Self.BG_IHS_division" Multiplicity="*" />
@@ -8342,6 +8366,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <EntitySet Name="BG_IHS_combinacion" EntityType="Self.BG_IHS_combinacion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_IHS_custom_rel_demanda" EntityType="Self.BG_IHS_custom_rel_demanda" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_IHS_division" EntityType="Self.BG_IHS_division" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BG_IHS_division_blackout" EntityType="Self.BG_IHS_division_blackout" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_IHS_item" EntityType="Self.BG_IHS_item" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_IHS_plantas" EntityType="Self.BG_IHS_plantas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_IHS_regiones" EntityType="Self.BG_IHS_regiones" Schema="dbo" store:Type="Tables" />
@@ -9121,6 +9146,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <AssociationSet Name="FK_BG_IHS_custom_rel_demanda_id_vehicle_custom" Association="Self.FK_BG_IHS_custom_rel_demanda_id_vehicle_custom">
             <End Role="BG_ihs_vehicle_custom" EntitySet="BG_ihs_vehicle_custom" />
             <End Role="BG_IHS_custom_rel_demanda" EntitySet="BG_IHS_custom_rel_demanda" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BG_IHS_division_blackout_BG_IHS_division" Association="Self.FK_BG_IHS_division_blackout_BG_IHS_division">
+            <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
+            <End Role="BG_IHS_division_blackout" EntitySet="BG_IHS_division_blackout" />
           </AssociationSet>
           <AssociationSet Name="FK_BG_IHS_division_id_ihs_item" Association="Self.FK_BG_IHS_division_id_ihs_item">
             <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
@@ -18209,6 +18238,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <EntitySet Name="Vw_Materiales_Vencimiento" EntityType="Portal_2_0Model.Vw_Materiales_Vencimiento" />
           <EntitySet Name="BG_Forecast_cat_fiscal_years" EntityType="Portal_2_0Model.BG_Forecast_cat_fiscal_years" />
           <EntitySet Name="BG_Forecast_cat_defaults" EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" />
+          <EntitySet Name="BG_IHS_division_blackout" EntityType="Portal_2_0Model.BG_IHS_division_blackout" />
+          <AssociationSet Name="FK_BG_IHS_division_blackout_BG_IHS_division" Association="Portal_2_0Model.FK_BG_IHS_division_blackout_BG_IHS_division">
+            <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
+            <End Role="BG_IHS_division_blackout" EntitySet="BG_IHS_division_blackout" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -20119,6 +20153,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" FromRole="BG_IHS_division" ToRole="BG_IHS_item" />
           <NavigationProperty Name="BG_IHS_versiones" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_version" FromRole="BG_IHS_division" ToRole="BG_IHS_versiones" />
           <NavigationProperty Name="BG_IHS_rel_division" Relationship="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" FromRole="BG_IHS_division" ToRole="BG_IHS_rel_division" />
+          <NavigationProperty Name="BG_IHS_division_blackout" Relationship="Portal_2_0Model.FK_BG_IHS_division_blackout_BG_IHS_division" FromRole="BG_IHS_division" ToRole="BG_IHS_division_blackout" />
         </EntityType>
         <EntityType Name="BG_IHS_item">
           <Key>
@@ -21079,6 +21114,31 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <Property Name="scrap_aluminio_valor_slp" Type="Double" Nullable="false" />
           <Property Name="scrap_aluminio_ganancia_slp" Type="Double" Nullable="false" />
         </EntityType>
+        <EntityType Name="BG_IHS_division_blackout">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_ihs_division" Type="Int32" Nullable="false" />
+          <Property Name="fecha_inicio" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="fecha_fin" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="comentario" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="BG_IHS_division" Relationship="Portal_2_0Model.FK_BG_IHS_division_blackout_BG_IHS_division" FromRole="BG_IHS_division_blackout" ToRole="BG_IHS_division" />
+        </EntityType>
+        <Association Name="FK_BG_IHS_division_blackout_BG_IHS_division">
+          <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Portal_2_0Model.BG_IHS_division_blackout" Role="BG_IHS_division_blackout" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_division">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_division_blackout">
+              <PropertyRef Name="id_ihs_division" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -25364,6 +25424,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
                 <ScalarProperty Name="scrap_aluminio_valor_puebla" ColumnName="scrap_aluminio_valor_puebla" />
                 <ScalarProperty Name="scrap_acero_ganancia_puebla" ColumnName="scrap_acero_ganancia_puebla" />
                 <ScalarProperty Name="scrap_acero_valor_puebla" ColumnName="scrap_acero_valor_puebla" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BG_IHS_division_blackout">
+            <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_division_blackout">
+              <MappingFragment StoreEntitySet="BG_IHS_division_blackout">
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="fecha_fin" ColumnName="fecha_fin" />
+                <ScalarProperty Name="fecha_inicio" ColumnName="fecha_inicio" />
+                <ScalarProperty Name="id_ihs_division" ColumnName="id_ihs_division" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
