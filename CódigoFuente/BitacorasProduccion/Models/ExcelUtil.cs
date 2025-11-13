@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Web;
 
@@ -9683,6 +9684,11 @@ namespace Portal_2_0.Models
             styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
             styleHeaderFont.Font.Bold = true;
 
+            SLStyle styleDateHeader = styleHeaderFont.Clone();
+            styleDateHeader.FormatCode = "MMM yyyy"; // Formato de fecha local-independiente
+            styleDateHeader.Alignment.Vertical = VerticalAlignmentValues.Center;
+            styleDateHeader.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+
             SLStyle styleMissedIHS = oSLDocument.CreateStyle();
             styleMissedIHS.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#680600");
             styleMissedIHS.Font.Bold = true;
@@ -10746,6 +10752,35 @@ namespace Portal_2_0.Models
                     demandaMeses = division.BG_IHS_item.GetDemanda(cabeceraMeses, model.demanda, demandaPrecargada: demandasParaEsteItem);
                 }
 
+                // --- INICIO Aplica Blackouts ---
+                // Obtenemos los blackouts de ESTA división
+                var blackouts = division.BG_IHS_division_blackout.ToList();
+                if (blackouts.Any())
+                {
+                    foreach (var item_demanda in demandaMeses)
+                    {
+                        if (item_demanda != null)
+                        {
+                            bool enBlackout = false;
+                            foreach (var blackout in blackouts)
+                            {
+                                // La lógica es "mes completo", así que fecha_inicio es el 1ro y fecha_fin es el último día
+                                if (item_demanda.fecha.Date >= blackout.fecha_inicio.Date && item_demanda.fecha.Date <= blackout.fecha_fin.Date)
+                                {
+                                    enBlackout = true;
+                                    break;
+                                }
+                            }
+                            if (enBlackout)
+                            {
+                                item_demanda.cantidad = 0; // Poner a 0
+                            }
+                        }
+                    }
+                }
+                // --- FIN Aplica Blackouts ---
+
+
                 foreach (var item_demanda in demandaMeses)
                 {
                     //si no es nul agrega la cantidad
@@ -10783,21 +10818,35 @@ namespace Portal_2_0.Models
                 #region cuartos
                 indexCabecera = 0;
 
-                // Inicializamos una lista vacía para manejar el caso de que el item sea nulo.
-                var listaDeCuartos = new List<BG_IHS_rel_cuartos>();
-
-                // Verificamos que el item relacionado no sea nulo.
+                // --- INICIO CÓDIGO MODIFICADO: Aplicar Blackouts a Cuartos (Fallback) ---
+                var cuartosParaEsteItem = new List<BG_IHS_rel_cuartos>();
                 if (division.BG_IHS_item != null)
                 {
-                    // 1. Obtenemos los "cuartos" para este item desde el lookup en memoria.
-                    var cuartosParaEsteItem = cuartosAgrupados[division.BG_IHS_item.id];
-
-                    // 2. Llama a GetCuartos UNA VEZ, pasándole los datos precargados.
-                    listaDeCuartos = division.BG_IHS_item.GetCuartos(demandaMeses, cabeceraCuartos, model.demanda, cuartosPrecargados: cuartosParaEsteItem);
+                    // 1. Obtener la lista original del lookup
+                    cuartosParaEsteItem = cuartosAgrupados[division.BG_IHS_item.id].ToList();
                 }
 
-                // 3. Ahora itera sobre la lista que ya tienes en memoria.
-                foreach (var item_demanda in listaDeCuartos)
+                // 2. Clonar la lista de cuartos original para este item
+                var cuartosModificados = cuartosParaEsteItem.Select(c => new BG_IHS_rel_cuartos
+                {
+                    id = c.id,
+                    id_ihs_item = c.id_ihs_item,
+                    cuarto = c.cuarto,
+                    anio = c.anio,
+                    cantidad = c.cantidad, // Copia el valor original
+                    fecha_carga = c.fecha_carga
+                }).ToList();
+
+                // 3. Aplicar la lógica de reducción a la lista clonada
+                if (blackouts.Any()) // Usamos la lista 'blackouts' que ya obtuvimos en la sección de meses
+                {
+                    // Llamamos al helper que acabamos de añadir a ExcelUtil.cs
+                    AplicarBlackoutACuartos_MesCompleto(cuartosModificados, blackouts);
+                }
+                // --- FIN CÓDIGO MODIFICADO ---
+
+                // 4. Usar la lista 'cuartosModificados' en lugar de 'cuartosParaEsteItem'
+                foreach (var item_demanda in division.BG_IHS_item.GetCuartos(demandaMeses, cabeceraCuartos, model.demanda, cuartosModificados))
                 {
                     //si no es nul agrega la cantidad
                     if (item_demanda != null && item_demanda.cantidad != null)
@@ -10829,7 +10878,8 @@ namespace Portal_2_0.Models
 
                 #region años
                 indexCabecera = 0;
-                foreach (var item_demanda in division.BG_IHS_item.GetAnios(demandaMeses, cabeceraAnios, model.demanda))
+                // 5. Usar la lista 'cuartosModificados' también aquí
+                foreach (var item_demanda in division.BG_IHS_item.GetAnios(demandaMeses, cabeceraAnios, model.demanda, cuartosModificados))
                 {
                     //si no es nul agrega la cantidad
                     if (item_demanda != null && item_demanda.cantidad != null)
@@ -10860,6 +10910,7 @@ namespace Portal_2_0.Models
                 }
 
                 #endregion
+
                 #region años FY
                 indexCabecera = 0;
                 //FYReference = indexColumna + 2;
@@ -10869,11 +10920,8 @@ namespace Portal_2_0.Models
                 // Verificamos que el item relacionado no sea nulo.
                 if (division.BG_IHS_item != null)
                 {
-                    // 1. Obtenemos los "cuartos" para este item desde el lookup en memoria.
-                    var cuartosParaEsteItem = cuartosAgrupados[division.BG_IHS_item.id];
-
-                    // 2. Llama a GetAniosFY UNA VEZ, pasándole los datos precargados.
-                    datosAniosFY = division.BG_IHS_item.GetAniosFY(demandaMeses, cabeceraAniosFY, model.demanda, cuartosPrecargados: cuartosParaEsteItem);
+                    // 6. Usar la lista 'cuartosModificados' también aquí
+                    datosAniosFY = division.BG_IHS_item.GetAniosFY(demandaMeses, cabeceraAniosFY, model.demanda, cuartosModificados);
                 }
 
                 listDatosRegionesFY.AddRange(datosAniosFY);
@@ -11883,8 +11931,16 @@ namespace Portal_2_0.Models
                         //aplica el estilo a cada hoja de FY
                         oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + 11 + extra, styleCenterCenter);
                         oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + 11 + extra, styleHeader);
-                        oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + 11 + extra, styleHeaderFont);
+
+                        // Se modifica la aplicación del estilo de fuente.
+                        // La fuente para las columnas de fecha se aplicará en el bucle siguiente
+                        if (extra == 1)
+                        {
+                            // Aplica el estilo de fuente blanca solo a la columna "extra"
+                            oSLDocument.SetCellStyle(4, columnaActual, styleHeaderFont);
+                        }
                         oSLDocument.Filter(4, 1, 4, columnaActual + 11 + extra);
+
                         oSLDocument.AutoFitColumn(columnaActual, columnaActual + 11 + extra);
 
                         //realiza el merge para los titulos de cada tabla
@@ -12009,6 +12065,10 @@ namespace Portal_2_0.Models
                 var referenciaColumnasDict = referenciaColumnas.ToDictionary(x => x.fecha);
                 string FirstSheetName = cabeceraAniosFY_conMeses[0].text + " by Month";
                 string baseSheetName = FirstSheetName; // El nombre de la hoja base que se copiará
+
+                var listaPlantas = db.plantas.Where(p => p.clave == 1 || p.clave == 2 || p.clave == 5).OrderBy(p => p.clave).ToList();
+                var historicoScrap = db.BG_Forecast_cat_historico_scrap.ToList();
+                var defaultScrap = db.BG_Forecast_cat_defaults.First();
 
 
                 // --- FASE 2: BUCLE PRINCIPAL POR HOJA (AÑO FISCAL) ---
@@ -12157,7 +12217,7 @@ namespace Portal_2_0.Models
                                 string headerCell = $"{GetCellReference(numInicioColumnaDatosBase + j)}$4";
 
                                 // Parte 3: La fórmula completa que une todas las validaciones con funciones en INGLÉS.
-                                nuevaFilaDemanda[j] = $"=IF(AND(${refA_D.celdaReferencia}{excelRowNum}=\"A\", NOT(AND(ISBLANK($E{excelRowNum}), ISBLANK($F{excelRowNum}))), OR(ISBLANK($E{excelRowNum}), DATEVALUE(\"1 \"&{headerCell})>=$E{excelRowNum}), OR(ISBLANK($F{excelRowNum}), DATEVALUE(\"1 \"&{headerCell})<=$F{excelRowNum})), {indexMatchFormula}, \"--\")";
+                                nuevaFilaDemanda[j] = $"=IF(AND(${refA_D.celdaReferencia}{excelRowNum}=\"A\", NOT(AND(ISBLANK($E{excelRowNum}), ISBLANK($F{excelRowNum}))), OR(ISBLANK($E{excelRowNum}), {headerCell}>=$E{excelRowNum}), OR(ISBLANK($F{excelRowNum}), {headerCell}<=$F{excelRowNum})), {indexMatchFormula}, \"--\")";
                             }
                             else
                             {
@@ -12332,12 +12392,6 @@ namespace Portal_2_0.Models
                     System.Diagnostics.Debug.WriteLine($"[TIMER] {newSheetName} - Bloque D (Venta Scrap): {timer.Elapsed.TotalSeconds:F2} segundos");
                     timer.Restart();
 
-                    // Obtenemos una lista de todas las plantas puebla, silao y slp desde la base de datos.
-                    // Esto nos permitirá crear una sección de scrap para cada una dinámicamente.
-                    var listaPlantas = db.plantas.Where(p => p.clave == 1 || p.clave == 2 || p.clave == 5).OrderBy(p => p.clave).ToList();
-                    var historicoScrap = db.BG_Forecast_cat_historico_scrap.ToList();
-                    var defaultScrap = db.BG_Forecast_cat_defaults.First();
-
                     #region valores scrap
                     //// REFACTORIZACIÓN FINAL: Agrupa encabezados y detalles por planta ////
 
@@ -12491,7 +12545,12 @@ namespace Portal_2_0.Models
 
                         for (int j = 0; j < 12; j++)
                         {
-                            oSLDocument.SetCellValue(4, columnaActual + extra + +j, mesFY2.ToString("MMM yyyy").ToUpper().Replace(".", String.Empty));
+                            // 1. Escribimos el objeto DateTime real, no un string
+                            oSLDocument.SetCellValue(4, columnaActual + extra +j, mesFY2);
+
+                            // 2. Aplicamos el estilo de formato de fecha "MMM yyyy" que creamos en el Paso 1
+                            oSLDocument.SetCellStyle(4, columnaActual + extra +j, styleDateHeader);
+
                             //aumenta un mes
                             mesFY2 = mesFY2.AddMonths(1);
                         }
@@ -12881,36 +12940,6 @@ namespace Portal_2_0.Models
 
 
 
-                        //copia la formula al resto de las celdas
-                        //copia Horizontalmente
-                        //for (int j = 1; j < cabeceraAniosFY_conMeses.Count; j++)
-                        //{
-                        //    oSLDocument.CopyCell(5, columnaActual + extra, 5, columnaActual + extra + j);
-                        //}
-
-                        // Copia incrementalmente la fila completa verticalmente
-                        //int totalFilas = reporte.BG_Forecast_item.Count; // Número total de filas a copiar
-                        //int filaActual = 6; // Primera fila ancla
-                        //int filasACopiar = 1; // Comienza copiando 1 fila
-
-                        //while (filaActual < totalFilas + 5)
-                        //{
-                        //    // Obtiene las filas a copiar en esta iteración
-                        //    int filaInicioCopiaFY = filaActual - filasACopiar; // Empieza desde donde hay datos
-                        //    int filaFinCopiaFY = filaInicioCopiaFY + filasACopiar - 1; // Copia todas las filas previas
-
-                        //    // Asegura que no copie más de lo necesario en la última iteración
-                        //    if (filaActual + filasACopiar > totalFilas + 5)
-                        //        filaFinCopiaFY = filaInicioCopiaFY + totalFilas + 5 - filaActual - 1;
-
-                        //    // Copia todas las filas generadas hasta el momento
-                        //    oSLDocument.CopyCell(filaInicioCopiaFY, columnaActual + extra, filaFinCopiaFY, columnaActual + extra + cabeceraAniosFY_conMeses.Count - 1, filaActual, columnaActual + extra);
-
-                        //    // Incrementa la fila actual y ajusta filas a copiar para la siguiente iteración
-                        //    filaActual += filasACopiar;
-                        //    filasACopiar *= 2; // Duplica las filas a copiar en cada iteración
-                        //}
-
                         //ajusta el tamaño de las filas
                         oSLDocument.SetRowHeight(1, dt.Rows.Count + 4, 15.0);
                         oSLDocument.SetRowHeight(4, 45.0);
@@ -13053,91 +13082,190 @@ namespace Portal_2_0.Models
 
                     #region Scrap por planta
 
+                    int columnaTablaValorVenta = numInicioColumnaTotalSales - 1;
+                    int columnaTablaGanancia = numInicioColumnaMaterialCost - 2;
+
+
                     hubContext.Clients.All.recibirProgresoExcel(94, 94, 100, $"Agregando Scrap a Hoja Resumen");
+                                    
+
+                    // Mantenemos un contador único para la fila actual, empezando donde debe ir la primera tabla.
+                    int filaActualScrap = filaScrapSteel;
+
+                    //titulo para ganancia
+                    oSLDocument.SetCellValue(filaActualScrap-1, columnaTablaGanancia+2, $"SCRAP (Ganancia)");
+                    oSLDocument.SetCellStyle(filaActualScrap - 1, columnaTablaGanancia+2, styleHighlight);
 
 
-                    void SetScrapValuesAndFormulas(int fila, string scrapType)
+                    // --- BUCLE PRINCIPAL PARA STEEL, AGRUPADO POR PLANTA ---
+                    foreach (var planta in listaPlantas) // Esta variable ahora es accesible globalmente
                     {
-                        oSLDocument.SetCellValue(fila, numInicioColumnaTotalSales - 1, $"{scrapType} SCRAP (Valor venta)");
-                        oSLDocument.SetCellStyle(fila, numInicioColumnaTotalSales - 1, styleHighlight);
+                        // --- 1. DIBUJAR EL ENCABEZADO DE LA PLANTA ACTUAL ---
+                        // Encabezado para "Engineered Scrap" (Venta)
+                        oSLDocument.SetCellValue(filaActualScrap, columnaTablaValorVenta, $"STEEL SCRAP (Valor venta) - {planta.descripcion.ToUpper()}");
+                        oSLDocument.SetCellStyle(filaActualScrap, columnaTablaValorVenta, styleHighlight);
 
+                        // Encabezado para "Scrap Consolidation" (Ganancia/Profit)
+                        // --- CAMBIO: +1 para dejar una columna vacía ---
+                      //  oSLDocument.SetCellValue(filaActualScrap, columnaTablaGanancia + 1, $"STEEL SCRAP (Ganancia) - {planta.descripcion.ToUpper()}");
+                       // oSLDocument.SetCellStyle(filaActualScrap, columnaTablaGanancia + 1, styleHighlight);
+
+                        // Obtenemos las combinaciones de esta planta para saber cuántas filas sumar
+                        var combinacionesDePlantaSteel_temp = listaCombinacionesScrap.Where(c => c.Contains("STEEL") && new string(c.Where(char.IsDigit).ToArray()) == planta.codigoSap).ToList();
+
+                        // 2. Bucle for FY columns (j) - Para escribir las fórmulas de SUMA del encabezado
                         for (int j = 0; j < cabeceraAniosFY_conMeses.Count; j++)
                         {
-                            var currentMonthText = cabeceraAniosFY_conMeses[j].text;
+                            // --- INICIO DE CAMBIOS: Las fórmulas del encabezado ahora referencian la hoja mensual ---
 
-                            // Total Sales
-                            string totalSalesRange = $"{GetCellReference(numInicioColumnaTotalSalesMonth)}{fila}:{GetCellReference(numInicioColumnaTotalSalesMonth + 11)}{fila}";
-                            oSLDocument.SetCellStyle(fila, numInicioColumnaTotalSales + j, styleHighlight);
-                            oSLDocument.SetCellValue(fila, numInicioColumnaTotalSales + j,
-                                $"=SUM('{currentMonthText} by Month'!{totalSalesRange})");
+                            // Definir la hoja de referencia (ej. 'FY 24-25 by Month')
+                            string hojaRef = $"'{cabeceraAniosFY_conMeses[j].text} by Month'";
 
-                            // Material Cost
-                            string materialCostRange = $"{GetCellReference(numInicioColumnaMaterialCostMonth)}{fila}:{GetCellReference(numInicioColumnaMaterialCostMonth + 11)}{fila}";
-                            oSLDocument.SetCellStyle(fila, numInicioColumnaMaterialCost + j, styleHighlight);
-                            oSLDocument.SetCellValue(fila, numInicioColumnaMaterialCost + j,
-                                $"=SUM('{currentMonthText} by Month'!{materialCostRange})");
+                            // Definir el rango de filas a sumar (las filas de detalle)
+                            int filaInicioDatos = filaActualScrap;                            ;
+
+                            // --- Fórmula de SUMA para VENTA (Total Sales) ---
+                            // (Suma los 12 meses de todas las filas de detalle de la hoja mensual)
+                            string colInicioSumaVenta = GetCellReference(numInicioColumnaTotalSalesMonth - 1 + 1); // ej. BM
+                            string colFinSumaVenta = GetCellReference(numInicioColumnaTotalSalesMonth - 1 + 12);   // ej. BX
+                            string formulaVentaHeader = $"=SUM({hojaRef}!{colInicioSumaVenta}{filaInicioDatos}:{colFinSumaVenta}{filaInicioDatos})";
+
+                            // --- Fórmula de SUMA para GANANCIA (Material Cost) ---
+                            // (Suma los 12 meses de todas las filas de detalle de la hoja mensual)
+                            string colInicioSumaGanancia = GetCellReference(numInicioColumnaMaterialCostMonth - 1 + 1);
+                            string colFinSumaGanancia = GetCellReference(numInicioColumnaMaterialCostMonth - 1 + 12);
+                            string formulaGananciaHeader = $"=SUM({hojaRef}!{colInicioSumaGanancia}{filaInicioDatos}:{colFinSumaGanancia}{filaInicioDatos})";
+
+                            // Escribir las celdas (la posición no cambia)
+                            oSLDocument.SetCellValue(filaActualScrap, columnaTablaValorVenta + 1 + j, formulaVentaHeader);
+                            oSLDocument.SetCellStyle(filaActualScrap, columnaTablaValorVenta + 1 + j, styleHighlightCurrency);
+
+                            oSLDocument.SetCellValue(filaActualScrap, columnaTablaGanancia + 2 + j, formulaGananciaHeader); // +2 por la columna extra
+                            oSLDocument.SetCellStyle(filaActualScrap, columnaTablaGanancia + 2 + j, styleHighlightCurrency);
+                            // --- FIN DE CAMBIOS ---
+                        }
+
+                        filaActualScrap++; // Movemos el contador a la siguiente fila (inicio de detalles)
+
+                        // --- 3. ENCONTRAR Y DIBUJAR LOS DETALLES PARA ESTA PLANTA ---
+                        foreach (var combinacion in combinacionesDePlantaSteel_temp)
+                        {
+                            // --- CAMBIO: Usamos la fila actual (filaActualScrap) como referencia de fila ---
+                            int filaDatosEnHojaMensual = filaActualScrap; // ej. 50
+
+                            // Escribir la etiqueta de la combinación en AMBAS tablas
+                            //oSLDocument.SetCellValue(filaActualScrap, columnaTablaValorVenta, combinacion);
+                            //oSLDocument.SetCellValue(filaActualScrap, columnaTablaGanancia + 1, combinacion); // +1 por la columna extra
+
+                            // Bucle para cada AÑO FISCAL (columnas de la hoja resumen)
+                            for (int j = 0; j < cabeceraAniosFY_conMeses.Count; j++)
+                            {
+                                string hojaRef = $"'{cabeceraAniosFY_conMeses[j].text} by Month'";
+
+                                // --- Fórmula para VENTA (Engineered Scrap) ---
+                                // Esta es la fórmula que pediste: =SUMA('FY 24-25 by Month'!BM50:BX50)
+                                string colInicioSumaVenta = GetCellReference(numInicioColumnaTotalSalesMonth -1 + 1); // ej. BM
+                                string colFinSumaVenta = GetCellReference(numInicioColumnaTotalSalesMonth -1 + 12); // ej. BX
+                                string formulaVenta = $"=SUM({hojaRef}!{colInicioSumaVenta}{filaDatosEnHojaMensual}:{colFinSumaVenta}{filaDatosEnHojaMensual})";
+
+                                oSLDocument.SetCellValue(filaActualScrap, columnaTablaValorVenta + 1 + j, formulaVenta);
+                                oSLDocument.SetCellStyle(filaActualScrap, columnaTablaValorVenta + 1 + j, styleCurrency_0); // Aplicar estilo
+
+                                // --- Fórmula para GANANCIA (Scrap Consolidation) ---
+                                string colInicioSumaGanancia = GetCellReference(numInicioColumnaMaterialCostMonth - 1 + 1);
+                                string colFinSumaGanancia = GetCellReference(numInicioColumnaMaterialCostMonth -1 + 12);
+                                string formulaGanancia = $"=SUM({hojaRef}!{colInicioSumaGanancia}{filaDatosEnHojaMensual}:{colFinSumaGanancia}{filaDatosEnHojaMensual})";
+
+                                oSLDocument.SetCellValue(filaActualScrap, columnaTablaGanancia + 2 + j, formulaGanancia); // +2 por la columna extra
+                                oSLDocument.SetCellStyle(filaActualScrap, columnaTablaGanancia + 2 + j, styleCurrency_0); // Aplicar estilo
+                            }
+                            filaActualScrap++; // Movemos el contador para la siguiente fila de detalle.
                         }
                     }
 
-                    // Optimized code calling the function for both Steel and Aluminum
-                    SetScrapValuesAndFormulas(filaScrapSteel, "STEEL");
-                    SetScrapValuesAndFormulas(filaScrapAlu, "ALU");
-                    oSLDocument.AutoFitColumn(numInicioColumnaTotalSales - 1);
+                    // Dejamos una fila en blanco como separador
+                    filaActualScrap++;
 
-                    //lista las combinaciones 
-                    int indexC = 0;
-                    foreach (var combinacion in listaCombinacionesScrap.Where(x => x.Contains("STEEL")))
+                    // ---- BUCLE PRINCIPAL PARA ALU, AGRUPADO POR PLANTA ----
+                    foreach (var planta in listaPlantas)
                     {
-                        //formulas para acero                     
+                        // --- 1. DIBUJAR EL ENCABEZADO (ALU) ---
+                        oSLDocument.SetCellValue(filaActualScrap, columnaTablaValorVenta, $"ALU SCRAP (Valor venta) - {planta.descripcion.ToUpper()}");
+                        oSLDocument.SetCellStyle(filaActualScrap, columnaTablaValorVenta, styleHighlight);
+                        //oSLDocument.SetCellValue(filaActualScrap, columnaTablaGanancia + 1, $"ALU SCRAP (Ganancia) - {planta.descripcion.ToUpper()}"); // +1 por la columna extra
+                        //oSLDocument.SetCellStyle(filaActualScrap, columnaTablaGanancia + 1, styleHighlight);
 
-                        indexC++;
-                        int currentRow = filaScrapSteel + indexC;
-                        oSLDocument.SetCellValue(currentRow, numInicioColumnaTotalSales - 1, combinacion);
+                        var combinacionesDePlantaAlu_temp = listaCombinacionesScrap.Where(c => c.Contains("ALU") && new string(c.Where(char.IsDigit).ToArray()) == planta.codigoSap).ToList();
 
-                        //agrega las formulas para cada combinacion
+                        // 2. Bucle for FY columns (j) for header SUMs
                         for (int j = 0; j < cabeceraAniosFY_conMeses.Count; j++)
                         {
-                            var currentMonthText = cabeceraAniosFY_conMeses[j].text;
-                            string totalSalesRange = $"{GetCellReference(numInicioColumnaTotalSalesMonth)}{currentRow}:{GetCellReference(numInicioColumnaTotalSalesMonth + 11)}{currentRow}";
-                            string materialCostRange = $"{GetCellReference(numInicioColumnaMaterialCostMonth)}{currentRow}:{GetCellReference(numInicioColumnaMaterialCostMonth + 11)}{currentRow}";
+                            // Definir la hoja de referencia (ej. 'FY 24-25 by Month')
+                            string hojaRef = $"'{cabeceraAniosFY_conMeses[j].text} by Month'";
+                            // Definir el rango de filas a sumar (las filas de detalle)
+                            int filaInicioDatos = filaActualScrap;
 
-                            // Total Sales
-                            oSLDocument.SetCellValue(currentRow, numInicioColumnaTotalSales + j,
-                                $"=SUM('{currentMonthText} by Month'!{totalSalesRange})");
+             
+                            // (Suma los 12 meses de todas las filas de detalle de la hoja mensual)
+                            string colInicioSumaVenta = GetCellReference(numInicioColumnaTotalSalesMonth - 1 + 1); // ej. BM
+                            string colFinSumaVenta = GetCellReference(numInicioColumnaTotalSalesMonth - 1 + 12);   // ej. BX
+                            string formulaVentaHeader = $"=SUM({hojaRef}!{colInicioSumaVenta}{filaInicioDatos}:{colFinSumaVenta}{filaInicioDatos})";
+                            // --- Fórmula de SUMA para GANANCIA (Material Cost) ---
+                            // (Suma los 12 meses de todas las filas de detalle de la hoja mensual)
+                            string colInicioSumaGanancia = GetCellReference(numInicioColumnaMaterialCostMonth - 1 + 1);
+                            string colFinSumaGanancia = GetCellReference(numInicioColumnaMaterialCostMonth - 1 + 12);
+                            string formulaGananciaHeader = $"=SUM({hojaRef}!{colInicioSumaGanancia}{filaInicioDatos}:{colFinSumaGanancia}{filaInicioDatos})";
 
-                            // Material Cost
-                            oSLDocument.SetCellValue(currentRow, numInicioColumnaMaterialCost + j,
-                                $"=SUM('{currentMonthText} by Month'!{materialCostRange})");
+                            // Escribir las celdas (la posición no cambia)
+                            oSLDocument.SetCellValue(filaActualScrap, columnaTablaValorVenta + 1 + j, formulaVentaHeader);
+                            oSLDocument.SetCellStyle(filaActualScrap, columnaTablaValorVenta + 1 + j, styleHighlightCurrency);
+
+                            oSLDocument.SetCellValue(filaActualScrap, columnaTablaGanancia + 2 + j, formulaGananciaHeader); // +2 por la columna extra
+                            oSLDocument.SetCellStyle(filaActualScrap, columnaTablaGanancia + 2 + j, styleHighlightCurrency);
                         }
-                    }
-                    //formulas para aluminio
 
-                    indexC = 0;
-                    foreach (var combinacion in listaCombinacionesScrap.Where(x => x.Contains("ALU")))
-                    {
-                        int currentRow = filaScrapAlu + (++indexC);
-                        oSLDocument.SetCellValue(currentRow, numInicioColumnaTotalSales - 1, combinacion);
+                        filaActualScrap++; // Move to detail rows
 
-                        foreach (var (currentMonthText, j) in cabeceraAniosFY_conMeses.Select((value, index) => (value.text, index)))
+                        // --- 3. DIBUJAR LOS DETALLES (ALU) ---
+                        foreach (var combinacion in combinacionesDePlantaAlu_temp)
                         {
-                            string totalSalesRange = $"{GetCellReference(numInicioColumnaTotalSalesMonth)}{currentRow}:{GetCellReference(numInicioColumnaTotalSalesMonth + 11)}{currentRow}";
-                            string materialCostRange = $"{GetCellReference(numInicioColumnaMaterialCostMonth)}{currentRow}:{GetCellReference(numInicioColumnaMaterialCostMonth + 11)}{currentRow}";
+                            int ic = listaCombinacionesScrap.IndexOf(combinacion);
+                            int filaDatosEnHojaMensual = filaActualScrap; // Usar la fila actual
 
-                            // Total Sales
-                            oSLDocument.SetCellValue(currentRow, numInicioColumnaTotalSales + j,
-                                $"=SUM('{currentMonthText} by Month'!{totalSalesRange})"
-                            );
+                            //oSLDocument.SetCellValue(filaActualScrap, columnaTablaValorVenta, combinacion);
+                            //oSLDocument.SetCellValue(filaActualScrap, columnaTablaGanancia + 1, combinacion); // +1 por la columna extra
 
-                            // Material Cost
-                            oSLDocument.SetCellValue(currentRow, numInicioColumnaMaterialCost + j,
-                                $"=SUM('{currentMonthText} by Month'!{materialCostRange})"
-                            );
+                            // 4. Bucle for FY columns (j) for detail SUMs
+                            for (int j = 0; j < cabeceraAniosFY_conMeses.Count; j++)
+                            {
+                                string hojaRef = $"'{cabeceraAniosFY_conMeses[j].text} by Month'";
+
+                                // Venta (Engineered Scrap)
+                                string colInicioSumaVenta = GetCellReference(numInicioColumnaTotalSalesMonth -1 + 1);
+                                string colFinSumaVenta = GetCellReference(numInicioColumnaTotalSalesMonth -1 + 12);
+                                string formulaVenta = $"=SUM({hojaRef}!{colInicioSumaVenta}{filaDatosEnHojaMensual}:{colFinSumaVenta}{filaDatosEnHojaMensual})";
+
+                                oSLDocument.SetCellValue(filaActualScrap, columnaTablaValorVenta + 1 + j, formulaVenta);
+                                oSLDocument.SetCellStyle(filaActualScrap, columnaTablaValorVenta + 1 + j, styleCurrency_0); // Aplica estilo
+
+                                // Ganancia (Scrap Consolidation)
+                                string colInicioSumaGanancia = GetCellReference(numInicioColumnaMaterialCostMonth -1 + 1);
+                                string colFinSumaGanancia = GetCellReference(numInicioColumnaMaterialCostMonth -1 + 12);
+                                string formulaGanancia = $"=SUM({hojaRef}!{colInicioSumaGanancia}{filaDatosEnHojaMensual}:{colFinSumaGanancia}{filaDatosEnHojaMensual})";
+
+                                oSLDocument.SetCellValue(filaActualScrap, columnaTablaGanancia + 2 + j, formulaGanancia); // +2 por la columna extra
+                                oSLDocument.SetCellStyle(filaActualScrap, columnaTablaGanancia + 2 + j, styleCurrency_0); // Aplica estilo
+                            }
+                            filaActualScrap++;
                         }
                     }
 
-
+                    // Autoajusta el ancho de las columnas de etiquetas de scrap
+                    oSLDocument.AutoFitColumn(columnaTablaValorVenta);
+                    oSLDocument.AutoFitColumn(columnaTablaGanancia + 1);
 
                     #endregion
+
                 }
 
                 #endregion               
@@ -13521,6 +13649,53 @@ namespace Portal_2_0.Models
             return (array);
         }
 
+        /// <summary>
+        /// Modifica una lista de cuartos (BG_IHS_rel_cuartos) aplicando la reducción basada en MESES COMPLETOS.
+        /// </summary>
+        private static void AplicarBlackoutACuartos_MesCompleto(List<BG_IHS_rel_cuartos> cuartos, List<BG_IHS_division_blackout> blackouts)
+        {
+            foreach (var cuarto in cuartos)
+            {
+                if (!cuarto.cantidad.HasValue || cuarto.cantidad == 0) continue;
+
+                // 1. Determinar los 3 meses que componen este cuarto
+                int mesInicioCuarto = (cuarto.cuarto * 3) - 2; // Q1->M1, Q2->M4, Q3->M7, Q4->M10
+                DateTime mes1 = new DateTime(cuarto.anio, mesInicioCuarto, 1);
+                DateTime mes2 = mes1.AddMonths(1);
+                DateTime mes3 = mes1.AddMonths(2);
+
+                var mesesDelCuarto = new List<DateTime> { mes1, mes2, mes3 };
+                int mesesEnBlackout = 0;
+
+                // 2. Contar cuántos de esos 3 meses caen en un período de blackout
+                foreach (var mes in mesesDelCuarto)
+                {
+                    bool enBlackout = false;
+                    foreach (var blackout in blackouts)
+                    {
+                        // Comprueba si el primer día del mes está dentro del rango
+                        if (mes.Date >= blackout.fecha_inicio.Date && mes.Date <= blackout.fecha_fin.Date)
+                        {
+                            enBlackout = true;
+                            break;
+                        }
+                    }
+                    if (enBlackout)
+                    {
+                        mesesEnBlackout++;
+                    }
+                }
+
+                // 3. Aplicar la reducción (0/3, 1/3, 2/3, o 3/3)
+                if (mesesEnBlackout > 0)
+                {
+                    // Usamos decimal para precisión
+                    decimal reduccionPct = (decimal)mesesEnBlackout / 3.0m;
+
+                    cuarto.cantidad = (int)Math.Round(cuarto.cantidad.Value * (1.0m - reduccionPct));
+                }
+            }
+        }
 
         public static string GetCellReference(int col)
         {

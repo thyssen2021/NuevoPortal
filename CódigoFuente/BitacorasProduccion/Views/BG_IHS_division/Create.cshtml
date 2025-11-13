@@ -11,7 +11,7 @@
     var bG_IHS_versiones = (Portal_2_0.Models.BG_IHS_versiones)ViewBag.VersionIHS;
 
     int contador = 100;
-
+    int contadorBlackout = 0;
 
     var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
     var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
@@ -214,6 +214,57 @@
                             <div class="form-group row">
                                 <div class="col-md-11">
                                     <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>PERIODOS DE BLACKOUT</b></span>
+                            </div>
+
+                            @* Contenedor para los blackouts dinámicos *@
+                            <div id="div_blackouts">
+                                @foreach (var blackout in Model.BG_IHS_division_blackout.OrderBy(b => b.fecha_inicio))
+                                {
+                                    <div class="form-group row blackout-row" id="div_blackout_@contadorBlackout">
+                                        @* Necesario para auto binding *@
+                                        <input type="hidden" name="BG_IHS_division_blackout.Index" id="BG_IHS_division_blackout.Index" value="@contadorBlackout" />
+                                        <input type="hidden" name="BG_IHS_division_blackout[@contadorBlackout].id" id="BG_IHS_division_blackout[@contadorBlackout].id" value="@blackout.id" />
+                                        <input type="hidden" name="BG_IHS_division_blackout[@contadorBlackout].id_ihs_division" id="BG_IHS_division_blackout[@contadorBlackout].id_ihs_division" value="@Model.id" />
+
+                                        <label class="control-label col-md-1" for="BG_IHS_division_blackout[@contadorBlackout].fecha_inicio">
+                                            <span class="float-right">Fecha Inicio</span>
+                                        </label>
+                                        <div class="col-md-2">
+                                            @* Usamos ToShortDateString() o .ToString("yyyy-MM-dd") para el input type="date" *@
+                                            <input type="month" class="form-control blackout-date-input blackout-start-date" name="BG_IHS_division_blackout[@contadorBlackout].fecha_inicio" id="BG_IHS_division_blackout[@contadorBlackout].fecha_inicio" value="@blackout.fecha_inicio.ToString("yyyy-MM")" required />
+                                        </div>
+                                        <label class="control-label col-md-1" for="BG_IHS_division_blackout[@contadorBlackout].fecha_fin">
+                                            <span class="float-right">Fecha Fin</span>
+                                        </label>
+                                        <div class="col-md-2">
+                                            <input type="month" class="form-control blackout-date-input blackout-end-date" name="BG_IHS_division_blackout[@contadorBlackout].fecha_fin" id="BG_IHS_division_blackout[@contadorBlackout].fecha_fin" value="@blackout.fecha_fin.ToString("yyyy-MM")" required />
+                                        </div>
+
+                                        <label class="control-label col-md-1" for="BG_IHS_division_blackout[@contadorBlackout].comentario">
+                                            <span class="float-right">Comentario</span>
+                                        </label>
+                                        <div class="col-md-4">
+                                            <input type="text" maxlength="255" class="form-control" name="BG_IHS_division_blackout[@contadorBlackout].comentario" id="BG_IHS_division_blackout[@contadorBlackout].comentario" value="@blackout.comentario" autocomplete="off" />
+                                        </div>
+
+                                        <div class="col-md-1">
+                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarBlackout(@contadorBlackout); return false;">
+                                        </div>
+                                    </div>
+                                    contadorBlackout++; // <-- Incrementar el contador de C#
+                                }
+                            </div>
+
+                            @* Botón para agregar nuevos blackouts *@
+                            <div class="form-group row">
+                                <div class="col-md-11">
+                                    <input type="button" value="Agregar Blackout" class="btn btn-round btn-info float-right" onclick="AgregarBlackout(); return false;">
                                 </div>
                             </div>
 
@@ -422,6 +473,12 @@
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
 
 <script>
+    //variable global para el id
+    var num = 0;
+    var numBlackout = @contadorBlackout;
+    let typingTimer; // Variable para almacenar el temporizador
+    let doneTypingInterval = 1500; // Tiempo de espera en milisegundos (1.5s)
+
         $(document).ready(function () {
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
@@ -456,10 +513,10 @@
 
 
             asignaEvents();
+            asignaEventsBlackout();
         });
 
-        //variable global para el id
-        var num = 0;
+
 
          function asignaEvents() {
             //vuelve a asigar el evento on a cada input de los lotes
@@ -471,7 +528,30 @@
                 });
 
             });
-        }
+    }
+
+     function asignaEventsBlackout() {
+     // Vuelve a asignar el evento on a cada input de los blackouts
+     $('.blackout-date-input').each(function () {
+
+         // Evento para cuando se teclea (con debounce)
+         // Usamos .off() para evitar múltiples asignaciones de eventos
+         $(this).off('input').on('input', function (e) {
+             clearTimeout(typingTimer); // Cancela el temporizador anterior
+             typingTimer = setTimeout(function () {
+                 calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                 calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+             }, doneTypingInterval);
+         });
+
+         // Evento para cuando se usa el picker (inmediato)
+         $(this).off('change').on('change', function (e) {
+             clearTimeout(typingTimer); // Cancela cualquier temporizador pendiente
+             calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+             calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+         });
+     });
+ }
 
     function calculaValoresPorcentaje(demanda) {
         let contador = 1;
@@ -528,23 +608,29 @@
 
 
 
+
         function calculaValores(demanda) {
 
-
+            let ihs_value = $('#@Html.IdFor(model => model.id_ihs_item)').val();
             let porcentaje = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
+            let division_id = $('#@Html.IdFor(model => model.id)').val();
+            let blackoutData = GetBlackoutData();
 
             if (isNaN(porcentaje))
                 porcentaje = 0; //100%
-
-            let ihs_value = $('#@Html.IdFor(model => model.id_ihs_item)').val();
-
 
             if (ihs_value != "") {
                 $.ajax({
                     type: 'POST',
                     url: '/BG_IHS_division/GetRows',
-                    data: { id_ihs: ihs_value, demanda: demanda, porcentaje: porcentaje },
-                    // contentType: 'application/json',
+                    data: JSON.stringify({
+                        id_ihs: ihs_value,
+                        demanda: demanda,
+                        porcentaje: porcentaje,
+                        id_ihs_division: division_id,
+                        blackouts: blackoutData
+                    }),
+                    contentType: 'application/json',
                     success: function (data) {
                         try {
                             $('#body_conceptos_' + demanda).html(data[0].value);
@@ -638,7 +724,80 @@
             num++;
         }
 
-    //obtiene los select de las categorias
+     //agrega una fila para los blackouts
+     function AgregarBlackout() {
+
+         // Usamos la variable JS 'numBlackout'
+         $("#div_blackouts").append(
+             `
+              <div class="form-group row blackout-row" id="div_blackout_`+ numBlackout + `">
+                 @* Necesario para auto binding *@
+                 <input type="hidden" name="BG_IHS_division_blackout.Index" id="BG_IHS_division_blackout.Index" value="`+ numBlackout + `" />
+                 <input type="hidden" name="BG_IHS_division_blackout[`+ numBlackout + `].id" id="BG_IHS_division_blackout[`+ numBlackout + `].id" value="0" />
+                 <input type="hidden" name="BG_IHS_division_blackout[`+ numBlackout + `].id_ihs_division" id="BG_IHS_division_blackout[`+ numBlackout + `].id_ihs_division" value="@Model.id" />
+
+                 <label class="control-label col-md-1" for="BG_IHS_division_blackout[`+ numBlackout + `].fecha_inicio">
+                     <span class="float-right">Fecha Inicio</span>
+                 </label>
+                 <div class="col-md-2">
+                     <input type="month" class="form-control blackout-date-input blackout-start-date" name="BG_IHS_division_blackout[`+ numBlackout + `].fecha_inicio" id="BG_IHS_division_blackout[`+ numBlackout + `].fecha_inicio" value="" required />
+                 </div>
+
+                 <label class="control-label col-md-1" for="BG_IHS_division_blackout[`+ numBlackout + `].fecha_fin">
+                     <span class="float-right">Fecha Fin</span>
+                 </label>
+                 <div class="col-md-2">
+                     <input type="month" class="form-control blackout-date-input blackout-end-date" name="BG_IHS_division_blackout[`+ numBlackout + `].fecha_fin" id="BG_IHS_division_blackout[`+ numBlackout + `].fecha_fin" value="" required />
+                 </div>
+
+                 <label class="control-label col-md-1" for="BG_IHS_division_blackout[`+ numBlackout + `].comentario">
+                     <span class="float-right">Comentario</span>
+                 </label>
+                 <div class="col-md-4">
+                     <input type="text" maxlength="255" class="form-control" name="BG_IHS_division_blackout[`+ numBlackout + `].comentario" id="BG_IHS_division_blackout[`+ numBlackout + `].comentario" value="" autocomplete="off" />
+                 </div>
+
+                 <div class="col-md-1">
+                     <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarBlackout(`+ numBlackout + `); return false;">
+                 </div>
+             </div>
+             `
+         );
+         $("#div_blackout_" + numBlackout).hide().fadeIn(700);
+         asignaEventsBlackout();
+         numBlackout++; // Incrementar el contador global de blackouts
+     }
+
+     //borra una fila de blackout
+     function borrarBlackout(id) {
+         $("#div_blackout_" + id).fadeOut(500, function () {
+             $(this).remove();
+             // Volvemos a calcular la demanda para que se refleje el cambio
+             // (Este código ya existía y es correcto)
+             calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+             calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+         });
+     }
+
+     function GetBlackoutData() {
+         var blackouts = [];
+         // Itera sobre cada fila que tenga la clase
+         $('.blackout-row').each(function () {
+             var fila = $(this);
+             // Busca por clase, no por nombre
+             var fecha_inicio = fila.find('.blackout-start-date').val(); // "yyyy-MM"
+             var fecha_fin = fila.find('.blackout-end-date').val();       // "yyyy-MM"
+
+             if (fecha_inicio && fecha_fin) {
+                 blackouts.push({
+                     fecha_inicio: fecha_inicio + "-01",
+                     fecha_fin: fecha_fin + "-01"
+                 });
+             }
+         });
+         return blackouts;
+     }
+
 
 
     function borrarPieza(id) {
