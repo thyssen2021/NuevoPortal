@@ -203,9 +203,9 @@
           
             function initSelect2Ajax(selector, syncButtonId, variableGlobal) {
                 $(selector).select2({
-                    placeholder: "-- Escriba 3 o más caracteres para buscar --",
+                    placeholder: "-- Escriba para buscar --",
                     allowClear: true,
-                    minimumInputLength: 3, // No buscar hasta que haya 3 caracteres
+                    minimumInputLength: 2, // No buscar hasta que haya 3 caracteres
 
                     // --- INICIO LÓGICA AJAX ---
                     ajax: {
@@ -247,7 +247,7 @@
                             return "Buscando...";
                         },
                         inputTooShort: function () {
-                            return "Escriba 3 caracteres o más...";
+                            return "Escriba 2 caracteres o más...";
                         }
                     }
                 });
