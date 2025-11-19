@@ -147,7 +147,7 @@
         updateSlitterCapacityChart(true, config.project.id);
 
         if (config.project.successMessage) {
-            toastr.success(config.successMessage);
+            toastr.success(config.project.successMessage);
         }
 
 
@@ -807,12 +807,59 @@
         // Botón para agregar/actualizar material
         $(document).on("click", ".btn-add-material", function () {
 
-            // Realizar la validación antes de continuar
-            if (!validateMaterial()) {
+            // 1. ACTIVAR BANDERA DE BLOQUEO
+            // Esto evitará que UpdateCapacityGraphs se ejecute por los efectos secundarios de la validación.
+            window.isBatchValidating = true;
 
+            // 2. Realizar la validación
+            let isValid = validateMaterial();
+
+            // 3. GESTIÓN DE LA BANDERA (IMPORTANTE)
+            // No la desactivamos inmediatamente (false), porque los 'debounce' de los inputs
+            // (ej. 1000ms en Real_SOP) pueden estar en cola y dispararse en un segundo.
+            // Mantenemos el bloqueo durante 1.2 segundos para asegurar que absorba esos disparos.
+            setTimeout(function () {
+                window.isBatchValidating = false;
+            }, 5000);
+
+            if (!isValid) {
                 toastr.warning("Please check the material data. Some fields are missing or contain invalid information.");
 
-                return; // Detener si la validación falla
+                // --- LÓGICA DE SCROLL AUTOMÁTICO AL PRIMER ERROR ---
+
+                // 1. Buscar el primer mensaje de error visible en el formulario
+                // (Los inputs inválidos muestran su span .error-message correspondiente)
+                var $firstError = $(".material-form .error-message:visible").first();
+
+                if ($firstError.length > 0) {
+                    // 2. Encontrar el input asociado (generalmente es hermano anterior o está en el mismo contenedor)
+                    // Buscamos en el padre (.col-md-...) cualquier input, select o textarea
+                    var $inputField = $firstError.parent().find("input, select, textarea").first();
+
+                    // Si es un select2, debemos resaltar el contenedor de select2, no el select oculto
+                    var $targetElement = $inputField;
+                    if ($inputField.hasClass("select2-hidden-accessible")) {
+                        $targetElement = $inputField.next(".select2-container").find(".select2-selection");
+                    }
+
+                    // 3. Hacer Scroll suave hacia el elemento (ajustando un poco el offset para que no quede pegado arriba)
+                    $('html, body').animate({
+                        scrollTop: $targetElement.offset().top - 150
+                    }, 500);
+
+                    // 4. Aplicar foco (si es input normal) y animación visual
+                    $inputField.focus();
+
+                    // Agregar clase de animación
+                    $targetElement.addClass("input-error-focus");
+
+                    // Quitar la clase después de que termine la animación para poder repetirla si valida de nuevo
+                    setTimeout(function () {
+                        $targetElement.removeClass("input-error-focus");
+                    }, 1000);
+                }
+
+                return; // Detener el guardado
             }
 
             let index = $("#materialIndex").val().trim();
@@ -1217,26 +1264,22 @@
             validateMaterial("PackagingStandard");
         });
 
-        //validacion en tiempo real
-        $("#Tensile_Strenght").on("input", function () {
+        $("#Tensile_Strenght").on("input", debounce(function () {
             validateMaterial("Tensile_Strenght");
-        });
+        }, 600));
 
-        //validacion en tiempo real
-        $("#Thickness").on("input", function () {
+        $("#Thickness").on("input", debounce(function () {
             validateMaterial("Thickness");
-        });
-        //validacion en tiempo real
-        $("#Width").on("input", function () {
+        }, 600));
+
+        $("#Width").on("input", debounce(function () {
             validateMaterial("Width");
-        });
-        var pitchTimeout;
-        $("#Pitch").on("input", function () {
-            clearTimeout(pitchTimeout);
-            pitchTimeout = setTimeout(function () {
-                validateMaterial("Pitch");
-            }, 600);
-        });
+        }, 600));
+
+        $("#Pitch").on("input", debounce(function () {
+            validateMaterial("Pitch");
+        }, 600));
+
         //validacion en tiempo real
         $("#Gross_Weight").on("input", function () {
             validateMaterial("Gross_Weight");
@@ -1279,9 +1322,11 @@
         $("#Ideal_Cycle_Time_Per_Tool").on("input", function () {
             validateMaterial("Ideal_Cycle_Time_Per_Tool");
         });
-        $("#OEE").on("input", function () {
+        $("#OEE").on("input", debounce(function () {
             validateMaterial("OEE");
-        });
+            // Recalcular effective strokes al cambiar OEE (con retardo)
+            updateEffectiveStrokes();
+        }, 400));
         $("#ThicknessToleranceNegative").on("input", function () {
             validateMaterial("ThicknessToleranceNegative");
         });
@@ -1316,10 +1361,11 @@
         $("#WeightOfFinalMults").on("input", function () {
             validateMaterial("WeightOfFinalMults");
         });
-        $("#Multipliers").on("input", function () {
+        $("#Multipliers").on("input", debounce(function () {
             validateMaterial("Multipliers");
             validateMaterial("Width_Mults");
-        });
+            validateMaterial("WeightOfFinalMults_Max"); 
+        }, 500));
         $("#MajorBase").on("input", function () {
             validateMaterial("MajorBase");
         });
@@ -1344,24 +1390,30 @@
         $("#FlatnessToleranceNegative").on("input", function () {
             validateMaterial("FlatnessToleranceNegative");
         });
-        $("#FlatnessTolerancePositive").on("input", function () {
+        $("#FlatnessTolerancePositive").on("input", debounce(function () {
             validateMaterial("FlatnessTolerancePositive");
-        });
-        $("#MasterCoilWeight").on("input", function () {
+        }, 400));
+
+        $("#MasterCoilWeight").on("input", debounce(function () {
             validateMaterial("MasterCoilWeight");
-        });
-        $("#InnerCoilDiameterArrival").on("input", function () {
+            validateMaterial("WeightOfFinalMults_Max"); 
+        }, 400));
+
+        $("#InnerCoilDiameterArrival").on("input", debounce(function () {
             validateMaterial("InnerCoilDiameterArrival");
-        });
-        $("#OuterCoilDiameterArrival").on("input", function () {
+        }, 400));
+
+        $("#OuterCoilDiameterArrival").on("input", debounce(function () {
             validateMaterial("OuterCoilDiameterArrival");
-        });
-        $("#InnerCoilDiameterDelivery").on("input", function () {
+        }, 400));
+
+        $("#InnerCoilDiameterDelivery").on("input", debounce(function () {
             validateMaterial("InnerCoilDiameterDelivery");
-        });
-        $("#OuterCoilDiameterDelivery").on("input", function () {
+        }, 400));
+
+        $("#OuterCoilDiameterDelivery").on("input", debounce(function () {
             validateMaterial("OuterCoilDiameterDelivery");
-        });
+        }, 400));
         // Validación en tiempo real para el input de SpecialRequirement
         $("#SpecialRequirement").on('keyup input', function () {
             validateMaterial("SpecialRequirement");
@@ -1580,8 +1632,10 @@
         $("#ClientHeadTailReconciliationPercent").on("input", function () { validateMaterial("ClientHeadTailReconciliationPercent"); });
 
         $("#WeightOfFinalMults_Min").on("input", function () { validateMaterial("WeightOfFinalMults_Min"); });
-        $("#WeightOfFinalMults_Max").on("input", function () { validateMaterial("WeightOfFinalMults_Max"); });
-
+        $("#WeightOfFinalMults_Max").on("input", debounce(function () {
+            validateMaterial("WeightOfFinalMults_Max");
+            // Nota: validateMaterial("WeightOfFinalMults_Max") llamará internamente a validateWeightMultsCombination
+        }, 500));
         $('#Shearing_Width').on('input', function () {
             validateMaterial('Shearing_Width');
             validateMaterial('Shearing_Width_Tol_Pos');
@@ -1672,6 +1726,8 @@
 
         $("#ID_Arrival_Warehouse").on("change", function () {
             validateMaterial("ID_Arrival_Warehouse");
+            // NUEVO: Ejecutar lógica de bloqueo de checkbox
+            handleArrivalWarehouseChange();
         });
 
         $("#RequiresRackManufacturing").on("change", function () { validateMaterial("RequiresRackManufacturing"); });

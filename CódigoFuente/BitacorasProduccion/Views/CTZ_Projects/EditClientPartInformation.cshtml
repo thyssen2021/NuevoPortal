@@ -442,6 +442,34 @@
             font-style: italic;
             margin-top: 5px;
         }
+
+        /* --- MEJORA DE CONTRASTE TOASTR WARNING --- */
+        #toast-container > .toast-warning {
+            background-color: #ffc107 !important; /* Amarillo intenso estándar de Bootstrap */
+            color: #212529 !important;           /* Texto gris muy oscuro para alto contraste */
+            opacity: 1 !important;               /* Sin transparencia para mejor lectura */
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        /* Ajustar el color del botón de cerrar en el warning */
+        #toast-container > .toast-warning .toast-close-button {
+            color: #212529 !important;
+        }
+
+        /* --- ANIMACIÓN DE ERROR (SHAKE) --- */
+        @@keyframes shakeInput {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .input-error-focus {
+            animation: shakeInput 0.4s ease-in-out; /* Ejecuta la animación */
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.6); /* Resplandor rojo */
+            border-color: red !important;
+        }
     </style>
 }
 
@@ -1072,9 +1100,8 @@
                                            class="form-control"
                                            placeholder="yyyy‑MM"
                                            @(canEditSales ? "" : "readonly") autocomplete="off" />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error"
-                                          class="error-message"
-                                          style="color: red; display: none;"></span>
+                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error" class="error-message" style="color: red; display: none;"></span>
+                                    <span id="Real_SOPWarning" class="field-warning-text" style="display: none;"></span>
                                 </div>
 
                                 <div class="col-md-1">
@@ -1092,9 +1119,8 @@
                                            class="form-control"
                                            placeholder="yyyy‑MM"
                                            @(canEditSales ? "" : "readonly") autocomplete="off" />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))Error"
-                                          class="error-message"
-                                          style="color: red; display: none;"></span>
+                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))Error" class="error-message" style="color: red; display: none;"></span>
+                                    <span id="Real_EOPWarning" class="field-warning-text" style="display: none;"></span>
                                 </div>
                                 <div class="col-md-4">
                                     <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ship_To)</label>
@@ -2635,6 +2661,10 @@
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</label>
                                         <input type="text" id="Theoretical_Strokes" class="form-control" placeholder="Theoretical Strokes" readonly />
                                     </div>
+                                    <div class="col-md-3">
+                                        <label>Theoretical Effective Strokes</label>
+                                        <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
@@ -2652,6 +2682,10 @@
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_Strokes)</label>
                                         <input type="text" id="Real_Strokes" class="form-control" placeholder="Real Strokes" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Real Effective Strokes</label>
+                                        <input type="text" id="Real_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
                                     </div>
 
                                 </div>
@@ -2887,17 +2921,10 @@
                 TonsPerShift: "#TonsPerShift",
                 DM_status: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DM_status))",
                 DM_status_comment: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DM_status_comment))",
-                // ... (Agrega TODOS tus selectores de @@nameof aquí)
-                // Tolerancias
-
-                // ... etc.
-                // Packaging
-                PackagingStandard: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
+                 PackagingStandard: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                 RequiresRackManufacturing: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))",
                 RequiresDieManufacturing: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))",
-                // ... etc.
-                // Interplant (los nuevos)
-                ID_Interplant_Plant: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_Plant))",
+                 ID_Interplant_Plant: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_Plant))",
                 ID_InterplantDelivery_Coil_Position: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Coil_Position))",
                 ID_InterplantDelivery_Transport_Type: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Transport_Type))",
                 InterplantDelivery_Transport_Type_Other: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))",
@@ -2946,6 +2973,8 @@
                 InterplantPiecesPerPackage : "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))",
                 InterplantStacksPerPackage : "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))",
                 InterplantPackageWeight : "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))",
+                Multipliers : "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))",
+                MasterCoilWeight : "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))",
 
             },
             displayNames: {

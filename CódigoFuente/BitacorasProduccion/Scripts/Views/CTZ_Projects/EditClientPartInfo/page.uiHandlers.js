@@ -8,6 +8,10 @@
     const requiresInterplant = config.project.requiresInterplant;
     const idProject = config.project.id;
     const canEditSales = config.permissions.canEditSales;
+    const blankingRouteIds = window.blankingRouteIds;
+    const slittingRouteIds = window.slittingRouteIds;
+    // Indica si estamos en un proceso de validación masiva (Save)
+    window.isBatchValidating = false;
 
     // 2. Definimos los manejadores de eventos UI
     function handleHeadTailReconciliationChange() {
@@ -208,8 +212,10 @@
                     var strokes = parseFloat(response.theoreticalStrokes);
                     var formattedStrokes = (strokes % 1 === 0) ? strokes : strokes.toFixed(2);
                     $("#Theoretical_Strokes").val(formattedStrokes);
+                    updateEffectiveStrokes();
                 } else {
                     $("#Theoretical_Strokes").val("");
+                    updateEffectiveStrokes();
                     toastr.warning("Warning: " + response.message);
                 }
             },
@@ -286,6 +292,34 @@
     }, 500); // 300 ms de espera (puedes ajustar este valor si lo deseas)
 
     function UpdateCapacityGraphs(OnlyBDMaterials = false) {
+        // Si estamos validando el formulario masivamente, no calculamos gráficas.
+        if (window.isBatchValidating) {
+            console.log("UpdateCapacityGraphs: Bloqueado por validación masiva.");
+            return;
+        }
+
+        // ---  LÓGICA DE VISIBILIDAD ---
+        // Si OnlyBDMaterials es true (carga inicial), confiamos en el servidor o escaneamos la tabla.
+        // Pero para actualizaciones en tiempo real, usamos nuestra nueva función.
+        if (!OnlyBDMaterials) {
+            const activeRoutes = getEffectiveProjectRoutes();
+
+            // Verificamos si AL MENOS UNA de las rutas activas es de Blanking
+            // Usamos la constante global 'blankingRouteIds' definida en page.constants.js
+            const hasBlankingRoute = activeRoutes.some(r => blankingRouteIds.includes(r));
+
+            if (!hasBlankingRoute) {
+                console.log("UpdateCapacityGraphs: No se detectaron rutas de Blanking activas. Ocultando gráficas.");
+                $("#chartsContainer").slideUp();
+                // También ocultamos la leyenda de turnos
+                $("#chartsNote, #shiftLegend").hide();
+                return; // <--- DETENER EJECUCIÓN AQUÍ
+            } else {
+                // Si hay rutas, mostramos el contenedor (el contenido se cargará vía AJAX)
+                $("#chartsContainer").slideDown();
+            }
+        }
+
         console.log('entra UpdateCapacityGraphs');
 
         // Obtiene el valor de la línea teórica
@@ -308,8 +342,13 @@
         var idealCycleTimePerTool = parseFloat($("#Ideal_Cycle_Time_Per_Tool").val()) || null;
         var blanksPerStroke = parseFloat($("#Blanks_Per_Stroke").val()) || null;
         var oee = parseFloat($("#OEE").val()) || null;
-        var realSOP = $("#Real_SOP").val();
-        var realEOP = $("#Real_EOP").val();
+        var rawSOP = $("#Real_SOP").val().trim();
+        var rawEOP = $("#Real_EOP").val().trim();
+        // Regex simple para YYYY-MM
+        var dateRegex = /^\d{4}-\d{2}$/;
+
+        var realSOP = dateRegex.test(rawSOP) ? rawSOP : null;
+        var realEOP = dateRegex.test(rawEOP) ? rawEOP : null;
         var annualVol = parseInt($("#Annual_Volume").val()) || null;
 
         // Campos de fallback para idealCycleTimePerTool
@@ -535,7 +574,7 @@
                 });
             });
             // Ordenar los datasets según el orden deseado
-            var desiredOrder = ["POH", "Casi Casi", "Carry Over", "Quotes"];
+            var desiredOrder = ["Spare Parts", "POH", "Casi Casi", "Carry Over", "Quotes"];
             var datasets = Object.values(statusMap).sort(function (a, b) {
                 var indexA = desiredOrder.indexOf(a.label);
                 var indexB = desiredOrder.indexOf(b.label);
@@ -570,14 +609,22 @@
                 data: {
                     labels: labels,
                     datasets: datasets.map(function (ds) {
+
+                        // --- MODIFICACIÓN 2: ESTILO TRANSPARENTE PARA SPARE PARTS ---
+                        const isSpareParts = ds.label === "Spare Parts";
+
                         return {
                             label: ds.label,
                             data: ds.data,
-                            backgroundColor: ds.backgroundColor,
+                            // Si es Spare Parts, fondo transparente. Si no, su color normal.
+                            backgroundColor: isSpareParts ? 'transparent' : ds.backgroundColor,
+                            // El borde mantiene el color original para que se vea la línea "flotante"
                             borderColor: ds.backgroundColor,
-                            fill: true,
+                            // Hacemos la línea un poco más gruesa si es Spare Parts para que destaque
+                            borderWidth: isSpareParts ? 2 : 1,
+                            fill: true, // Mantenemos fill:true para que ocupe espacio en el stack
                             stack: 'CapacityStack',
-                            tension: 0,  // Líneas rectas
+                            tension: 0,
                             pointRadius: 0
                         };
                     })
@@ -1316,8 +1363,10 @@
                     var strokes = parseFloat(response.theoreticalStrokes);
                     var formattedStrokes = (strokes % 1 === 0) ? strokes : strokes.toFixed(2);
                     $("#Real_Strokes").val(formattedStrokes);
+                    updateEffectiveStrokes();
                 } else {
                     $("#Real_Strokes").val("");
+                    updateEffectiveStrokes();
                     toastr.error("Error: " + response);
                 }
             },
@@ -1598,11 +1647,24 @@
     }
 
     function UpdateCapacityHansontable(OnlyBDMaterials = false) {
-        //si no tiene el permiso se sale
-        //if (!canEditDataManagement) {
-        //    console.warn("UpdateCapacityHansontable: Acceso denegado, no puede editar DM. Faltan permisos.");
-        //    return;
-        //}
+        if (window.isBatchValidating) {
+            console.log("UpdateCapacityHansontable: Bloqueado por validación masiva.");
+            return;
+        }
+
+        // --- LÓGICA DE VISIBILIDAD ---
+        if (!OnlyBDMaterials) {
+            const activeRoutes = getEffectiveProjectRoutes();
+            // La tabla de capacidad se usa principalmente para Blanking
+            const hasBlankingRoute = activeRoutes.some(r => blankingRouteIds.includes(r));
+
+            if (!hasBlankingRoute) {
+                console.log("UpdateCapacityHansontable: Sin rutas Blanking. Limpiando tabla.");
+                $("#capacityTableContainer").html(""); // Limpiar contenido
+                // Opcional: Ocultar contenedor padre si deseas
+                return;
+            }
+        }
 
         console.log('entra UpdateCapacityHansontable');
 
@@ -1752,46 +1814,47 @@
                                 // Render base de texto
                                 Handsontable.renderers.TextRenderer.apply(this, arguments);
 
-                                // Obtenemos los datos de la fila (en formato array)
-                                var rowData = instance.getSourceDataAtRow(row);
-                                // La primera columna (índice 0) es el LineId (oculto)
-                                //var isSelectedLine = (rowData[0] == productionLineId);
+                                // Obtenemos el nombre de la columna (header) para saber qué estamos renderizando
+                                var colHeader = instance.getColHeader(col);
 
-                                // Para la columna 1 (nombre de la línea), si es la línea consultada se resalta
-                                if (col === 1) {
-                                    //if (isSelectedLine) {
-                                    //td.style.backgroundColor = "#c1fcac"; // Verde claro para la fila seleccionada
-                                    //}
+                                // Columna 1: Nombre de la línea
+                                if (colHeader === "Line") {
+                                    // Estilos base si deseas
                                 }
-                                // Columna 2: PartNumbers (NUEVO)
-                                else if (col === 2) {
-                                    td.style.whiteSpace = 'normal'; // Permite el ajuste de línea
-                                    //if (isSelectedLine) {
-                                    //td.style.backgroundColor = "#e0f7de"; // Un verde más suave para esta celda
-                                    //}
+                                // Columna 2: PartNumbers
+                                else if (colHeader === "PartNumbers") {
+                                    td.style.whiteSpace = 'normal';
                                 }
-                                else {
-                                    // Para las demás columnas, se asume que contienen valores numéricos (decimales)
-                                    if (typeof value === "number") {
-                                        var percentage = value * 100;
-                                        td.innerHTML = percentage.toFixed(2) + "%";
+                                // NUEVO: Columna de ESTATUS
+                                else if (colHeader === "Status") {
+                                    td.style.fontWeight = 'bold';
+                                    td.style.textAlign = 'center';
 
-                                        // Aplicar colores según el valor (sin importar la fila seleccionada)
-                                        if (percentage < 95) {
-                                            //if (isSelectedLine)
-                                            //td.style.backgroundColor = "#c1fcac";  // Menor a 95%
-                                        } else if (percentage < 98) {
-                                            td.style.backgroundColor = "#ffd53b"; // Entre 95% y 98%
-                                        } else {
-                                            td.style.backgroundColor = "#ff7c4f";    // 98% o mayor
-                                        }
-                                        // Si además es la fila consultada, se puede optar por fusionar el estilo;
-                                        // por ejemplo, si quieres que tenga un tinte extra, podrías modificar el color.
-                                        // Aquí se deja el color calculado.
-                                    } else {
-                                        td.innerHTML = value;
+                                    if (value === "REJECTED") {
+                                        td.style.color = "#dc3545"; // Rojo
+                                        td.style.backgroundColor = "#ffe6e6"; // Fondo rojo claro opcional
+                                    } else if (value === "ON REVIEWED") {
+                                        td.style.color = "#ffc107"; // Amarillo oscuro / Naranja
+                                        // td.style.backgroundColor = "#fff3cd"; 
+                                    } else if (value === "APPROVED") {
+                                        td.style.color = "#28a745"; // Verde
+                                        // td.style.backgroundColor = "#d4edda";
                                     }
                                 }
+                                // Columnas de Años Fiscales (Contienen números)
+                                else if (typeof value === "number") {
+                                    var percentage = value * 100;
+                                    td.innerHTML = percentage.toFixed(2) + "%";
+
+                                    if (percentage < 95) {
+                                        // td.style.backgroundColor = "#c1fcac"; // Verde claro (opcional)
+                                    } else if (percentage < 98) {
+                                        td.style.backgroundColor = "#ffd53b"; // Entre 95% y 98%
+                                    } else {
+                                        td.style.backgroundColor = "#ff7c4f"; // 98% o mayor
+                                    }
+                                }
+
                                 return td;
                             };
 
@@ -2149,95 +2212,102 @@
         debouncedUpdateSlitterChart();
     }
 
-    // Función central para obtener y aplicar todas las reglas de validación
     function fetchAndApplyValidationRanges() {
-        // 1. Guardamos el estado ACTUAL de los rangos antes de hacer nada.
+        // 1. Guardar estado previo
         const previousRangesJSON = JSON.stringify(window.engineeringRanges);
         const previousMaxMults = window.maxMultsAllowed;
-
 
         const selectedRouteId = parseInt($("#ID_Route").val(), 10);
         const materialTypeId = $("#ID_Material_type").val();
         const realLineId = $("#ID_Real_Blanking_Line").val();
         const theoreticalLineId = $("#ID_Theoretical_Blanking_Line").val();
         const slitterLineId = $("#ID_Slitting_Line").val();
+
         const thicknessValue = parseFloat($("#Thickness").val()) || null;
         const tensileValue = parseFloat($("#Tensile_Strenght").val()) || null;
 
+        const errorDiv = $('#slittingRuleError');
 
+        // Aseguramos acceso a la variable global o usamos fallback
+        const slittingRouteIdsLocal = (typeof slittingRouteIds !== 'undefined') ? slittingRouteIds : [8, 9, 10];
+        const isSlittingRoute = slittingRouteIdsLocal.includes(selectedRouteId);
+
+        // 2. Si falta el tipo de material, no podemos consultar reglas al servidor.
         if (!materialTypeId) {
             window.engineeringRanges = null;
             window.maxMultsAllowed = null;
+            errorDiv.slideUp();
             updateLimitsDisplay();
             return;
         }
 
         let ajaxData = {
             materialTypeId: materialTypeId,
-            thickness: thicknessValue,       // <--- NUEVO
-            tensile: tensileValue            // <--- NUEVO
+            thickness: thicknessValue,
+            tensile: tensileValue
         };
 
         let isCallNeeded = false;
 
-        // 3. Determinar qué IDs de línea enviar al backend
-        if (blankingRouteIds.includes(selectedRouteId)) {
+        // Configurar IDs para Blanking si aplica
+        if (typeof blankingRouteIds !== 'undefined' && blankingRouteIds.includes(selectedRouteId)) {
             ajaxData.primaryLineId = realLineId || theoreticalLineId;
             isCallNeeded = !!ajaxData.primaryLineId;
         }
 
-        if (slittingRouteIds.includes(selectedRouteId)) {
+        // Configurar IDs para Slitting
+        if (isSlittingRoute) {
             ajaxData.slitterLineId = slitterLineId;
-            // Si no hay una línea primaria (ej. ruta solo SLT), la línea de slitter también es la primaria.
             if (!ajaxData.primaryLineId) {
                 ajaxData.primaryLineId = slitterLineId;
             }
-            isCallNeeded = !!ajaxData.primaryLineId;
+            // Para Slitter SIEMPRE intentamos validar para obtener la tabla de reglas,
+            // incluso si faltan dimensiones.
+            isCallNeeded = true;
         }
 
         if (!isCallNeeded) {
             window.engineeringRanges = null;
             window.maxMultsAllowed = null;
+            errorDiv.slideUp();
             updateLimitsDisplay();
             return;
         }
 
-
-        $.getJSON(config.urls.GetEngineeringDimensions, ajaxData)
+        $.getJSON(config.urls.getEngineeringDimensions, ajaxData)
             .done(function (response) {
                 if (response.success) {
                     const newRangesJSON = JSON.stringify(response.validationRanges);
                     const newMaxMults = response.maxMultsAllowed;
 
                     window.engineeringRanges = response.validationRanges;
-                    window.maxMultsAllowed = newMaxMults; // Guardar el nuevo máximo permitido
+                    window.maxMultsAllowed = newMaxMults;
 
-                    // 5. Mostrar notificaciones solo si los datos cambiaron
                     if (newRangesJSON !== previousRangesJSON) {
-                        toastr.info("Validation limits for dimensions have been updated.");
+                        toastr.info("Validation limits updated.");
                     }
 
-                    // --- INICIO DE LA MODIFICACIÓN ---
-                    const errorDiv = $('#slittingRuleError');
-                    const isSlittingRoute = slittingRouteIds.includes(selectedRouteId);
-
-                    // Solo mostramos/ocultamos la advertencia si la ruta es de slitting
+                    // --- LÓGICA DE VISIBILIDAD CON DEPURACIÓN ---
                     if (isSlittingRoute) {
+                        console.log(`[Slitter Validation] MaxMults recibido: ${newMaxMults}`);
+
+                        // Si el servidor nos devuelve un Máximo de Mults válido (> 0),
+                        // significa que la combinación (Thickness + Tensile) es CORRECTA.
                         if (newMaxMults !== null && newMaxMults > 0) {
-                            // Regla válida encontrada: OCULTAR advertencia
+                            console.log("[Slitter Validation] Regla encontrada. OCULTANDO tabla de error.");
                             errorDiv.slideUp();
-                            if (newMaxMults !== previousMaxMults) { // Notificar solo si el valor cambió
-                                toastr.info(`Maximum allowed strips updated to: ${newMaxMults}`);
-                            }
-                        } else {
-                            // No se encontró regla: MOSTRAR advertencia
+                        }
+                        // Si nos devuelve 0 o null (porque faltan datos O porque están fuera de rango),
+                        // MOSTRAMOS la tabla para guiar al usuario.
+                        else {
+                            console.log("[Slitter Validation] Regla NO encontrada (0 o null). MOSTRANDO tabla de error.");
                             errorDiv.slideDown();
                         }
                     } else {
-                        // Si NO es una ruta de slitting, SIEMPRE ocultar la advertencia.
+                        // No es ruta de Slitter
                         errorDiv.slideUp();
                     }
-                    // --- FIN DE LA MODIFICACIÓN ---
+                    // ---------------------------------------
 
                 } else {
                     window.engineeringRanges = null;
@@ -2247,16 +2317,11 @@
             })
             .fail(function () {
                 window.engineeringRanges = null;
-                // Solo mostramos error si realmente se perdieron los rangos.
-                if (previousRangesJSON !== 'null') {
-                    toastr.error("Could not load validation limits.");
-                }
             })
             .always(function () {
                 updateLimitsDisplay();
                 validateMultipliers();
-
-                // Re-validamos los campos principales afectados por los rangos
+                // Revalidar campos dependientes
                 validateTensileStrength();
                 validateThickness();
                 validateWidth();
@@ -2420,20 +2485,34 @@
         let keysArray = Array.from(allKeys);
 
         // 2) Definir el orden deseado:
-        //    a) "LineId" en primer lugar, si existe.
-        //    b) "Line" en segundo lugar, si existe.
-        //    c) Las claves que comiencen con "FY" (ordenadas alfabéticamente).
-        //    d) Cualquier otra clave (opcional, en orden ascendente).
+        //    a) "LineId" (oculta)
+        //    b) "Line" (nombre)
+        //    c) "PartNumbers"
+        //    d) Columnas "FY" (años fiscales)
+        //    e) "Status" (Al final)
+
         const lineIdKey = keysArray.includes("LineId") ? ["LineId"] : [];
         const lineKey = keysArray.includes("Line") ? ["Line"] : [];
-        const partNumbersKey = keysArray.includes("PartNumbers") ? ["PartNumbers"] : []; // <-- AÑADIR ESTA LÍNEA
+        const partNumbersKey = keysArray.includes("PartNumbers") ? ["PartNumbers"] : [];
+
         const fyKeys = keysArray.filter(k => k.startsWith("FY"));
         fyKeys.sort(); // Ordena las claves de FY alfabéticamente.
-        const remainingKeys = keysArray.filter(k => k !== "LineId" && k !== "Line" && k !== "PartNumbers" && !k.startsWith("FY"));
-        remainingKeys.sort(); // Opcional.
 
-        // 3) Construir el arreglo final de claves en el orden deseado.
-        let sortedKeys = [].concat(lineIdKey, lineKey, partNumbersKey, fyKeys, remainingKeys);
+        // Extraemos explícitamente "Status"
+        const statusKey = keysArray.includes("Status") ? ["Status"] : [];
+
+        // Filtramos las claves restantes, excluyendo las que ya procesamos
+        const remainingKeys = keysArray.filter(k =>
+            k !== "LineId" &&
+            k !== "Line" &&
+            k !== "PartNumbers" &&
+            k !== "Status" &&
+            !k.startsWith("FY")
+        );
+        remainingKeys.sort();
+
+        // 3) Construir el arreglo final de claves en el orden exacto
+        let sortedKeys = [].concat(lineIdKey, lineKey, partNumbersKey, fyKeys, remainingKeys, statusKey);
 
         // 4) Construir la cabecera (headers) y las filas (rows)
         let headers = sortedKeys;
@@ -2647,6 +2726,37 @@
         });
 
     }
+
+    // Calcular Golpes Efectivos ---
+    // --- FUNCIÓN MODIFICADA: Calcular Golpes Efectivos (Enteros) ---
+    function updateEffectiveStrokes() {
+        // Obtenemos valores
+        const oeeVal = parseFloat($("#OEE").val()) || 0;
+        const theoStrokes = parseFloat($("#Theoretical_Strokes").val()) || 0;
+        const realStrokes = parseFloat($("#Real_Strokes").val()) || 0;
+
+        // Factor OEE (ej: 85% -> 0.85). Si es 0, el resultado será 0.
+        const oeeFactor = oeeVal / 100;
+
+        // Cálculo Theoretical Effective
+        if (theoStrokes > 0 && oeeFactor > 0) {
+            // CAMBIO: Usamos Math.round() para redondear al entero más cercano
+            let result = theoStrokes * oeeFactor;
+            $("#Theoretical_Effective_Strokes").val(Math.round(result));
+        } else {
+            $("#Theoretical_Effective_Strokes").val("");
+        }
+
+        // Cálculo Real Effective
+        if (realStrokes > 0 && oeeFactor > 0) {
+            // CAMBIO: Usamos Math.round() para redondear al entero más cercano
+            let result = realStrokes * oeeFactor;
+            $("#Real_Effective_Strokes").val(Math.round(result));
+        } else {
+            $("#Real_Effective_Strokes").val("");
+        }
+    }
+
     // --- FUNCIONES AUXILIARES PARA IHS ---
     function loadRowDataIntoForm(row) {
 
@@ -2861,7 +2971,8 @@
         updateWeightCalculations();
         updatePackageWeight();
         updateInterplantPackageWeight();
-
+        updateEffectiveStrokes();
+        handleArrivalWarehouseChange();
 
         // Disparar los handlers para ajustar la UI de los campos dependientes
         $('#IsReturnableRack').trigger('change');
@@ -3192,6 +3303,12 @@
         $('#Initial_Weight').val('');
         $('#AnnualTonnage').val('');
 
+        if (canEditSales) {
+            $("#PassesThroughSouthWarehouse").prop('disabled', false);
+        }
+
+        $("#Theoretical_Effective_Strokes").val("");
+        $("#Real_Effective_Strokes").val("");
 
         // 4. Resetear el botón principal
         $('.btn-add-material').html('<i class="fa-solid fa-plus"></i> Add Material');
@@ -3282,6 +3399,82 @@
         console.log("%c--- updateInterplantReturnableFieldsVisibility [END] ---", "color: #dc3545;");
     }
 
+    function handleArrivalWarehouseChange() {
+        const warehouseId = $("#ID_Arrival_Warehouse").val();
+        const passSouthCheckbox = $("#PassesThroughSouthWarehouse");
+
+        // Obtenemos el permiso desde la config global, ya que 'canEditSales' es local al IIFE
+        const canEdit = window.pageConfig.permissions.canEditSales;
+
+        // ID 2 = Almacén Sur
+        if (warehouseId == "2") {
+            // Si el almacén de llegada es Sur, desmarcamos y deshabilitamos
+            passSouthCheckbox.prop('checked', false);
+            passSouthCheckbox.prop('disabled', true);
+        } else {
+            // Si es otro almacén, habilitamos el check SOLO si el usuario tiene permisos
+            if (canEdit) {
+                passSouthCheckbox.prop('disabled', false);
+            }
+        }
+    }
+
+    // ---  Obtener rutas efectivas del proyecto ---
+    function getEffectiveProjectRoutes() {
+        // Usamos groupCollapsed para que no inunde la consola, puedes expandirlo haciendo clic
+        console.groupCollapsed("🔍 DEBUG: Calculando Rutas Efectivas");
+
+        let uniqueRoutes = new Set();
+
+        // 1. Obtener datos del formulario actual
+        const formRouteId = parseInt($("#ID_Route").val(), 10) || 0;
+        // Convertimos a String explícitamente para evitar errores de comparación (null vs "")
+        const editingIndex = String($("#materialIndex").val() || "");
+
+        console.log(`1. Estado del Formulario:`);
+        console.log(`   - Ruta Seleccionada (Dropdown): ${formRouteId}`);
+        console.log(`   - Índice en Edición (Hidden): "${editingIndex}" (vacío = nuevo)`);
+
+        // 2. Escanear la tabla
+        console.log(`2. Escaneando tabla (#materialsTable tbody tr)...`);
+
+        $("#materialsTable tbody tr").each(function () {
+            const row = $(this);
+            const rowIndex = String(row.data("index"));
+
+            // Buscamos el input hidden. Agregamos log si no lo encuentra.
+            const inputRoute = row.find("input[name$='.ID_Route']");
+            const savedRouteId = parseInt(inputRoute.val(), 10) || 0;
+
+            let statusMsg = "";
+
+            // LÓGICA DE EXCLUSIÓN
+            if (editingIndex !== "" && rowIndex === editingIndex) {
+                statusMsg = "❌ IGNORADA (En Edición)";
+            } else {
+                if (savedRouteId > 0) {
+                    uniqueRoutes.add(savedRouteId);
+                    statusMsg = "✅ AGREGADA";
+                } else {
+                    statusMsg = "⚠️ IGNORADA (ID 0 o inválido)";
+                }
+            }
+
+            console.log(`   -> Fila [${rowIndex}]: Ruta Guardada=${savedRouteId} | ${statusMsg}`);
+        });
+
+        // 3. Agregar la ruta del formulario actual
+        if (formRouteId > 0) {
+            uniqueRoutes.add(formRouteId);
+            console.log(`3. Agregando Ruta del Formulario: ${formRouteId}`);
+        }
+
+        const finalRoutes = Array.from(uniqueRoutes);
+        console.log("🏁 RUTAS FINALES CALCULADAS:", finalRoutes);
+        console.groupEnd(); // Fin del grupo de logs
+
+        return finalRoutes;
+    }
 
 
     //publicar las funciones
@@ -3360,5 +3553,8 @@
     window.clearFileUIGeneric = clearFileUIGeneric;
     window.updateInterplantReturnableFieldsVisibility = updateInterplantReturnableFieldsVisibility;
     window.debouncedUpdateCapacityHansontable = debouncedUpdateCapacityHansontable;
+    window.updateEffectiveStrokes = updateEffectiveStrokes; 
+    window.handleArrivalWarehouseChange = handleArrivalWarehouseChange;
+    window.getEffectiveProjectRoutes = getEffectiveProjectRoutes; 
     //
 })();

@@ -412,7 +412,7 @@
             input.css("border", "1px solid red");
             return false;
         }
-        return true;
+        return validateWeightMultsCombination();
     }
 
     function validateScrapReconciliationPercent_Min() {
@@ -2167,6 +2167,7 @@
             let validInterplantHeadTailMax = validateInterplantHeadTailReconciliationPercent_Max();
             let validInterplantHeadTailClient = validateInterplantClientHeadTailReconciliationPercent();
             let validInterplantOutboundFile = validateInterplantOutboundFreightFile();
+            let validWeightMultsComb = validateWeightMultsCombination();
 
             return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
                 && validRealSOP && validRealEOP && validShipTo && validRoute && validTensile && validMaterialType
@@ -2200,7 +2201,7 @@
                 && validInterplantDeliveryCond && validInterplantScrapRec && validInterplantScrapMin
                 && validInterplantScrapOpt && validInterplantScrapMax && validInterplantScrapClient
                 && validInterplantHeadTailRec && validInterplantHeadTailMin && validInterplantHeadTailOpt
-                && validInterplantHeadTailMax && validInterplantHeadTailClient && validInterplantOutboundFile
+                && validInterplantHeadTailMax && validInterplantHeadTailClient && validInterplantOutboundFile && validWeightMultsComb
                 ;
         }
 
@@ -2495,6 +2496,25 @@
         return true;
     }
     function updateSlitterCapacityChart(OnlyBDMaterials = false, projectId) {
+        // 1. Check de rendimiento: Si estamos validando masivamente (Guardar), abortar.
+        if (window.isBatchValidating) return;
+
+        // 2. Lógica de Visibilidad Universal
+        // Verificamos si hay alguna ruta de Slitter activa en el proyecto (sea en BD o en el form actual).
+        const activeRoutes = getEffectiveProjectRoutes();
+        const hasSlittingRoute = activeRoutes.some(r => slittingRouteIds.includes(r));
+
+        if (!hasSlittingRoute) {
+            // Si es carga inicial (OnlyBDMaterials=true), usamos un log normal para no saturar
+            if (!OnlyBDMaterials) {
+                console.log("updateSlitterCapacityChart: No se detectaron rutas de Slitter activas. Ocultando gráfica.");
+            }
+            $("#slitterChartContainer").slideUp();
+            return; // <--- DETENER EJECUCIÓN AQUÍ: No llamamos al servidor
+        } else {
+            $("#slitterChartContainer").slideDown();
+        }
+
         // Limpiamos la consola para tener una salida limpia en cada ejecución de "what-if"
         if (!OnlyBDMaterials) {
             //console.clear();
@@ -2505,7 +2525,7 @@
 
         const container = $("#slitterChartContainer");
         container.html("<p style='color:gray;'>Loading Slitter Capacity <i class='fa-solid fa-spinner fa-spin-pulse'></i></p>").slideDown();
-              
+
         let ajaxData = {
             __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(), // AÑADIDO: Token de seguridad
             projectId: projectIdAjax, // <-- AÑADIDO
@@ -2513,8 +2533,6 @@
             applyDateFilter: true,
             OnlyBDMaterials: OnlyBDMaterials
         };
-
-
 
         // Si es un escenario "what-if", recolectamos y enviamos los datos del formulario
         if (!OnlyBDMaterials) {
@@ -2529,6 +2547,13 @@
                 const row = $(this);
                 const materialIdInRow = parseInt(row.data("material-id"), 10);
 
+                let valRealSOP = row.find("input[name$='.Real_SOP']").val() || "";
+                let valRealEOP = row.find("input[name$='.Real_EOP']").val() || "";
+                let valSopSP = row.find("input[name$='.SOP_SP']").val() || "";
+                let valEopSP = row.find("input[name$='.EOP_SP']").val() || "";
+
+                const dateRegex = /^\d{4}-\d{2}$/;
+
                 let material = {
                     ID_Material: materialIdInRow,
                     Vehicle: row.find("input[name$='.Vehicle']").val(),
@@ -2538,10 +2563,10 @@
                     ID_Route: parseInt(row.find("input[name$='.ID_Route']").val()) || null,
                     Initial_Weight: 0,
                     IsEdited: false,
-                    Real_SOP: row.find("input[name$='.Real_SOP']").val() || null,
-                    Real_EOP: row.find("input[name$='.Real_EOP']").val() || null,
-                    SOP_SP: row.find("input[name$='.SOP_SP']").val() || null,
-                    EOP_SP: row.find("input[name$='.EOP_SP']").val() || null
+                    Real_SOP: dateRegex.test(valRealSOP) ? valRealSOP : null,
+                    Real_EOP: dateRegex.test(valRealEOP) ? valRealEOP : null,
+                    SOP_SP: dateRegex.test(valSopSP) ? valSopSP : null,
+                    EOP_SP: dateRegex.test(valEopSP) ? valEopSP : null
                 };
 
                 // Calcular Initial_Weight basado en los datos de la fila
@@ -2568,6 +2593,12 @@
                 whatIfMaterials.push(material);
             });
 
+            var formSOP = $("#Real_SOP").val() || "";
+            var formEOP = $("#Real_EOP").val() || "";
+            var formSopSP = $("#SOP_SP").val() || "";
+            var formEopSP = $("#EOP_SP").val() || "";
+            const dateRegex = /^\d{4}-\d{2}$/;
+
             const formData = {
                 ID_Material: materialIdBeingEdited,
                 Vehicle: $("#Vehicle").val(),
@@ -2577,10 +2608,10 @@
                 ID_Route: parseInt($("#ID_Route").val()) || null,
                 Initial_Weight: parseFloat($("#Initial_Weight").val()) || 0,
                 IsEdited: true,
-                Real_SOP: $("#Real_SOP").val() || null,
-                Real_EOP: $("#Real_EOP").val() || null,
-                SOP_SP: $("#SOP_SP").val() || null,
-                EOP_SP: $("#EOP_SP").val() || null
+                Real_SOP: dateRegex.test(formSOP) ? formSOP : null,
+                Real_EOP: dateRegex.test(formEOP) ? formEOP : null,
+                SOP_SP: dateRegex.test(formSopSP) ? formSopSP : null,
+                EOP_SP: dateRegex.test(formEopSP) ? formEopSP : null
             };
 
             if (materialIdBeingEdited !== 0) {
@@ -2610,6 +2641,7 @@
                 if (response.success && response.data && response.data.length > 0) {
                     generateCharts(response.data, {}, "#slitterChartContainer");
                 } else {
+                    // Si el servidor responde éxito pero sin datos, ocultamos
                     container.html("<p style='color:red;'>Could not load Slitter capacity data.</p>");
                     if (response.message) toastr.error(response.message);
                 }
@@ -2625,51 +2657,44 @@
 
 
     function validateRealSOP() {
-
         const input = $("#Real_SOP");
         const errorEl = $("#Real_SOPError");
+        const warningEl = $("#Real_SOPWarning"); // Nuevo selector para advertencia
 
-
-        // Si el input tiene el atributo readonly o disabled, se omite la validación
+        // Si readonly/disabled, limpiamos todo y salimos
         if (input.prop("readonly") || input.prop("disabled")) {
+            errorEl.text("").hide();
+            warningEl.text("").hide();
             return true;
         }
 
-        // Limpiar cualquier mensaje de error y estilo previo.
+        // 1. Limpiar estados previos
         errorEl.text("").hide();
+        warningEl.text("").hide();
         input.css("border", "");
 
         let realSOPStr = input.val().trim();
 
-        // Validación 1: Campo requerido.
+        // --- ERRORES BLOQUEANTES (Rojo) ---
         if (!realSOPStr) {
             errorEl.text("Real SOP is required.").show();
             input.css("border", "1px solid red");
             return false;
         }
 
-        let realSOPDate = parseYearMonth(realSOPStr);
+        // Usamos window.parseYearMonth ya que se define en page.main.js y se exporta a window
+        let realSOPDate = window.parseYearMonth(realSOPStr);
 
-        // Validar si el formato de fecha es correcto.
         if (!realSOPDate) {
             errorEl.text("Invalid date format. Use yyyy-mm.").show();
             input.css("border", "1px solid red");
             return false;
         }
-        // Validación 2: No puede ser de un año anterior al actual.
-        const currentYear = new Date().getFullYear();
-        if (realSOPDate.getFullYear() < currentYear) {
-            // Se muestra un toast de advertencia en lugar de un error.
-            toastr.warning(`Warning: Real SOP is in a year before the current year (${currentYear}).`, "Date Warning");
 
-            // IMPORTANTE: Ya no se retorna 'false', por lo que la validación continúa.
-        }
-        // --- INICIO DE LA NUEVA LÓGICA ---
-
-        // Validación 3: Debe ser anterior al Real EOP, si este existe.
+        // Validar contra Real EOP (Lógica Bloqueante)
         let realEOPStr = $("#Real_EOP").val().trim();
         if (realEOPStr) {
-            let realEOPDate = parseYearMonth(realEOPStr);
+            let realEOPDate = window.parseYearMonth(realEOPStr);
             if (realEOPDate && realSOPDate >= realEOPDate) {
                 errorEl.text("Real SOP must be before Real EOP.").show();
                 input.css("border", "1px solid red");
@@ -2677,46 +2702,76 @@
             }
         }
 
-        // --- FIN DE LA NUEVA LÓGICA ---
+        // --- ADVERTENCIAS (Naranja - No bloquean el guardado) ---
+        let warningMsg = "";
+        const currentYear = new Date().getFullYear();
 
-        // Validación 4 (Advertencia): Comparar con el SOP planeado si está disponible.
+        // Advertencia 1: Año anterior al actual
+        if (realSOPDate.getFullYear() < currentYear) {
+            warningMsg = `Year is before current year (${currentYear}).`;
+        }
+
+        // Advertencia 2: Anterior al Planned SOP
         let sopSPStr = $("#SOP_SP").val().trim();
         if (sopSPStr) {
-            let sopSPDate = parseYearMonth(sopSPStr);
+            let sopSPDate = window.parseYearMonth(sopSPStr);
             if (sopSPDate && realSOPDate < sopSPDate) {
-                toastr.warning("Warning: Real SOP is before the planned SOP.");
+                // Concatenamos si ya existe un mensaje o lo ponemos nuevo
+                warningMsg = warningMsg
+                    ? warningMsg + " Also before Planned SOP."
+                    : "Date is before Planned SOP.";
             }
         }
 
+        // Si hay mensaje de advertencia, lo mostramos
+        if (warningMsg) {
+            warningEl.text(warningMsg).show();
+        }
 
         return true;
     }
 
     function validateRealEOP() {
         const input = $("#Real_EOP");
+        const errorEl = $("#Real_EOPError");
+        const warningEl = $("#Real_EOPWarning"); // Nuevo selector
 
-        // Si el input tiene el atributo readonly o disabled, se omite la validación
         if (input.prop("readonly") || input.prop("disabled")) {
+            errorEl.text("").hide();
+            warningEl.text("").hide();
             return true;
         }
 
-        let realEOPStr = $("#Real_EOP").val().trim();
-        $("#Real_EOPError").text("").hide();
-        $("#Real_EOP").css("border", "");
+        let realEOPStr = input.val().trim();
 
+        // 1. Limpiar estados previos
+        errorEl.text("").hide();
+        warningEl.text("").hide();
+        input.css("border", "");
+
+        // --- ERRORES BLOQUEANTES ---
         if (!realEOPStr) {
-            $("#Real_EOPError").text("Real EOP is required.").show();
-            $("#Real_EOP").css("border", "1px solid red");
+            errorEl.text("Real EOP is required.").show();
+            input.css("border", "1px solid red");
             return false;
         }
 
-        // Obtener el valor de EOP_SP
-        let eopSPStr = $("#EOP_SP").val().trim();
-        let realEOPDate = parseYearMonth(realEOPStr);
-        let eopSPDate = parseYearMonth(eopSPStr);
+        // Validar formato de fecha (para evitar errores en parseo)
+        let realEOPDate = window.parseYearMonth(realEOPStr);
+        if (!realEOPDate) {
+            errorEl.text("Invalid date format. Use yyyy-mm.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
 
-        if (realEOPDate && eopSPDate && realEOPDate > eopSPDate) {
-            toastr.warning("Real EOP is later than the planned EOP.");
+        // --- ADVERTENCIAS (Naranja) ---
+        // Advertencia: Posterior al Planned EOP
+        let eopSPStr = $("#EOP_SP").val().trim();
+        if (eopSPStr) {
+            let eopSPDate = window.parseYearMonth(eopSPStr);
+            if (realEOPDate && eopSPDate && realEOPDate > eopSPDate) {
+                warningEl.text("Date is later than Planned EOP.").show();
+            }
         }
 
         return true;
@@ -3313,11 +3368,10 @@
     }
 
     function validateWeightOfFinalMults() {
-        const input = $("#WeightOfFinalMults");
-        const errorEl = $("#WeightOfFinalMultsError");
+        const input = $("#WeightOfFinalMults"); // Selector directo
+        const errorEl = $("#WeightOfFinalMultsError"); // Selector directo
         const status = statusId;
 
-        // 1) Estatus que hacen el campo obligatorio
         let requiredStatus = [
             config.statusIDs.Quotes,
             config.statusIDs.CarryOver,
@@ -3325,41 +3379,41 @@
             config.statusIDs.POH
         ];
 
-        // 2) Si readonly/disabled, omito validación
         if (input.prop("readonly") || input.prop("disabled")) {
             return true;
         }
 
-        // 3) Leer y limpiar
         let raw = input.val() ? input.val().trim() : "";
-        errorEl.text("").hide();
-        input.css("border", "");
 
-        // 4) Vacío → si es obligatorio, error; si no, OK
+        // Limpiar error solo si NO es el de combinación
+        if (!errorEl.text().startsWith("Total weight of mults")) {
+            errorEl.text("").hide();
+            input.css("border", "");
+        }
+
         if (!raw) {
             if (requiredStatus.includes(status)) {
-                errorEl
-                    .text(config.displayNames.WeightOfFinalMults + " is required.")
-                    .show();
+                errorEl.text(config.displayNames.WeightOfFinalMults + " is required.").show();
                 input.css("border", "1px solid red");
                 return false;
             }
-            return true;
+            // Validar combinación para limpiar errores previos si el campo se vacía
+            return validateWeightMultsCombination();
         }
 
-        // 5) Validar número ≥ 0
         let val = parseFloat(raw);
         if (isNaN(val) || val < 0) {
-            errorEl
-                .text(isNaN(val)
-                    ? "The value must be a number."
-                    : "The value must be greater than or equal to 0.")
-                .show();
+            errorEl.text(isNaN(val) ? "The value must be a number." : "The value must be greater than or equal to 0.").show();
             input.css("border", "1px solid red");
             return false;
         }
 
-        return true;
+        // Validar contra Min/Max y Master Coil
+        let validMin = validateWeightOfFinalMults_Min();
+        let validMax = validateWeightOfFinalMults_Max();
+        let validComb = validateWeightMultsCombination(); // <--- ASEGURAR ESTA LLAMADA
+
+        return validMin && validMax && validComb;
     }
 
     function validateMultipliers() {
@@ -3380,7 +3434,7 @@
             return true;
         }
 
-        // Limpiar errores previos que no sean de la validación de combinación
+        // Limpiar errores previos que no sean de la validación de combinación de ANCHO
         if (!errorEl.text().startsWith("Total width of mults")) {
             errorEl.text("").hide();
             input.css("border", "");
@@ -3390,14 +3444,16 @@
 
         if (!raw) {
             if (isExternalSlitter) {
-                return validateWidthMultsCombination(); // Revalida para limpiar errores
+                validateWeightMultsCombination(); // NUEVO: Validar peso para limpiar
+                return validateWidthMultsCombination(); // Revalidar ancho para limpiar
             }
             else if (requiredStatus.includes(status)) {
                 errorEl.text(config.displayNames.Multipliers + " is required.").show();
                 input.css("border", "1px solid red");
                 return false;
             }
-            return validateWidthMultsCombination(); // Revalida para limpiar errores
+            validateWeightMultsCombination(); // NUEVO: Validar peso para limpiar
+            return validateWidthMultsCombination(); // Revalidar ancho para limpiar
         }
 
         let val = parseFloat(raw);
@@ -3421,8 +3477,11 @@
             }
         }
 
-        // Si todas las validaciones de este campo pasan, se ejecuta la validación de combinación
-        return validateWidthMultsCombination();
+        // Validar ambas combinaciones
+        const isWidthValid = validateWidthMultsCombination();
+        const isWeightValid = validateWeightMultsCombination(); 
+
+        return isWidthValid && isWeightValid;
     }
 
     function validateMajorBase() {
@@ -3854,10 +3913,12 @@
                 input.css("border", "1px solid red");
                 return false;
             }
+            // Aunque esté vacío, llamar a validación combinada para limpiar posibles errores en el otro campo
+            validateWeightMultsCombination();
             return true;
         }
 
-        // Validación de valor numérico y no negativo (sin cambios)
+        // Validación de valor numérico y no negativo
         let val = parseFloat(raw);
         if (isNaN(val) || val < 0) {
             errorEl
@@ -3869,26 +3930,18 @@
             return false;
         }
 
-        // --- INICIO DE LA MODIFICACIÓN ---
-
-        // 1. Verificamos si los rangos de validación ya se cargaron desde el servidor.
+        // Validación de rangos de ingeniería
         if (window.engineeringRanges) {
-
-            // 2. Buscamos el criterio específico para MasterCoilWeight (ID_Criteria: 17)
             const criterio = window.engineeringRanges.find(r => r.ID_Criteria === 17);
-
-            // 3. Si encontramos el criterio y el valor no es válido...
             if (criterio && !validarContraCriterio(val, criterio)) {
-
-                // 4. Mostramos el mensaje de error con los límites correctos y marcamos el campo.
                 errorEl.text(describirLimites(criterio)).show();
                 input.css("border", "1px solid red");
-                return false; // La validación falla.
+                return false;
             }
         }
 
-        // --- FIN DE LA MODIFICACIÓN ---
-
+        // Al cambiar MasterCoil, revalidar si los mults caben en peso
+        validateWeightMultsCombination(); 
         return true;
     }
 
@@ -4344,12 +4397,16 @@
         // 1) Actualizaciones previas
         updateBlanksPerYear();
         let diffPercentage = updateAnnualVolumeStyle();
-        clearTimeout(volumeTimeout);
-        volumeTimeout = setTimeout(function () {
-            if (typeof diffPercentage !== "undefined") {
-                showVolumeDifferenceToast(diffPercentage);
-            }
-        }, 900);
+
+        // Usamos la bandera global window.isBatchValidating definida en page.uiHandlers.js
+        if (!window.isBatchValidating) {
+            clearTimeout(volumeTimeout);
+            volumeTimeout = setTimeout(function () {
+                if (typeof diffPercentage !== "undefined") {
+                    showVolumeDifferenceToast(diffPercentage);
+                }
+            }, 900);
+        }
 
         const input = $("#Annual_Volume");
         const errorEl = $("#Annual_VolumeError");
@@ -5198,7 +5255,56 @@
         return true;
     }
 
+    function validateWeightMultsCombination() {
+        // 1. Cambiamos el selector para usar el PESO MÁXIMO (#WeightOfFinalMults_Max)
+        const weightMultsMaxInput = $("#WeightOfFinalMults_Max");
+        const multipliersInput = $("#Multipliers");
+        const masterCoilInput = $("#MasterCoilWeight");
 
+        // 2. El error ahora se mostrará debajo del campo Máximo
+        const errorEl = $("#WeightOfFinalMults_MaxError");
+
+        // Validación de visibilidad
+        if (!weightMultsMaxInput.is(":visible") || weightMultsMaxInput.prop("disabled")) {
+            if (errorEl.text().startsWith("Total max weight")) {
+                errorEl.text("").hide();
+                weightMultsMaxInput.css("border", "");
+            }
+            return true;
+        }
+
+        // Obtener valores numéricos (usando el Máximo)
+        const weightPerMultMax = parseFloat(weightMultsMaxInput.val()) || 0;
+        const multipliers = parseFloat(multipliersInput.val()) || 0;
+        const masterCoilWeight = parseFloat(masterCoilInput.val()) || 0;
+
+        // Si falta algún dato, retornamos true (las reglas individuales validan requeridos)
+        if (weightPerMultMax === 0 || multipliers === 0 || masterCoilWeight === 0) {
+            if (errorEl.text().startsWith("Total max weight")) {
+                errorEl.text("").hide();
+                weightMultsMaxInput.css("border", "");
+            }
+            return true;
+        }
+
+        // Cálculo usando el Peso Máximo
+        const totalCalculatedWeight = weightPerMultMax * multipliers;
+
+        // Comparación y Nuevo Letrero
+        if (totalCalculatedWeight > masterCoilWeight) {
+            errorEl.text(`Total max weight of mults (${totalCalculatedWeight.toFixed(2)}kg) cannot exceed Master Coil Weight (${masterCoilWeight.toFixed(2)}kg).`).show();
+            weightMultsMaxInput.css("border", "1px solid red");
+            return false;
+        }
+
+        // Limpiar error si pasa
+        if (errorEl.text().startsWith("Total max weight")) {
+            errorEl.text("").hide();
+            weightMultsMaxInput.css("border", "");
+        }
+
+        return true;
+    }
 
     // --- Publicación (no se necesitan más cambio en el resto de los archivos)---        
     window.validatePiecesPerPackage = validatePiecesPerPackage;
@@ -5347,5 +5453,5 @@
     window.validateInterplantHeadTailReconciliationPercent_Max = validateInterplantHeadTailReconciliationPercent_Max;
     window.validateInterplantClientHeadTailReconciliationPercent = validateInterplantClientHeadTailReconciliationPercent;
     window.validateInterplantOutboundFreightFile = validateInterplantOutboundFreightFile;
-
+    window.validateWeightMultsCombination = validateWeightMultsCombination; 
 })(); // <-- Fin de la IIFE

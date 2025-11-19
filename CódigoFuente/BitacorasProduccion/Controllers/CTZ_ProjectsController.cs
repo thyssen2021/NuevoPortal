@@ -2033,8 +2033,8 @@ namespace Portal_2_0.Controllers
             // Cargar las reglas de Slitting activas para mostrarlas en la advertencia
             ViewBag.SlittingRules = db.CTZ_Slitting_Validation_Rules
              .Include(r => r.CTZ_Production_Lines) // Incluir el nombre de la línea
-             .Where(r => r.Is_Active && r.ID_Production_Line == 8) // Asegúrate de que slitterLineId esté disponible o ajusta el filtro
-             .OrderBy(r => r.CTZ_Production_Lines.Line_Name)
+            .Where(r => r.Is_Active && r.CTZ_Production_Lines.IsSlitter == true && r.CTZ_Production_Lines.ID_Plant == project.ID_Plant)
+            .OrderBy(r => r.CTZ_Production_Lines.Line_Name)
              .ThenBy(r => r.Thickness_Min)
              .ThenBy(r => r.Tensile_Min)
              .Select(r => new SlittingRuleViewModel // Usamos un ViewModel simple para pasar solo los datos necesarios
@@ -4706,13 +4706,12 @@ namespace Portal_2_0.Controllers
                                 .FirstOrDefault(p => p.ID_Project == projectId);
                 if (project == null)
                     return Json(new { success = false, message = "Proyecto no encontrado." }, JsonRequestBehavior.AllowGet);
-                          
+
 
                 // 2. Obtener el material seleccionado o tratar como nuevo si es null
                 CTZ_Project_Materials selectedMaterial = null;
                 if (!OnlyBDMaterials)
-                { //si onlyBDmaterials no esta activo
-
+                {
                     if (materialId.HasValue)
                     {
                         selectedMaterial = project.CTZ_Project_Materials.FirstOrDefault(m => m.ID_Material == materialId.Value);
@@ -4720,7 +4719,6 @@ namespace Portal_2_0.Controllers
 
                     if (selectedMaterial != null)
                     {
-                        // Actualiza el valor de la línea de producción al blkID
                         selectedMaterial.ID_Real_Blanking_Line = blkID;
                         selectedMaterial.Vehicle = vehicle ?? "";
                         selectedMaterial.Parts_Per_Vehicle = partsPerVehicle;
@@ -4734,11 +4732,8 @@ namespace Portal_2_0.Controllers
                     }
                     else
                     {
-                        // Si no se encontró, se crea un nuevo material.
-                        // Se deben inicializar los campos mínimos requeridos; 
                         selectedMaterial = new CTZ_Project_Materials
                         {
-                            // Aquí asigna el id de proyecto y la línea nueva.
                             ID_Project = project.ID_Project,
                             ID_Real_Blanking_Line = blkID,
                             Vehicle = vehicle ?? "",
@@ -4751,69 +4746,11 @@ namespace Portal_2_0.Controllers
                             Annual_Volume = annualVol,
                             Part_Number = partNumber
                         };
-
-                        // Agregar el nuevo material a la colección del proyecto.
                         project.CTZ_Project_Materials.Add(selectedMaterial);
                     }
                 }
 
-                // Agrupamos los materiales por su línea (real o teórica) y concatenamos sus Part_Number
-                var partNumbersByLine = project.CTZ_Project_Materials
-                    .Where(m => (m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line) != null)
-                    .GroupBy(m => m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line)
-                    .ToDictionary(
-                        g => g.Key.Value, // La llave es el ID de la línea
-                                          // El valor es un string con los Part_Number unidos por ", "
-                        g => string.Join(", ", g.Select(m => m.Part_Number).Where(pn => !string.IsNullOrEmpty(pn)))
-                    );
-
-                // 3. Obtiene la capacidad simulando el cambio de línea para el material seleccionado
-                var summarizeData = project.GetCapacityScenarios(project.CTZ_Project_Materials);
-                // (summarizeData es un Dictionary<int, Dictionary<int, double>>)
-
-                // 4. Convertir el diccionario en un array de objetos para el hansontable
-                var linesDict = db.CTZ_Production_Lines.ToDictionary(x => x.ID_Line, x => x.Description);
-                var fyDict = db.CTZ_Fiscal_Years.ToDictionary(x => x.ID_Fiscal_Year, x => x.Fiscal_Year_Name);
-
-                var allLineIds = summarizeData.Keys.OrderBy(x => x).ToList();
-                var allFYIds = summarizeData.Values
-                    .SelectMany(dict => dict.Keys)
-                    .Distinct()
-                    .OrderBy(x => x)
-                    .ToList();
-
-                var responseData = new List<Dictionary<string, object>>();
-
-                // Construir las filas (por línea)
-                foreach (var lineId in allLineIds)
-                {
-                    var row = new Dictionary<string, object>();
-
-                    string lineName = linesDict.ContainsKey(lineId)
-                        ? linesDict[lineId]
-                        : $"Line#{lineId}";
-                    row["Line"] = lineName;
-                    row["LineId"] = lineId;
-
-                    row["PartNumbers"] = partNumbersByLine.ContainsKey(lineId) ? partNumbersByLine[lineId] : "";
-
-                    foreach (var fyId in allFYIds)
-                    {
-                        string fyName = fyDict.ContainsKey(fyId)
-                            ? fyDict[fyId]
-                            : $"FY#{fyId}";
-                        double val = 0.0;
-                        if (summarizeData[lineId].ContainsKey(fyId))
-                        {
-                            val = summarizeData[lineId][fyId];
-                        }
-                        row[fyName] = Math.Round(val, 4);
-                    }
-                    responseData.Add(row);
-                }
-
-                // 5. Determinar el rango efectivo de producción
-                // Primero, tomar Real_SOP y Real_EOP; si no existen, usar SOP_SP/EOP_SP
+                // 3. [MOVIDO] Determinar el rango efectivo de producción ANTES de construir la tabla
                 DateTime effectiveSOP, effectiveEOP;
                 if (selectedMaterial != null && selectedMaterial.Real_SOP.HasValue && selectedMaterial.Real_EOP.HasValue)
                 {
@@ -4827,66 +4764,125 @@ namespace Portal_2_0.Controllers
                 }
                 else
                 {
-                    // Si ninguno existe, no se puede calcular el rango.
                     effectiveSOP = DateTime.MinValue;
                     effectiveEOP = DateTime.MaxValue;
                 }
 
-                // 6. Con el rango efectivo, determinar los FY que entran en el rango.
-                // Considerando que un FY va de octubre a septiembre, se consultan los FY de la BD que se traslapan.
+                // 4. [MOVIDO] Obtener los Nombres de FY que entran en el rango (para el resaltado y cálculo de estatus)
                 var fiscalYearsInRange = db.CTZ_Fiscal_Years
                     .Where(fy => !(fy.End_Date < effectiveSOP || fy.Start_Date > effectiveEOP))
                     .Select(fy => fy.Fiscal_Year_Name)
                     .ToList();
 
-                // 7. Determinar el status del material en base a los valores dentro del rango
-                // Se recorre cada FY dentro del rango (por ejemplo, del FY de la línea asignada, o se decide usar el primer registro de summarizeData)
-                // Aquí se asume que se evalúa el status para la línea real asignada al material.
-                // <<<<< INICIO DE MODIFICACIÓN 2: CÁLCULO DE WORST PCT Y COMMENT >>>>>
-                double worstPct = 0;
-                string worstFY = "";
+                // 5. Agrupamos Part Numbers
+                var partNumbersByLine = project.CTZ_Project_Materials
+                    .Where(m => (m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line) != null)
+                    .GroupBy(m => m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line)
+                    .ToDictionary(
+                        g => g.Key.Value,
+                        g => string.Join(", ", g.Select(m => m.Part_Number).Where(pn => !string.IsNullOrEmpty(pn)))
+                    );
 
-                // Por ejemplo, si el material tiene asignada una línea real, la usamos; si no, se recorre el primer grupo.
+                // 6. Obtiene la capacidad simulada
+                var summarizeData = project.GetCapacityScenarios(project.CTZ_Project_Materials);
+
+                // 7. Preparar diccionarios auxiliares
+                var linesDict = db.CTZ_Production_Lines.ToDictionary(x => x.ID_Line, x => x.Description);
+                var fyDict = db.CTZ_Fiscal_Years.ToDictionary(x => x.ID_Fiscal_Year, x => x.Fiscal_Year_Name);
+
+                var allLineIds = summarizeData.Keys.OrderBy(x => x).ToList();
+                var allFYIds = summarizeData.Values
+                    .SelectMany(dict => dict.Keys)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
+
+                var responseData = new List<Dictionary<string, object>>();
+
+                // Variables para el estatus general del material editado (para los inputs fuera de la tabla)
+                double globalWorstPct = 0;
+                string globalWorstFY = "";
                 int lineForStatus = blkID.HasValue ? blkID.Value : 0;
-                if (summarizeData.ContainsKey(lineForStatus))
+
+                // 8. Construir las filas de la tabla con la NUEVA COLUMNA DE ESTATUS
+                foreach (var lineId in allLineIds)
                 {
-                    foreach (var kvp in summarizeData[lineForStatus])
+                    var row = new Dictionary<string, object>();
+
+                    string lineName = linesDict.ContainsKey(lineId) ? linesDict[lineId] : $"Line#{lineId}";
+                    row["Line"] = lineName;
+                    row["LineId"] = lineId;
+                    row["PartNumbers"] = partNumbersByLine.ContainsKey(lineId) ? partNumbersByLine[lineId] : "";
+
+                    // Variables para calcular el estatus de ESTA LÍNEA en particular
+                    double currentLineWorstPct = 0;
+
+                    foreach (var fyId in allFYIds)
                     {
-                        // Obtener el nombre fiscal para comparar si está en el rango efectivo.
-                        string fyName = fyDict.ContainsKey(kvp.Key) ? fyDict[kvp.Key] : "";
+                        string fyName = fyDict.ContainsKey(fyId) ? fyDict[fyId] : $"FY#{fyId}";
+                        double val = 0.0;
+
+                        if (summarizeData[lineId].ContainsKey(fyId))
+                        {
+                            val = summarizeData[lineId][fyId];
+                        }
+
+                        // Agregamos el valor a la columna del año fiscal
+                        row[fyName] = Math.Round(val, 4);
+
+                        // --- CÁLCULO DE ESTATUS ---
+                        // Solo consideramos este valor si el año fiscal está dentro del rango del proyecto
                         if (fiscalYearsInRange.Contains(fyName))
                         {
-                            double cap = kvp.Value * 100.0; // valor en porcentaje (ej. 95.0)
-                            if (cap > worstPct)
+                            double capPercent = val * 100.0;
+                            if (capPercent > currentLineWorstPct)
                             {
-                                worstPct = cap;
-                                worstFY = fyName;
+                                currentLineWorstPct = capPercent;
+                            }
+
+                            // Lógica para el estatus global (inputs individuales fuera de la tabla)
+                            if (lineId == lineForStatus)
+                            {
+                                if (capPercent > globalWorstPct)
+                                {
+                                    globalWorstPct = capPercent;
+                                    globalWorstFY = fyName;
+                                }
                             }
                         }
                     }
+
+                    // --- NUEVA LÓGICA: Definir el texto de la columna Status para esta fila ---
+                    string rowStatus;
+                    if (currentLineWorstPct >= 98.0)
+                        rowStatus = "REJECTED";
+                    else if (currentLineWorstPct >= 95.0)
+                        rowStatus = "ON REVIEWED"; // Nota: en tu código usas "ON REVIEWED", en inglés estándar sería "UNDER REVIEW"
+                    else
+                        rowStatus = "APPROVED";
+
+                    row["Status"] = rowStatus; // <--- AQUÍ SE AGREGA LA NUEVA COLUMNA
+
+                    responseData.Add(row);
                 }
 
+                // 9. Calcular el estatus global (para los campos de texto DM_Status)
                 string status_dm;
-                if (worstPct >= 98.0)
+                if (globalWorstPct >= 98.0)
                     status_dm = "REJECTED";
-                else if (worstPct >= 95.0)
+                else if (globalWorstPct >= 95.0)
                     status_dm = "ON REVIEWED";
                 else
                     status_dm = "APPROVED";
 
-                // Construimos el comentario
-                string status_dm_comment = $"{status_dm}: max value was {worstPct:F2}% in {worstFY}";
-                // <<<<< FIN DE MODIFICACIÓN 2 >>>>>
+                string status_dm_comment = $"{status_dm}: max value was {globalWorstPct:F2}% in {globalWorstFY}";
 
-                // 8. Devolver en el JSON además del array de datos, la metadata:
-                //    - status_dm: para actualizar el input status_dm
-                //    - highlightedFY: un array de encabezados (FY) que están en el rango de producción (para marcar de un color distinto)
                 return Json(new
                 {
                     success = true,
                     data = responseData,
                     status_dm = status_dm,
-                    status_dm_comment = status_dm_comment, 
+                    status_dm_comment = status_dm_comment,
                     highlightedFY = fiscalYearsInRange
                 }, JsonRequestBehavior.AllowGet);
             }
