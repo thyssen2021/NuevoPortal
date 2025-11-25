@@ -1451,6 +1451,9 @@
     <Compile Include="Models\SCDM_cat_usuarios_revision_departamento.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SCDM_control_consecutivos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\SCDM_rel_secciones_por_tipo_solicitud.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>

@@ -57,6 +57,12 @@ namespace Portal_2_0.Models
         public string cambios { get; set; }
         public string ejecucion_correcta_budget { get; set; }
         public string resultado_budget { get; set; }
+        public string ZZSTAMD { get; set; }
+        public string ZZIDPNUM { get; set; }
+        public string ZZIDTOOL { get; set; }
+        public string ZZIDOBSOL { get; set; }
+        public string ZZCLASMOV { get; set; }
+        public string ZZTOURD { get; set; }
     
         public virtual plantas plantas { get; set; }
         public virtual SCDM_cat_tipo_materiales_solicitud SCDM_cat_tipo_materiales_solicitud { get; set; }

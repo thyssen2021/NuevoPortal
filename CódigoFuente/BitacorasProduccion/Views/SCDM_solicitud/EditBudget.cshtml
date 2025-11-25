@@ -392,7 +392,7 @@
             , 'Pais S&P', 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
             , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Máximo', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
             , 'Peso Minimo', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
-            ,'Valido'];
+            , 'Valido', 'Status DM', 'ID Part Number', 'ID Tool', 'ID Material Obsoleto', 'ID Clasificacion/Motivo', 'Tour Description'];
 
         var toastMixin = Swal.mixin({
             toast: true,
@@ -428,6 +428,7 @@
          const IHSMEXArray    = @Html.Raw(Json.Encode(ViewBag.IHSMEXArray));
          const IHSUSAArray    = @Html.Raw(Json.Encode(ViewBag.IHSUSAArray));
 
+         const codigoPlanta = "@ViewBag.CodigoPlanta";
 
         $(document).ready(function () {
             /*
@@ -464,7 +465,7 @@
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: 'Material Existente', colspan: 3 }, { label: 'Nuevos Datos de Budget', colspan: 25 }],
+                    ['', { label: 'Material Existente', colspan: 3 }, { label: 'Nuevos Datos de Budget', colspan: 25 }, { label: 'Datos Adicionales SAP', colspan: 6 }],
                     headers
                 ],
                 //colHeaders: headers,
@@ -531,6 +532,12 @@
                             case GetColFromName("Peso Minimo"):
                             case GetColFromName("Peso Mínimo Tolerancia Positiva"):
                             case GetColFromName("Peso Mínimo Tolerancia Negativa"):
+                            case GetColFromName("Status DM"):
+                            case GetColFromName("ID Part Number"):
+                            case GetColFromName("ID Tool"):
+                            case GetColFromName("ID Material Obsoleto"):
+                            case GetColFromName("ID Clasificacion/Motivo"):
+                            case GetColFromName("Tour Description"):
                                 applyClass(TH, 'HTOrange');
                                 break;
                         }
@@ -708,7 +715,7 @@
                                process(list);
                            },
                            validator: function (value, cb) {
-                             
+
                                // 2) Debe estar en la lista del país
                                const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
                                const list = country === 'MEX'
@@ -966,7 +973,12 @@
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Mínimo Tolerancia Negativa
 
                     { readOnly: true }, //valido
-
+                    { readOnly: true }, // ZZSTAMD
+                    { readOnly: true }, // ZZIDPNUM
+                    { readOnly: true }, // ZZIDTOOL
+                    { readOnly: true }, // ZZIDOBSOL
+                    { readOnly: true }, // ZZCLASMOV
+                    { readOnly: true },  // ZZTOURD
 
                 ],
                 colWidths: [0, //ID
@@ -1009,11 +1021,18 @@
                     90, //Peso Minimo
                     210, //Peso Mínimo Tolerancia Negativa
                     210, //Peso Mínimo Tolerancia Negativa
-                    0
+                    0,
+                    100, 300, 300, 150, 80, 250
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0,  GetColFromName("Valido") ], //contains ID
+                    columns: [0, GetColFromName("Valido"), , GetColFromName("ID Material Obsoleto")
+                        , GetColFromName("ID Clasificacion/Motivo")
+                        , GetColFromName("Tour Description")
+                        , GetColFromName("Status DM")
+                        , GetColFromName("ID Part Number")
+                        , GetColFromName("ID Tool")
+                    ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -1102,6 +1121,9 @@
                                      const colIdx = GetColFromName(hdr);
                                      hot.setDataAtCell(row, colIdx, null);
                                  });
+                                 break;
+                             case GetColFromName("Tipo de Venta"): // En esta vista sí existe "Tipo de Venta"
+                                 calculaStatusDM(row);
                                  break;
                         }
 
@@ -1715,7 +1737,9 @@
             const countryCol = GetColFromName("Pais S&P");
             hot.setDataAtCell(col, countryCol, "MEX");
          //   hot.setDataAtCell(col, GetColFromName("Planta"), "@Html.Raw(String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.ConcatPlantaSap).Distinct().ToList()))");
-
+            calculaStatusDM(col);
+            calculaIDPartNumber(col); // "/"
+            calculaIDTool(col);       // "/"
         }
 
         function GetColFromName(name) {
@@ -1763,6 +1787,30 @@
             }
 
         }
+
+        // --- INICIO MODIFICACIÓN ---
+        function calculaStatusDM(row) {
+            const tipoVenta = hot.getDataAtCell(row, GetColFromName("Tipo de Venta"));
+            const colStatus = GetColFromName("Status DM");
+
+            // Lógica: Planta + " S" solo si es Serie
+            if (tipoVenta === "Serie") {
+                hot.setDataAtCell(row, colStatus, codigoPlanta + " S");
+            } else {
+                hot.setDataAtCell(row, colStatus, "");
+            }
+        }
+
+        function calculaIDPartNumber(row) {
+            // Como faltan columnas en esta vista, asignamos "/"
+            hot.setDataAtCell(row, GetColFromName("ID Part Number"), "/");
+        }
+
+        function calculaIDTool(row) {
+            // Como faltan columnas en esta vista, asignamos "/"
+            hot.setDataAtCell(row, GetColFromName("ID Tool"), "/");
+        }
+        // --- FIN MODIFICACIÓN ---
 
         $(window).resize(function () {
             hot.render();

@@ -505,6 +505,7 @@
             , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa',
             /* FIN Budget*/
             'Otro Dato', 'Comentario Adicional', 'Valido',
+            'Status DM', 'ID Part Number', 'ID Tool', 'ID Material Obsoleto', 'ID Clasificacion/Motivo', 'Tour Description',
         ];
         const columnasQueNecesitanValidacion = [
             "Tipo Metal",
@@ -539,6 +540,7 @@
                 { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
                 { label: 'Datos de Budget', colspan: 7, className: 'nested-header-budget' },
                 { label: 'Otros Datos', colspan: 10, className: 'nested-header-budget' },
+                { label: 'Datos de Budget', colspan: 6, className: 'nested-header-budget' }
             ],
             headers // Este es el arreglo de encabezados existente
         ];
@@ -586,7 +588,10 @@
 
         const countryArray      = @Html.Raw(Json.Encode(ViewBag.Countries));
         const IHSMEXArray    = @Html.Raw(Json.Encode(ViewBag.IHSMEXArray));
-        const IHSUSAArray    = @Html.Raw(Json.Encode(ViewBag.IHSUSAArray));
+        const IHSUSAArray = @Html.Raw(Json.Encode(ViewBag.IHSUSAArray));
+        const codigoPlanta = "@ViewBag.CodigoPlanta";
+        const mapaModeloNegocio = @Html.Raw(ViewBag.ModeloNegocioObj);
+
 
 
         $(document).ready(function () {
@@ -934,6 +939,12 @@
                             case GetColFromName("Peso Min (KG)"):
                             case GetColFromName("Peso Mínimo Tolerancia Positiva"):
                             case GetColFromName("Peso Mínimo Tolerancia Negativa"):
+                            case GetColFromName("Status DM"):
+                            case GetColFromName("ID Part Number"):
+                            case GetColFromName("ID Tool"):
+                            case GetColFromName("ID Material Obsoleto"):
+                            case GetColFromName("ID Clasificacion/Motivo"):
+                            case GetColFromName("Tour Description"):
                                 applyClass(TH, 'HTOrange');
                                 break;
                         }
@@ -992,7 +1003,7 @@
                         validator: function (value, callback) {
                             let max = 18;
                             if ((value != null && value.length > max)) {
-                                toastr.warning('El campo Número Antigüo debe ser de ' + max + ' carácteres o menos.');                                                               
+                                toastr.warning('El campo Número Antigüo debe ser de ' + max + ' carácteres o menos.');
                                 callback(false);
                                 // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                             }
@@ -1022,8 +1033,8 @@
                          validator: function (value, callback) {
                              let max = 40;
                              if ((value == null || value == '') || (value != null && value.length > max)) {
-                                 toastr.warning('El campo Descripción (ES) debe ser de ' + max + ' carácteres o menos.');                                                               
-                                                                 
+                                 toastr.warning('El campo Descripción (ES) debe ser de ' + max + ' carácteres o menos.');
+
                                  callback(false);
                                  // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                              } else {
@@ -1036,7 +1047,7 @@
                          validator: function (value, callback) {
                              let max = 40;
                              if ((value == null || value == '') || (value != null && value.length > max)) {
-                                 toastr.warning('El campo Descripción (EN) debe ser de ' + max + ' carácteres o menos.');      
+                                 toastr.warning('El campo Descripción (EN) debe ser de ' + max + ' carácteres o menos.');
 
                                  callback(false);
                              } else {
@@ -1061,7 +1072,7 @@
                         validator: function (value, callback) {
                             let max = 50;
                             if ((value == null || value == '') || (value != null && value.length > max)) {
-                                toastr.warning('El campo Grado/calidad debe ser de ' + max + ' carácteres o menos.');   
+                                toastr.warning('El campo Grado/calidad debe ser de ' + max + ' carácteres o menos.');
 
                                 callback(false);
                                 //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
@@ -1109,7 +1120,7 @@
                         validator: function (value, callback) {
                             let max = 35;
                             if ((value != null && value.length > max)) {
-                                toastr.warning('El campo Peso del Recubrimiento debe ser de ' + max + ' carácteres o menos.');                                                               
+                                toastr.warning('El campo Peso del Recubrimiento debe ser de ' + max + ' carácteres o menos.');
 
                                 callback(false);
                             } else {
@@ -1122,8 +1133,8 @@
                        validator: function (value, callback) {
                            let max = 30;
                            if ((value == null || value == '') || (value != null && value.length > max)) {
-                               toastr.warning('El campo Molino debe ser de ' + max + ' carácteres o menos.');                                                               
-                              
+                               toastr.warning('El campo Molino debe ser de ' + max + ' carácteres o menos.');
+
                                callback(false);
                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                            } else {
@@ -1161,8 +1172,8 @@
                         validator: function (value, callback) {
                             let max = 25;
                             if (value != null && value.length > max) {
-                                toastr.warning('El campo Número de Parte debe ser de ' + max + ' carácteres o menos.');   
-                              
+                                toastr.warning('El campo Número de Parte debe ser de ' + max + ' carácteres o menos.');
+
                                 callback(false);
                             }
                             else {
@@ -1176,13 +1187,13 @@
                              let clienteNumero = hot.getDataAtCell(this.row, GetColFromName("Núm. cliente"));
 
                              if ((clienteNumero != null && clienteNumero.toUpperCase().includes("HONDA") && (value == null || value == ''))) {
-                                 toastr.warning('El campo MSA es Obligatorio para cliente Honda.');   
+                                 toastr.warning('El campo MSA es Obligatorio para cliente Honda.');
                                  callback(false);
                              } else {
 
                                  if (value != null && value.length > max) {
-                                     toastr.warning('El campo MSA debe ser de ' + max + ' carácteres o menos.');   
-                                                                        
+                                     toastr.warning('El campo MSA debe ser de ' + max + ' carácteres o menos.');
+
                                      callback(false);
                                      // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                                  }
@@ -1247,7 +1258,7 @@
                                      //    callback(false)
                                      //}
                                  } else {
-                                     toastr.warning('El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot, Factory Assist y Pre-serie.');   
+                                     toastr.warning('El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot, Factory Assist y Pre-serie.');
                                      callback(false)
                                  }
                              } else {
@@ -1289,12 +1300,12 @@
 
                              if ((tipoMaterial && (tipoMaterial.toUpperCase().includes("ROLLO") || tipoMaterial.toUpperCase().includes("CINTA"))) && (!value || value.trim() === "")) {
                                  // Si el tipo de material incluye "ROLLO" o "CINTA" y el valor es nulo o vacío, muestra advertencia
-                                 toastr.warning('El valor de "Posición del Rollo para embarque" es obligatorio cuando el tipo de material es "ROLLO" o "CINTA".');   
-                                                                 
+                                 toastr.warning('El valor de "Posición del Rollo para embarque" es obligatorio cuando el tipo de material es "ROLLO" o "CINTA".');
+
                                  callback(false);
                              } else if (value && value.length > max) {
-                                 toastr.warning('El campo Posición de Rollo debe ser de ' + max + ' carácteres o menos.');   
-                                                                 
+                                 toastr.warning('El campo Posición de Rollo debe ser de ' + max + ' carácteres o menos.');
+
                                  callback(false);
                              } else {
                                  callback(true);
@@ -1462,13 +1473,13 @@
                         }
                         // obligatorio cuando plantaSolicitud == 1
                         if (value == null || value === '') {
-                            toastr.warning('El campo Almacén Norte es obligatorio para esta planta.');   
-                           
+                            toastr.warning('El campo Almacén Norte es obligatorio para esta planta.');
+
                             return callback(false);
                         }
                         // si no está vacío, debe venir del array
                         if (!si_noArray.includes(value)) {
-                            toastr.warning('¿Almacen Norte?: Selecciona "SÍ" o "NO".');                             
+                            toastr.warning('¿Almacen Norte?: Selecciona "SÍ" o "NO".');
                             return callback(false);
                         }
                         callback(true);
@@ -1481,13 +1492,13 @@
                     validator: function (value, callback) {
                         // siempre obligatorio
                         if (value == null || value === '') {
-                            toastr.warning('Tipo de Transporte es obligatorio.');   
-                          
+                            toastr.warning('Tipo de Transporte es obligatorio.');
+
                             return callback(false);
                         }
                         if (!tipoTransporteArray.includes(value)) {
-                            toastr.warning('Selecciona un valor válido de la lista.');  
-                            
+                            toastr.warning('Selecciona un valor válido de la lista.');
+
                             return callback(false);
                         }
                         callback(true);
@@ -1506,8 +1517,8 @@
                            // solo enteros >= 0
                            const s = value.toString();
                            if (!/^[0-9]+$/.test(s)) {
-                               toastr.warning('Stacks por paquete debe ser un número entero mayor o igual a cero.');  
-                              
+                               toastr.warning('Stacks por paquete debe ser un número entero mayor o igual a cero.');
+
                                return callback(false);
                            }
                            callback(true);
@@ -1525,7 +1536,7 @@
                            }
                            // longitud máxima 20
                            if (value.length > 20) {
-                               toastr.warning('El campo Tipo de Pallet debe tener como máximo 20 caracteres.');                                
+                               toastr.warning('El campo Tipo de Pallet debe tener como máximo 20 caracteres.');
                                return callback(false);
                            }
                            // si quisieras restringir sólo a los del array, descomenta esto:
@@ -1556,7 +1567,7 @@
                            }
                            if (hasS && hasE) {
                                if (!moment(sop).isBefore(moment(eop))) {
-                                   toastr.warning('SOP debe ser anterior a EOP');   
+                                   toastr.warning('SOP debe ser anterior a EOP');
                                    return callback(false);
                                }
                            }
@@ -1581,12 +1592,12 @@
                            if (!hasS && !hasE) return callback(true);
 
                            if (!moment(eop, 'YYYY-MM', true).isValid()) {
-                               toastr.warning('Formato EOP inválido. Use AAAA-MM'); 
+                               toastr.warning('Formato EOP inválido. Use AAAA-MM');
                                return callback(false);
                            }
                            if (hasS && hasE) {
                                if (!moment(sop).isBefore(moment(eop))) {
-                                   toastr.warning('EOP debe ser posterior a SOP');   
+                                   toastr.warning('EOP debe ser posterior a SOP');
                                    return callback(false);
                                }
                            }
@@ -1608,7 +1619,7 @@
                          validator: function (value, callback) {
                              let max = 300;
                              if (value != null && value.length > max) {
-                                 toastr.warning('Este campo debe ser de ' + max + ' carácteres o menos.'); 
+                                 toastr.warning('Este campo debe ser de ' + max + ' carácteres o menos.');
                                  callback(false);
                              }
                              else {
@@ -1620,8 +1631,8 @@
                          validator: function (value, callback) {
                              let max = 120;
                              if (value != null && value.length > max) {
-                                 toastr.warning('El campo Comentario debe ser de ' + max + ' carácteres o menos.'); 
-                                                                 
+                                 toastr.warning('El campo Comentario debe ser de ' + max + ' carácteres o menos.');
+
                                  callback(false);
                              }
                              else {
@@ -1629,7 +1640,13 @@
                              }
                          }
                      },
-                     { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, // ZZSTAMD
+                    { readOnly: true }, // ZZIDPNUM
+                    { readOnly: true }, // ZZIDTOOL
+                    { readOnly: true }, // ZZIDOBSOL
+                    { readOnly: true }, // ZZCLASMOV
+                    { readOnly: true }  // ZZTOURD
                 ],
                 colWidths: [0, //ID
                     0, //cambios
@@ -1704,11 +1721,19 @@
                     200, // peso min tol -
                     400,//Nuevo Dato
                     300,//Comentarios
-                    0,//Comentarios
+                    0,//Valido
+                    100, 300, 300, 150, 80, 250 // Nuevos anchos
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0, GetColFromName("Cambios"), GetColFromName("Valido"), GetColFromName("Unidad Base Medida")], //contains ID
+                    columns: [0, GetColFromName("Cambios"), GetColFromName("Valido"), GetColFromName("Unidad Base Medida"),
+                        , GetColFromName("ID Material Obsoleto")
+                        , GetColFromName("ID Clasificacion/Motivo")
+                        , GetColFromName("Tour Description")
+                        , GetColFromName("Status DM")
+                        , GetColFromName("ID Part Number")
+                        , GetColFromName("ID Tool")
+                    ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -1802,8 +1827,9 @@
                                 break;
 
                             case GetColFromName("Núm. cliente"): //diametro interior
-                                RestableceMSA(row);
-                                //cambioDescripcion(row);
+                                RestableceMSA(row); // Existente
+                                calculaIDPartNumber(row);
+                                calculaIDTool(row);
                                 break;
                             case GetColFromName("S&P 1 (antes IHS)"): //IHS
                             case GetColFromName("S&P 2 (antes IHS)"): //IHS
@@ -1831,6 +1857,22 @@
                                     const colIdx = GetColFromName(hdr);
                                     hot.setDataAtCell(row, colIdx, null);
                                 });
+                                break;
+                            case GetColFromName("Selling Type (Budget)"): // Nota el nombre en esta vista
+                                calculaStatusDM(row);
+                                break;
+                            case GetColFromName("Modelo de negocio"):
+                                calculaIDPartNumber(row);
+                                break;
+                            case GetColFromName("Program"):
+                                calculaIDPartNumber(row);
+                                calculaIDTool(row);
+                                break;
+
+                            case GetColFromName("Forma"):
+                            case GetColFromName("Pzas por Golpe"):
+                            case GetColFromName("Tipo de Material"): // Importante: Si cambia el tipo, se recalcula ID Tool
+                                calculaIDTool(row);
                                 break;
                         }
 
@@ -1899,7 +1941,7 @@
                         let nuevoMaterial = hot.getDataAtCell(changes[0][0], GetColFromName("Nuevo Material"));
                         if (!nuevoMaterial.includes("CreacionReferencia")) { //si ya está creado el materla
                             if (changes[0][2] != changes[0][3]) {
-                                toastr.warning('No se puede cambiar la referencia de un material ya creado.');                                                        
+                                toastr.warning('No se puede cambiar la referencia de un material ya creado.');
                                 changes[0][3] = changes[0][2]
                             }
                         } else {
@@ -2320,7 +2362,7 @@
                                     if ((query === null || query==='') && (!isNaN(espesor_negativa) || !isNaN(espesor_positiva))) {
                                         //console.log('Query: ' + query)
                                         callback(false);
-                                        toastr.warning('El campo Espesor (mm) es obligatorio para espesores'); 
+                                        toastr.warning('El campo Espesor (mm) es obligatorio para espesores');
 
                                         return;
                                     }
@@ -2329,7 +2371,7 @@
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_positiva))) {
                                         //console.log('Query: ' + query)
                                         callback(false);
-                                        toastr.warning('El campo Tolerancia espesor negativa (mm) es obligatorio para espesores'); 
+                                        toastr.warning('El campo Tolerancia espesor negativa (mm) es obligatorio para espesores');
 
                                         return;
                                     }
@@ -2338,7 +2380,7 @@
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_negativa))) {
                                         //console.log('Query: ' + query)
                                         callback(false);
-                                        toastr.warning('El campo Tolerancia espesor positiva (mm) es obligatorio para espesores'); 
+                                        toastr.warning('El campo Tolerancia espesor positiva (mm) es obligatorio para espesores');
 
                                         return;
                                     }
@@ -2358,23 +2400,23 @@
                                 case GetColFromName("Ancho (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor_negativa) || !isNaN(espesor_positiva))) {
                                         callback(false);
-                                        toastr.warning('Valor obligatorio para ancho'); 
-                                                                              
+                                        toastr.warning('Valor obligatorio para ancho');
+
                                         return;
                                     }
                                     break;
                                 case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_positiva))) {
                                         callback(false);
-                                        toastr.warning('Valor obligatorio para ancho'); 
-                                                                               
+                                        toastr.warning('Valor obligatorio para ancho');
+
                                         return;
                                     }
                                     break;
                                 case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_negativa))) {
                                         callback(false);
-                                        toastr.warning('Valor obligatorio para ancho'); 
+                                        toastr.warning('Valor obligatorio para ancho');
 
                                         return;
                                     }
@@ -2394,22 +2436,22 @@
                                 case GetColFromName("Avance (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor_negativa) || !isNaN(espesor_positiva))) {
                                         callback(false);
-                                        toastr.warning('Valor obligatorio para avance'); 
+                                        toastr.warning('Valor obligatorio para avance');
                                         return;
                                     }
                                     break;
                                 case GetColFromName("Tolerancia avance negativa (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_positiva))) {
                                         callback(false);
-                                        toastr.warning('Valor obligatorio para avance'); 
-                                                                            
+                                        toastr.warning('Valor obligatorio para avance');
+
                                         return;
                                     }
                                     break;
                                 case GetColFromName("Tolerancia avance positiva (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_negativa))) {
                                         callback(false);
-                                        toastr.warning('Valor obligatorio para avance'); 
+                                        toastr.warning('Valor obligatorio para avance');
 
                                         return;
                                     }
@@ -2427,7 +2469,7 @@
                                 case GetColFromName("Peso Bruto (KG)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(peso_neto))) {
                                         callback(false);
-                                        toastr.warning('Peso Bruto y Peso Neto son obligatorio cuando se indican pesos.'); 
+                                        toastr.warning('Peso Bruto y Peso Neto son obligatorio cuando se indican pesos.');
 
                                         return;
                                     }
@@ -2435,8 +2477,8 @@
                                 case GetColFromName("Peso Neto (KG)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(peso_bruto))) {
                                         callback(false);
-                                        toastr.warning('Peso Bruto y Peso Neto son obligatorio cuando se indican pesos.'); 
-                                       
+                                        toastr.warning('Peso Bruto y Peso Neto son obligatorio cuando se indican pesos.');
+
                                         return;
                                     }
                                     break;
@@ -2452,10 +2494,10 @@
                         if (!isNaN(query) && num > 0 && positivo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
                             //valida limite positivos
                             if (this.col == GetColFromName("Espesor (mm)") && (num < .30 || num > 6)) {
-                                toastr.warning('El espesor debe estar entre 0.30 mm y 6.00 mm');                                
+                                toastr.warning('El espesor debe estar entre 0.30 mm y 6.00 mm');
                                 callback(false)
                             } else if (this.col == GetColFromName("Ancho (mm)") && num > 2150) {
-                                toastr.warning('El ancho no puede ser mayor a 2150 mm'); 
+                                toastr.warning('El ancho no puede ser mayor a 2150 mm');
 
                                 callback(false)
                             }
@@ -2473,11 +2515,11 @@
                         else {
                             //console.log('num: ' + num + ' cero: ' + cero+ ' ')
                             if (num == 0 && cero)
-                                toastr.warning('Ingrese un número válido.'); 
+                                toastr.warning('Ingrese un número válido.');
                             if (positivo && !negativo)
-                                toastr.warning('Sólo se permiten números positivos.');                                
+                                toastr.warning('Sólo se permiten números positivos.');
                             if (!positivo && negativo)
-                                toastr.warning('Sólo se permiten números negativos.');       
+                                toastr.warning('Sólo se permiten números negativos.');
 
                             callback(false);
                         }
@@ -2493,7 +2535,7 @@
                                 peso_neto = 0;
 
                             if (peso_neto > peso_bruto && (!isNaN(parseFloat(hot.getDataAtCell(this.row, GetColFromName("Peso Bruto (KG)")))))) {
-                                toastr.warning('El peso neto debe ser menor o igual al peso bruto.'); 
+                                toastr.warning('El peso neto debe ser menor o igual al peso bruto.');
                                 callback(false);
                             }
                         }
@@ -2502,7 +2544,7 @@
                         if (this.col == GetColFromName("Tolerancia espesor negativa (mm)") || this.col == GetColFromName("Tolerancia espesor positiva (mm)")) {
                             let espesor = parseFloat(hot.getDataAtCell(this.row, GetColFromName("Espesor (mm)")));
                             if (!Number.isNaN(espesor) && espesor != null && espesor != '' && Math.abs(num) >= espesor) {
-                                toastr.warning('La tolerancia debe ser menor al espesor.');  
+                                toastr.warning('La tolerancia debe ser menor al espesor.');
                                 callback(false)
                             }
                         }
@@ -2637,7 +2679,7 @@
 
 
                            if (data[0].planta == plantaSapSolicitud) {
-                               toastr.success('Se cargaron los datos correctamente'); 
+                               toastr.success('Se cargaron los datos correctamente');
 
                                hot.setDataAtCell(row, GetColFromName("Valido"), "true");
 
@@ -2663,7 +2705,7 @@
                            }
 
                        } else {
-                           toastr.warning('No se encontró el material de referencia.');  
+                           toastr.warning('No se encontró el material de referencia.');
                            hot.setDataAtCell(row, GetColFromName("Valido"), "falso");
                        }
                    }
@@ -2813,8 +2855,8 @@
                         hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), `${espesor}X${ancho} COI (${grado})`);
                     }
                     //muestra el toast
-                    toastr.info('Se calculó la descripción automáticamente. Favor de verificar.');                                
-                                        
+                    toastr.info('Se calculó la descripción automáticamente. Favor de verificar.');
+
                     break;
                 case "CINTA":
                     // DEscripción para Honda
@@ -2841,7 +2883,7 @@
                         hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), `${espesor}X${ancho} SLT (${grado})`);
                     }
                     //muestra el toast
-                    toastr.info('Se calculó la descripción automáticamente. Favor de verificar.');                                
+                    toastr.info('Se calculó la descripción automáticamente. Favor de verificar.');
 
                     break;
                 case "PLATINA":
@@ -2893,7 +2935,7 @@
                     }
 
                     //muestra el toast
-                    toastr.info('Se calculó la descripción automáticamente. Favor de verificar.');                                
+                    toastr.info('Se calculó la descripción automáticamente. Favor de verificar.');
 
                     break;
                 case "C&B":
@@ -3013,12 +3055,12 @@
             let seleccion = hot.getSelectedLast();
 
             if (typeof seleccion === 'undefined') {
-                toastr.warning('No se detectó ninguna fila seleccionada.'); 
+                toastr.warning('No se detectó ninguna fila seleccionada.');
             } else {
                 let filaSeleccionada = seleccion[0];
 
                 if (seleccion[0] == -1)
-                    toastr.warning('Seleccione sólo una celda.'); 
+                    toastr.warning('Seleccione sólo una celda.');
                 else {
 
                     Swal.fire({
@@ -3033,12 +3075,12 @@
                             let valorActual = hot.getDataAtCell(filaSeleccionada, GetColFromName("Nuevo Material"));
 
                             if (valorActual != null && !valorActual.includes("CreacionReferencia")) {
-                                toastr.warning('No se puede eliminar un material que ya ha sido creado: ' + valorActual); 
+                                toastr.warning('No se puede eliminar un material que ya ha sido creado: ' + valorActual);
                                 return false;
                             } else {
                                 hot.alter('remove_row', filaSeleccionada);
                                 hot.deselectCell()
-                                toastr.success('Fila borrada.'); 
+                                toastr.success('Fila borrada.');
                             }
                         }
 
@@ -3046,6 +3088,91 @@
                 }
             }
 
+        }
+
+        // --- INICIO MODIFICACIÓN ---
+        function calculaStatusDM(row) {
+            // Nota: En esta vista la columna se llama "Selling Type (Budget)"
+            const tipoVenta = hot.getDataAtCell(row, GetColFromName("Selling Type (Budget)"));
+            const colStatus = GetColFromName("Status DM");
+
+            if (tipoVenta === "Serie") {
+                hot.setDataAtCell(row, colStatus, codigoPlanta + " S");
+            } else {
+                hot.setDataAtCell(row, colStatus, "");
+            }
+        }
+
+        function calculaIDPartNumber(row) {
+            const modeloDesc = hot.getDataAtCell(row, GetColFromName("Modelo de negocio"));
+            const cliente = hot.getDataAtCell(row, GetColFromName("Núm. cliente"));
+            const program = hot.getDataAtCell(row, GetColFromName("Program"));
+
+            let idRuta = "0";
+            if (modeloDesc && mapaModeloNegocio) {
+                const modeloObj = mapaModeloNegocio.find(m => m.descripcion === modeloDesc);
+                if (modeloObj) {
+                    idRuta = modeloObj.id;
+                }
+            }
+
+            if (!modeloDesc || !cliente) return;
+
+            let clienteCodigo = cliente;
+            if (cliente && cliente.indexOf('(') > -1) {
+                const match = cliente.match(/\(([^)]+)\)/);
+                if (match) clienteCodigo = match[1];
+            }
+
+            const progStr = program ? program : "";
+            const idPartNumber = `${codigoPlanta}_${idRuta}_${clienteCodigo}_01_${progStr}_#TBD`;
+
+            hot.setDataAtCell(row, GetColFromName("ID Part Number"), idPartNumber);
+        }
+
+        function calculaIDTool(row) {
+            // 1. Verificar Tipo de Material
+            const tipoMaterial = hot.getDataAtCell(row, GetColFromName("Tipo de Material"));
+
+            // Lista de tipos que requieren ID Tool
+            const tiposValidos = ["PLATINA", "SHEARING", "PLATINA SOLDADA"];
+
+            // Si el tipo NO es uno de los válidos (o es nulo), limpiamos y salimos
+            if (!tipoMaterial || !tiposValidos.includes(tipoMaterial.toUpperCase())) {
+                hot.setDataAtCell(row, GetColFromName("ID Tool"), "");
+                return;
+            }
+
+            // 2. Obtener datos
+            const forma = hot.getDataAtCell(row, GetColFromName("Forma"));
+            const cliente = hot.getDataAtCell(row, GetColFromName("Núm. cliente"));
+            const program = hot.getDataAtCell(row, GetColFromName("Program"));
+            const pzasGolpe = hot.getDataAtCell(row, GetColFromName("Pzas por Golpe"));
+
+            // 3. Mapear Forma
+            let formaCode = "X";
+            if (forma) {
+                const fUpper = forma.toUpperCase();
+                if (fUpper === "RECTANGULAR") formaCode = "R";
+                else if (fUpper === "TRAPEZOIDE" || fUpper === "TRAPECIO") formaCode = "T";
+                else if (fUpper === "CONFIGURADO") formaCode = "C";
+                else if (fUpper === "RECTO") formaCode = "S";
+            }
+
+            // 4. Limpiar Cliente
+            let clienteCodigo = cliente;
+            if (cliente && cliente.indexOf('(') > -1) {
+                const match = cliente.match(/\(([^)]+)\)/);
+                if (match) clienteCodigo = match[1];
+            }
+
+            if (!cliente) return; // Mínimo requerido
+
+            const progStr = program ? program : "";
+            const pzasStr = pzasGolpe ? pzasGolpe : "";
+
+            const idTool = `${codigoPlanta}_${formaCode}_${clienteCodigo}_01_${progStr}_${pzasStr}_#TBD`;
+            hot.setDataAtCell(row, GetColFromName("ID Tool"), idTool);
         }
 
         $(window).resize(function () {

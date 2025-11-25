@@ -1664,8 +1664,28 @@ namespace Portal_2_0.Controllers
                         }
 
                         int metricaId = metricasDict[currentMetricName];
-                        string monthName = monthRow[col]?.ToString();
-                        int mes = ParseMes(monthName);
+                        object valorCelda = monthRow[col];
+                        string monthName = valorCelda?.ToString() ?? ""; // Aseguramos que exista aquí afuera
+                        int mes = 0;
+
+                        if (valorCelda is DateTime fechaDetectada)
+                        {
+                            // CASO 1: ExcelDataReader detectó que es una fecha real
+                            mes = fechaDetectada.Month;
+                        }
+                        else
+                        {
+                            // Caso B: Es texto, intentamos parsearlo como fecha (ej: "2025-01-01")
+                            if (DateTime.TryParse(monthName, out DateTime fechaParseada))
+                            {
+                                mes = fechaParseada.Month;
+                            }
+                            else
+                            {
+                                // Caso C: Usamos tu lógica original de abreviaturas (ENE, JAN...)
+                                mes = ParseMes(monthName);
+                            }
+                        }
 
                         if (mes > 0)
                         {

@@ -215,7 +215,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
         public virtual DbSet<SCDM_solicitud_item_material_datos_sap> SCDM_solicitud_item_material_datos_sap { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_activaciones> SCDM_solicitud_rel_activaciones { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_extension_usuario> SCDM_solicitud_rel_extension_usuario { get; set; }
@@ -269,8 +268,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_valores_forecast> view_valores_forecast { get; set; }
         public virtual DbSet<budget_rel_tipo_cambio_fy_forecast> budget_rel_tipo_cambio_fy_forecast { get; set; }
         public virtual DbSet<SCDM_cat_tipo_transporte> SCDM_cat_tipo_transporte { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
         public virtual DbSet<SCDM_cat_lovs_valuation_class> SCDM_cat_lovs_valuation_class { get; set; }
         public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
         public virtual DbSet<BG_forecast_cat_clientes> BG_forecast_cat_clientes { get; set; }
@@ -301,10 +298,14 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_CargaExcel_Metricas> BG_CargaExcel_Metricas { get; set; }
         public virtual DbSet<BG_CargaExcel_ResumenPeriodo> BG_CargaExcel_ResumenPeriodo { get; set; }
         public virtual DbSet<BG_CargaExcel_Cargas> BG_CargaExcel_Cargas { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<Vw_Materiales_Vencimiento> Vw_Materiales_Vencimiento { get; set; }
         public virtual DbSet<BG_Forecast_cat_fiscal_years> BG_Forecast_cat_fiscal_years { get; set; }
         public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
         public virtual DbSet<BG_IHS_division_blackout> BG_IHS_division_blackout { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
+        public virtual DbSet<SCDM_control_consecutivos> SCDM_control_consecutivos { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
     }
 }

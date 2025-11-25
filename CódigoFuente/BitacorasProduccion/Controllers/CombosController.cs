@@ -1195,7 +1195,8 @@ namespace Portal_2_0.Controllers
         ///<return>
         ///retorna un JsonResult con las opciones disponibles
         [AllowAnonymous]
-        public JsonResult SCDM_updateMaterialesXSolicitud(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap, string nuevo_numero_material)
+        // 1. AGREGAMOS EL PARÁMETRO 'consecutivo' AL FINAL
+        public JsonResult SCDM_updateMaterialesXSolicitud(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap, string nuevo_numero_material, string consecutivo, string consecutivoTool)
         {
             //inicializa la lista de objetos
             var result = new object[1];
@@ -1234,6 +1235,18 @@ namespace Portal_2_0.Controllers
                 rel_item_material.SCDM_solicitud_item_material_datos_sap.materiales_x_solicitud_ejecucion_correcta = ejecucion_correcta;
                 rel_item_material.SCDM_solicitud_item_material_datos_sap.materiales_x_solicitud_nuevo_numero_material = nuevo_numero_material;
             }
+
+            // --- NUEVO: ACTUALIZA EL CONSECUTIVO SI SE RECIBE ---
+            if (!string.IsNullOrEmpty(consecutivo) && int.TryParse(consecutivo, out int valConsecutivo))
+            {
+                rel_item_material.ZZID_Consecutivo = valConsecutivo;
+            }
+
+            if (!string.IsNullOrEmpty(consecutivoTool) && int.TryParse(consecutivoTool, out int valTool))
+            {
+                rel_item_material.ZZIDTOOL_Consecutivo = valTool;
+            }
+            // ----------------------------------------------------
 
             //Actualiza Formato de  Ordenes de Compra
             foreach (var item in solicitud.SCDM_solicitud_rel_orden_compra.Where(x => x.num_material == material))

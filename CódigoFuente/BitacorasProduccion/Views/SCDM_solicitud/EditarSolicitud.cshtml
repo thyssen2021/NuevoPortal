@@ -1855,7 +1855,8 @@
                 'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria', 'Pais S&P',
                 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
-                , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
+                , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa', 
+                'Status DM', 'ID Part Number', 'ID Tool', 'ID Material Obsoleto', 'ID Clasificacion/Motivo', 'Tour Description','Consecutivo'
             ];
 
             var porcentajeCol = GetColFromName("Scrap permitido (%)", colHeader);
@@ -1955,6 +1956,12 @@
                         case GetColFromName("tkMM SOP", colHeader):
                         case GetColFromName("tkMM EOP", colHeader):
                         case GetColFromName("Pais S&P", colHeader):
+                        case GetColFromName("Status DM", colHeader):
+                        case GetColFromName("ID Part Number", colHeader):
+                        case GetColFromName("ID Tool", colHeader):
+                        case GetColFromName("ID Material Obsoleto", colHeader):
+                        case GetColFromName("ID Clasificacion/Motivo", colHeader):
+                        case GetColFromName("Tour Description", colHeader):
                             applyClass(TH, 'HTOrange');
                             break;
                         case 0: //columna fijada
@@ -1982,6 +1989,7 @@
                         , GetColFromName("Stacks por Paquete", colHeader)
                         , GetColFromName("Tipo de Pallet", colHeader)
                         , GetColFromName("Pais S&P", colHeader)
+                        , GetColFromName("Consecutivo", colHeader)
                     ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
@@ -2068,7 +2076,8 @@
                 'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria', 'Pais S&P',
                 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
-                , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
+                , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa',
+                'Status DM', 'ID Part Number', 'ID Tool', 'ID Material Obsoleto', 'ID Clasificacion/Motivo', 'Tour Description', 'Consecutivo'
 
             ];
 
@@ -2168,6 +2177,12 @@
                         case GetColFromName("tkMM SOP", colHeader):
                         case GetColFromName("tkMM EOP", colHeader):
                         case GetColFromName("Pais S&P", colHeader):
+                        case GetColFromName("Status DM", colHeader):
+                        case GetColFromName("ID Part Number", colHeader):
+                        case GetColFromName("ID Tool", colHeader):
+                        case GetColFromName("ID Material Obsoleto", colHeader):
+                        case GetColFromName("ID Clasificacion/Motivo", colHeader):
+                        case GetColFromName("Tour Description", colHeader):
                             applyClass(TH, 'HTOrange');
                             break;
                         case 0:
@@ -2191,6 +2206,7 @@
                         , GetColFromName("Stacks por Paquete", colHeader)
                         , GetColFromName("Tipo de Pallet", colHeader)
                         , GetColFromName("Pais S&P", colHeader)
+                        , GetColFromName("Consecutivo", colHeader)
                     ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
@@ -2272,7 +2288,8 @@
                 'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliacion Scrap Ingeniería', 'Pais S&P',
                 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
-                , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
+                , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa',
+                'Status DM', 'ID Part Number', 'ID Tool', 'ID Material Obsoleto', 'ID Clasificacion/Motivo', 'Tour Description', 'Consecutivo', 'ConsecutivoTool'
             ];
             let container;
             switch (tipoPlatina) {
@@ -2390,6 +2407,12 @@
                         case GetColFromName("tkMM SOP", colHeader):
                         case GetColFromName("tkMM EOP", colHeader):
                         case GetColFromName("Pais S&P", colHeader):
+                        case GetColFromName("Status DM", colHeader):
+                        case GetColFromName("ID Part Number", colHeader):
+                        case GetColFromName("ID Tool", colHeader):
+                        case GetColFromName("ID Material Obsoleto", colHeader):
+                        case GetColFromName("ID Clasificacion/Motivo", colHeader):
+                        case GetColFromName("Tour Description", colHeader):
                             applyClass(TH, 'HTOrange');
                             break;
                         case 0:
@@ -2405,6 +2428,8 @@
                         , GetColFromName("Peso neto REAL bascula (kg)", colHeader)
                         , GetColFromName("Peso bruto REAL bascula (kg)", colHeader)
                         , GetColFromName("Pais S&P", colHeader)
+                        , GetColFromName("Consecutivo", colHeader)
+                        , GetColFromName("ConsecutivoTool", colHeader)
                     ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',

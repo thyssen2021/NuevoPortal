@@ -17,6 +17,7 @@ using Clases.Util;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNet.SignalR;
+using Newtonsoft.Json;
 using Portal_2_0.Models;
 using Portal_2_0.Models.Auxiliares;
 using SpreadsheetLight;
@@ -2174,8 +2175,22 @@ namespace Portal_2_0.Controllers
             ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
             ViewBag.GradoCalidadArray = db.SCDM_cat_grado_calidad.Where(x => x.activo == true).ToList().Select(x => x.grado_calidad).ToArray();
 
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
+
             // En EditRollo, justo donde construyes el ViewBag para Modelos de negocio:
             List<int> materialesPermitidos = new List<int> { 1 }; // Aquí '1' = Rollo. 
+
+            var modelosNegocioObj = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo
+                            && db.SCDM_cat_lovs_valuation_class
+                                    .Any(c => c.id_SCDM_cat_modelo_negocio == m.id
+                                        && materialesPermitidos.Contains(c.id_SCDM_cat_tipo_materiales_solicitud.Value)))
+                .Select(m => new { id = m.id, descripcion = m.descripcion.Trim() })
+                .ToList();
+
+            ViewBag.ModeloNegocioObj = JsonConvert.SerializeObject(modelosNegocioObj);
+
             // Filtramos sólo los modelos que tengan al menos un valuation_class para alguno de esos materialesPermitidos.
             ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio
                 .Where(m => m.activo
@@ -2235,8 +2250,24 @@ namespace Portal_2_0.Controllers
             ViewBag.TipoTransporteArray = db.SCDM_cat_tipo_transporte.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoPalletArray = db_sap.Materials.Where(x => x.ZZPALLET != null && x.ZZPALLET.Trim() != "").Select(x => x.ZZPALLET.Trim()).Distinct().OrderBy(s => s).ToArray();
 
+            // 1. Obtener el Código SAP de la planta de la solicitud
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
+
+            // 2. Obtener lista completa de Modelo Negocio (ID y Descripción) para Cintas
+            List<int> materialesPermitidos = new List<int> { 2 }; // 2 = Cinta
+            var modelosNegocioObj = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo
+                            && db.SCDM_cat_lovs_valuation_class
+                                    .Any(c => c.id_SCDM_cat_modelo_negocio == m.id
+                                        && materialesPermitidos.Contains(c.id_SCDM_cat_tipo_materiales_solicitud.Value)))
+                .Select(m => new { id = m.id, descripcion = m.descripcion.Trim() })
+                .ToList();
+
+            ViewBag.ModeloNegocioObj = JsonConvert.SerializeObject(modelosNegocioObj);
+
             // En EditRollo, justo donde construyes el ViewBag para Modelos de negocio:
-            List<int> materialesPermitidos = new List<int> { 2 }; // Aquí '2' = Cintas. 
+
             // Filtramos sólo los modelos que tengan al menos un valuation_class para alguno de esos materialesPermitidos.
             ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio
                 .Where(m => m.activo
@@ -2354,8 +2385,24 @@ namespace Portal_2_0.Controllers
             ViewBag.FormaArray = listFormaBD.Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.GradoCalidadArray = db.SCDM_cat_grado_calidad.Where(x => x.activo == true).ToList().Select(x => x.grado_calidad).ToArray();
 
+            // 1. Obtener el Código SAP de la planta de la solicitud
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
+
+            // 2. Obtener lista completa de Modelo Negocio (ID y Descripción)
+            // Usamos el tipo de platina actual para filtrar los modelos permitidos
+            List<int> materialesPermitidos = new List<int> { tipoPlatina };
+            var modelosNegocioObj = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo
+                            && db.SCDM_cat_lovs_valuation_class
+                                    .Any(c => c.id_SCDM_cat_modelo_negocio == m.id
+                                        && materialesPermitidos.Contains(c.id_SCDM_cat_tipo_materiales_solicitud.Value)))
+                .Select(m => new { id = m.id, descripcion = m.descripcion.Trim() })
+                .ToList();
+
+            ViewBag.ModeloNegocioObj = JsonConvert.SerializeObject(modelosNegocioObj);
+
             // En EditRollo, justo donde construyes el ViewBag para Modelos de negocio:
-            List<int> materialesPermitidos = new List<int> { tipoPlatina }; // tipo de platina. 
             // Filtramos sólo los modelos que tengan al menos un valuation_class para alguno de esos materialesPermitidos.
             ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio
                 .Where(m => m.activo
@@ -2426,7 +2473,17 @@ namespace Portal_2_0.Controllers
             ViewBag.IHSMEXArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "MEX" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.IHSUSAArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "USA" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
 
+            // 1. Código de Planta
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
 
+            // 2. Modelos de Negocio (Todos los activos, ya que esta vista maneja múltiples tipos)
+            var modelosNegocioObj = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo)
+                .Select(m => new { id = m.id, descripcion = m.descripcion.Trim() })
+                .ToList();
+
+            ViewBag.ModeloNegocioObj = JsonConvert.SerializeObject(modelosNegocioObj);
 
             //tipo de metal
             List<string> tipoMetal = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList();
@@ -2482,6 +2539,16 @@ namespace Portal_2_0.Controllers
             tipoMetal = tipoMetal.Distinct().ToList();
             ViewBag.TipoMetalArray = tipoMetal.ToArray();
 
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
+
+            var modelosNegocioObj = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo)
+                .Select(m => new { id = m.id, descripcion = m.descripcion.Trim() })
+                .ToList();
+
+            ViewBag.ModeloNegocioObj = JsonConvert.SerializeObject(modelosNegocioObj);
+
             return View(sCDM_solicitud);
         }
         public ActionResult EditBudget(int? id)
@@ -2525,6 +2592,10 @@ namespace Portal_2_0.Controllers
             // 2) Arreglos por país
             ViewBag.IHSMEXArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "MEX" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.IHSUSAArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "USA" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
+
+            // Obtener el Código SAP de la planta de la solicitud para calcular Status DM
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
 
             return View(sCDM_solicitud);
         }
@@ -4145,7 +4216,17 @@ namespace Portal_2_0.Controllers
                     data[i].peso_min_kg.ToString(),     //"Peso Min (KG)",
                     data[i].peso_minimo_tolerancia_positiva.ToString(),     //"Peso Mínimo Tolerancia Positiva",
                     data[i].peso_minimo_tolerancia_negativa.ToString(),     //"Peso Mínimo Tolerancia Negativa"
-                    };
+                    
+                    // --- Nuevos campos SAP ---
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,      // Status DM
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,    // ID Part Number
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,    // ID Tool
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,  // ID Material Obsoleto
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,  // ID Clasificacion/Motivo
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty,       // Tour Description
+                    // --- FIN nuevos campos ---
+                    data[i].ZZID_Consecutivo.HasValue ? data[i].ZZID_Consecutivo.ToString() : string.Empty
+                };
 
             }
 
@@ -4421,7 +4502,17 @@ namespace Portal_2_0.Controllers
                     data[i].peso_min_kg.ToString(),     //"Peso Min (KG)",
                     data[i].peso_minimo_tolerancia_positiva.ToString(),     //"Peso Mínimo Tolerancia Positiva",
                     data[i].peso_minimo_tolerancia_negativa.ToString(),     //"Peso Mínimo Tolerancia Negativa"
-                    };
+                   
+                    // --- Nuevos campos SAP ---
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,      // Status DM
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,    // ID Part Number
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,    // ID Tool
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,  // ID Material Obsoleto
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,  // ID Clasificacion/Motivo
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty,       // Tour Description
+                    // --- FIN nuevos campos ---
+                    data[i].ZZID_Consecutivo.HasValue ? data[i].ZZID_Consecutivo.ToString() : string.Empty
+                };
             }
 
             return Json(jsonData, JsonRequestBehavior.AllowGet);
@@ -4591,7 +4682,18 @@ namespace Portal_2_0.Controllers
                     data[i].peso_min_kg.ToString(),     //"Peso Min (KG)",
                     data[i].peso_minimo_tolerancia_positiva.ToString(),     //"Peso Mínimo Tolerancia Positiva",
                     data[i].peso_minimo_tolerancia_negativa.ToString(),     //"Peso Mínimo Tolerancia Negativa"
-                    };
+                   
+                    // --- Nuevos campos SAP ---
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,      // Status DM
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,    // ID Part Number
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,    // ID Tool
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,  // ID Material Obsoleto
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,  // ID Clasificacion/Motivo
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty,       // Tour Description
+                    // --- FIN nuevos campos ---
+                    data[i].ZZID_Consecutivo.HasValue ? data[i].ZZID_Consecutivo.ToString() : string.Empty,
+                    data[i].ZZIDTOOL_Consecutivo.HasValue ? data[i].ZZIDTOOL_Consecutivo.ToString() : string.Empty
+                };
             }
 
             return Json(jsonData, JsonRequestBehavior.AllowGet);
@@ -4639,7 +4741,8 @@ namespace Portal_2_0.Controllers
                     mm = db_sap.Materials.AsNoTracking().FirstOrDefault(x => x.Matnr == material);
                 }
             }
-            else {
+            else
+            {
                 System.Diagnostics.Debug.WriteLine("-----> El material " + material + " existe, cargando desde BD");
             }
 
@@ -4656,7 +4759,7 @@ namespace Portal_2_0.Controllers
                 return Json(respuesta, JsonRequestBehavior.AllowGet);
             }
 
-            
+
 
 
             // 1b) Buscar en MaterialPlants (se utiliza para obtener el Plnt y status)
@@ -5000,7 +5103,8 @@ namespace Portal_2_0.Controllers
               "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
               ,"Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Max (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
-              ,"Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
+              ,"Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa",
+              "Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description","Consecutivo"
             };
 
 
@@ -5025,7 +5129,19 @@ namespace Portal_2_0.Controllers
                     peso_maximo_tolerancia_positiva = null, stacks = null;
                 DateTime? fecha_validez = null, sop = null, eop = null;
 
+                int? zzid_consecutivo = null;
+
                 #region Asignacion de variables
+
+                if (Array.IndexOf(encabezados, "Consecutivo") > -1)
+                {
+                    string valConsecutivo = array[Array.IndexOf(encabezados, "Consecutivo")];
+                    if (!string.IsNullOrEmpty(valConsecutivo) && int.TryParse(valConsecutivo, out int resConsecutivo))
+                    {
+                        zzid_consecutivo = resConsecutivo;
+                    }
+                }
+
                 //id_rollo
                 if (int.TryParse(array[Array.IndexOf(encabezados, "ID")], out int id_rol))
                     id_rollo = id_rol;
@@ -5261,6 +5377,13 @@ namespace Portal_2_0.Controllers
                     peso_min_kg = peso_min_kg, //data[28]
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null,
+                    ZZID_Consecutivo = zzid_consecutivo,
                 };
 
                 resultado.Add(datos);
@@ -5290,7 +5413,8 @@ namespace Portal_2_0.Controllers
                "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
             , "Peso Inicial", "Peso Max. entrega cinta (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
-            , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
+            , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa",
+              "Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description", "Consecutivo", "ConsecutivoTool"
             };
 
             //recorre todos los arrays recibidos
@@ -5315,8 +5439,28 @@ namespace Portal_2_0.Controllers
                     peso_maximo_tolerancia_positiva = null, peso_min_kg = null, piezas_por_golpe = null, piezas_por_auto = null, stacks = null;
                 ;
                 DateTime? fecha_validez = null, sop = null, eop = null;
+                int? zzid_consecutivo = null;
+                int? zzidtool_consecutivo = null;
 
                 #region Asignacion de variables
+                if (Array.IndexOf(encabezados, "Consecutivo") > -1)
+                {
+                    string valConsecutivo = array[Array.IndexOf(encabezados, "Consecutivo")];
+                    if (!string.IsNullOrEmpty(valConsecutivo) && int.TryParse(valConsecutivo, out int resConsecutivo))
+                    {
+                        zzid_consecutivo = resConsecutivo;
+                    }
+                }
+
+                if (Array.IndexOf(encabezados, "ConsecutivoTool") > -1)
+                {
+                    string val = array[Array.IndexOf(encabezados, "ConsecutivoTool")];
+                    if (!string.IsNullOrEmpty(val) && int.TryParse(val, out int res))
+                    {
+                        zzidtool_consecutivo = res;
+                    }
+                }
+
                 //id_platina
                 if (int.TryParse(array[Array.IndexOf(encabezados, "ID")], out int id_x))
                     id_platina = id_x;
@@ -5579,6 +5723,14 @@ namespace Portal_2_0.Controllers
                     peso_min_kg = peso_min_kg, //data[28]
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null,
+                    ZZID_Consecutivo = zzid_consecutivo,
+                    ZZIDTOOL_Consecutivo = zzidtool_consecutivo
                 });
             }
 
@@ -5610,7 +5762,8 @@ namespace Portal_2_0.Controllers
            "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
             , "Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
-            , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
+            , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa",
+              "Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description", "Consecutivo"
             };
 
             //recorre todos los arrays recibidos
@@ -5633,7 +5786,18 @@ namespace Portal_2_0.Controllers
                     peso_maximo_tolerancia_positiva = null, peso_min_kg = null, stacks = null;
                 DateTime? fecha_validez = null, sop = null, eop = null;
 
+                int? zzid_consecutivo = null;
+
                 #region Asignacion de variables
+                if (Array.IndexOf(encabezados, "Consecutivo") > -1)
+                {
+                    string valConsecutivo = array[Array.IndexOf(encabezados, "Consecutivo")];
+                    if (!string.IsNullOrEmpty(valConsecutivo) && int.TryParse(valConsecutivo, out int resConsecutivo))
+                    {
+                        zzid_consecutivo = resConsecutivo;
+                    }
+                }
+
                 //id_rollo
                 if (int.TryParse(array[Array.IndexOf(encabezados, "ID")], out int id_cin))
                     id_cinta = id_cin;
@@ -5880,6 +6044,13 @@ namespace Portal_2_0.Controllers
                     peso_min_kg = peso_min_kg, //data[28]
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null,
+                    ZZID_Consecutivo = zzid_consecutivo,
                 });
             }
             return resultado;
@@ -6060,7 +6231,7 @@ namespace Portal_2_0.Controllers
                 , "Piezas por auto", "Pzas por Golpe", "Pzas por paquete", "Peso Inicial", "Peso Max (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
                 , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa",
                 //Fin Budget
-                "Otro Dato", "Comentario Adicional"
+                "Otro Dato", "Comentario Adicional", "Valido", "Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description"
             };
 
             //recorre todos los arrays recibidos
@@ -6321,6 +6492,12 @@ namespace Portal_2_0.Controllers
                     peso_minimo = peso_min_kg, //data[28]
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null,
                 };
 
 
@@ -6354,7 +6531,8 @@ namespace Portal_2_0.Controllers
                 "Avance (mm)", "Tolerancia avance negativa (mm)", "Tolerancia avance positiva (mm)",
                 "Planicidad (mm)", "Superficie", "Tratamiento Superficial", "Peso del recubrimiento", "Nombre Molino", "Forma", "Núm. cliente", "Núm. parte del cliente",
                 "MSA (Honda)","Diametro Exterior", "Diametro Interior",
-                "Otro Dato", "Comentario Adicional"
+                "Otro Dato", "Comentario Adicional", "Valido",
+                "Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description"
             };
 
             //recorre todos los arrays recibidos
@@ -6499,6 +6677,12 @@ namespace Portal_2_0.Controllers
                     comentarios = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Comentario Adicional")]) ? array[Array.IndexOf(encabezados, "Comentario Adicional")] : null,
                     nuevo_dato = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Otro Dato")]) ? array[Array.IndexOf(encabezados, "Otro Dato")] : null,
                     tipo_material_text = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Material")]) ? array[Array.IndexOf(encabezados, "Tipo de Material")] : null,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null
                 };
 
                 //actualiza los cambios vs el material de referencia (BD)
@@ -6529,7 +6713,7 @@ namespace Portal_2_0.Controllers
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
                , "Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Máximo", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
                , "Peso Minimo", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
-               ,"Valido"
+               ,"Valido","Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description"
             };
 
             //recorre todos los arrays recibidos
@@ -6697,6 +6881,12 @@ namespace Portal_2_0.Controllers
                     peso_minimo = peso_minimo,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null,
                 };
 
 
@@ -7720,6 +7910,12 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].nuevo_dato)? data[i].nuevo_dato:string.Empty,
                     !string.IsNullOrEmpty(data[i].comentarios)? data[i].comentarios:string.Empty,
                     "true",
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty,
                     };
 
             }
@@ -7791,7 +7987,13 @@ namespace Portal_2_0.Controllers
                     data[i].diametro_interior.ToString(),
                     !string.IsNullOrEmpty(data[i].nuevo_dato)? data[i].nuevo_dato:string.Empty,
                     !string.IsNullOrEmpty(data[i].comentarios)? data[i].comentarios:string.Empty,
-                    "true"
+                    "true",
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty,
 
             };
 
@@ -7858,7 +8060,13 @@ namespace Portal_2_0.Controllers
                    data[i].peso_minimo.ToString(),
                    data[i].peso_minimo_tolerancia_positiva.ToString(),
                    data[i].peso_minimo_tolerancia_negativa.ToString(),
-                    "true"
+                    "true",
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty
             };
 
             }

@@ -140,9 +140,9 @@
           <Property Name="ZZPPACKAGE" Type="float" />
           <Property Name="ZZSPACKAGE" Type="float" />
           <Property Name="ZZREAPPL" Type="bit" />
-          <Property Name="ZZSTAMD" Type="nvarchar" MaxLength="15" />
-          <Property Name="ZZIDPNUM" Type="nvarchar" MaxLength="25" />
-          <Property Name="ZZIDTOOL" Type="nvarchar" MaxLength="25" />
+          <Property Name="ZZSTAMD" Type="nvarchar" MaxLength="25" />
+          <Property Name="ZZIDPNUM" Type="nvarchar" MaxLength="60" />
+          <Property Name="ZZIDTOOL" Type="nvarchar" MaxLength="60" />
           <Property Name="ZZIDOBSOL" Type="nvarchar" MaxLength="30" />
           <Property Name="ZZTOURD" Type="nvarchar" MaxLength="70" />
           <Property Name="ZZTOLMAXWT" Type="nvarchar" MaxLength="25" />
@@ -232,11 +232,39 @@
           <Property Name="LastSyncTimestamp" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="Mmsta" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
         </EntityType>
+        <EntityContainer Name="Portal_2_0_ServicesEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="BatchCharacteristics" EntityType="Self.BatchCharacteristics" />
+          <EntitySet Name="Batches" EntityType="Self.Batches" />
+          <EntitySet Name="MaterialCharacteristics" EntityType="Self.MaterialCharacteristics" />
+          <EntitySet Name="MaterialDescriptions" EntityType="Self.MaterialDescriptions" />
+          <EntitySet Name="MaterialPlants" EntityType="Self.MaterialPlants" />
+          <EntitySet Name="BomItems" EntityType="Portal_2_0_ServicesModel.BomItems" />
+          <EntitySet Name="Materials" EntityType="Portal_2_0_ServicesModel.Materials" />
+        </EntityContainer>
+        <EntityType Name="BomItems">
+          <Key>
+            <PropertyRef Name="Matnr" />
+            <PropertyRef Name="Werks" />
+            <PropertyRef Name="Alt_Bom" />
+            <PropertyRef Name="Item_No" />
+          </Key>
+          <Property Name="Matnr" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="Werks" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="true" />
+          <Property Name="Alt_Bom" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="true" />
+          <Property Name="Item_No" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="true" />
+          <Property Name="LastSyncTimestamp" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Component" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="Comp_Desc" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="Quantity" Type="Decimal" Precision="15" Scale="3" />
+          <Property Name="Uom" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
+          <Property Name="Valid_From" Type="DateTime" Precision="0" />
+          <Property Name="Created_On" Type="DateTime" Precision="0" />
+        </EntityType>
         <EntityType Name="Materials">
           <Key>
             <PropertyRef Name="Matnr" />
           </Key>
-          <Property Name="Matnr" Type="String" MaxLength="18" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Matnr" Type="String" Nullable="false" MaxLength="18" FixedLength="false" Unicode="true" />
           <Property Name="LastSyncTimestamp" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="Mtart" Type="String" MaxLength="4" FixedLength="false" Unicode="true" />
           <Property Name="Bismt" Type="String" MaxLength="18" FixedLength="false" Unicode="true" />
@@ -281,9 +309,9 @@
           <Property Name="ZZPPACKAGE" Type="Double" />
           <Property Name="ZZSPACKAGE" Type="Double" />
           <Property Name="ZZREAPPL" Type="Boolean" />
-          <Property Name="ZZSTAMD" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
-          <Property Name="ZZIDPNUM" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
-          <Property Name="ZZIDTOOL" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+          <Property Name="ZZSTAMD" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+          <Property Name="ZZIDPNUM" Type="String" MaxLength="60" FixedLength="false" Unicode="true" />
+          <Property Name="ZZIDTOOL" Type="String" MaxLength="60" FixedLength="false" Unicode="true" />
           <Property Name="ZZIDOBSOL" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
           <Property Name="ZZTOURD" Type="String" MaxLength="70" FixedLength="false" Unicode="true" />
           <Property Name="ZZTOLMAXWT" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
@@ -292,34 +320,6 @@
           <Property Name="ZZMTLTYP" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
           <Property Name="ZZSELLTYP" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
           <Property Name="ZZBUSSMODL" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityContainer Name="Portal_2_0_ServicesEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="BatchCharacteristics" EntityType="Self.BatchCharacteristics" />
-          <EntitySet Name="Batches" EntityType="Self.Batches" />
-          <EntitySet Name="MaterialCharacteristics" EntityType="Self.MaterialCharacteristics" />
-          <EntitySet Name="MaterialDescriptions" EntityType="Self.MaterialDescriptions" />
-          <EntitySet Name="MaterialPlants" EntityType="Self.MaterialPlants" />
-          <EntitySet Name="Materials" EntityType="Self.Materials" />
-          <EntitySet Name="BomItems" EntityType="Portal_2_0_ServicesModel.BomItems" />
-        </EntityContainer>
-        <EntityType Name="BomItems">
-          <Key>
-            <PropertyRef Name="Matnr" />
-            <PropertyRef Name="Werks" />
-            <PropertyRef Name="Alt_Bom" />
-            <PropertyRef Name="Item_No" />
-          </Key>
-          <Property Name="Matnr" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
-          <Property Name="Werks" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="true" />
-          <Property Name="Alt_Bom" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="true" />
-          <Property Name="Item_No" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="true" />
-          <Property Name="LastSyncTimestamp" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Component" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
-          <Property Name="Comp_Desc" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
-          <Property Name="Quantity" Type="Decimal" Precision="15" Scale="3" />
-          <Property Name="Uom" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
-          <Property Name="Valid_From" Type="DateTime" Precision="0" />
-          <Property Name="Created_On" Type="DateTime" Precision="0" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -391,68 +391,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Materials">
-            <EntityTypeMapping TypeName="Portal_2_0_ServicesModel.Materials">
-              <MappingFragment StoreEntitySet="Materials">
-                <ScalarProperty Name="Matnr" ColumnName="Matnr" />
-                <ScalarProperty Name="LastSyncTimestamp" ColumnName="LastSyncTimestamp" />
-                <ScalarProperty Name="Mtart" ColumnName="Mtart" />
-                <ScalarProperty Name="Bismt" ColumnName="Bismt" />
-                <ScalarProperty Name="Brgew" ColumnName="Brgew" />
-                <ScalarProperty Name="Ntgwe" ColumnName="Ntgwe" />
-                <ScalarProperty Name="Meins" ColumnName="Meins" />
-                <ScalarProperty Name="Groes" ColumnName="Groes" />
-                <ScalarProperty Name="Vmsta" ColumnName="Vmsta" />
-                <ScalarProperty Name="Gewei" ColumnName="Gewei" />
-                <ScalarProperty Name="ZZMATTYP" ColumnName="ZZMATTYP" />
-                <ScalarProperty Name="ZZCUSTSCRP" ColumnName="ZZCUSTSCRP" />
-                <ScalarProperty Name="ZZENGSCRP" ColumnName="ZZENGSCRP" />
-                <ScalarProperty Name="ZZIHSNUM1" ColumnName="ZZIHSNUM1" />
-                <ScalarProperty Name="ZZIHSNUM2" ColumnName="ZZIHSNUM2" />
-                <ScalarProperty Name="ZZIHSNUM3" ColumnName="ZZIHSNUM3" />
-                <ScalarProperty Name="ZZIHSNUM4" ColumnName="ZZIHSNUM4" />
-                <ScalarProperty Name="ZZIHSNUM5" ColumnName="ZZIHSNUM5" />
-                <ScalarProperty Name="ZZPKGPCS" ColumnName="ZZPKGPCS" />
-                <ScalarProperty Name="ZZTHCKNSS" ColumnName="ZZTHCKNSS" />
-                <ScalarProperty Name="ZZWIDTH" ColumnName="ZZWIDTH" />
-                <ScalarProperty Name="ZZADVANCE" ColumnName="ZZADVANCE" />
-                <ScalarProperty Name="ZZHTALSCRP" ColumnName="ZZHTALSCRP" />
-                <ScalarProperty Name="ZZCARPCS" ColumnName="ZZCARPCS" />
-                <ScalarProperty Name="ZZINITWT" ColumnName="ZZINITWT" />
-                <ScalarProperty Name="ZZMINWT" ColumnName="ZZMINWT" />
-                <ScalarProperty Name="ZZMAXWT" ColumnName="ZZMAXWT" />
-                <ScalarProperty Name="ZZSTKPCS" ColumnName="ZZSTKPCS" />
-                <ScalarProperty Name="ZZANGLEA" ColumnName="ZZANGLEA" />
-                <ScalarProperty Name="ZZANGLEB" ColumnName="ZZANGLEB" />
-                <ScalarProperty Name="ZZREALNTWT" ColumnName="ZZREALNTWT" />
-                <ScalarProperty Name="ZZREALGRWT" ColumnName="ZZREALGRWT" />
-                <ScalarProperty Name="ZZDOUPCS" ColumnName="ZZDOUPCS" />
-                <ScalarProperty Name="ZZCOILSLTPOS" ColumnName="ZZCOILSLTPOS" />
-                <ScalarProperty Name="ZZMXWTTOLP" ColumnName="ZZMXWTTOLP" />
-                <ScalarProperty Name="ZZMXWTTOLN" ColumnName="ZZMXWTTOLN" />
-                <ScalarProperty Name="ZZMNWTTOLP" ColumnName="ZZMNWTTOLP" />
-                <ScalarProperty Name="ZZMNWTTOLN" ColumnName="ZZMNWTTOLN" />
-                <ScalarProperty Name="ZZWH" ColumnName="ZZWH" />
-                <ScalarProperty Name="ZZTRANSP" ColumnName="ZZTRANSP" />
-                <ScalarProperty Name="ZZTKMMSOP" ColumnName="ZZTKMMSOP" />
-                <ScalarProperty Name="ZZTKMMEOP" ColumnName="ZZTKMMEOP" />
-                <ScalarProperty Name="ZZPPACKAGE" ColumnName="ZZPPACKAGE" />
-                <ScalarProperty Name="ZZSPACKAGE" ColumnName="ZZSPACKAGE" />
-                <ScalarProperty Name="ZZREAPPL" ColumnName="ZZREAPPL" />
-                <ScalarProperty Name="ZZSTAMD" ColumnName="ZZSTAMD" />
-                <ScalarProperty Name="ZZIDPNUM" ColumnName="ZZIDPNUM" />
-                <ScalarProperty Name="ZZIDTOOL" ColumnName="ZZIDTOOL" />
-                <ScalarProperty Name="ZZIDOBSOL" ColumnName="ZZIDOBSOL" />
-                <ScalarProperty Name="ZZTOURD" ColumnName="ZZTOURD" />
-                <ScalarProperty Name="ZZTOLMAXWT" ColumnName="ZZTOLMAXWT" />
-                <ScalarProperty Name="ZZTOLMINWT" ColumnName="ZZTOLMINWT" />
-                <ScalarProperty Name="ZZPALLET" ColumnName="ZZPALLET" />
-                <ScalarProperty Name="ZZMTLTYP" ColumnName="ZZMTLTYP" />
-                <ScalarProperty Name="ZZSELLTYP" ColumnName="ZZSELLTYP" />
-                <ScalarProperty Name="ZZBUSSMODL" ColumnName="ZZBUSSMODL" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="BomItems">
             <EntityTypeMapping TypeName="Portal_2_0_ServicesModel.BomItems">
               <MappingFragment StoreEntitySet="BomItems">
@@ -466,6 +404,68 @@
                 <ScalarProperty Name="Item_No" ColumnName="Item_No" />
                 <ScalarProperty Name="Alt_Bom" ColumnName="Alt_Bom" />
                 <ScalarProperty Name="Werks" ColumnName="Werks" />
+                <ScalarProperty Name="Matnr" ColumnName="Matnr" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Materials">
+            <EntityTypeMapping TypeName="Portal_2_0_ServicesModel.Materials">
+              <MappingFragment StoreEntitySet="Materials">
+                <ScalarProperty Name="ZZBUSSMODL" ColumnName="ZZBUSSMODL" />
+                <ScalarProperty Name="ZZSELLTYP" ColumnName="ZZSELLTYP" />
+                <ScalarProperty Name="ZZMTLTYP" ColumnName="ZZMTLTYP" />
+                <ScalarProperty Name="ZZPALLET" ColumnName="ZZPALLET" />
+                <ScalarProperty Name="ZZTOLMINWT" ColumnName="ZZTOLMINWT" />
+                <ScalarProperty Name="ZZTOLMAXWT" ColumnName="ZZTOLMAXWT" />
+                <ScalarProperty Name="ZZTOURD" ColumnName="ZZTOURD" />
+                <ScalarProperty Name="ZZIDOBSOL" ColumnName="ZZIDOBSOL" />
+                <ScalarProperty Name="ZZIDTOOL" ColumnName="ZZIDTOOL" />
+                <ScalarProperty Name="ZZIDPNUM" ColumnName="ZZIDPNUM" />
+                <ScalarProperty Name="ZZSTAMD" ColumnName="ZZSTAMD" />
+                <ScalarProperty Name="ZZREAPPL" ColumnName="ZZREAPPL" />
+                <ScalarProperty Name="ZZSPACKAGE" ColumnName="ZZSPACKAGE" />
+                <ScalarProperty Name="ZZPPACKAGE" ColumnName="ZZPPACKAGE" />
+                <ScalarProperty Name="ZZTKMMEOP" ColumnName="ZZTKMMEOP" />
+                <ScalarProperty Name="ZZTKMMSOP" ColumnName="ZZTKMMSOP" />
+                <ScalarProperty Name="ZZTRANSP" ColumnName="ZZTRANSP" />
+                <ScalarProperty Name="ZZWH" ColumnName="ZZWH" />
+                <ScalarProperty Name="ZZMNWTTOLN" ColumnName="ZZMNWTTOLN" />
+                <ScalarProperty Name="ZZMNWTTOLP" ColumnName="ZZMNWTTOLP" />
+                <ScalarProperty Name="ZZMXWTTOLN" ColumnName="ZZMXWTTOLN" />
+                <ScalarProperty Name="ZZMXWTTOLP" ColumnName="ZZMXWTTOLP" />
+                <ScalarProperty Name="ZZCOILSLTPOS" ColumnName="ZZCOILSLTPOS" />
+                <ScalarProperty Name="ZZDOUPCS" ColumnName="ZZDOUPCS" />
+                <ScalarProperty Name="ZZREALGRWT" ColumnName="ZZREALGRWT" />
+                <ScalarProperty Name="ZZREALNTWT" ColumnName="ZZREALNTWT" />
+                <ScalarProperty Name="ZZANGLEB" ColumnName="ZZANGLEB" />
+                <ScalarProperty Name="ZZANGLEA" ColumnName="ZZANGLEA" />
+                <ScalarProperty Name="ZZSTKPCS" ColumnName="ZZSTKPCS" />
+                <ScalarProperty Name="ZZMAXWT" ColumnName="ZZMAXWT" />
+                <ScalarProperty Name="ZZMINWT" ColumnName="ZZMINWT" />
+                <ScalarProperty Name="ZZINITWT" ColumnName="ZZINITWT" />
+                <ScalarProperty Name="ZZCARPCS" ColumnName="ZZCARPCS" />
+                <ScalarProperty Name="ZZHTALSCRP" ColumnName="ZZHTALSCRP" />
+                <ScalarProperty Name="ZZADVANCE" ColumnName="ZZADVANCE" />
+                <ScalarProperty Name="ZZWIDTH" ColumnName="ZZWIDTH" />
+                <ScalarProperty Name="ZZTHCKNSS" ColumnName="ZZTHCKNSS" />
+                <ScalarProperty Name="ZZPKGPCS" ColumnName="ZZPKGPCS" />
+                <ScalarProperty Name="ZZIHSNUM5" ColumnName="ZZIHSNUM5" />
+                <ScalarProperty Name="ZZIHSNUM4" ColumnName="ZZIHSNUM4" />
+                <ScalarProperty Name="ZZIHSNUM3" ColumnName="ZZIHSNUM3" />
+                <ScalarProperty Name="ZZIHSNUM2" ColumnName="ZZIHSNUM2" />
+                <ScalarProperty Name="ZZIHSNUM1" ColumnName="ZZIHSNUM1" />
+                <ScalarProperty Name="ZZENGSCRP" ColumnName="ZZENGSCRP" />
+                <ScalarProperty Name="ZZCUSTSCRP" ColumnName="ZZCUSTSCRP" />
+                <ScalarProperty Name="ZZMATTYP" ColumnName="ZZMATTYP" />
+                <ScalarProperty Name="Gewei" ColumnName="Gewei" />
+                <ScalarProperty Name="Vmsta" ColumnName="Vmsta" />
+                <ScalarProperty Name="Groes" ColumnName="Groes" />
+                <ScalarProperty Name="Meins" ColumnName="Meins" />
+                <ScalarProperty Name="Ntgwe" ColumnName="Ntgwe" />
+                <ScalarProperty Name="Brgew" ColumnName="Brgew" />
+                <ScalarProperty Name="Bismt" ColumnName="Bismt" />
+                <ScalarProperty Name="Mtart" ColumnName="Mtart" />
+                <ScalarProperty Name="LastSyncTimestamp" ColumnName="LastSyncTimestamp" />
                 <ScalarProperty Name="Matnr" ColumnName="Matnr" />
               </MappingFragment>
             </EntityTypeMapping>

@@ -117,6 +117,14 @@ namespace Portal_2_0.Models
         public Nullable<double> Stacks_Pac { get; set; }
         public string Type_of_Pallet { get; set; }
         public string Country_IHS { get; set; }
+        public string ZZSTAMD { get; set; }
+        public string ZZIDPNUM { get; set; }
+        public string ZZIDTOOL { get; set; }
+        public string ZZIDOBSOL { get; set; }
+        public string ZZCLASMOV { get; set; }
+        public string ZZTOURD { get; set; }
+        public Nullable<int> ZZID_Consecutivo { get; set; }
+        public Nullable<int> ZZIDTOOL_Consecutivo { get; set; }
     
         public virtual SCDM_cat_tipo_materiales_solicitud SCDM_cat_tipo_materiales_solicitud { get; set; }
         public virtual SCDM_solicitud SCDM_solicitud { get; set; }

@@ -423,8 +423,9 @@
             'Tipo de Material (Budget)', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B',
             'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria',
             'Pais S&P','S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
-            , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
-            , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
+            , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa',
+            'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa',
+            'Status DM', 'ID Part Number', 'ID Tool', 'ID Material Obsoleto', 'ID Clasificacion/Motivo', 'Tour Description', 'Consecutivo'
         ]
 
         const columnasQueNecesitanValidacion = [
@@ -458,6 +459,7 @@
                 { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
                 { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
                 { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
+                { label: 'Datos de Budget', colspan: 6, className: 'nested-header-budget' }
             ],
             headers // Este es el arreglo de encabezados existente
         ];
@@ -507,7 +509,9 @@
         const IHSMEXArray    = @Html.Raw(Json.Encode(ViewBag.IHSMEXArray));
         const IHSUSAArray    = @Html.Raw(Json.Encode(ViewBag.IHSUSAArray));
 
-
+        const codigoPlanta = "@ViewBag.CodigoPlanta"; // Ej: "5190"
+        // Parseamos el JSON de modelos para tener acceso a ID por Descripción
+        const mapaModeloNegocio = @Html.Raw(ViewBag.ModeloNegocioObj);
 
         $(document).ready(function () {
 
@@ -852,6 +856,12 @@
                             case GetColFromName("tkMM SOP"):
                             case GetColFromName("tkMM EOP"):
                             case GetColFromName("Pais S&P"):
+                            case GetColFromName("Status DM"):
+                            case GetColFromName("ID Part Number"):
+                            case GetColFromName("ID Tool"):
+                            case GetColFromName("ID Material Obsoleto"):
+                            case GetColFromName("ID Clasificacion/Motivo"):
+                            case GetColFromName("Tour Description"):
                                 applyClass(TH, 'HTOrange');
                                 break;
                             case 0: //columna fijada
@@ -1396,7 +1406,7 @@
                         },
                         validator: function (value, cb) {
                             // 1) Vacío → OK
-                            
+
                             // 2) Debe estar en la lista del país
                             const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
                             const list = country === 'MEX'
@@ -1654,6 +1664,73 @@
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Minimo
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Mínimo Tolerancia Positiva
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Mínimo Tolerancia Negativa
+                    // ZZSTAMD (25)
+                    {
+                        readOnly: true,
+                        validator: function (value, callback) {
+                            let max = 25;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'Status DM debe ser de ' + max + ' caracteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else { callback(true); }
+                        }
+                    },
+                    // ZZIDPNUM (60)
+                    {
+                        readOnly: true,
+                        validator: function (value, callback) {
+                            let max = 60;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'ID Part Number debe ser de ' + max + ' caracteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else { callback(true); }
+                        }
+                    },
+                    // ZZIDTOOL (60)
+                    {
+                        readOnly: true,
+                        validator: function (value, callback) {
+                            let max = 60;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'ID Tool debe ser de ' + max + ' caracteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else { callback(true); }
+                        }
+                    },
+                    // ZZIDOBSOL (30)
+                    {
+                        readOnly: true,
+                        validator: function (value, callback) {
+                            let max = 30;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'ID Material Obsoleto debe ser de ' + max + ' caracteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else { callback(true); }
+                        }
+                    },
+                    // ZZCLASMOV (5)
+                    {
+                        readOnly: true,
+                        validator: function (value, callback) {
+                            let max = 5;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'ID Clasif./Motivo debe ser de ' + max + ' caracteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else { callback(true); }
+                        }
+                    },
+                    // ZZTOURD (70)
+                    {
+                        readOnly: true,
+                        validator: function (value, callback) {
+                            let max = 70;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'Tour Description debe ser de ' + max + ' caracteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else { callback(true); }
+                        }
+                    },
+                    { readOnly: true }
                 ],
                 colWidths: [
                     0,                 // ID
@@ -1730,6 +1807,12 @@
                     90, // peso ming KG
                     200, // peso min tol +
                     200, // peso min tol -
+                    100, // Status DM
+                    300, // ID Part Number
+                    300, // ID Tool
+                    150, // ID Material Obsoleto
+                    80,  // ID Clasificacion
+                    250,  // Tour Description
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
@@ -1745,6 +1828,13 @@
                         , GetColFromName("Piezas por golpe")
                         , GetColFromName("Stacks por Paquete")
                         , GetColFromName("Tipo de Pallet")
+                        , GetColFromName("ID Material Obsoleto")
+                        , GetColFromName("ID Clasificacion/Motivo")
+                        , GetColFromName("Tour Description")
+                        , GetColFromName("ID Tool")
+                        , GetColFromName("Consecutivo")
+                        , GetColFromName("Status DM")
+                        , GetColFromName("ID Part Number")
                     ], //contains ID
                 },
                 rowHeaders: true,
@@ -1851,17 +1941,25 @@
                                 cambioPesoMax(row);
                             case GetColFromName("Tipo de Venta"): //diametro interior
                                 RestablecePPAPs(row);
+                                calculaStatusDM(row); 
                             case GetColFromName("Parte Int/Ext"): //diametro interior
                                 EstablecePorcentajeScrap(row);
                             case GetColFromName("Procesadores Ext."): //diametro interior
                                 EstableceProcesadorExterno(row);
                             case GetColFromName("Núm. cliente"): //diametro interior
                                 RestableceMSA(row);
+                                calculaIDPartNumber(row);
+                                break;
+                            case GetColFromName("Modelo de negocio"):
+                                calculaIDPartNumber(row); 
                                 break;
                             case GetColFromName("S&P 1 (antes IHS)"): //IHS
                             case GetColFromName("S&P 2 (antes IHS)"): //IHS
                             case GetColFromName("S&P 3 (antes IHS)"): //IHS
                                 ConcatenaIHS(row, newValue);
+                                break;
+                            case GetColFromName("Program"):
+                                calculaIDPartNumber(row);
                                 break;
                             case GetColFromName("Pais S&P"):
                                 // 1) Índices de las 3 columnas IHS
@@ -2673,6 +2771,63 @@
                 }
             }
 
+        }
+
+        function calculaStatusDM(row) {
+            // Regla: [Planta] + " S" solo si Tipo de Venta es "Serie"
+            const tipoVenta = hot.getDataAtCell(row, GetColFromName("Tipo de Venta"));
+            const colStatus = GetColFromName("Status DM");
+
+            if (tipoVenta === "Serie") {
+                hot.setDataAtCell(row, colStatus, codigoPlanta + " S");
+            } else {
+                hot.setDataAtCell(row, colStatus, "");
+            }
+        }
+
+        function calculaIDPartNumber(row) {
+            // Regla: [Planta]_[ID_Ruta]_[Cliente]_[01]_[Program]_[Consecutivo O #TBD]
+
+            const modeloDesc = hot.getDataAtCell(row, GetColFromName("Modelo de negocio"));
+            const cliente = hot.getDataAtCell(row, GetColFromName("Núm. cliente"));
+            const program = hot.getDataAtCell(row, GetColFromName("Program"));
+
+            // 1. Obtener Consecutivo (Si existe)
+            const colConsecutivo = GetColFromName("Consecutivo");
+            const valConsecutivo = hot.getDataAtCell(row, colConsecutivo);
+
+            // 2. Determinar Sufijo
+            let sufijoFinal = "_#TBD"; // Valor por defecto para nuevos
+            if (valConsecutivo && valConsecutivo.toString().trim() !== "" && valConsecutivo.toString().trim() !== "0") {
+                sufijoFinal = "_" + valConsecutivo;
+            }
+
+            // 3. Obtener ID Ruta (Modelo Negocio)
+            let idRuta = "0";
+            if (modeloDesc && mapaModeloNegocio) {
+                const modeloObj = mapaModeloNegocio.find(m => m.descripcion === modeloDesc);
+                if (modeloObj) {
+                    idRuta = modeloObj.id;
+                }
+            }
+
+            // 4. Validar datos mínimos
+            if (!modeloDesc || !cliente) {
+                return;
+            }
+
+            // 5. Limpieza de Cliente
+            let clienteCodigo = cliente;
+            if (cliente && cliente.indexOf('(') > -1) {
+                const match = cliente.match(/\(([^)]+)\)/);
+                if (match) clienteCodigo = match[1];
+            }
+
+            // 6. Concatenar
+            const progStr = program ? program : "";
+            const idPartNumber = `${codigoPlanta}_${idRuta}_${clienteCodigo}_01_${progStr}${sufijoFinal}`;
+
+            hot.setDataAtCell(row, GetColFromName("ID Part Number"), idPartNumber);
         }
 
         $(window).resize(function () {
