@@ -212,13 +212,13 @@ namespace Portal_2_0.Models
         ///retorna un List<SelectListItem> con las opciones disponibles
         public static List<SelectListItem> obtieneMaterial_BOM()
         {
-            Portal_2_0Entities db = new Portal_2_0Entities();
+            Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
 
-            //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.Quantity > 0 && !p.Material.StartsWith("sm")).ToList();
-
-            //realiza un distict de los materiales
-            List<string> distinctList = listado.Select(m => m.Material).Distinct().ToList();
+            List<string> distinctList = db_sap.Materials
+              .Where(p => !p.Matnr.StartsWith("SM")) // Mantenemos la exclusión de 'sm'
+              .Select(m => m.Matnr)
+              .Distinct()
+              .ToList();
 
             var items = new List<SelectListItem>();
 
@@ -252,15 +252,28 @@ namespace Portal_2_0.Models
         ///</summary>
         ///<return>
         ///retorna un List<SelectListItem> con las opciones disponibles
-        public static List<SelectListItem> obtieneRollo_BOM(string material = "")
+        public static List<SelectListItem> obtieneRollo_BOM(string material = "", string plantCode = "")
         {
-            Portal_2_0Entities db = new Portal_2_0Entities();
+            Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
 
             //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
+            var query = db_sap.BomItems
+                .Where(p => p.Quantity.HasValue && p.Quantity > 0 &&
+                            !p.Matnr.StartsWith("sm") &&
+                            p.Matnr == material);
 
-            //realiza un distict de los materiales
-            List<string> distinctList = listado.Select(m => m.Component).Distinct().ToList();
+            // --- INICIO MODIFICACIÓN (Filtrar por planta) ---
+            // Si se proporciona un código de planta, filtramos los componentes (rollos)
+            // para esa planta específica.
+            if (!string.IsNullOrEmpty(plantCode))
+            {
+                query = query.Where(p => p.Werks == plantCode);
+            }
+
+            List<string> distinctList = query
+                .Select(m => m.Component) // Obtiene el Componente (rollo)
+                .Distinct()
+                .ToList();
 
             var items = new List<SelectListItem>();
 

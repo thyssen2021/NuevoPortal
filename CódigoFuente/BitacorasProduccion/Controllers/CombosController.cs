@@ -16,6 +16,7 @@ namespace Portal_2_0.Controllers
     {
 
         private Portal_2_0Entities db = new Portal_2_0Entities();
+        private Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
 
         ///<summary>
         ///Obtiene las areas segun la planta recibida
@@ -532,11 +533,14 @@ namespace Portal_2_0.Controllers
         ///retorna un JsonResult con las opciones disponibles
         public JsonResult obtieneRollosBom(string material = "")
         {
-            //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
-
-            //realiza un distict de los materiales
-            List<string> distinctList = listado.Where(m => m.Material == material).Select(m => m.Component).Distinct().ToList();
+            //obtiene todos los posibles valores de la nueva tabla SAP
+            List<string> distinctList = db_sap.BomItems
+                .Where(p => p.Quantity.HasValue && p.Quantity > 0 && // Maneja float?
+                            !p.Matnr.StartsWith("sm") &&
+                            p.Matnr == material)
+                .Select(m => m.Component) // Obtiene el Componente (rollo)
+                .Distinct()
+                .ToList();
 
             //inserta el valor por default
             distinctList.Insert(0, "-- Seleccione un valor --");
@@ -1191,7 +1195,8 @@ namespace Portal_2_0.Controllers
         ///<return>
         ///retorna un JsonResult con las opciones disponibles
         [AllowAnonymous]
-        public JsonResult SCDM_updateMaterialesXSolicitud(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap, string nuevo_numero_material)
+        // 1. AGREGAMOS EL PARÁMETRO 'consecutivo' AL FINAL
+        public JsonResult SCDM_updateMaterialesXSolicitud(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap, string nuevo_numero_material, string consecutivo, string consecutivoTool)
         {
             //inicializa la lista de objetos
             var result = new object[1];
@@ -1230,6 +1235,18 @@ namespace Portal_2_0.Controllers
                 rel_item_material.SCDM_solicitud_item_material_datos_sap.materiales_x_solicitud_ejecucion_correcta = ejecucion_correcta;
                 rel_item_material.SCDM_solicitud_item_material_datos_sap.materiales_x_solicitud_nuevo_numero_material = nuevo_numero_material;
             }
+
+            // --- NUEVO: ACTUALIZA EL CONSECUTIVO SI SE RECIBE ---
+            if (!string.IsNullOrEmpty(consecutivo) && int.TryParse(consecutivo, out int valConsecutivo))
+            {
+                rel_item_material.ZZID_Consecutivo = valConsecutivo;
+            }
+
+            if (!string.IsNullOrEmpty(consecutivoTool) && int.TryParse(consecutivoTool, out int valTool))
+            {
+                rel_item_material.ZZIDTOOL_Consecutivo = valTool;
+            }
+            // ----------------------------------------------------
 
             //Actualiza Formato de  Ordenes de Compra
             foreach (var item in solicitud.SCDM_solicitud_rel_orden_compra.Where(x => x.num_material == material))
@@ -2343,6 +2360,16 @@ namespace Portal_2_0.Controllers
 
         }
         #endregion
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+                db_sap.Dispose();
+            }
+            base.Dispose(disposing);
+        }
     }
     public class JsonpResult : JsonResult
     {

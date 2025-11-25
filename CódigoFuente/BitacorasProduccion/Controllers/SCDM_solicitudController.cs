@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Entity;
 using System.Diagnostics;
@@ -13,24 +12,14 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Mvc.Routing.Constraints;
-using System.Web.Script.Serialization;
-using System.Web.Security;
-using System.Web.UI;
-using System.Windows.Media.Media3D;
 using Bitacoras.Util;
 using Clases.Util;
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
-using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Math;
 using Portal_2_0.Models;
+using Portal_2_0.Models.Auxiliares;
 using SpreadsheetLight;
 
 namespace Portal_2_0.Controllers
@@ -39,6 +28,14 @@ namespace Portal_2_0.Controllers
     public class SCDM_solicitudController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
+        private Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
+        private readonly SapSyncService _sapSyncService;
+
+        public SCDM_solicitudController()
+        {
+            // Inicializar el servicio
+            _sapSyncService = new SapSyncService();
+        }
 
         // GET: SCDM_solicitud
         public ActionResult Index(string estatus, int? id_solicitud, int pagina = 1)
@@ -1643,7 +1640,7 @@ namespace Portal_2_0.Controllers
                     var hubContext = GlobalHost.ConnectionManager.GetHubContext<MonitorSCDMHub>();
                     hubContext.Clients.All.actualizarMonitor();
                 }
-                catch (Exception e){}
+                catch (Exception e) { }
 
                 //obtiene el listado de correos
                 foreach (var array in dataListFromTable)
@@ -2165,7 +2162,7 @@ namespace Portal_2_0.Controllers
             ViewBag.ProveedoresArray = db.proveedores.Where(x => x.activo == true).ToList().Select(x => x.ConcatproveedoresAP.Trim()).ToArray();
             ViewBag.MolinosArray = db.SCDM_cat_molino.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoTransporteArray = db.SCDM_cat_tipo_transporte.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
-            ViewBag.TipoPalletArray = db.mm_v3.Where(x => x.Type_of_Pallet != null && x.Type_of_Pallet.Trim() != "").Select(x => x.Type_of_Pallet.Trim()).Distinct().OrderBy(s => s).ToArray();
+            ViewBag.TipoPalletArray = db_sap.Materials.Where(x => x.ZZPALLET != null && x.ZZPALLET.Trim() != "").Select(x => x.ZZPALLET.Trim()).Distinct().OrderBy(s => s).ToArray();
             ViewBag.TipoMetalArray = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.UnidadMedidaArray = db.SCDM_cat_unidades_medida.Where(x => x.activo == true && (x.codigo == "KG" || x.codigo == "LB")).ToList().Select(x => x.codigo.Trim()).ToArray();
             ViewBag.TipoMaterialArray = db.SCDM_cat_tipo_recubrimiento.Where(x => x.activo == true).ToList().Select(x => x.ConcatRecubrimiento.Trim()).ToArray();
@@ -2178,8 +2175,22 @@ namespace Portal_2_0.Controllers
             ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
             ViewBag.GradoCalidadArray = db.SCDM_cat_grado_calidad.Where(x => x.activo == true).ToList().Select(x => x.grado_calidad).ToArray();
 
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
+
             // En EditRollo, justo donde construyes el ViewBag para Modelos de negocio:
             List<int> materialesPermitidos = new List<int> { 1 }; // Aquí '1' = Rollo. 
+
+            var modelosNegocioObj = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo
+                            && db.SCDM_cat_lovs_valuation_class
+                                    .Any(c => c.id_SCDM_cat_modelo_negocio == m.id
+                                        && materialesPermitidos.Contains(c.id_SCDM_cat_tipo_materiales_solicitud.Value)))
+                .Select(m => new { id = m.id, descripcion = m.descripcion.Trim() })
+                .ToList();
+
+            ViewBag.ModeloNegocioObj = JsonConvert.SerializeObject(modelosNegocioObj);
+
             // Filtramos sólo los modelos que tengan al menos un valuation_class para alguno de esos materialesPermitidos.
             ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio
                 .Where(m => m.activo
@@ -2237,10 +2248,26 @@ namespace Portal_2_0.Controllers
             ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
             ViewBag.GradoCalidadArray = db.SCDM_cat_grado_calidad.Where(x => x.activo == true).ToList().Select(x => x.grado_calidad).ToArray();
             ViewBag.TipoTransporteArray = db.SCDM_cat_tipo_transporte.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
-            ViewBag.TipoPalletArray = db.mm_v3.Where(x => x.Type_of_Pallet != null && x.Type_of_Pallet.Trim() != "").Select(x => x.Type_of_Pallet.Trim()).Distinct().OrderBy(s => s).ToArray();
+            ViewBag.TipoPalletArray = db_sap.Materials.Where(x => x.ZZPALLET != null && x.ZZPALLET.Trim() != "").Select(x => x.ZZPALLET.Trim()).Distinct().OrderBy(s => s).ToArray();
+
+            // 1. Obtener el Código SAP de la planta de la solicitud
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
+
+            // 2. Obtener lista completa de Modelo Negocio (ID y Descripción) para Cintas
+            List<int> materialesPermitidos = new List<int> { 2 }; // 2 = Cinta
+            var modelosNegocioObj = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo
+                            && db.SCDM_cat_lovs_valuation_class
+                                    .Any(c => c.id_SCDM_cat_modelo_negocio == m.id
+                                        && materialesPermitidos.Contains(c.id_SCDM_cat_tipo_materiales_solicitud.Value)))
+                .Select(m => new { id = m.id, descripcion = m.descripcion.Trim() })
+                .ToList();
+
+            ViewBag.ModeloNegocioObj = JsonConvert.SerializeObject(modelosNegocioObj);
 
             // En EditRollo, justo donde construyes el ViewBag para Modelos de negocio:
-            List<int> materialesPermitidos = new List<int> { 2 }; // Aquí '2' = Cintas. 
+
             // Filtramos sólo los modelos que tengan al menos un valuation_class para alguno de esos materialesPermitidos.
             ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio
                 .Where(m => m.activo
@@ -2347,7 +2374,7 @@ namespace Portal_2_0.Controllers
             ViewBag.ProveedoresArray = db.proveedores.Where(x => x.activo == true).ToList().Select(x => x.ConcatproveedoresAP.Trim()).ToArray();
             ViewBag.MolinosArray = db.SCDM_cat_molino.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoTransporteArray = db.SCDM_cat_tipo_transporte.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
-            ViewBag.TipoPalletArray = db.mm_v3.Where(x => x.Type_of_Pallet != null && x.Type_of_Pallet.Trim() != "").Select(x => x.Type_of_Pallet.Trim()).Distinct().OrderBy(s => s).ToArray();
+            ViewBag.TipoPalletArray = db_sap.Materials.Where(x => x.ZZPALLET != null && x.ZZPALLET.Trim() != "").Select(x => x.ZZPALLET.Trim()).Distinct().OrderBy(s => s).ToArray();
             ViewBag.TipoMetalArray = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.UnidadMedidaArray = db.SCDM_cat_unidades_medida.Where(x => x.activo == true && (x.codigo == "PC")).ToList().Select(x => x.codigo.Trim()).ToArray();
             ViewBag.TipoMaterialArray = db.SCDM_cat_tipo_recubrimiento.Where(x => x.activo == true).ToList().Select(x => x.ConcatRecubrimiento.Trim()).ToArray();
@@ -2358,8 +2385,24 @@ namespace Portal_2_0.Controllers
             ViewBag.FormaArray = listFormaBD.Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.GradoCalidadArray = db.SCDM_cat_grado_calidad.Where(x => x.activo == true).ToList().Select(x => x.grado_calidad).ToArray();
 
+            // 1. Obtener el Código SAP de la planta de la solicitud
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
+
+            // 2. Obtener lista completa de Modelo Negocio (ID y Descripción)
+            // Usamos el tipo de platina actual para filtrar los modelos permitidos
+            List<int> materialesPermitidos = new List<int> { tipoPlatina };
+            var modelosNegocioObj = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo
+                            && db.SCDM_cat_lovs_valuation_class
+                                    .Any(c => c.id_SCDM_cat_modelo_negocio == m.id
+                                        && materialesPermitidos.Contains(c.id_SCDM_cat_tipo_materiales_solicitud.Value)))
+                .Select(m => new { id = m.id, descripcion = m.descripcion.Trim() })
+                .ToList();
+
+            ViewBag.ModeloNegocioObj = JsonConvert.SerializeObject(modelosNegocioObj);
+
             // En EditRollo, justo donde construyes el ViewBag para Modelos de negocio:
-            List<int> materialesPermitidos = new List<int> { tipoPlatina }; // tipo de platina. 
             // Filtramos sólo los modelos que tengan al menos un valuation_class para alguno de esos materialesPermitidos.
             ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio
                 .Where(m => m.activo
@@ -2423,14 +2466,24 @@ namespace Portal_2_0.Controllers
             ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.PosicionRolloArray = db.SCDM_cat_posicion_rollo_embarques.Where(x => x.activo == true).ToList().Select(x => x.ConcatPosicion.Trim()).ToArray();
 
-            ViewBag.TipoPalletArray = db.mm_v3.Where(x => x.Type_of_Pallet != null && x.Type_of_Pallet.Trim() != "").Select(x => x.Type_of_Pallet.Trim()).Distinct().OrderBy(s => s).ToArray();
+            ViewBag.TipoPalletArray = db_sap.Materials.Where(x => x.ZZPALLET != null && x.ZZPALLET.Trim() != "").Select(x => x.ZZPALLET.Trim()).Distinct().OrderBy(s => s).ToArray();
             ViewBag.TipoTransporteArray = db.SCDM_cat_tipo_transporte.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.Countries = db.SCDM_cat_ihs.Where(x => x.activo && x.Country != "ALL").Select(x => x.Country).Distinct().ToArray();
             // 2) Arreglos por país
             ViewBag.IHSMEXArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "MEX" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.IHSUSAArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "USA" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
 
+            // 1. Código de Planta
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
 
+            // 2. Modelos de Negocio (Todos los activos, ya que esta vista maneja múltiples tipos)
+            var modelosNegocioObj = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo)
+                .Select(m => new { id = m.id, descripcion = m.descripcion.Trim() })
+                .ToList();
+
+            ViewBag.ModeloNegocioObj = JsonConvert.SerializeObject(modelosNegocioObj);
 
             //tipo de metal
             List<string> tipoMetal = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList();
@@ -2486,6 +2539,16 @@ namespace Portal_2_0.Controllers
             tipoMetal = tipoMetal.Distinct().ToList();
             ViewBag.TipoMetalArray = tipoMetal.ToArray();
 
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
+
+            var modelosNegocioObj = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo)
+                .Select(m => new { id = m.id, descripcion = m.descripcion.Trim() })
+                .ToList();
+
+            ViewBag.ModeloNegocioObj = JsonConvert.SerializeObject(modelosNegocioObj);
+
             return View(sCDM_solicitud);
         }
         public ActionResult EditBudget(int? id)
@@ -2523,12 +2586,16 @@ namespace Portal_2_0.Controllers
             tipoMetal = tipoMetal.Distinct().ToList();
             ViewBag.TipoMetalArray = tipoMetal.ToArray();
 
-            ViewBag.TipoPalletArray = db.mm_v3.Where(x => x.Type_of_Pallet != null && x.Type_of_Pallet.Trim() != "").Select(x => x.Type_of_Pallet.Trim()).Distinct().OrderBy(s => s).ToArray();
+            ViewBag.TipoPalletArray = db_sap.Materials.Where(x => x.ZZPALLET != null && x.ZZPALLET.Trim() != "").Select(x => x.ZZPALLET.Trim()).Distinct().OrderBy(s => s).ToArray();
             ViewBag.TipoTransporteArray = db.SCDM_cat_tipo_transporte.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.Countries = db.SCDM_cat_ihs.Where(x => x.activo && x.Country != "ALL").Select(x => x.Country).Distinct().ToArray();
             // 2) Arreglos por país
             ViewBag.IHSMEXArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "MEX" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.IHSUSAArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "USA" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
+
+            // Obtener el Código SAP de la planta de la solicitud para calcular Status DM
+            var plantaSolicitud = db.plantas.Find(sCDM_solicitud.planta_solicitud);
+            ViewBag.CodigoPlanta = plantaSolicitud != null ? plantaSolicitud.codigoSap : "";
 
             return View(sCDM_solicitud);
         }
@@ -3203,6 +3270,7 @@ namespace Portal_2_0.Controllers
             if (disposing)
             {
                 db.Dispose();
+                db_sap.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -4148,7 +4216,17 @@ namespace Portal_2_0.Controllers
                     data[i].peso_min_kg.ToString(),     //"Peso Min (KG)",
                     data[i].peso_minimo_tolerancia_positiva.ToString(),     //"Peso Mínimo Tolerancia Positiva",
                     data[i].peso_minimo_tolerancia_negativa.ToString(),     //"Peso Mínimo Tolerancia Negativa"
-                    };
+                    
+                    // --- Nuevos campos SAP ---
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,      // Status DM
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,    // ID Part Number
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,    // ID Tool
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,  // ID Material Obsoleto
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,  // ID Clasificacion/Motivo
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty,       // Tour Description
+                    // --- FIN nuevos campos ---
+                    data[i].ZZID_Consecutivo.HasValue ? data[i].ZZID_Consecutivo.ToString() : string.Empty
+                };
 
             }
 
@@ -4424,7 +4502,17 @@ namespace Portal_2_0.Controllers
                     data[i].peso_min_kg.ToString(),     //"Peso Min (KG)",
                     data[i].peso_minimo_tolerancia_positiva.ToString(),     //"Peso Mínimo Tolerancia Positiva",
                     data[i].peso_minimo_tolerancia_negativa.ToString(),     //"Peso Mínimo Tolerancia Negativa"
-                    };
+                   
+                    // --- Nuevos campos SAP ---
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,      // Status DM
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,    // ID Part Number
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,    // ID Tool
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,  // ID Material Obsoleto
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,  // ID Clasificacion/Motivo
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty,       // Tour Description
+                    // --- FIN nuevos campos ---
+                    data[i].ZZID_Consecutivo.HasValue ? data[i].ZZID_Consecutivo.ToString() : string.Empty
+                };
             }
 
             return Json(jsonData, JsonRequestBehavior.AllowGet);
@@ -4594,7 +4682,18 @@ namespace Portal_2_0.Controllers
                     data[i].peso_min_kg.ToString(),     //"Peso Min (KG)",
                     data[i].peso_minimo_tolerancia_positiva.ToString(),     //"Peso Mínimo Tolerancia Positiva",
                     data[i].peso_minimo_tolerancia_negativa.ToString(),     //"Peso Mínimo Tolerancia Negativa"
-                    };
+                   
+                    // --- Nuevos campos SAP ---
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,      // Status DM
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,    // ID Part Number
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,    // ID Tool
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,  // ID Material Obsoleto
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,  // ID Clasificacion/Motivo
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty,       // Tour Description
+                    // --- FIN nuevos campos ---
+                    data[i].ZZID_Consecutivo.HasValue ? data[i].ZZID_Consecutivo.ToString() : string.Empty,
+                    data[i].ZZIDTOOL_Consecutivo.HasValue ? data[i].ZZIDTOOL_Consecutivo.ToString() : string.Empty
+                };
             }
 
             return Json(jsonData, JsonRequestBehavior.AllowGet);
@@ -4606,7 +4705,12 @@ namespace Portal_2_0.Controllers
         /// </summary>
         /// <param name="material"></param>
         /// <returns></returns>
-        public JsonResult ObtieneValoresMaterialReferencia(string material, string plantaSolicitud)
+        /// <summary>
+        /// Obtiene los datos del material (Local-First con Sincronización On-Demand).
+        /// </summary>
+        /// <param name="material"></param>
+        /// <returns></returns>
+        public async Task<JsonResult> ObtieneValoresMaterialReferencia(string material, string plantaSolicitud)
         {
             // Asegurarnos de comparar en mayúsculas sin espacios adicionales
             material = material?.Trim().ToUpper();
@@ -4615,54 +4719,200 @@ namespace Portal_2_0.Controllers
             // Prepara el arreglo de respuesta
             var respuesta = new object[1];
 
-            // 1) Buscar el registro mm_v3 correspondiente
-            var mm = db.mm_v3
-                .FirstOrDefault(x => x.Material == material && x.Plnt == plantaSolicitud)
-                     ?? db.mm_v3.FirstOrDefault(x => x.Material == material);
+            // Lógica Híbrida (Local-First + On-Demand) ---
 
+            // 1. INTENTO LOCAL (Fast Path)
+            // Usamos AsNoTracking() para optimizar consultas de solo lectura
+            var mm = db_sap.Materials.AsNoTracking().FirstOrDefault(x => x.Matnr == material);
+
+            // 2. SI NO EXISTE, INTENTA SINCRONIZACIÓN ON-DEMAND (Slow Path)
             if (mm == null)
             {
+                System.Diagnostics.Debug.WriteLine("-----> El material " + material + " no existe, intentando on demand...");
+                // Prepara las plantas para la búsqueda
+                List<string> plantasConsulta = new List<string> { "5190", "5390", "5490", "5590", "5890" };
+
+                // Llama al servicio de sincronización (maneja concurrencia, RFC y write-back)
+                bool syncSuccess = await _sapSyncService.SyncMaterialOnDemandAsync(material, plantasConsulta);
+
+                if (syncSuccess)
+                {
+                    // Vuelve a consultar la BD local. Ahora debería existir.
+                    mm = db_sap.Materials.AsNoTracking().FirstOrDefault(x => x.Matnr == material);
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("-----> El material " + material + " existe, cargando desde BD");
+            }
+
+            // 3. VERIFICACIÓN FINAL Y FALLBACK
+            if (mm == null)
+            {
+                // Si 'mm' sigue siendo nulo (la sincronización falló o SAP no lo encontró),
+                // retornamos el error de "No encontrado" (Fallback).
                 respuesta[0] = new
                 {
                     existe = "0",
-                    mensaje = $"No se encontró referencia al material {material}."
+                    mensaje = $"No se encontró referencia al material {material} en la BD local ni en SAP (la sincronización falló o el material no existe)."
                 };
                 return Json(respuesta, JsonRequestBehavior.AllowGet);
             }
 
-            // 2) Obtener class_v3 (si existe) o crear uno vacío para evitar null checks posteriores
-            var cls = db.class_v3.FirstOrDefault(x => x.Object == material)
-                      ?? new class_v3
-                      {
-                          Object = material,
-                          Grade = string.Empty,
-                          Customer = string.Empty,
-                          Shape = string.Empty,
-                          Customer_part_number = string.Empty,
-                          Surface = string.Empty,
-                          Gauge___Metric = string.Empty,
-                          Mill = string.Empty,
-                          Width___Metr = string.Empty,
-                          Length_mm_ = string.Empty,
-                          activo = true,
-                          commodity = string.Empty,
-                          flatness_metric = string.Empty,
-                          surface_treatment = string.Empty,
-                          coating_weight = string.Empty,
-                          customer_part_msa = string.Empty,
-                          outer_diameter_coil = string.Empty,
-                          inner_diameter_coil = string.Empty
-                      };
+
+
+
+            // 1b) Buscar en MaterialPlants (se utiliza para obtener el Plnt y status)
+            var mmPlant = db_sap.MaterialPlants.AsNoTracking()
+                .FirstOrDefault(x => x.Matnr == material && x.Werks == plantaSolicitud)
+                ?? db_sap.MaterialPlants.AsNoTracking().FirstOrDefault(x => x.Matnr == material);
+
+            // 2) Obtener la descripción en español e inglés
+            var mmDescES = db_sap.MaterialDescriptions.AsNoTracking().FirstOrDefault(x => x.Matnr == material && x.Spras == "S");
+            var mmDescEN = db_sap.MaterialDescriptions.AsNoTracking().FirstOrDefault(x => x.Matnr == material && x.Spras == "E");
+
+            // 3) Obtener todas las características del material (class_v3 equivalente)
+            // Se cargan todas las características en un diccionario para un acceso rápido y simple.
+            var characteristics = db_sap.MaterialCharacteristics.AsNoTracking()
+                .Where(x => x.Matnr == material)
+                .ToList()
+                .ToDictionary(x => x.Charact, x => x, StringComparer.OrdinalIgnoreCase);
+
+            // --- FUNCIÓN DE AYUDA: Extrae el Value_Internal (CÓDIGO) ---
+            Func<string, string> GetCharInternal = (charactKey) =>
+            {
+                if (characteristics.TryGetValue(charactKey, out var entry))
+                {
+                    return entry.Value_Internal?.Trim() ?? string.Empty;
+                }
+                return string.Empty;
+            };
+            // --- FUNCIÓN DE AYUDA: Extrae el Value_Desc_En
+            Func<string, string> GetCharDescEN = (charactKey) =>
+            {
+                if (characteristics.TryGetValue(charactKey, out var entry))
+                {
+                    return entry.Value_Desc_En?.Trim() ?? string.Empty;
+                }
+                return string.Empty;
+            };
+            // --- FUNCIÓN DE AYUDA: Extrae el Value_Desc_En
+            Func<string, string> GetCharDescES = (charactKey) =>
+            {
+                if (characteristics.TryGetValue(charactKey, out var entry))
+                {
+                    return entry.Value_Desc_Es?.Trim() ?? string.Empty;
+                }
+                return string.Empty;
+            };
+
+            string plantaCodigo = mmPlant?.Werks?.Trim() ?? string.Empty;
+            string numeroAntiguo = mm.Bismt?.Trim() ?? string.Empty;
+            string unidadBaseMedida = mm.Meins?.Trim() ?? string.Empty;
+            string descripcionEs = mmDescES?.Maktx?.Trim() ?? string.Empty;
+            string descripcionEn = mmDescEN?.Maktx?.Trim() ?? string.Empty;
+            string tipoMaterial = mm.ZZMATTYP?.Trim() ?? string.Empty;
+            string espesor = string.Empty, ancho = string.Empty, avance = string.Empty, tipoMetalString = string.Empty;
+            string typeSellingString = string.Empty, modeloNegocioString = string.Empty, tipoTransporteString = string.Empty;
+
+            //Commodity
+            string commoditySAPCode = GetCharInternal(SAPCharacteristics.COMMODITY.ToString());
+            string commodityString = db.SCDM_cat_commodity
+                .FirstOrDefault(x => x.clave == commoditySAPCode.ToUpper() || x.descripcion.ToUpper() == commoditySAPCode.ToUpper())
+                ?.ConcatCommodity ?? GetCharDescEN(SAPCharacteristics.COMMODITY.ToString());
+
+            //Cliente
+            string customerSAPCode = GetCharInternal(SAPCharacteristics.CUSTOMER_NUMBER.ToString());
+            string clienteString = db.clientes
+                .FirstOrDefault(x => x.claveSAP == customerSAPCode)
+                ?.ConcatClienteSAP ?? customerSAPCode;
+
+            // Dimensiones (formato "EspesorXAnchoXAvance", separadas por 'X')
+            if (!string.IsNullOrEmpty(mm.Groes))
+            {
+                var dims = mm.Groes.Replace(" ", "").ToUpper().Split('X');
+                if (dims.Length >= 1) espesor = dims[0];
+                if (dims.Length >= 2) ancho = dims[1];
+                if (dims.Length >= 3) avance = dims[2];
+            }
+
+            string espesorChar = GetCharInternal(SAPCharacteristics.GAUGE_M.ToString());
+            string espesorMin = getTolerancia(espesorChar, espesor, "min");
+            string espesorMax = getTolerancia(espesorChar, espesor, "max");
+
+            string anchoChar = GetCharInternal(SAPCharacteristics.WIDTH_M.ToString());
+            string anchoMin = getTolerancia(anchoChar, ancho, "min");
+            string anchoMax = getTolerancia(anchoChar, ancho, "max");
+
+            string avanceChar = GetCharInternal(SAPCharacteristics.LENGTH_M.ToString());
+            string avanceMin = getTolerancia(avanceChar, avance, "min");
+            string avanceMax = getTolerancia(avanceChar, avance, "max");
+
+            //tipo metal
+            var tm = db.SCDM_cat_tipo_metal.FirstOrDefault(x => x.descripcion.ToUpper() == mm.ZZMTLTYP.ToUpper());
+            if (tm != null)
+            {
+                tipoMetalString = tm.descripcion;
+            }
+            else
+            {
+                var tmcb = db.SCDM_cat_tipo_metal_cb.FirstOrDefault(x => x.descripcion.ToUpper() == mm.ZZMTLTYP.ToUpper());
+                if (tmcb != null) tipoMetalString = tmcb.descripcion;
+            }
+
+            // Type of Selling (tabla tipo venta)
+            var tv = db.SCDM_cat_tipo_venta.FirstOrDefault(x => x.descripcion.ToUpper() == mm.ZZSELLTYP.ToUpper());
+            if (tv != null) typeSellingString = tv.descripcion;
+
+            //Modelo negocio
+            // Modelo de Negocio
+            var mn = db.SCDM_cat_modelo_negocio.FirstOrDefault(x => x.descripcion.ToUpper() == mm.ZZBUSSMODL.ToUpper());
+            if (mn != null) modeloNegocioString = mn.descripcion.Trim();
+
+            // Tipo Transporte
+            var tipoTransporte = db.SCDM_cat_tipo_transporte.FirstOrDefault(x => x.clave == mm.ZZTRANSP);
+            if (tipoTransporte != null) tipoTransporteString = tipoTransporte.descripcion;
+
+            //stacks por paquete
+            string stacksPacString = mm.ZZSPACKAGE.HasValue && mm.ZZSPACKAGE.Value > 0 ? mm.ZZSPACKAGE.ToString() : string.Empty;
+
+            string tipoPalletString = mm.ZZPALLET?.Trim() ?? string.Empty;
+            string tkmmSOPString = mm.ZZTKMMSOP?.Trim() ?? string.Empty;
+            string tkmmEOPString = mm.ZZTKMMEOP?.Trim() ?? string.Empty;
+            string pesoBrutoRealBasculaString = mm.ZZREALGRWT.HasValue && mm.ZZREALGRWT.Value > 0 ? mm.ZZREALGRWT.ToString() : string.Empty;
+            string pesoNetoRealBasculaString = mm.ZZREALNTWT.HasValue && mm.ZZREALNTWT.Value > 0 ? mm.ZZREALNTWT.ToString() : string.Empty;
+            string anguloAString = mm.ZZANGLEA.HasValue && mm.ZZANGLEA.Value > 0 ? mm.ZZANGLEA.ToString() : string.Empty;
+            string anguloBString = mm.ZZANGLEB.HasValue && mm.ZZANGLEB.Value > 0 ? mm.ZZANGLEB.ToString() : string.Empty;
+            string scrapPermitidoString = mm.ZZHTALSCRP.HasValue && mm.ZZHTALSCRP.Value > 0 ? mm.ZZHTALSCRP.ToString() : string.Empty;
+
+            // Si tiene valor colocar 'X'
+            string piezasDoblesString = mm.ZZDOUPCS.HasValue && mm.ZZDOUPCS.Value ? "X" : string.Empty;
+
+            // Dependiendo del valor colocar "true"/"false"
+            string reaplicacionString = mm.ZZREAPPL.HasValue && mm.ZZREAPPL.Value ? "true" : "false";
+            string conciliacionPuntasColasString = mm.ZZCUSTSCRP.HasValue && mm.ZZCUSTSCRP.Value ? "true" : "false";
+            string conciliacionScrapIngenieriaString = mm.ZZENGSCRP.HasValue && mm.ZZENGSCRP.Value ? "true" : "false";
+
+            //pesos
+            string piezasPorGolpeString = mm.ZZSTKPCS.HasValue && mm.ZZSTKPCS.Value > 0 ? mm.ZZSTKPCS.ToString() : string.Empty; // Asumo ZZSTKPCS para piezas por golpe
+            string piezasPorPaqueteString = mm.ZZPKGPCS.HasValue && mm.ZZPKGPCS.Value > 0 ? mm.ZZPKGPCS.ToString() : string.Empty;
+            string pesoInicialString = mm.ZZINITWT.HasValue && mm.ZZINITWT.Value > 0 ? mm.ZZINITWT.ToString() : string.Empty;
+            string pesoMaximoString = mm.ZZMAXWT.HasValue && mm.ZZMAXWT.Value > 0 ? mm.ZZMAXWT.ToString() : string.Empty;
+            string pesoMaximoTolPositivaString = mm.ZZMXWTTOLP?.ToString() ?? string.Empty;
+            string pesoMaximoTolNegativaString = mm.ZZMXWTTOLN?.ToString() ?? string.Empty;
+            string pesoMinimoString = mm.ZZMINWT.HasValue && mm.ZZMINWT.Value > 0 ? mm.ZZMINWT.ToString() : string.Empty;
+            string pesoMinimoTolPositivaString = mm.ZZMNWTTOLP?.ToString() ?? string.Empty;
+            string pesoMinimoTolNegativaString = mm.ZZMNWTTOLN?.ToString() ?? string.Empty;
 
             // 3) Preparar lista de descripciones IHS (en mayúsculas) y consultar en una sola pasada
             var ihsDescs = new[]
             {
-        mm.IHS_number_1?.ToUpper(),
-        mm.IHS_number_2?.ToUpper(),
-        mm.IHS_number_3?.ToUpper(),
-        mm.IHS_number_4?.ToUpper(),
-        mm.IHS_number_5?.ToUpper()
-    }
+                mm.ZZIHSNUM1?.Trim().ToUpper(),
+                mm.ZZIHSNUM2?.Trim().ToUpper(),
+                mm.ZZIHSNUM3?.Trim().ToUpper(),
+                mm.ZZIHSNUM4?.Trim().ToUpper(),
+                mm.ZZIHSNUM5?.Trim().ToUpper(),
+            }
             .Where(d => !string.IsNullOrWhiteSpace(d))
             .Distinct()
             .ToList();
@@ -4672,181 +4922,120 @@ namespace Portal_2_0.Controllers
                 .ToList()
                 .ToDictionary(x => x.descripcion.ToUpper(), x => x);
 
-            string IHS1String = !string.IsNullOrWhiteSpace(mm.IHS_number_1) && ihsEntries.TryGetValue(mm.IHS_number_1.ToUpper(), out var ie1)
-                ? ie1.descripcion
-                : mm.IHS_number_1;
-            string IHS2String = !string.IsNullOrWhiteSpace(mm.IHS_number_2) && ihsEntries.TryGetValue(mm.IHS_number_2.ToUpper(), out var ie2)
-                ? ie2.descripcion
-                : mm.IHS_number_2;
-            string IHS3String = !string.IsNullOrWhiteSpace(mm.IHS_number_3) && ihsEntries.TryGetValue(mm.IHS_number_3.ToUpper(), out var ie3)
-                ? ie3.descripcion
-                : mm.IHS_number_3;
-            string IHS4String = !string.IsNullOrWhiteSpace(mm.IHS_number_4) && ihsEntries.TryGetValue(mm.IHS_number_4.ToUpper(), out var ie4)
-                ? ie4.descripcion
-                : mm.IHS_number_4;
-            string IHS5String = !string.IsNullOrWhiteSpace(mm.IHS_number_5) && ihsEntries.TryGetValue(mm.IHS_number_5.ToUpper(), out var ie5)
-                ? ie5.descripcion
-                : mm.IHS_number_5;
+            string IHS1String = !string.IsNullOrWhiteSpace(mm.ZZIHSNUM1) && ihsEntries.TryGetValue(mm.ZZIHSNUM1.ToUpper(), out var ie1)
+                ? ie1.descripcion : mm.ZZIHSNUM1;
+            string IHS2String = !string.IsNullOrWhiteSpace(mm.ZZIHSNUM2) && ihsEntries.TryGetValue(mm.ZZIHSNUM2.ToUpper(), out var ie2)
+                ? ie2.descripcion : mm.ZZIHSNUM2;
+            string IHS3String = !string.IsNullOrWhiteSpace(mm.ZZIHSNUM3) && ihsEntries.TryGetValue(mm.ZZIHSNUM3.ToUpper(), out var ie3)
+                ? ie3.descripcion : mm.ZZIHSNUM3;
+            string IHS4String = !string.IsNullOrWhiteSpace(mm.ZZIHSNUM4) && ihsEntries.TryGetValue(mm.ZZIHSNUM4.ToUpper(), out var ie4)
+                ? ie4.descripcion : mm.ZZIHSNUM4;
+            string IHS5String = !string.IsNullOrWhiteSpace(mm.ZZIHSNUM5) && ihsEntries.TryGetValue(mm.ZZIHSNUM5.ToUpper(), out var ie5)
+                ? ie5.descripcion : mm.ZZIHSNUM5;
 
             // 4) Construir cadena de país de origen basada en el IHS1 (o defecto "MEX")
             string paisOrigen = "MEX";
-            if (ihsEntries.TryGetValue(mm.IHS_number_1?.ToUpper() ?? "", out var ihsObj) &&
+            if (ihsEntries.TryGetValue(mm.ZZIHSNUM1?.ToUpper() ?? "", out var ihsObj) &&
                 !string.IsNullOrEmpty(ihsObj.Country) &&
                 ihsObj.Country != "ALL")
             {
                 paisOrigen = ihsObj.Country;
             }
 
-            // 5) Si cls existía en BD: Rescatar valores referenciados desde las tablas relacionadas
-            //    (commodity, shape, cliente, tipoVenta, modeloNegocio, posicionRollo, tipoMetal, dimensiones, piezas_por_paquete)
-            string commodityString = string.Empty;
-            string shapeString = string.Empty;
-            string clienteString = string.Empty;
-            string tipoMetalString = string.Empty;
-            string tipoMaterialString = mm.Type_of_Material; // viene directo de mm
-            string typeSellingString = mm.Type_of_Selling;
-            string modeloNegocioString = mm.Business_Model;
-            string posicionRolloString = mm.coil_position;
-            string tipoTransporteString = mm.Tipo_de_Transporte;
-            string espesor = string.Empty, ancho = string.Empty, avance = string.Empty;
-            string piezasPorPaqueteString = mm.Package_Pieces;
-
-            if (cls != null)
-            {
-                // Commodity
-                var comm = db.SCDM_cat_commodity.FirstOrDefault(x => x.descripcion == cls.commodity);
-                if (comm != null) commodityString = comm.ConcatCommodity;
-
-                // Shape
-                var shp = db.SCDM_cat_forma_material.FirstOrDefault(x => x.descripcion_en == cls.Shape);
-                if (shp != null) shapeString = shp.descripcion;
-                // Tipo Transporte
-                var tipoTransporte = db.SCDM_cat_tipo_transporte.FirstOrDefault(x => x.clave == mm.Tipo_de_Transporte);
-                if (tipoTransporte != null) tipoTransporteString = tipoTransporte.descripcion;
-
-                // Cliente
-                var cli = db.clientes.FirstOrDefault(x => x.claveSAP == cls.Customer);
-                if (cli != null) clienteString = cli.ConcatClienteSAP;
-
-                // Type of Selling (tabla tipo venta)
-                var tv = db.SCDM_cat_tipo_venta.FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Selling.ToUpper());
-                if (tv != null) typeSellingString = tv.descripcion;
-
-                // Modelo de Negocio
-                var mn = db.SCDM_cat_modelo_negocio.FirstOrDefault(x => x.descripcion.ToUpper() == mm.Business_Model.ToUpper());
-                if (mn != null) modeloNegocioString = mn.descripcion.Trim();
-
-                // Posición de Rollo para Embarque
-                var pr = db.SCDM_cat_posicion_rollo_embarques.FirstOrDefault(x => x.descripcion.ToUpper() == mm.coil_position.ToUpper());
-                if (pr != null) posicionRolloString = pr.descripcion;
-
-                // Tipo de Metal (puede venir de dos tablas)
-                var tm = db.SCDM_cat_tipo_metal.FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
-                if (tm != null)
-                {
-                    tipoMetalString = tm.descripcion;
-                }
-                else
-                {
-                    var tmcb = db.SCDM_cat_tipo_metal_cb.FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
-                    if (tmcb != null) tipoMetalString = tmcb.descripcion;
-                }
-
-                // Dimensiones (formato "EspesorXAnchoXAvance", separadas por 'X')
-                if (!string.IsNullOrEmpty(mm.size_dimensions))
-                {
-                    var dims = mm.size_dimensions.Replace(" ", "").ToUpper().Split('X');
-                    if (dims.Length >= 1) espesor = dims[0];
-                    if (dims.Length >= 2) ancho = dims[1];
-                    if (dims.Length >= 3) avance = dims[2];
-                }
-
-                // Piezas por paquete (si es numérico)
-                if (int.TryParse(mm.Package_Pieces, out var ppq)) piezasPorPaqueteString = ppq.ToString();
-            }
-
-            // 6) Obtiene plantaString
-            var plantaObj = db.plantas.FirstOrDefault(x => x.codigoSap == mm.Plnt);
-            string plantaString = plantaObj?.ConcatPlantaSap ?? string.Empty;
-
             // 7) Preparar la respuesta anónima
             respuesta[0] = new
             {
                 existe = "1",
                 mensaje = "Se cargó correctamente",
-                planta = mm.Plnt,
-                planta_string = plantaString,
-                numero_antiguo_material = mm.Old_material_no_,
-                peso_bruto = mm.Gross_weight?.ToString() ?? string.Empty,
-                peso_neto = mm.Net_weight?.ToString() ?? string.Empty,
-                unidad_base_medida = mm.unidad_medida,
+                planta = plantaCodigo,
+                planta_string = db.plantas.FirstOrDefault(x => x.codigoSap == plantaCodigo)?.ConcatPlantaSap ?? string.Empty,
+                numero_antiguo_material = numeroAntiguo,
+                peso_bruto = mm.Brgew?.ToString() ?? string.Empty,
+                peso_neto = mm.Ntgwe?.ToString() ?? string.Empty,
+                unidad_base_medida = unidadBaseMedida,
                 commodity = commodityString,
-                grado = cls.Grade,
+                grado = GetCharDescEN(SAPCharacteristics.GRADE.ToString()),
                 espesor = espesor,
-                espesor_min = getTolerancia(cls.Gauge___Metric, espesor, "min"),
-                espesor_max = getTolerancia(cls.Gauge___Metric, espesor, "max"),
+                espesor_min = espesorMin,
+                espesor_max = espesorMax,
                 ancho = ancho,
-                ancho_min = getTolerancia(cls.Width___Metr, ancho, "min"),
-                ancho_max = getTolerancia(cls.Width___Metr, ancho, "max"),
+                ancho_min = anchoMin,
+                ancho_max = anchoMax,
                 avance = avance,
-                avance_min = getTolerancia(cls.Length_mm_, avance, "min"),
-                avance_max = getTolerancia(cls.Length_mm_, avance, "max"),
-                planicidad = string.Concat(cls.flatness_metric?.Where(c => c == '.' || char.IsDigit(c)) ?? Enumerable.Empty<char>()),
-                superficie = cls.Surface,
-                tratamiento_superficial = cls.surface_treatment,
-                peso_recubrimiento = cls.coating_weight,
-                molino = cls.Mill,
-                forma = shapeString,
+                avance_min = avanceMin,
+                avance_max = avanceMax,
+                planicidad = GetCharInternal(SAPCharacteristics.FLATNESS_M.ToString()),
+                superficie = GetCharDescEN(SAPCharacteristics.SURFACE.ToString()),
+                tratamiento_superficial = GetCharDescEN(SAPCharacteristics.SURFACE_TREATMENT.ToString()),
+                peso_recubrimiento = GetCharDescEN(SAPCharacteristics.COATING_WEIGHT.ToString()),
+                molino = GetCharDescEN(SAPCharacteristics.MILL.ToString()),
+                forma = GetCharDescES(SAPCharacteristics.SHAPE.ToString()),
                 cliente = clienteString,
-                numero_parte_cliente = cls.Customer_part_number,
-                msa = cls.customer_part_msa,
-                diametro_interior = !string.IsNullOrEmpty(cls.inner_diameter_coil)
-                    ? float.Parse(string.Concat(cls.inner_diameter_coil.Where(c => c == '.' || char.IsDigit(c)))).ToString()
-                    : string.Empty,
-                diametro_exterior = string.Concat(cls.outer_diameter_coil?.Where(c => c == '.' || char.IsDigit(c)) ?? Enumerable.Empty<char>()),
-                descripcion_es = mm.material_descripcion_es,
-                descripcion_en = mm.Material_Description,
+                numero_parte_cliente = GetCharInternal(SAPCharacteristics.CUSTOMER_PART_NUMBER.ToString()),
+                msa = GetCharInternal(SAPCharacteristics.CUSTOMER_PART2.ToString()),
+                diametro_interior = ExtractIntegerValue(GetCharInternal(SAPCharacteristics.ID_COIL_M.ToString())),
+                diametro_exterior = ExtractIntegerValue(GetCharInternal(SAPCharacteristics.OD_COIL_M.ToString())),
+                descripcion_es = descripcionEs,
+                descripcion_en = descripcionEn,
                 tipo_metal = tipoMetalString,
-                tipo_material = mm.Type_of_Material,
+                tipo_material = tipoMaterial,
                 type_selling = typeSellingString,
                 modelo_negocio = modeloNegocioString,
-                posicionRollo = posicionRolloString,
+                posicionRollo = mm.ZZCOILSLTPOS?.ToString() ?? string.Empty,
                 pais_origen = paisOrigen,
                 ihs_1 = IHS1String,
                 ihs_2 = IHS2String,
                 ihs_3 = IHS3String,
                 ihs_4 = IHS4String,
                 ihs_5 = IHS5String,
-                almacen_norte = mm.Almacen_Norte.HasValue && mm.Almacen_Norte.Value ? "SÍ" : "NO",
+                almacen_norte = mm.ZZWH.HasValue && mm.ZZWH.Value ? "SÍ" : "NO",
                 tipo_transporte = tipoTransporteString,
-                stacks_paquete = (mm.Stacks_Pac ?? 0) == 0 ? string.Empty : mm.Stacks_Pac.ToString(),
-                tipo_pallet = mm.Type_of_Pallet,
-                tkmm_sop = mm.Tkmm_SOP.HasValue ? mm.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty,
-                tkmm_eop = mm.Tkmm_EOP.HasValue ? mm.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty,
-                peso_bruto_real_bascula = (mm.real_gross_weight ?? 0) == 0 ? string.Empty : mm.real_gross_weight.ToString(),
-                peso_neto_real_bascula = (mm.real_net_weight ?? 0) == 0 ? string.Empty : mm.real_net_weight.ToString(),
-                angulo_a = (mm.angle_a ?? 0) == 0 ? string.Empty : mm.angle_a.ToString(),
-                angulo_b = (mm.angle_b ?? 0) == 0 ? string.Empty : mm.angle_b.ToString(),
-                scrap_permitido_puntas_colas = (mm.Head_and_Tail_allowed_scrap ?? 0) == 0 ? string.Empty : mm.Head_and_Tail_allowed_scrap.ToString(),
-                piezas_dobles = mm.double_pieces,
-                reaplicacion = !string.IsNullOrEmpty(mm.Re_application) ? "true" : "false",
-                conciliacion_puntas_colas = !string.IsNullOrEmpty(mm.Head_and_Tails_Scrap_Conciliation) ? "true" : "false",
-                conciliacion_scrap_ingenieria = !string.IsNullOrEmpty(mm.Engineering_Scrap_conciliation) ? "true" : "false",
-                piezas_por_auto = (mm.Pieces_per_car ?? 0) == 0 ? string.Empty : mm.Pieces_per_car.ToString(),
-                piezas_por_golpe = (mm.num_piezas_golpe ?? 0) == 0 ? string.Empty : mm.num_piezas_golpe.ToString(),
-                piezas_por_paquete = piezasPorPaqueteString == "0" ? string.Empty : piezasPorPaqueteString,
-                peso_inicial = (mm.Initial_Weight ?? 0) == 0 ? string.Empty : mm.Initial_Weight.ToString(),
-                peso_maximo = (mm.Maximum_Weight ?? 0) == 0 ? string.Empty : mm.Maximum_Weight.ToString(),
-                peso_maximo_tolerancia_positiva = (mm.maximum_weight_tol_positive ?? 0).ToString(),
-                peso_maximo_tolerancia_negativa = (mm.maximum_weight_tol_negative ?? 0).ToString(),
-                peso_minimo = (mm.Min_Weight ?? 0) == 0 ? string.Empty : mm.Min_Weight.ToString(),
-                peso_minimo_tolerancia_positiva = (mm.minimum_weight_tol_positive ?? 0).ToString(),
-                peso_minimo_tolerancia_negativa = (mm.minimum_weight_tol_negative ?? 0).ToString()
+                stacks_paquete = stacksPacString,
+                tipo_pallet = tipoPalletString,
+                tkmm_sop = tkmmSOPString,
+                tkmm_eop = tkmmEOPString,
+                peso_bruto_real_bascula = pesoBrutoRealBasculaString,
+                peso_neto_real_bascula = pesoNetoRealBasculaString,
+                angulo_a = anguloAString,
+                angulo_b = anguloBString,
+                scrap_permitido_puntas_colas = scrapPermitidoString,
+                piezas_dobles = piezasDoblesString, // Se usa 'X'/''
+                reaplicacion = reaplicacionString,
+                conciliacion_puntas_colas = conciliacionPuntasColasString,
+                conciliacion_scrap_ingenieria = conciliacionScrapIngenieriaString,
+                piezas_por_auto = mm.ZZCARPCS.HasValue && mm.ZZCARPCS.Value > 0 ? mm.ZZCARPCS.ToString() : string.Empty,
+                piezas_por_golpe = piezasPorGolpeString,
+                piezas_por_paquete = piezasPorPaqueteString,
+                peso_inicial = pesoInicialString,
+                peso_maximo = pesoMaximoString,
+                peso_maximo_tolerancia_positiva = pesoMaximoTolPositivaString,
+                peso_maximo_tolerancia_negativa = pesoMaximoTolNegativaString,
+                peso_minimo = pesoMinimoString,
+                peso_minimo_tolerancia_positiva = pesoMinimoTolPositivaString,
+                peso_minimo_tolerancia_negativa = pesoMinimoTolNegativaString
             };
 
             return Json(respuesta, JsonRequestBehavior.AllowGet);
         }
 
+        [NonAction]
+        public string ExtractIntegerValue(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+
+            // 1. Limpiar el valor para dejar solo números y punto decimal
+            string cleanValue = string.Concat(value.Where(c => c == '.' || char.IsDigit(c)));
+
+            // 2. Intentar parsear el valor limpio
+            // Se usa InvariantCulture para asegurar que el punto sea interpretado correctamente como separador decimal.
+            if (float.TryParse(cleanValue, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out float numericValue))
+            {
+                // 3. Truncar a entero (ej. 610.000 -> 610) y devolver como string
+                return ((int)Math.Truncate(numericValue)).ToString();
+            }
+
+            return string.Empty;
+        }
 
         [NonAction]
         public string getTolerancia(string tolerancias, string valor, string tipo)
@@ -4914,7 +5103,8 @@ namespace Portal_2_0.Controllers
               "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
               ,"Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Max (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
-              ,"Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
+              ,"Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa",
+              "Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description","Consecutivo"
             };
 
 
@@ -4939,7 +5129,19 @@ namespace Portal_2_0.Controllers
                     peso_maximo_tolerancia_positiva = null, stacks = null;
                 DateTime? fecha_validez = null, sop = null, eop = null;
 
+                int? zzid_consecutivo = null;
+
                 #region Asignacion de variables
+
+                if (Array.IndexOf(encabezados, "Consecutivo") > -1)
+                {
+                    string valConsecutivo = array[Array.IndexOf(encabezados, "Consecutivo")];
+                    if (!string.IsNullOrEmpty(valConsecutivo) && int.TryParse(valConsecutivo, out int resConsecutivo))
+                    {
+                        zzid_consecutivo = resConsecutivo;
+                    }
+                }
+
                 //id_rollo
                 if (int.TryParse(array[Array.IndexOf(encabezados, "ID")], out int id_rol))
                     id_rollo = id_rol;
@@ -5175,6 +5377,13 @@ namespace Portal_2_0.Controllers
                     peso_min_kg = peso_min_kg, //data[28]
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null,
+                    ZZID_Consecutivo = zzid_consecutivo,
                 };
 
                 resultado.Add(datos);
@@ -5204,7 +5413,8 @@ namespace Portal_2_0.Controllers
                "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
             , "Peso Inicial", "Peso Max. entrega cinta (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
-            , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
+            , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa",
+              "Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description", "Consecutivo", "ConsecutivoTool"
             };
 
             //recorre todos los arrays recibidos
@@ -5229,8 +5439,28 @@ namespace Portal_2_0.Controllers
                     peso_maximo_tolerancia_positiva = null, peso_min_kg = null, piezas_por_golpe = null, piezas_por_auto = null, stacks = null;
                 ;
                 DateTime? fecha_validez = null, sop = null, eop = null;
+                int? zzid_consecutivo = null;
+                int? zzidtool_consecutivo = null;
 
                 #region Asignacion de variables
+                if (Array.IndexOf(encabezados, "Consecutivo") > -1)
+                {
+                    string valConsecutivo = array[Array.IndexOf(encabezados, "Consecutivo")];
+                    if (!string.IsNullOrEmpty(valConsecutivo) && int.TryParse(valConsecutivo, out int resConsecutivo))
+                    {
+                        zzid_consecutivo = resConsecutivo;
+                    }
+                }
+
+                if (Array.IndexOf(encabezados, "ConsecutivoTool") > -1)
+                {
+                    string val = array[Array.IndexOf(encabezados, "ConsecutivoTool")];
+                    if (!string.IsNullOrEmpty(val) && int.TryParse(val, out int res))
+                    {
+                        zzidtool_consecutivo = res;
+                    }
+                }
+
                 //id_platina
                 if (int.TryParse(array[Array.IndexOf(encabezados, "ID")], out int id_x))
                     id_platina = id_x;
@@ -5493,6 +5723,14 @@ namespace Portal_2_0.Controllers
                     peso_min_kg = peso_min_kg, //data[28]
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null,
+                    ZZID_Consecutivo = zzid_consecutivo,
+                    ZZIDTOOL_Consecutivo = zzidtool_consecutivo
                 });
             }
 
@@ -5524,7 +5762,8 @@ namespace Portal_2_0.Controllers
            "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
             , "Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
-            , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
+            , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa",
+              "Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description", "Consecutivo"
             };
 
             //recorre todos los arrays recibidos
@@ -5547,7 +5786,18 @@ namespace Portal_2_0.Controllers
                     peso_maximo_tolerancia_positiva = null, peso_min_kg = null, stacks = null;
                 DateTime? fecha_validez = null, sop = null, eop = null;
 
+                int? zzid_consecutivo = null;
+
                 #region Asignacion de variables
+                if (Array.IndexOf(encabezados, "Consecutivo") > -1)
+                {
+                    string valConsecutivo = array[Array.IndexOf(encabezados, "Consecutivo")];
+                    if (!string.IsNullOrEmpty(valConsecutivo) && int.TryParse(valConsecutivo, out int resConsecutivo))
+                    {
+                        zzid_consecutivo = resConsecutivo;
+                    }
+                }
+
                 //id_rollo
                 if (int.TryParse(array[Array.IndexOf(encabezados, "ID")], out int id_cin))
                     id_cinta = id_cin;
@@ -5794,6 +6044,13 @@ namespace Portal_2_0.Controllers
                     peso_min_kg = peso_min_kg, //data[28]
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null,
+                    ZZID_Consecutivo = zzid_consecutivo,
                 });
             }
             return resultado;
@@ -5974,7 +6231,7 @@ namespace Portal_2_0.Controllers
                 , "Piezas por auto", "Pzas por Golpe", "Pzas por paquete", "Peso Inicial", "Peso Max (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
                 , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa",
                 //Fin Budget
-                "Otro Dato", "Comentario Adicional"
+                "Otro Dato", "Comentario Adicional", "Valido", "Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description"
             };
 
             //recorre todos los arrays recibidos
@@ -6235,6 +6492,12 @@ namespace Portal_2_0.Controllers
                     peso_minimo = peso_min_kg, //data[28]
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null,
                 };
 
 
@@ -6268,7 +6531,8 @@ namespace Portal_2_0.Controllers
                 "Avance (mm)", "Tolerancia avance negativa (mm)", "Tolerancia avance positiva (mm)",
                 "Planicidad (mm)", "Superficie", "Tratamiento Superficial", "Peso del recubrimiento", "Nombre Molino", "Forma", "Núm. cliente", "Núm. parte del cliente",
                 "MSA (Honda)","Diametro Exterior", "Diametro Interior",
-                "Otro Dato", "Comentario Adicional"
+                "Otro Dato", "Comentario Adicional", "Valido",
+                "Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description"
             };
 
             //recorre todos los arrays recibidos
@@ -6413,6 +6677,12 @@ namespace Portal_2_0.Controllers
                     comentarios = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Comentario Adicional")]) ? array[Array.IndexOf(encabezados, "Comentario Adicional")] : null,
                     nuevo_dato = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Otro Dato")]) ? array[Array.IndexOf(encabezados, "Otro Dato")] : null,
                     tipo_material_text = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Material")]) ? array[Array.IndexOf(encabezados, "Tipo de Material")] : null,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null
                 };
 
                 //actualiza los cambios vs el material de referencia (BD)
@@ -6443,7 +6713,7 @@ namespace Portal_2_0.Controllers
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
                , "Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Máximo", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
                , "Peso Minimo", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
-               ,"Valido"
+               ,"Valido","Status DM", "ID Part Number", "ID Tool", "ID Material Obsoleto", "ID Clasificacion/Motivo", "Tour Description"
             };
 
             //recorre todos los arrays recibidos
@@ -6611,6 +6881,12 @@ namespace Portal_2_0.Controllers
                     peso_minimo = peso_minimo,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
+                    ZZSTAMD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Status DM")]) ? array[Array.IndexOf(encabezados, "Status DM")] : null,
+                    ZZIDPNUM = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Part Number")]) ? array[Array.IndexOf(encabezados, "ID Part Number")] : null,
+                    ZZIDTOOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Tool")]) ? array[Array.IndexOf(encabezados, "ID Tool")] : null,
+                    ZZIDOBSOL = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Material Obsoleto")]) ? array[Array.IndexOf(encabezados, "ID Material Obsoleto")] : null,
+                    ZZCLASMOV = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")]) ? array[Array.IndexOf(encabezados, "ID Clasificacion/Motivo")] : null,
+                    ZZTOURD = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tour Description")]) ? array[Array.IndexOf(encabezados, "Tour Description")] : null,
                 };
 
 
@@ -6623,505 +6899,464 @@ namespace Portal_2_0.Controllers
         private string GetCambiosCambioIngenieria(SCDM_solicitud_rel_cambio_ingenieria cambio)
         {
             string result = string.Empty;
-            //declaracion de variables
-            string commodityString = string.Empty;
-            string shapeString = string.Empty;
-            string clienteString = string.Empty;
-            string tipoMetalString = string.Empty;
-            string tipoMaterialString = String.Empty;
-            string typeSellingString = String.Empty;
-            string espesor = string.Empty;
-            string espesor_tolerancia_negativa = string.Empty;
-            string espesor_tolerancia_positiva = string.Empty;
-            string ancho = string.Empty;
-            string avance = string.Empty;
-            string plantaString = string.Empty;
 
-            //obtiene la planta de la solicitud
+            // --- OBTENCIÓN DE DATOS ORIGINALES (SAP) ---
+
+            string material = cambio.material_existente?.Trim().ToUpper();
             plantas planta = db.plantas.Find(cambio.id_planta);
+            if (planta == null)
+            {
+                return "Error: No se encontró la planta de la solicitud.";
+            }
+            string plantaSolicitud = planta.codigoSap;
 
-            //obtiene el valor de mm
-            mm_v3 mm = null;
+            var mm = db_sap.Materials.FirstOrDefault(x => x.Matnr == material);
+            if (mm == null)
+            {
+                return "Error: No se encontró el material de referencia en SAP.";
+            }
 
-            //obtiene todos los posibles valores
-            var mmList = db.mm_v3.Where(x => x.Material == cambio.material_existente);
+            var characteristics = db_sap.MaterialCharacteristics
+                .Where(x => x.Matnr == material)
+                .ToList()
+                .ToDictionary(x => x.Charact, x => x, StringComparer.OrdinalIgnoreCase);
 
-            //trata de obtener el valor que corresponde a la planta
-            if (mmList.Any(x => x.Plnt == planta.codigoSap))
-                mm = mmList.FirstOrDefault(x => x.Plnt == planta.codigoSap);
+            var mmDescEN = db_sap.MaterialDescriptions.FirstOrDefault(x => x.Matnr == material && x.Spras == "E");
+            var mmDescES = db_sap.MaterialDescriptions.FirstOrDefault(x => x.Matnr == material && x.Spras == "S");
+
+            // --- Funciones auxiliares locales (Getters) ---
+            Func<string, string> GetCharInternal = (charactKey) =>
+            {
+                if (characteristics.TryGetValue(charactKey, out var entry))
+                {
+                    return entry.Value_Internal?.Trim() ?? string.Empty;
+                }
+                return string.Empty;
+            };
+            Func<string, string> GetCharDescEN = (charactKey) =>
+            {
+                if (characteristics.TryGetValue(charactKey, out var entry))
+                {
+                    return entry.Value_Desc_En?.Trim() ?? string.Empty;
+                }
+                return string.Empty;
+            };
+            Func<string, string> GetCharDescES = (charactKey) =>
+            {
+                if (characteristics.TryGetValue(charactKey, out var entry))
+                {
+                    return entry.Value_Desc_Es?.Trim() ?? string.Empty;
+                }
+                return string.Empty;
+            };
+            Func<string, string> GetCharValueFull = (charactKey) =>
+            {
+                if (characteristics.TryGetValue(charactKey, out var entry))
+                {
+                    return entry.Value_Internal?.Trim() ?? string.Empty;
+                }
+                return string.Empty;
+            };
+
+            // --- CÁLCULO DE VALORES ORIGINALES (mm_v3/class_v3 fields) ---
+
+            // Mapeo de Catálogos (Commodity)
+            string commoditySAPCode = GetCharInternal(SAPCharacteristics.COMMODITY.ToString());
+            string original_commodityString = db.SCDM_cat_commodity.FirstOrDefault(x => x.clave == commoditySAPCode.ToUpper() || x.descripcion.ToUpper() == commoditySAPCode.ToUpper())
+                ?.ConcatCommodity ?? GetCharDescEN(SAPCharacteristics.COMMODITY.ToString());
+
+            // Mapeo de Catálogos (Grade)
+            string gradeSAPCode = GetCharInternal(SAPCharacteristics.GRADE.ToString());
+            string original_gradeString = db.SCDM_cat_grado_calidad.FirstOrDefault(x => x.clave == gradeSAPCode.ToUpper() || x.grado_calidad.ToUpper() == gradeSAPCode.ToUpper())
+                ?.grado_calidad ?? GetCharDescEN(SAPCharacteristics.GRADE.ToString());
+
+            // Mapeo de Catálogos (Cliente)
+            string customerSAPCode = GetCharInternal(SAPCharacteristics.CUSTOMER_NUMBER.ToString());
+            string original_clienteString = db.clientes.FirstOrDefault(x => x.claveSAP == customerSAPCode)
+                ?.ConcatClienteSAP ?? customerSAPCode;
+
+            // Dimensiones Nominales (de mm.Groes)
+            string original_espesor = string.Empty, original_ancho = string.Empty, original_avance = string.Empty;
+            if (!string.IsNullOrEmpty(mm.Groes))
+            {
+                var dims = mm.Groes.Replace(" ", "").ToUpper().Split('X');
+                if (dims.Length >= 1) original_espesor = dims[0];
+                if (dims.Length >= 2) original_ancho = dims[1];
+                if (dims.Length >= 3) original_avance = dims[2];
+            }
+
+            // Tolerancias (calculadas con getTolerancia)
+            string espesorChar = GetCharInternal(SAPCharacteristics.GAUGE_M.ToString());
+            string original_espesorMin = getTolerancia(espesorChar, original_espesor, "min");
+            string original_espesorMax = getTolerancia(espesorChar, original_espesor, "max");
+
+            string anchoChar = GetCharInternal(SAPCharacteristics.WIDTH_M.ToString());
+            string original_anchoMin = getTolerancia(anchoChar, original_ancho, "min");
+            string original_anchoMax = getTolerancia(anchoChar, original_ancho, "max");
+
+            string avanceChar = GetCharInternal(SAPCharacteristics.LENGTH_M.ToString());
+            string original_avanceMin = getTolerancia(avanceChar, original_avance, "min");
+            string original_avanceMax = getTolerancia(avanceChar, original_avance, "max");
+
+            // Mapeo de Catálogos (Tipo Metal y Venta)
+            string original_tipoMetalString = string.Empty;
+            var tm = db.SCDM_cat_tipo_metal.FirstOrDefault(x => x.descripcion.ToUpper() == mm.ZZMTLTYP.ToUpper());
+            if (tm != null) { original_tipoMetalString = tm.descripcion; }
             else
             {
-                mm = mmList.FirstOrDefault();
+                var tmcb = db.SCDM_cat_tipo_metal_cb.FirstOrDefault(x => x.descripcion.ToUpper() == mm.ZZMTLTYP.ToUpper());
+                if (tmcb != null) original_tipoMetalString = tmcb.descripcion;
             }
 
-            class_v3 class_v3 = db.class_v3.FirstOrDefault(x => x.Object == cambio.material_existente);
+            string original_typeSellingString = string.Empty;
+            var tv = db.SCDM_cat_tipo_venta.FirstOrDefault(x => x.descripcion.ToUpper() == mm.ZZSELLTYP.ToUpper());
+            if (tv != null) original_typeSellingString = tv.descripcion;
 
-            if (class_v3 == null)
-                class_v3 = new class_v3
-                {
-                    Object = mm.Material,
-                    Grade = string.Empty,
-                    Customer = string.Empty,
-                    Shape = string.Empty,
-                    Customer_part_number = string.Empty,
-                    Surface = string.Empty,
-                    Gauge___Metric = string.Empty,
-                    Mill = string.Empty,
-                    Width___Metr = string.Empty,
-                    Length_mm_ = string.Empty,
-                    activo = true,
-                    commodity = string.Empty,
-                    flatness_metric = string.Empty,
-                    surface_treatment = string.Empty,
-                    coating_weight = string.Empty,
-                    customer_part_msa = string.Empty,
-                    outer_diameter_coil = string.Empty,
-                    inner_diameter_coil = string.Empty
-                };
-            else //establece los valores 
-            {
-                SCDM_cat_commodity commodity = db.SCDM_cat_commodity.FirstOrDefault(x => x.descripcion == class_v3.commodity);
-                commodityString = commodity != null ? commodity.ConcatCommodity : string.Empty;
+            // Mapeo de Características (Valores Directos)
+            string original_planicidad = GetCharInternal(SAPCharacteristics.FLATNESS_M.ToString());
+            string original_superficie = GetCharDescEN(SAPCharacteristics.SURFACE.ToString());
+            string original_tratamiento = GetCharDescEN(SAPCharacteristics.SURFACE_TREATMENT.ToString());
+            string original_pesoRecubrimiento = GetCharDescEN(SAPCharacteristics.COATING_WEIGHT.ToString());
+            string original_molino = GetCharDescEN(SAPCharacteristics.MILL.ToString());
+            string original_shapeString = GetCharDescES(SAPCharacteristics.SHAPE.ToString());
+            string original_numParte = GetCharInternal(SAPCharacteristics.CUSTOMER_PART_NUMBER.ToString());
+            string original_msa = GetCharInternal(SAPCharacteristics.CUSTOMER_PART2.ToString());
+            string original_diamInterior = ExtractIntegerValue(GetCharInternal(SAPCharacteristics.ID_COIL_M.ToString()));
+            string original_diamExterior = ExtractIntegerValue(GetCharInternal(SAPCharacteristics.OD_COIL_M.ToString()));
 
-                //SHAPE
-                SCDM_cat_forma_material shape = db.SCDM_cat_forma_material.FirstOrDefault(x => x.descripcion_en == class_v3.Shape);
-                shapeString = shape != null ? shape.descripcion : string.Empty;
-
-                //Cliente
-                clientes cliente = db.clientes.FirstOrDefault(x => x.claveSAP == class_v3.Customer);
-                clienteString = cliente != null ? cliente.ConcatClienteSAP : string.Empty;
-
-                //type of selling
-                SCDM_cat_tipo_venta tipoVenta = db.SCDM_cat_tipo_venta.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Selling.ToUpper());
-                typeSellingString = tipoVenta != null ? tipoVenta.descripcion : mm.Type_of_Selling;
-
-                //tipo de metal
-                SCDM_cat_tipo_metal tipoMetal = db.SCDM_cat_tipo_metal.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
-                if (tipoMetal != null)
-                {
-                    tipoMetalString = tipoMetal.descripcion;
-                }
-                else
-                {
-                    SCDM_cat_tipo_metal_cb tipoMetalCB = db.SCDM_cat_tipo_metal_cb.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
-                    tipoMetalString = tipoMetalCB != null ? tipoMetalCB.descripcion : string.Empty;
-                }
-
-                //obtiene dimensiones
-                string[] dimensiones = !string.IsNullOrEmpty(mm.size_dimensions) ? mm.size_dimensions.Replace(" ", string.Empty).ToUpper().Split('X') : new string[0];
-
-                if (dimensiones.Length >= 1)
-                    espesor = dimensiones[0];
-                if (dimensiones.Length >= 2)
-                    ancho = dimensiones[1];
-                if (dimensiones.Length >= 3)
-                    avance = dimensiones[2];
-            }
             try
             {
+                // --- INICIO: COMPARACIÓN DE CAMBIOS (usando AreStringsDifferent y NumerosIguales) ---
 
-                //crea la cadena para cambios
-                result += tipoMetalString != cambio.tipo_metal ? " [Tipo Metal] ANT: " + tipoMetalString + "  NUEVO: " + cambio.tipo_metal + "|" : string.Empty;
-                result += typeSellingString != cambio.tipo_venta ? " [Tipo Venta] ANT: " + typeSellingString + "  NUEVO: " + cambio.tipo_venta + "|" : string.Empty;
-                result += mm.Old_material_no_ != cambio.numero_antiguo_material ? " [Núm Antigüo] ANT: " + mm.Old_material_no_ + "  NUEVO: " + cambio.numero_antiguo_material + "|" : string.Empty;
-                result += mm.Gross_weight.ToString() != cambio.peso_bruto.ToString() ? " [Peso Bruto] ANT: " + mm.Gross_weight.ToString() + "  NUEVO: " + cambio.peso_bruto.ToString() + "|" : string.Empty;
-                result += mm.Net_weight.ToString() != cambio.peso_neto.ToString() ? " [Peso Neto] ANT: " + mm.Net_weight.ToString() + "  NUEVO: " + cambio.peso_neto.ToString() + "|" : string.Empty;
-                result += mm.unidad_medida != cambio.unidad_medida_inventario ? " [Unidad Medida] ANT: " + mm.unidad_medida + "  NUEVO: " + cambio.unidad_medida_inventario + "|" : string.Empty;
-                result += mm.Material_Description != cambio.descripcion_en ? " [Descripción EN] ANT: " + mm.Material_Description + "  NUEVO: " + cambio.descripcion_en + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(commodityString) || !string.IsNullOrEmpty(cambio.commodity)) && commodityString != cambio.commodity ? " [Commodity] ANT: " + commodityString + "  NUEVO: " + cambio.commodity + "|" : string.Empty;
-                result += class_v3.Grade != cambio.grado_calidad ? " [Grado/calidad] ANT: " + class_v3.Grade + "  NUEVO: " + cambio.grado_calidad + "|" : string.Empty;
+                result += AreStringsDifferent(original_tipoMetalString, cambio.tipo_metal) ? " [Tipo Metal] ANT: " + original_tipoMetalString + " NUEVO: " + cambio.tipo_metal + "|" : string.Empty;
+                result += AreStringsDifferent(original_typeSellingString, cambio.tipo_venta) ? " [Tipo Venta] ANT: " + original_typeSellingString + " NUEVO: " + cambio.tipo_venta + "|" : string.Empty;
+                result += AreStringsDifferent(mm.Bismt, cambio.numero_antiguo_material) ? " [Núm Antigüo] ANT: " + mm.Bismt + " NUEVO: " + cambio.numero_antiguo_material + "|" : string.Empty;
+
+                result += !NumerosIguales(mm.Brgew.ToString(), cambio.peso_bruto.ToString()) ? " [Peso Bruto] ANT: " + mm.Brgew.ToString() + " NUEVO: " + cambio.peso_bruto.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(mm.Ntgwe.ToString(), cambio.peso_neto.ToString()) ? " [Peso Neto] ANT: " + mm.Ntgwe.ToString() + " NUEVO: " + cambio.peso_neto.ToString() + "|" : string.Empty;
+
+                result += AreStringsDifferent(mm.Meins, cambio.unidad_medida_inventario) ? " [Unidad Medida] ANT: " + mm.Meins + " NUEVO: " + cambio.unidad_medida_inventario + "|" : string.Empty;
+                result += AreStringsDifferent(mmDescEN?.Maktx, cambio.descripcion_en) ? " [Descripción EN] ANT: " + mmDescEN?.Maktx + " NUEVO: " + cambio.descripcion_en + "|" : string.Empty;
+                result += AreStringsDifferent(mmDescES?.Maktx, cambio.descripcion_es) ? " [Descripción ES] ANT: " + mmDescES?.Maktx + " NUEVO: " + cambio.descripcion_es + "|" : string.Empty;
+                result += AreStringsDifferent(original_commodityString, cambio.commodity) ? " [Commodity] ANT: " + original_commodityString + " NUEVO: " + cambio.commodity + "|" : string.Empty;
+                result += AreStringsDifferent(original_gradeString, cambio.grado_calidad) ? " [Grado/calidad] ANT: " + original_gradeString + " NUEVO: " + cambio.grado_calidad + "|" : string.Empty;
+
                 //espesor
-                result += (!string.IsNullOrEmpty(espesor) || !string.IsNullOrEmpty(cambio.espesor_mm.ToString())) && espesor != cambio.espesor_mm.ToString() ? " [Espesor] ANT: " + espesor + "  NUEVO: " + cambio.espesor_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Gauge___Metric, espesor, "min")) || !string.IsNullOrEmpty(cambio.espesor_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Gauge___Metric, espesor, "min") != cambio.espesor_tolerancia_negativa_mm.ToString() ? " [Espesor (-)] ANT: " + getTolerancia(class_v3.Gauge___Metric, espesor, "min") + "  NUEVO: " + cambio.espesor_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Gauge___Metric, espesor, "max")) || !string.IsNullOrEmpty(cambio.espesor_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Gauge___Metric, espesor, "max") != cambio.espesor_tolerancia_positiva_mm.ToString() ? " [Espesor (+)] ANT: " + getTolerancia(class_v3.Gauge___Metric, espesor, "max") + "  NUEVO: " + cambio.espesor_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_espesor, cambio.espesor_mm.ToString()) ? " [Espesor] ANT: " + original_espesor + " NUEVO: " + cambio.espesor_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_espesorMin, cambio.espesor_tolerancia_negativa_mm.ToString()) ? " [Espesor (-)] ANT: " + original_espesorMin + " NUEVO: " + cambio.espesor_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_espesorMax, cambio.espesor_tolerancia_positiva_mm.ToString()) ? " [Espesor (+)] ANT: " + original_espesorMax + " NUEVO: " + cambio.espesor_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+
                 //ancho
-                result += (!string.IsNullOrEmpty(ancho) || !string.IsNullOrEmpty(cambio.ancho_mm.ToString())) && ancho != cambio.ancho_mm.ToString() ? " [Ancho] ANT: " + ancho + "  NUEVO: " + cambio.ancho_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Width___Metr, ancho, "min")) || !string.IsNullOrEmpty(cambio.ancho_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Width___Metr, ancho, "min") != cambio.ancho_tolerancia_negativa_mm.ToString() ? " [Ancho (-)] ANT: " + getTolerancia(class_v3.Width___Metr, ancho, "min") + "  NUEVO: " + cambio.ancho_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Width___Metr, ancho, "max")) || !string.IsNullOrEmpty(cambio.ancho_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Width___Metr, ancho, "max") != cambio.ancho_tolerancia_positiva_mm.ToString() ? " [Ancho (+)] ANT: " + getTolerancia(class_v3.Width___Metr, ancho, "max") + "  NUEVO: " + cambio.ancho_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_ancho, cambio.ancho_mm.ToString()) ? " [Ancho] ANT: " + original_ancho + " NUEVO: " + cambio.ancho_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_anchoMin, cambio.ancho_tolerancia_negativa_mm.ToString()) ? " [Ancho (-)] ANT: " + original_anchoMin + " NUEVO: " + cambio.ancho_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_anchoMax, cambio.ancho_tolerancia_positiva_mm.ToString()) ? " [Ancho (+)] ANT: " + original_anchoMax + " NUEVO: " + cambio.ancho_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+
                 //avance
-                result += (!string.IsNullOrEmpty(avance) || !string.IsNullOrEmpty(cambio.avance_mm.ToString())) && avance != cambio.avance_mm.ToString() ? " [Avance] ANT: " + avance + "  NUEVO: " + cambio.avance_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Length_mm_, avance, "min")) || !string.IsNullOrEmpty(cambio.avance_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Length_mm_, avance, "min") != cambio.avance_tolerancia_negativa_mm.ToString() ? " [Avance (-)] ANT: " + getTolerancia(class_v3.Length_mm_, avance, "min") + "  NUEVO: " + cambio.avance_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Length_mm_, avance, "max")) || !string.IsNullOrEmpty(cambio.avance_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Length_mm_, avance, "max") != cambio.avance_tolerancia_positiva_mm.ToString() ? " [Avance (+)] ANT: " + getTolerancia(class_v3.Length_mm_, avance, "max") + "  NUEVO: " + cambio.avance_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_avance, cambio.avance_mm.ToString()) ? " [Avance] ANT: " + original_avance + " NUEVO: " + cambio.avance_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_avanceMin, cambio.avance_tolerancia_negativa_mm.ToString()) ? " [Avance (-)] ANT: " + original_avanceMin + " NUEVO: " + cambio.avance_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_avanceMax, cambio.avance_tolerancia_positiva_mm.ToString()) ? " [Avance (+)] ANT: " + original_avanceMax + " NUEVO: " + cambio.avance_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+
                 //planicidad
-                bool planicidadIguales = false;
-                if (double.TryParse(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))), out double o_planinidad) && double.TryParse(cambio.planicidad_mm.ToString(), out double c_planicidad))
-                {
-                    planicidadIguales = o_planinidad == c_planicidad;
-                }
-                result += (!string.IsNullOrEmpty(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x)))) || !string.IsNullOrEmpty(cambio.planicidad_mm.ToString())) && String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))) != cambio.planicidad_mm.ToString() && !planicidadIguales ? " [Planicidad] ANT: " + String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))) + "  NUEVO: " + cambio.planicidad_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_planicidad, cambio.planicidad_mm.ToString()) ? " [Planicidad] ANT: " + original_planicidad + " NUEVO: " + cambio.planicidad_mm.ToString() + "|" : string.Empty;
+
                 //superficie
-                result += (!string.IsNullOrEmpty(class_v3.Surface) || !string.IsNullOrEmpty(cambio.superficie)) && class_v3.Surface != cambio.superficie ? " [Superficie] ANT: " + class_v3.Surface + "  NUEVO: " + cambio.superficie + "|" : string.Empty;
+                result += AreStringsDifferent(original_superficie, cambio.superficie) ? " [Superficie] ANT: " + original_superficie + " NUEVO: " + cambio.superficie + "|" : string.Empty;
                 //tratamiento superficial
-                result += (!string.IsNullOrEmpty(class_v3.surface_treatment) || !string.IsNullOrEmpty(cambio.tratamiento_superficial)) && class_v3.surface_treatment != cambio.tratamiento_superficial ? " [Tratamiento Superficial] ANT: " + class_v3.surface_treatment + "  NUEVO: " + cambio.tratamiento_superficial + "|" : string.Empty;
+                result += AreStringsDifferent(original_tratamiento, cambio.tratamiento_superficial) ? " [Tratamiento Superficial] ANT: " + original_tratamiento + " NUEVO: " + cambio.tratamiento_superficial + "|" : string.Empty;
                 //Peso Recubrimiento
-                result += (!string.IsNullOrEmpty(class_v3.coating_weight) || !string.IsNullOrEmpty(cambio.peso_recubrimiento)) && class_v3.coating_weight != cambio.peso_recubrimiento ? " [Peso Recubrimiento] ANT: " + class_v3.coating_weight + "  NUEVO: " + cambio.peso_recubrimiento + "|" : string.Empty;
+                result += AreStringsDifferent(original_pesoRecubrimiento, cambio.peso_recubrimiento) ? " [Peso Recubrimiento] ANT: " + original_pesoRecubrimiento + " NUEVO: " + cambio.peso_recubrimiento + "|" : string.Empty;
                 //Molino
-                result += (!string.IsNullOrEmpty(class_v3.Mill) || !string.IsNullOrEmpty(cambio.molino)) && class_v3.Mill != cambio.molino ? " [Molino] ANT: " + class_v3.Mill + "  NUEVO: " + cambio.molino + "|" : string.Empty;
+                result += AreStringsDifferent(original_molino, cambio.molino) ? " [Molino] ANT: " + original_molino + " NUEVO: " + cambio.molino + "|" : string.Empty;
                 //Forma
-                result += (!string.IsNullOrEmpty(shapeString) || !string.IsNullOrEmpty(cambio.forma)) && shapeString != cambio.forma ? " [Forma] ANT: " + shapeString + "  NUEVO: " + cambio.forma + "|" : string.Empty;
+                result += AreStringsDifferent(original_shapeString, cambio.forma) ? " [Forma] ANT: " + original_shapeString + " NUEVO: " + cambio.forma + "|" : string.Empty;
                 //clienteString
-                result += (!string.IsNullOrEmpty(clienteString) || !string.IsNullOrEmpty(cambio.cliente)) && clienteString != cambio.cliente ? " [Cliente] ANT: " + clienteString + "  NUEVO: " + cambio.cliente + "|" : string.Empty;
+                result += AreStringsDifferent(original_clienteString, cambio.cliente) ? " [Cliente] ANT: " + original_clienteString + " NUEVO: " + cambio.cliente + "|" : string.Empty;
                 //numero parte
-                result += (!string.IsNullOrEmpty(class_v3.Customer_part_number) || !string.IsNullOrEmpty(cambio.numero_parte)) && class_v3.Customer_part_number != cambio.numero_parte ? " [Núm. Parte] ANT: " + class_v3.Customer_part_number + "  NUEVO: " + cambio.numero_parte + "|" : string.Empty;
+                result += AreStringsDifferent(original_numParte, cambio.numero_parte) ? " [Núm. Parte] ANT: " + original_numParte + " NUEVO: " + cambio.numero_parte + "|" : string.Empty;
                 //msa
-                result += (!string.IsNullOrEmpty(class_v3.customer_part_msa) || !string.IsNullOrEmpty(cambio.msa_honda)) && class_v3.customer_part_msa != cambio.msa_honda ? " [MSA] ANT: " + class_v3.customer_part_msa + "  NUEVO: " + cambio.msa_honda + "|" : string.Empty;
+                result += AreStringsDifferent(original_msa, cambio.msa_honda) ? " [MSA] ANT: " + original_msa + " NUEVO: " + cambio.msa_honda + "|" : string.Empty;
 
                 //diametro exterior
-                string diametro_exterior = String.Concat(class_v3.outer_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)));
-                bool diametroIntIguales = false;
-                if (double.TryParse(diametro_exterior, out double o_exterior) && double.TryParse(cambio.diametro_exterior.ToString(), out double c_exterior))
-                {
-                    diametroIntIguales = o_exterior == c_exterior;
-                }
-                result += (!string.IsNullOrEmpty(diametro_exterior) || !string.IsNullOrEmpty(cambio.diametro_exterior.ToString())) && diametro_exterior != cambio.diametro_exterior.ToString() && !diametroIntIguales ? " [Diametro Ext.] ANT: " + diametro_exterior + "  NUEVO: " + cambio.diametro_exterior.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_diamExterior, cambio.diametro_exterior.ToString()) ? " [Diametro Ext.] ANT: " + original_diamExterior + " NUEVO: " + cambio.diametro_exterior.ToString() + "|" : string.Empty;
 
                 //diametro interior
-                string diametro_interior = !string.IsNullOrEmpty(class_v3.inner_diameter_coil) ? float.Parse(String.Concat(class_v3.inner_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)))).ToString() : string.Empty;
-                result += (!string.IsNullOrEmpty(diametro_interior) || !string.IsNullOrEmpty(cambio.diametro_interior.ToString())) && diametro_interior != cambio.diametro_interior.ToString() ? " [Diametro Int.] ANT: " + diametro_interior + "  NUEVO: " + cambio.diametro_interior.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_diamInterior, cambio.diametro_interior.ToString()) ? " [Diametro Int.] ANT: " + original_diamInterior + " NUEVO: " + cambio.diametro_interior.ToString() + "|" : string.Empty;
 
-
+                // --- FIN: COMPARACIÓN DE CAMBIOS ---
 
                 //elimina los espacios al inicio y final
                 result = result.Trim();
                 return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return "Error al obtener los cambios.";
+                return "Error al obtener los cambios: " + ex.Message;
             }
-            ;
         }
+
         private string GetCambiosCreacionReferencia(SCDM_solicitud_rel_creacion_referencia creacionR)
         {
             string result = string.Empty;
-            //declaracion de variables
-            string commodityString = string.Empty;
-            string shapeString = string.Empty;
-            string clienteString = string.Empty;
-            string tipoTransporteString = string.Empty;
-            string tipoMetalString = string.Empty;
-            string tipoMaterialString = String.Empty;
-            string typeSellingString = String.Empty;
-            string espesor = string.Empty;
-            string espesor_tolerancia_negativa = string.Empty;
-            string espesor_tolerancia_positiva = string.Empty;
-            string ancho = string.Empty;
-            string avance = string.Empty;
-            string plantaString = string.Empty;
-            string tipoVentaCreacionText = string.Empty;
 
+            // --- OBTENCIÓN DE DATOS ORIGINALES (SAP) ---
 
-            //obtiene la planta de la solicitud
+            string material = creacionR.material_existente?.Trim().ToUpper();
             plantas planta = db.plantas.Find(creacionR.id_planta);
+            if (planta == null)
+            {
+                return "Error: No se encontró la planta de la solicitud.";
+            }
+            string plantaSolicitud = planta.codigoSap;
 
-            //obtiene el valor de mm
-            mm_v3 mm = null;
+            var mm = db_sap.Materials.FirstOrDefault(x => x.Matnr == material);
 
-            //obtiene todos los posibles valores
-            var mmList = db.mm_v3.Where(x => x.Material == creacionR.material_existente);
+            if (mm == null)
+            {
+                return "Error: No se encontró el material de referencia en SAP.";
+            }
 
-            //trata de obtener el valor que corresponde a la planta
-            if (mmList.Any(x => x.Plnt == planta.codigoSap))
-                mm = mmList.FirstOrDefault(x => x.Plnt == planta.codigoSap);
+            var mmDescES = db_sap.MaterialDescriptions.FirstOrDefault(x => x.Matnr == material && x.Spras == "S");
+            var mmDescEN = db_sap.MaterialDescriptions.FirstOrDefault(x => x.Matnr == material && x.Spras == "E");
+
+            var characteristics = db_sap.MaterialCharacteristics
+                .Where(x => x.Matnr == material)
+                .ToList()
+                .ToDictionary(x => x.Charact, x => x, StringComparer.OrdinalIgnoreCase);
+
+            // --- Funciones auxiliares locales (Getters) ---
+            Func<string, string> GetCharInternal = (charactKey) =>
+            {
+                if (characteristics.TryGetValue(charactKey, out var entry))
+                {
+                    return entry.Value_Internal?.Trim() ?? string.Empty;
+                }
+                return string.Empty;
+            };
+            Func<string, string> GetCharDescEN = (charactKey) =>
+            {
+                if (characteristics.TryGetValue(charactKey, out var entry))
+                {
+                    return entry.Value_Desc_En?.Trim() ?? string.Empty;
+                }
+                return string.Empty;
+            };
+            Func<string, string> GetCharDescES = (charactKey) =>
+            {
+                if (characteristics.TryGetValue(charactKey, out var entry))
+                {
+                    return entry.Value_Desc_Es?.Trim() ?? string.Empty;
+                }
+                return string.Empty;
+            };
+
+            // --- CÁLCULO DE VALORES ORIGINALES (de SAP y catálogos locales) ---
+
+            string tipoVentaCreacionText = db.SCDM_cat_tipo_venta.Find(creacionR.id_tipo_venta)?.descripcion ?? string.Empty;
+
+            string original_typeSellingString = string.Empty;
+            var tv = db.SCDM_cat_tipo_venta.FirstOrDefault(x => x.descripcion.ToUpper() == (mm.ZZSELLTYP ?? "").ToUpper());
+            if (tv != null) original_typeSellingString = tv.descripcion;
+
+            string original_tipoMetalString = string.Empty;
+            var tm = db.SCDM_cat_tipo_metal.FirstOrDefault(x => x.descripcion.ToUpper() == (mm.ZZMTLTYP ?? "").ToUpper());
+            if (tm != null) { original_tipoMetalString = tm.descripcion; }
             else
             {
-                mm = mmList.FirstOrDefault();
+                var tmcb = db.SCDM_cat_tipo_metal_cb.FirstOrDefault(x => x.descripcion.ToUpper() == (mm.ZZMTLTYP ?? "").ToUpper());
+                if (tmcb != null) original_tipoMetalString = tmcb.descripcion;
             }
 
-            class_v3 class_v3 = db.class_v3.FirstOrDefault(x => x.Object == creacionR.material_existente);
+            string original_tipoTransporteString = string.Empty;
+            var tipoTransporte = db.SCDM_cat_tipo_transporte.FirstOrDefault(x => x.clave == mm.ZZTRANSP);
+            if (tipoTransporte != null) original_tipoTransporteString = tipoTransporte.descripcion;
 
-            if (class_v3 == null)
-                class_v3 = new class_v3
-                {
-                    Object = mm.Material,
-                    Grade = string.Empty,
-                    Customer = string.Empty,
-                    Shape = string.Empty,
-                    Customer_part_number = string.Empty,
-                    Surface = string.Empty,
-                    Gauge___Metric = string.Empty,
-                    Mill = string.Empty,
-                    Width___Metr = string.Empty,
-                    Length_mm_ = string.Empty,
-                    activo = true,
-                    commodity = string.Empty,
-                    flatness_metric = string.Empty,
-                    surface_treatment = string.Empty,
-                    coating_weight = string.Empty,
-                    customer_part_msa = string.Empty,
-                    outer_diameter_coil = string.Empty,
-                    inner_diameter_coil = string.Empty
-                };
-            else //establece los valores 
+            string commoditySAPCode = GetCharInternal(SAPCharacteristics.COMMODITY.ToString());
+            string original_commodityString = db.SCDM_cat_commodity.FirstOrDefault(x => x.clave == commoditySAPCode.ToUpper() || x.descripcion.ToUpper() == commoditySAPCode.ToUpper())
+                ?.ConcatCommodity ?? GetCharDescEN(SAPCharacteristics.COMMODITY.ToString());
+
+            string gradeSAPCode = GetCharInternal(SAPCharacteristics.GRADE.ToString());
+            string original_gradeString = db.SCDM_cat_grado_calidad.FirstOrDefault(x => x.clave == gradeSAPCode.ToUpper() || x.grado_calidad.ToUpper() == gradeSAPCode.ToUpper())
+                ?.grado_calidad ?? GetCharDescEN(SAPCharacteristics.GRADE.ToString());
+
+            string customerSAPCode = GetCharInternal(SAPCharacteristics.CUSTOMER_NUMBER.ToString());
+            string original_clienteString = db.clientes.FirstOrDefault(x => x.claveSAP == customerSAPCode)
+                ?.ConcatClienteSAP ?? customerSAPCode;
+
+            string original_shapeString = GetCharDescES(SAPCharacteristics.SHAPE.ToString());
+
+            string original_espesor = string.Empty, original_ancho = string.Empty, original_avance = string.Empty;
+            if (!string.IsNullOrEmpty(mm.Groes))
             {
-                SCDM_cat_commodity commodity = db.SCDM_cat_commodity.FirstOrDefault(x => x.descripcion == class_v3.commodity);
-                commodityString = commodity != null ? commodity.ConcatCommodity : string.Empty;
-
-                //SHAPE
-                SCDM_cat_forma_material shape = db.SCDM_cat_forma_material.FirstOrDefault(x => x.descripcion_en == class_v3.Shape);
-                shapeString = shape != null ? shape.descripcion : string.Empty;
-
-                //Cliente
-                clientes cliente = db.clientes.FirstOrDefault(x => x.claveSAP == class_v3.Customer);
-                clienteString = cliente != null ? cliente.ConcatClienteSAP : string.Empty;
-
-                //type of selling
-                SCDM_cat_tipo_venta tipoVenta = db.SCDM_cat_tipo_venta.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Selling.ToUpper());
-                typeSellingString = tipoVenta != null ? tipoVenta.descripcion : mm.Type_of_Selling;
-
-                //type of transporte
-                SCDM_cat_tipo_transporte tipoTransporte = db.SCDM_cat_tipo_transporte.ToList().FirstOrDefault(x => x.clave.ToUpper() == mm.Tipo_de_Transporte.ToUpper());
-                tipoTransporteString = tipoTransporte != null ? tipoTransporte.descripcion : mm.Tipo_de_Transporte;
-
-                //tipo de venta de la creacion
-                SCDM_cat_tipo_venta tipoVentaCreacion = db.SCDM_cat_tipo_venta.Find(creacionR.id_tipo_venta);
-
-                if (tipoVentaCreacion != null)
-                    tipoVentaCreacionText = tipoVentaCreacion.descripcion;
-
-
-                //tipo de metal
-                SCDM_cat_tipo_metal tipoMetal = db.SCDM_cat_tipo_metal.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
-                if (tipoMetal != null)
-                {
-                    tipoMetalString = tipoMetal.descripcion;
-                }
-                else
-                {
-                    SCDM_cat_tipo_metal_cb tipoMetalCB = db.SCDM_cat_tipo_metal_cb.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
-                    tipoMetalString = tipoMetalCB != null ? tipoMetalCB.descripcion : string.Empty;
-                }
-
-                //obtiene dimensiones
-                string[] dimensiones = !string.IsNullOrEmpty(mm.size_dimensions) ? mm.size_dimensions.Replace(" ", string.Empty).ToUpper().Split('X') : new string[0];
-
-                if (dimensiones.Length >= 1)
-                    espesor = dimensiones[0];
-                if (dimensiones.Length >= 2)
-                    ancho = dimensiones[1];
-                if (dimensiones.Length >= 3)
-                    avance = dimensiones[2];
+                var dims = mm.Groes.Replace(" ", "").ToUpper().Split('X');
+                if (dims.Length >= 1) original_espesor = dims[0];
+                if (dims.Length >= 2) original_ancho = dims[1];
+                if (dims.Length >= 3) original_avance = dims[2];
             }
+
+            string espesorChar = GetCharInternal(SAPCharacteristics.GAUGE_M.ToString());
+            string original_espesorMin = getTolerancia(espesorChar, original_espesor, "min");
+            string original_espesorMax = getTolerancia(espesorChar, original_espesor, "max");
+
+            string anchoChar = GetCharInternal(SAPCharacteristics.WIDTH_M.ToString());
+            string original_anchoMin = getTolerancia(anchoChar, original_ancho, "min");
+            string original_anchoMax = getTolerancia(anchoChar, original_ancho, "max");
+
+            string avanceChar = GetCharInternal(SAPCharacteristics.LENGTH_M.ToString());
+            string original_avanceMin = getTolerancia(avanceChar, original_avance, "min");
+            string original_avanceMax = getTolerancia(avanceChar, original_avance, "max");
+
+            string original_planicidad = GetCharInternal(SAPCharacteristics.FLATNESS_M.ToString());
+            string original_superficie = GetCharDescEN(SAPCharacteristics.SURFACE.ToString());
+            string original_tratamiento = GetCharDescEN(SAPCharacteristics.SURFACE_TREATMENT.ToString());
+            string original_pesoRecubrimiento = GetCharDescEN(SAPCharacteristics.COATING_WEIGHT.ToString());
+            string original_molino = GetCharDescEN(SAPCharacteristics.MILL.ToString());
+            string original_numParte = GetCharInternal(SAPCharacteristics.CUSTOMER_PART_NUMBER.ToString());
+            string original_msa = GetCharInternal(SAPCharacteristics.CUSTOMER_PART2.ToString());
+            string original_diamInterior = ExtractIntegerValue(GetCharInternal(SAPCharacteristics.ID_COIL_M.ToString()));
+            string original_diamExterior = ExtractIntegerValue(GetCharInternal(SAPCharacteristics.OD_COIL_M.ToString()));
+
             try
             {
+                // --- INICIO: COMPARACIÓN DE CAMBIOS (usando AreStringsDifferent y AreBoolEqual) ---
 
-                //crea la cadena para cambios
-                result += tipoMetalString != creacionR.tipo_metal ? " [Tipo Metal] ANT: " + tipoMetalString + "  NUEVO: " + creacionR.tipo_metal + "|" : string.Empty;
-                result += typeSellingString != tipoVentaCreacionText ? " [Tipo Venta] ANT: " + typeSellingString + "  NUEVO: " + tipoVentaCreacionText + "|" : string.Empty;
-                result += mm.Old_material_no_ != creacionR.numero_antiguo_material ? " [Núm Antigüo] ANT: " + mm.Old_material_no_ + "  NUEVO: " + creacionR.numero_antiguo_material + "|" : string.Empty;
-                result += mm.Gross_weight.ToString() != creacionR.peso_bruto.ToString() ? " [Peso Bruto] ANT: " + mm.Gross_weight.ToString() + "  NUEVO: " + creacionR.peso_bruto.ToString() + "|" : string.Empty;
-                result += mm.Net_weight.ToString() != creacionR.peso_neto.ToString() ? " [Peso Neto] ANT: " + mm.Net_weight.ToString() + "  NUEVO: " + creacionR.peso_neto.ToString() + "|" : string.Empty;
-                result += mm.unidad_medida != creacionR.unidad_medida_inventario ? " [Unidad Medida] ANT: " + mm.unidad_medida + "  NUEVO: " + creacionR.unidad_medida_inventario + "|" : string.Empty;
+                // Comparación de Ingeniería (Cadenas)
+                result += AreStringsDifferent(original_tipoMetalString, creacionR.tipo_metal) ? " [Tipo Metal] ANT: " + original_tipoMetalString + " NUEVO: " + creacionR.tipo_metal + "|" : string.Empty;
+                result += AreStringsDifferent(original_typeSellingString, tipoVentaCreacionText) ? " [Tipo Venta] ANT: " + original_typeSellingString + " NUEVO: " + tipoVentaCreacionText + "|" : string.Empty;
+                result += AreStringsDifferent(mm.Bismt, creacionR.numero_antiguo_material) ? " [Núm Antigüo] ANT: " + mm.Bismt + " NUEVO: " + creacionR.numero_antiguo_material + "|" : string.Empty;
+                result += AreStringsDifferent(mm.Meins, creacionR.unidad_medida_inventario) ? " [Unidad Medida] ANT: " + mm.Meins + " NUEVO: " + creacionR.unidad_medida_inventario + "|" : string.Empty;
+                result += AreStringsDifferent(mmDescEN?.Maktx, creacionR.descripcion_en) ? " [Descripción EN] ANT: " + (mmDescEN?.Maktx) + " NUEVO: " + creacionR.descripcion_en + "|" : string.Empty;
+                result += AreStringsDifferent(mmDescES?.Maktx, creacionR.descripcion_es) ? " [Descripción ES] ANT: " + (mmDescES?.Maktx) + " NUEVO: " + creacionR.descripcion_es + "|" : string.Empty;
+                result += AreStringsDifferent(original_commodityString, creacionR.commodity) ? " [Commodity] ANT: " + original_commodityString + " NUEVO: " + creacionR.commodity + "|" : string.Empty;
+                result += AreStringsDifferent(original_gradeString, creacionR.grado_calidad) ? " [Grado/calidad] ANT: " + original_gradeString + " NUEVO: " + creacionR.grado_calidad + "|" : string.Empty;
+                result += AreStringsDifferent(original_superficie, creacionR.superficie) ? " [Superficie] ANT: " + original_superficie + " NUEVO: " + creacionR.superficie + "|" : string.Empty;
+                result += AreStringsDifferent(original_tratamiento, creacionR.tratamiento_superficial) ? " [Tratamiento Superficial] ANT: " + original_tratamiento + " NUEVO: " + creacionR.tratamiento_superficial + "|" : string.Empty;
+                result += AreStringsDifferent(original_pesoRecubrimiento, creacionR.peso_recubrimiento) ? " [Peso Recubrimiento] ANT: " + original_pesoRecubrimiento + " NUEVO: " + creacionR.peso_recubrimiento + "|" : string.Empty;
+                result += AreStringsDifferent(original_molino, creacionR.molino) ? " [Molino] ANT: " + original_molino + " NUEVO: " + creacionR.molino + "|" : string.Empty;
+                result += AreStringsDifferent(original_shapeString, creacionR.forma) ? " [Forma] ANT: " + original_shapeString + " NUEVO: " + creacionR.forma + "|" : string.Empty;
+                result += AreStringsDifferent(original_clienteString, creacionR.cliente) ? " [Cliente] ANT: " + original_clienteString + " NUEVO: " + creacionR.cliente + "|" : string.Empty;
+                result += AreStringsDifferent(original_numParte, creacionR.numero_parte) ? " [Núm. Parte] ANT: " + original_numParte + " NUEVO: " + creacionR.numero_parte + "|" : string.Empty;
+                result += AreStringsDifferent(original_msa, creacionR.msa_honda) ? " [MSA] ANT: " + original_msa + " NUEVO: " + creacionR.msa_honda + "|" : string.Empty;
 
+                // Comparación de Ingeniería (Números)
+                result += !NumerosIguales(mm.Brgew.ToString(), creacionR.peso_bruto.ToString()) ? " [Peso Bruto] ANT: " + mm.Brgew.ToString() + " NUEVO: " + creacionR.peso_bruto.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(mm.Ntgwe.ToString(), creacionR.peso_neto.ToString()) ? " [Peso Neto] ANT: " + mm.Ntgwe.ToString() + " NUEVO: " + creacionR.peso_neto.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_espesor, creacionR.espesor_mm.ToString()) ? " [Espesor] ANT: " + original_espesor + " NUEVO: " + creacionR.espesor_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_espesorMin, creacionR.espesor_tolerancia_negativa_mm.ToString()) ? " [Espesor (-)] ANT: " + original_espesorMin + " NUEVO: " + creacionR.espesor_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_espesorMax, creacionR.espesor_tolerancia_positiva_mm.ToString()) ? " [Espesor (+)] ANT: " + original_espesorMax + " NUEVO: " + creacionR.espesor_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_ancho, creacionR.ancho_mm.ToString()) ? " [Ancho] ANT: " + original_ancho + " NUEVO: " + creacionR.ancho_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_anchoMin, creacionR.ancho_tolerancia_negativa_mm.ToString()) ? " [Ancho (-)] ANT: " + original_anchoMin + " NUEVO: " + creacionR.ancho_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_anchoMax, creacionR.ancho_tolerancia_positiva_mm.ToString()) ? " [Ancho (+)] ANT: " + original_anchoMax + " NUEVO: " + creacionR.ancho_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_avance, creacionR.avance_mm.ToString()) ? " [Avance] ANT: " + original_avance + " NUEVO: " + creacionR.avance_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_avanceMin, creacionR.avance_tolerancia_negativa_mm.ToString()) ? " [Avance (-)] ANT: " + original_avanceMin + " NUEVO: " + creacionR.avance_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_avanceMax, creacionR.avance_tolerancia_positiva_mm.ToString()) ? " [Avance (+)] ANT: " + original_avanceMax + " NUEVO: " + creacionR.avance_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_planicidad, creacionR.planicidad_mm.ToString()) ? " [Planicidad] ANT: " + original_planicidad + " NUEVO: " + creacionR.planicidad_mm.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_diamExterior, creacionR.diametro_exterior.ToString()) ? " [Diametro Ext.] ANT: " + original_diamExterior + " NUEVO: " + creacionR.diametro_exterior.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(original_diamInterior, creacionR.diametro_interior.ToString()) ? " [Diametro Int.] ANT: " + original_diamInterior + " NUEVO: " + creacionR.diametro_interior.ToString() + "|" : string.Empty;
 
-                result += mm.Material_Description != creacionR.descripcion_en ? " [Descripción EN] ANT: " + mm.Material_Description + "  NUEVO: " + creacionR.descripcion_en + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(commodityString) || !string.IsNullOrEmpty(creacionR.commodity)) && commodityString != creacionR.commodity ? " [Commodity] ANT: " + commodityString + "  NUEVO: " + creacionR.commodity + "|" : string.Empty;
-                result += class_v3.Grade != creacionR.grado_calidad ? " [Grado/calidad] ANT: " + class_v3.Grade + "  NUEVO: " + creacionR.grado_calidad + "|" : string.Empty;
-                //espesor
-                result += !NumerosIguales(espesor, creacionR.espesor_mm.ToString()) ? " [Espesor] ANT: " + espesor + "  NUEVO: " + creacionR.espesor_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Gauge___Metric, espesor, "min")) || !string.IsNullOrEmpty(creacionR.espesor_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Gauge___Metric, espesor, "min") != creacionR.espesor_tolerancia_negativa_mm.ToString() ? " [Espesor (-)] ANT: " + getTolerancia(class_v3.Gauge___Metric, espesor, "min") + "  NUEVO: " + creacionR.espesor_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Gauge___Metric, espesor, "max")) || !string.IsNullOrEmpty(creacionR.espesor_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Gauge___Metric, espesor, "max") != creacionR.espesor_tolerancia_positiva_mm.ToString() ? " [Espesor (+)] ANT: " + getTolerancia(class_v3.Gauge___Metric, espesor, "max") + "  NUEVO: " + creacionR.espesor_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
-                //ancho
-                result += !NumerosIguales(ancho, creacionR.ancho_mm.ToString()) ? " [Ancho] ANT: " + ancho + "  NUEVO: " + creacionR.ancho_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Width___Metr, ancho, "min")) || !string.IsNullOrEmpty(creacionR.ancho_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Width___Metr, ancho, "min") != creacionR.ancho_tolerancia_negativa_mm.ToString() ? " [Ancho (-)] ANT: " + getTolerancia(class_v3.Width___Metr, ancho, "min") + "  NUEVO: " + creacionR.ancho_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Width___Metr, ancho, "max")) || !string.IsNullOrEmpty(creacionR.ancho_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Width___Metr, ancho, "max") != creacionR.ancho_tolerancia_positiva_mm.ToString() ? " [Ancho (+)] ANT: " + getTolerancia(class_v3.Width___Metr, ancho, "max") + "  NUEVO: " + creacionR.ancho_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
-                //avance
-                result += !NumerosIguales(avance, creacionR.avance_mm.ToString()) ? " [Espesor] ANT: " + avance + "  NUEVO: " + creacionR.avance_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Length_mm_, avance, "min")) || !string.IsNullOrEmpty(creacionR.avance_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Length_mm_, avance, "min") != creacionR.avance_tolerancia_negativa_mm.ToString() ? " [Avance (-)] ANT: " + getTolerancia(class_v3.Length_mm_, avance, "min") + "  NUEVO: " + creacionR.avance_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
-                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Length_mm_, avance, "max")) || !string.IsNullOrEmpty(creacionR.avance_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Length_mm_, avance, "max") != creacionR.avance_tolerancia_positiva_mm.ToString() ? " [Avance (+)] ANT: " + getTolerancia(class_v3.Length_mm_, avance, "max") + "  NUEVO: " + creacionR.avance_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
-                //planicidad
-                bool planicidadIguales = false;
-                if (double.TryParse(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))), out double o_planinidad) && double.TryParse(creacionR.planicidad_mm.ToString(), out double c_planicidad))
+                // --- Comparación de DATOS DE BUDGET (usando AreStringsDifferent y NumerosIguales) ---
+
+                result += !NumerosIguales(mm.ZZREALGRWT.ToString(), creacionR.peso_bruto_real_bascula.ToString()) ? " [Peso Bruto Real] ANT: " + mm.ZZREALGRWT.ToString() + " NUEVO: " + creacionR.peso_bruto_real_bascula.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZREALNTWT.ToString(), creacionR.peso_neto_real_bascula.ToString()) ? " [Peso Neto Real] ANT: " + mm.ZZREALNTWT.ToString() + " NUEVO: " + creacionR.peso_neto_real_bascula.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZANGLEA.ToString(), creacionR.angulo_a.ToString()) ? " [Ángulo A] ANT: " + mm.ZZANGLEA.ToString() + " NUEVO: " + creacionR.angulo_a.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZANGLEB.ToString(), creacionR.angulo_b.ToString()) ? " [Ángulo B] ANT: " + mm.ZZANGLEB.ToString() + " NUEVO: " + creacionR.angulo_b.ToString() + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZHTALSCRP.ToString(), creacionR.scrap_permitido_puntas_colas.ToString()) ? " [% Scrap puntas y colas] ANT: " + mm.ZZHTALSCRP.ToString() + " NUEVO: " + creacionR.scrap_permitido_puntas_colas.ToString() + "|" : string.Empty;
+
+                // --- Comparación de Booleans (usando AreBoolEqual) ---
+
+                // Pieza Doble (mm.ZZDOUPCS es bool?, creacionR.pieza_doble es varchar(2))
+                // Se formatea a SÍ/NO para el log, pero se compara con AreBoolEqual
+                if (!AreBoolEqual(mm.ZZDOUPCS.ToString(), creacionR.pieza_doble))
                 {
-                    planicidadIguales = o_planinidad == c_planicidad;
+                    result += " [Pieza Doble] ANT: " + FormatBoolForDisplay(mm.ZZDOUPCS.ToString()) + " NUEVO: " + FormatBoolForDisplay(creacionR.pieza_doble) + "|";
                 }
-                result += (!string.IsNullOrEmpty(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x)))) || !string.IsNullOrEmpty(creacionR.planicidad_mm.ToString())) && String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))) != creacionR.planicidad_mm.ToString() && !planicidadIguales ? " [Planicidad] ANT: " + String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))) + "  NUEVO: " + creacionR.planicidad_mm.ToString() + "|" : string.Empty;
-                //superficie
-                result += (!string.IsNullOrEmpty(class_v3.Surface) || !string.IsNullOrEmpty(creacionR.superficie)) && class_v3.Surface != creacionR.superficie ? " [Superficie] ANT: " + class_v3.Surface + "  NUEVO: " + creacionR.superficie + "|" : string.Empty;
-                //tratamiento superficial
-                result += (!string.IsNullOrEmpty(class_v3.surface_treatment) || !string.IsNullOrEmpty(creacionR.tratamiento_superficial)) && class_v3.surface_treatment != creacionR.tratamiento_superficial ? " [Tratamiento Superficial] ANT: " + class_v3.surface_treatment + "  NUEVO: " + creacionR.tratamiento_superficial + "|" : string.Empty;
-                //Peso Recubrimiento
-                result += (!string.IsNullOrEmpty(class_v3.coating_weight) || !string.IsNullOrEmpty(creacionR.peso_recubrimiento)) && class_v3.coating_weight != creacionR.peso_recubrimiento ? " [Peso Recubrimiento] ANT: " + class_v3.coating_weight + "  NUEVO: " + creacionR.peso_recubrimiento + "|" : string.Empty;
-                //Molino
-                result += (!string.IsNullOrEmpty(class_v3.Mill) || !string.IsNullOrEmpty(creacionR.molino)) && class_v3.Mill != creacionR.molino ? " [Molino] ANT: " + class_v3.Mill + "  NUEVO: " + creacionR.molino + "|" : string.Empty;
-                //Forma
-                result += (!string.IsNullOrEmpty(shapeString) || !string.IsNullOrEmpty(creacionR.forma)) && shapeString != creacionR.forma ? " [Forma] ANT: " + shapeString + "  NUEVO: " + creacionR.forma + "|" : string.Empty;
-                //clienteString
-                result += (!string.IsNullOrEmpty(clienteString) || !string.IsNullOrEmpty(creacionR.cliente)) && clienteString != creacionR.cliente ? " [Cliente] ANT: " + clienteString + "  NUEVO: " + creacionR.cliente + "|" : string.Empty;
-                //numero parte
-                result += (!string.IsNullOrEmpty(class_v3.Customer_part_number) || !string.IsNullOrEmpty(creacionR.numero_parte)) && class_v3.Customer_part_number != creacionR.numero_parte ? " [Núm. Parte] ANT: " + class_v3.Customer_part_number + "  NUEVO: " + creacionR.numero_parte + "|" : string.Empty;
-                //msa
-                result += (!string.IsNullOrEmpty(class_v3.customer_part_msa) || !string.IsNullOrEmpty(creacionR.msa_honda)) && class_v3.customer_part_msa != creacionR.msa_honda ? " [MSA] ANT: " + class_v3.customer_part_msa + "  NUEVO: " + creacionR.msa_honda + "|" : string.Empty;
 
-                //NUEVOS DATOS DE BUDGET
-                //peso bruto
-                result += (!NumerosIguales(mm.real_gross_weight.ToString(), creacionR.peso_bruto_real_bascula.ToString()))
-                    ? " [Peso Bruto Real] ANT: " + mm.real_gross_weight.ToString() + "  NUEVO: " + creacionR.peso_bruto_real_bascula.ToString() + "|"
-                    : string.Empty;
-                // Peso Neto Real
-                result += !NumerosIguales(mm.real_net_weight.ToString(), creacionR.peso_neto_real_bascula.ToString())
-                    ? " [Peso Neto Real] ANT: " + mm.real_net_weight.ToString() + "  NUEVO: " + creacionR.peso_neto_real_bascula.ToString() + "|"
-                    : string.Empty;
+                // Reaplicación (mm.ZZREAPPL es bool?, creacionR.reaplicacion es bit?)
+                // Se formatea a true/false para el log
+                if (!AreBoolEqual(mm.ZZREAPPL.ToString(), creacionR.reaplicacion.ToString()))
+                {
+                    result += " [Reaplicación] ANT: " + FormatBoolForDisplay(mm.ZZREAPPL.ToString(), "true/false") + " NUEVO: " + FormatBoolForDisplay(creacionR.reaplicacion.ToString(), "true/false") + "|";
+                }
 
-                // Ángulo A
-                result += !NumerosIguales(mm.angle_a.ToString(), creacionR.angulo_a.ToString())
-                    ? " [Ángulo A] ANT: " + mm.angle_a.ToString() + "  NUEVO: " + creacionR.angulo_a.ToString() + "|"
-                    : string.Empty;
+                // Conciliación Puntas (mm.ZZCUSTSCRP es bool?, creacionR.conciliacion_puntas_colas es bit?)
+                if (!AreBoolEqual(mm.ZZCUSTSCRP.ToString(), creacionR.conciliacion_puntas_colas.ToString()))
+                {
+                    result += " [Conciliación Puntas y Colas] ANT: " + FormatBoolForDisplay(mm.ZZCUSTSCRP.ToString(), "true/false") + " NUEVO: " + FormatBoolForDisplay(creacionR.conciliacion_puntas_colas.ToString(), "true/false") + "|";
+                }
 
-                // Ángulo B
-                result += !NumerosIguales(mm.angle_b.ToString(), creacionR.angulo_b.ToString())
-                    ? " [Ángulo B] ANT: " + mm.angle_b.ToString() + "  NUEVO: " + creacionR.angulo_b.ToString() + "|"
-                    : string.Empty;
+                // Conciliación Scrap (mm.ZZENGSCRP es bool?, creacionR.conciliacion_scrap_ingenieria es bit?)
+                if (!AreBoolEqual(mm.ZZENGSCRP.ToString(), creacionR.conciliacion_scrap_ingenieria.ToString()))
+                {
+                    result += " [Conciliación Scrap Ingeniería] ANT: " + FormatBoolForDisplay(mm.ZZENGSCRP.ToString(), "true/false") + " NUEVO: " + FormatBoolForDisplay(creacionR.conciliacion_scrap_ingenieria.ToString(), "true/false") + "|";
+                }
 
-                // % Scrap puntas y colas
-                result += !NumerosIguales(mm.Head_and_Tail_allowed_scrap.ToString(), creacionR.scrap_permitido_puntas_colas.ToString())
-                    ? " [% Scrap puntas y colas] ANT: " + mm.Head_and_Tail_allowed_scrap.ToString() + "  NUEVO: " + creacionR.scrap_permitido_puntas_colas.ToString() + "|"
-                    : string.Empty;
+                // Almacen Norte (mm.ZZWH es bool?, creacionR.Almacen_Norte es bit?)
+                if (!AreBoolEqual(mm.ZZWH.ToString(), creacionR.Almacen_Norte.ToString()))
+                {
+                    result += " [Almacen Norte] ANT: " + FormatBoolForDisplay(mm.ZZWH.ToString()) + " NUEVO: " + FormatBoolForDisplay(creacionR.Almacen_Norte.ToString()) + "|";
+                }
 
-                // pieza_doble
-                result += !NumerosIguales(mm.double_pieces, creacionR.pieza_doble)
-                    ? " [Pieza Doble] ANT: " + mm.double_pieces + "  NUEVO: " + creacionR.pieza_doble + "|"
-                    : string.Empty;
+                // --- Fin Comparación de Booleans ---
 
-                // reaplicacion
-                result += !AreBoolEqual(mm.Re_application, creacionR.reaplicacion.HasValue && creacionR.reaplicacion.Value ? "true" : "false")
-                    ? " [Reaplicación] ANT: " + (string.IsNullOrWhiteSpace(mm.Re_application) ? "false" : "true") + "  NUEVO: " + (creacionR.reaplicacion.HasValue && creacionR.reaplicacion.Value ? "true" : "false") + "|"
-                    : string.Empty;
-
-                // conciliacion_puntas_colas
-                result += !AreBoolEqual(mm.Head_and_Tails_Scrap_Conciliation, creacionR.conciliacion_puntas_colas.HasValue && creacionR.conciliacion_puntas_colas.Value ? "true" : "false")
-                    ? " [Conciliación Puntas y Colas] ANT: " + (string.IsNullOrWhiteSpace(mm.Head_and_Tails_Scrap_Conciliation) ? "false" : "true") + "  NUEVO: " + (creacionR.conciliacion_puntas_colas.HasValue && creacionR.conciliacion_puntas_colas.Value ? "true" : "false") + "|"
-                    : string.Empty;
-
-                // conciliacion_scrap_ingenieria
-                result += !AreBoolEqual(mm.Engineering_Scrap_conciliation, creacionR.conciliacion_scrap_ingenieria.HasValue && creacionR.conciliacion_scrap_ingenieria.Value ? "true" : "false")
-                    ? " [Conciliación Scrap Ingeniería] ANT: " + (string.IsNullOrWhiteSpace(mm.Engineering_Scrap_conciliation) ? "false" : "true") + "  NUEVO: " + (creacionR.conciliacion_scrap_ingenieria.HasValue && creacionR.conciliacion_scrap_ingenieria.Value ? "true" : "false") + "|"
-                    : string.Empty;
-
-                // modelo_negocio
-                result += !IsEqualIgnoreCaseAndNullEmpty(mm.Business_Model, creacionR.modelo_negocio) ? " [Modelo de Negocio] ANT: " + mm.Business_Model + "  NUEVO: " + creacionR.modelo_negocio + "|" : string.Empty;
-
-                // posicion_rollo
-                result += !IsEqualIgnoreCaseAndNullEmpty(mm.coil_position, creacionR.posicion_rollo)
-                 ? " [Posición Rollo] ANT: " + mm.coil_position + "  NUEVO: " + creacionR.posicion_rollo + "|"
-                    : string.Empty;
+                result += AreStringsDifferent(mm.ZZBUSSMODL, creacionR.modelo_negocio) ? " [Modelo de Negocio] ANT: " + mm.ZZBUSSMODL + " NUEVO: " + creacionR.modelo_negocio + "|" : string.Empty;
+                result += AreStringsDifferent(mm.ZZCOILSLTPOS, creacionR.posicion_rollo) ? " [Posición Rollo] ANT: " + mm.ZZCOILSLTPOS + " NUEVO: " + creacionR.posicion_rollo + "|" : string.Empty;
 
                 // IHS numbers
-                result += !IsEqualIgnoreCaseAndNullEmpty(mm.IHS_number_1, creacionR.IHS_num_1)
-                    ? " [IHS Número 1] ANT: " + mm.IHS_number_1 + "  NUEVO: " + creacionR.IHS_num_1 + "|"
-                    : string.Empty;
+                result += AreStringsDifferent(mm.ZZIHSNUM1, creacionR.IHS_num_1) ? " [IHS Número 1] ANT: " + mm.ZZIHSNUM1 + " NUEVO: " + creacionR.IHS_num_1 + "|" : string.Empty;
+                result += AreStringsDifferent(mm.ZZIHSNUM2, creacionR.IHS_num_2) ? " [IHS Número 2] ANT: " + mm.ZZIHSNUM2 + " NUEVO: " + creacionR.IHS_num_2 + "|" : string.Empty;
+                result += AreStringsDifferent(mm.ZZIHSNUM3, creacionR.IHS_num_3) ? " [IHS Número 3] ANT: " + mm.ZZIHSNUM3 + " NUEVO: " + creacionR.IHS_num_3 + "|" : string.Empty;
+                result += AreStringsDifferent(mm.ZZIHSNUM4, creacionR.IHS_num_4) ? " [Propulsion System] ANT: " + mm.ZZIHSNUM4 + " NUEVO: " + creacionR.IHS_num_4 + "|" : string.Empty;
+                result += AreStringsDifferent(mm.ZZIHSNUM5, creacionR.IHS_num_5) ? " [Program] ANT: " + mm.ZZIHSNUM5 + " NUEVO: " + creacionR.IHS_num_5 + "|" : string.Empty;
 
-                result += !IsEqualIgnoreCaseAndNullEmpty(mm.IHS_number_2, creacionR.IHS_num_2)
-                    ? " [IHS Número 2] ANT: " + mm.IHS_number_2 + "  NUEVO: " + creacionR.IHS_num_2 + "|"
-                    : string.Empty;
-
-                result += !IsEqualIgnoreCaseAndNullEmpty(mm.IHS_number_3, creacionR.IHS_num_3)
-                    ? " [IHS Número 3] ANT: " + mm.IHS_number_3 + "  NUEVO: " + creacionR.IHS_num_3 + "|"
-                    : string.Empty;
-
-                result += !IsEqualIgnoreCaseAndNullEmpty(mm.IHS_number_4, creacionR.IHS_num_4)
-                    ? " [Propulsion System] ANT: " + mm.IHS_number_4 + "  NUEVO: " + creacionR.IHS_num_4 + "|"
-                    : string.Empty;
-
-                result += !IsEqualIgnoreCaseAndNullEmpty(mm.IHS_number_5, creacionR.IHS_num_5)
-                    ? " [Program] ANT: " + mm.IHS_number_5 + "  NUEVO: " + creacionR.IHS_num_5 + "|"
-                    : string.Empty;
-                //almacen norte
-                result += !AreBoolEqual(mm.Almacen_Norte.ToString(), creacionR.Almacen_Norte.ToString())
-                    ? " [Almacen Norte] ANT: " + mm.Almacen_Norte + "  NUEVO: " + creacionR.Almacen_Norte + "|"
-                    : string.Empty;
                 //Tipo Transporte
-                result += !IsEqualIgnoreCaseAndNullEmpty(tipoTransporteString, creacionR.Tipo_de_Transporte.ToString())
-                    ? " [Tipo Transporte] ANT: " + tipoTransporteString + "  NUEVO: " + creacionR.Tipo_de_Transporte + "|"
-                    : string.Empty;
+                result += AreStringsDifferent(original_tipoTransporteString, creacionR.Tipo_de_Transporte) ? " [Tipo Transporte] ANT: " + original_tipoTransporteString + " NUEVO: " + creacionR.Tipo_de_Transporte + "|" : string.Empty;
+
                 //Stacks por paquete
-                result += !NumerosIguales(mm.Stacks_Pac.ToString(), creacionR.Stacks_Pac.ToString())
-                    ? " [Stacks por paquete] ANT: " + mm.Stacks_Pac + "  NUEVO: " + creacionR.Stacks_Pac + "|"
-                    : string.Empty;
+                result += !NumerosIguales(mm.ZZSPACKAGE.ToString(), creacionR.Stacks_Pac.ToString()) ? " [Stacks por paquete] ANT: " + mm.ZZSPACKAGE + " NUEVO: " + creacionR.Stacks_Pac + "|" : string.Empty;
+
                 //Tipo de pallet
-                result += !IsEqualIgnoreCaseAndNullEmpty(mm.Type_of_Pallet.ToString(), creacionR.Type_of_Pallet.ToString())
-                    ? " [Tipo Pallet] ANT: " + mm.Type_of_Pallet + "  NUEVO: " + creacionR.Type_of_Pallet + "|"
-                    : string.Empty;
+                result += AreStringsDifferent(mm.ZZPALLET, creacionR.Type_of_Pallet) ? " [Tipo Pallet] ANT: " + mm.ZZPALLET + " NUEVO: " + creacionR.Type_of_Pallet + "|" : string.Empty;
+
                 //SOP
-                result += !IsEqualIgnoreCaseAndNullEmpty(mm.Tkmm_SOP.HasValue ? mm.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty, creacionR.Tkmm_SOP.HasValue ? creacionR.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty)
-                    ? " [SOP] ANT: " + (mm.Tkmm_SOP.HasValue ? mm.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty) + "  NUEVO: " + (creacionR.Tkmm_SOP.HasValue ? creacionR.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty) + "|"
-                    : string.Empty;
+                result += AreStringsDifferent(mm.ZZTKMMSOP, (creacionR.Tkmm_SOP.HasValue ? creacionR.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty)) ? " [SOP] ANT: " + mm.ZZTKMMSOP + " NUEVO: " + (creacionR.Tkmm_SOP.HasValue ? creacionR.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty) + "|" : string.Empty;
+
                 //EOP
-                result += !IsEqualIgnoreCaseAndNullEmpty(mm.Tkmm_EOP.HasValue ? mm.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty, creacionR.Tkmm_EOP.HasValue ? creacionR.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty)
-                    ? " [SOP] ANT: " + (mm.Tkmm_EOP.HasValue ? mm.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty) + "  NUEVO: " + (creacionR.Tkmm_EOP.HasValue ? creacionR.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty) + "|"
-                    : string.Empty;
+                result += AreStringsDifferent(mm.ZZTKMMEOP, (creacionR.Tkmm_EOP.HasValue ? creacionR.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty)) ? " [EOP] ANT: " + mm.ZZTKMMEOP + " NUEVO: " + (creacionR.Tkmm_EOP.HasValue ? creacionR.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty) + "|" : string.Empty;
 
-                // piezas_por_auto
-                result += !NumerosIguales(mm.Pieces_per_car.ToString(), creacionR.piezas_por_auto.ToString())
-                    ? " [Piezas por Auto] ANT: " + mm.Pieces_per_car + "  NUEVO: " + creacionR.piezas_por_auto + "|"
-                    : string.Empty;
+                // Cantidades y Pesos
+                result += !NumerosIguales(mm.ZZCARPCS.ToString(), creacionR.piezas_por_auto.ToString()) ? " [Piezas por Auto] ANT: " + mm.ZZCARPCS + " NUEVO: " + creacionR.piezas_por_auto + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZSTKPCS.ToString(), creacionR.piezas_por_golpe.ToString()) ? " [Piezas por Golpe] ANT: " + mm.ZZSTKPCS + " NUEVO: " + creacionR.piezas_por_golpe + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZPKGPCS.ToString(), creacionR.piezas_por_paquete.ToString()) ? " [Piezas por Paquete] ANT: " + mm.ZZPKGPCS + " NUEVO: " + creacionR.piezas_por_paquete + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZINITWT.ToString(), creacionR.peso_inicial.ToString()) ? " [Peso Inicial] ANT: " + mm.ZZINITWT + " NUEVO: " + creacionR.peso_inicial + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZMAXWT.ToString(), creacionR.peso_maximo.ToString()) ? " [Peso Máximo] ANT: " + mm.ZZMAXWT + " NUEVO: " + creacionR.peso_maximo + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZMXWTTOLP.ToString(), creacionR.peso_maximo_tolerancia_positiva.ToString()) ? " [Peso Máximo Tolerancia Positiva] ANT: " + mm.ZZMXWTTOLP + " NUEVO: " + creacionR.peso_maximo_tolerancia_positiva + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZMXWTTOLN.ToString(), creacionR.peso_maximo_tolerancia_negativa.ToString()) ? " [Peso Máximo Tolerancia Negativa] ANT: " + mm.ZZMXWTTOLN + " NUEVO: " + creacionR.peso_maximo_tolerancia_negativa + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZMINWT.ToString(), creacionR.peso_minimo.ToString()) ? " [Peso Mínimo] ANT: " + mm.ZZMINWT + " NUEVO: " + creacionR.peso_minimo + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZMNWTTOLP.ToString(), creacionR.peso_minimo_tolerancia_positiva.ToString()) ? " [Peso Mínimo Tolerancia Positiva] ANT: " + mm.ZZMNWTTOLP + " NUEVO: " + creacionR.peso_minimo_tolerancia_positiva + "|" : string.Empty;
+                result += !NumerosIguales(mm.ZZMNWTTOLN.ToString(), creacionR.peso_minimo_tolerancia_negativa.ToString()) ? " [Peso Mínimo Tolerancia Negativa] ANT: " + mm.ZZMNWTTOLN + " NUEVO: " + creacionR.peso_minimo_tolerancia_negativa + "|" : string.Empty;
 
-                // piezas_por_golpe
-                result += !NumerosIguales(mm.num_piezas_golpe.ToString(), creacionR.piezas_por_golpe.ToString())
-                    ? " [Piezas por Golpe] ANT: " + mm.num_piezas_golpe + "  NUEVO: " + creacionR.piezas_por_golpe + "|"
-                    : string.Empty;
-
-                // Piezas por Paquete
-                result += ConvertToInt(mm.Package_Pieces) != creacionR.piezas_por_paquete
-                    ? " [Piezas por Paquete] ANT: " + ConvertToInt(mm.Package_Pieces) + "  NUEVO: " + creacionR.piezas_por_paquete + "|"
-                    : string.Empty;
-
-                // pesos
-                result += !NumerosIguales(mm.Initial_Weight.ToString(), creacionR.peso_inicial.ToString())
-                    ? " [Peso Inicial] ANT: " + mm.Initial_Weight + "  NUEVO: " + creacionR.peso_inicial + "|"
-                    : string.Empty;
-
-                result += !NumerosIguales(mm.Maximum_Weight.ToString(), creacionR.peso_maximo.ToString())
-                    ? " [Peso Máximo] ANT: " + mm.Maximum_Weight + "  NUEVO: " + creacionR.peso_maximo + "|"
-                    : string.Empty;
-
-                result += !NumerosIguales(mm.maximum_weight_tol_positive.ToString(), creacionR.peso_maximo_tolerancia_positiva.ToString())
-                    ? " [Peso Máximo Tolerancia Positiva] ANT: " + mm.maximum_weight_tol_positive + "  NUEVO: " + creacionR.peso_maximo_tolerancia_positiva + "|"
-                    : string.Empty;
-
-                result += !NumerosIguales(mm.maximum_weight_tol_negative.ToString(), creacionR.peso_maximo_tolerancia_negativa.ToString())
-                    ? " [Peso Máximo Tolerancia Negativa] ANT: " + mm.maximum_weight_tol_negative + "  NUEVO: " + creacionR.peso_maximo_tolerancia_negativa + "|"
-                    : string.Empty;
-
-                result += !NumerosIguales(mm.Min_Weight.ToString(), creacionR.peso_minimo.ToString())
-                    ? " [Peso Mínimo] ANT: " + mm.Min_Weight + "  NUEVO: " + creacionR.peso_minimo + "|"
-                    : string.Empty;
-
-                result += !NumerosIguales(mm.minimum_weight_tol_positive.ToString(), creacionR.peso_minimo_tolerancia_positiva.ToString())
-                    ? " [Peso Mínimo Tolerancia Positiva] ANT: " + mm.minimum_weight_tol_positive + "  NUEVO: " + creacionR.peso_minimo_tolerancia_positiva + "|"
-                    : string.Empty;
-
-                result += !NumerosIguales(mm.minimum_weight_tol_negative.ToString(), creacionR.peso_minimo_tolerancia_negativa.ToString())
-                    ? " [Peso Mínimo Tolerancia Negativa] ANT: " + mm.minimum_weight_tol_negative + "  NUEVO: " + creacionR.peso_minimo_tolerancia_negativa + "|"
-                    : string.Empty;
-
-
-                //diametro exterior
-                string diametro_exterior = String.Concat(class_v3.outer_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)));
-                bool diametroIntIguales = false;
-                if (double.TryParse(diametro_exterior, out double o_exterior) && double.TryParse(creacionR.diametro_exterior.ToString(), out double c_exterior))
-                {
-                    diametroIntIguales = o_exterior == c_exterior;
-                }
-                result += (!string.IsNullOrEmpty(diametro_exterior) || !string.IsNullOrEmpty(creacionR.diametro_exterior.ToString())) && diametro_exterior != creacionR.diametro_exterior.ToString() && !diametroIntIguales ? " [Diametro Ext.] ANT: " + diametro_exterior + "  NUEVO: " + creacionR.diametro_exterior.ToString() + "|" : string.Empty;
-
-                //diametro interior
-                string diametro_interior = !string.IsNullOrEmpty(class_v3.inner_diameter_coil) ? float.Parse(String.Concat(class_v3.inner_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)))).ToString() : string.Empty;
-                result += (!string.IsNullOrEmpty(diametro_interior) || !string.IsNullOrEmpty(creacionR.diametro_interior.ToString())) && diametro_interior != creacionR.diametro_interior.ToString() ? " [Diametro Int.] ANT: " + diametro_interior + "  NUEVO: " + creacionR.diametro_interior.ToString() + "|" : string.Empty;
-
-
+                // --- FIN: COMPARACIÓN DE CAMBIOS ---
 
                 //elimina los espacios al inicio y final
                 result = result.Trim();
                 return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return "Error al obtener los cambios.";
+                // Capturamos la excepción y la incluimos en el mensaje de error para depuración
+                return "Error al obtener los cambios: " + ex.Message;
             }
-            ;
         }
 
+        [NonAction]
+        private bool AreStringsDifferent(string original, string nuevo)
+        {
+            // Normaliza ambas cadenas: si es null, conviértela a string.Empty
+            string o = original ?? string.Empty;
+            string n = nuevo ?? string.Empty;
+
+            // Compara las cadenas normalizadas
+            return o != n;
+        }
 
         /// <summary>
         /// Compara dos cadenas ignorando mayúsculas/minúsculas y considerando null y "" como iguales.
@@ -7136,14 +7371,52 @@ namespace Portal_2_0.Controllers
             return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
         }
 
+        [NonAction]
         private bool AreBoolEqual(string value1, string value2)
         {
-            // Normaliza nulo, vacío, "false", y "0" como equivalentes
-            string normalizedValue1 = string.IsNullOrWhiteSpace(value1) || value1 == "false" || value1 == "0" ? "false" : "true";
-            string normalizedValue2 = string.IsNullOrWhiteSpace(value2) || value2 == "false" || value2 == "0" ? "false" : "true";
+            // Función interna para normalizar cualquier string a "true" o "false"
+            Func<string, string> NormalizeBoolString = (val) =>
+            {
+                if (string.IsNullOrWhiteSpace(val))
+                    return "false"; // null, "", " " -> false
 
-            return normalizedValue1 == normalizedValue2;
+                string upperVal = val.ToUpper();
+
+                // Casos "False"
+                if (upperVal == "FALSE" || upperVal == "NO" || upperVal == "0")
+                    return "false";
+
+                // Todo lo demás (incluyendo "TRUE", "SÍ", "X", "1") se considera true.
+                return "true";
+            };
+
+            return NormalizeBoolString(value1) == NormalizeBoolString(value2);
         }
+
+        [NonAction]
+        private string FormatBoolForDisplay(string value, string format = "SÍ/NO")
+        {
+            // Esta función auxiliar convierte un valor booleano (de cualquier tipo) 
+            // a un formato de visualización SÍ/NO o true/false.
+
+            if (string.IsNullOrWhiteSpace(value))
+                return (format == "SÍ/NO") ? "NO" : "false";
+
+            string upperVal = value.ToUpper();
+
+            // Casos "True"
+            if (upperVal == "TRUE" || upperVal == "SÍ" || upperVal == "X" || upperVal == "1")
+            {
+                return (format == "SÍ/NO") ? "SÍ" : "true";
+            }
+
+            // Casos "False"
+            return (format == "SÍ/NO") ? "NO" : "false";
+        }
+
+
+
+        // (Asegúrate de tener también NumerosIguales, getTolerancia, ExtractNumericValue, etc.)
 
         // Método ConvertToInt
         private int ConvertToInt(string value)
@@ -7546,11 +7819,14 @@ namespace Portal_2_0.Controllers
             {
                 //obtiene la descripción original
                 string material = data[i].material_existente;
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == material);
-                string descripcionOriginal = string.Empty;
-                descripcionOriginal = mm != null ? mm.Material_Description : string.Empty;
-                string descripcionOriginalES = string.Empty;
-                descripcionOriginalES = mm != null ? mm.material_descripcion_es : string.Empty;
+                Materials mm = db_sap.Materials.FirstOrDefault(x => x.Matnr == material);
+
+                // 2. Obtiene las descripciones en español e inglés
+                var mmDescEN = db_sap.MaterialDescriptions.FirstOrDefault(x => x.Matnr == material && x.Spras == "E");
+                var mmDescES = db_sap.MaterialDescriptions.FirstOrDefault(x => x.Matnr == material && x.Spras == "S");
+
+                string descripcionOriginal = mmDescEN?.Maktx ?? string.Empty;
+                string descripcionOriginalES = mmDescES?.Maktx ?? string.Empty;
 
 
                 jsonData[i] = new[] {
@@ -7634,11 +7910,18 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].nuevo_dato)? data[i].nuevo_dato:string.Empty,
                     !string.IsNullOrEmpty(data[i].comentarios)? data[i].comentarios:string.Empty,
                     "true",
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty,
                     };
 
             }
             return Json(jsonData, JsonRequestBehavior.AllowGet);
         }
+
         public JsonResult CargaCambiosIngenieria(int id_solicitud = 0)
         {
 
@@ -7651,11 +7934,15 @@ namespace Portal_2_0.Controllers
             {
                 //obtiene la descripción original
                 string material = data[i].material_existente;
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == material);
-                string descripcionOriginal = string.Empty;
-                descripcionOriginal = mm != null ? mm.Material_Description : string.Empty;
-                string descripcionOriginalES = string.Empty;
-                descripcionOriginalES = mm != null ? mm.material_descripcion_es : string.Empty;
+                // 1. Obtiene el registro principal de Materials
+                Materials mm = db_sap.Materials.FirstOrDefault(x => x.Matnr == material);
+
+                // 2. Obtiene las descripciones en español e inglés
+                var mmDescEN = db_sap.MaterialDescriptions.FirstOrDefault(x => x.Matnr == material && x.Spras == "E");
+                var mmDescES = db_sap.MaterialDescriptions.FirstOrDefault(x => x.Matnr == material && x.Spras == "S");
+
+                string descripcionOriginal = mmDescEN?.Maktx ?? string.Empty;
+                string descripcionOriginalES = mmDescES?.Maktx ?? string.Empty;
 
                 jsonData[i] = new[] {
                     data[i].id.ToString(),
@@ -7700,7 +7987,13 @@ namespace Portal_2_0.Controllers
                     data[i].diametro_interior.ToString(),
                     !string.IsNullOrEmpty(data[i].nuevo_dato)? data[i].nuevo_dato:string.Empty,
                     !string.IsNullOrEmpty(data[i].comentarios)? data[i].comentarios:string.Empty,
-                    "true"
+                    "true",
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty,
 
             };
 
@@ -7719,13 +8012,17 @@ namespace Portal_2_0.Controllers
             {
                 //obtiene la descripción original
                 string material = data[i].material_existente;
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == material);
+                // 1. Obtiene el registro principal de Materials
+                Materials mm = db_sap.Materials.FirstOrDefault(x => x.Matnr == material);
+
+                // 2. Obtiene la descripción del Tipo de Material (ZZMATTYP es el tipo de material en el Material Master)
+                string tipoMaterialOriginal = mm?.ZZMATTYP?.Trim() ?? string.Empty;
 
                 jsonData[i] = new[] {
                     data[i].id.ToString(),                    
                     //!string.IsNullOrEmpty(data[i].nuevo_material)? data[i].nuevo_material:string.Empty,
                     !string.IsNullOrEmpty(data[i].material_existente)? data[i].material_existente:string.Empty,
-                    mm!= null? mm.Type_of_Material.ToString() : string.Empty,
+                    tipoMaterialOriginal,
                     data[i].plantas !=null? data[i].plantas.ConcatPlantaSap.Trim():string.Empty,
                     data[i].peso_bruto_real_bascula.ToString(),
                     data[i].peso_neto_real_bascula.ToString(),
@@ -7763,7 +8060,13 @@ namespace Portal_2_0.Controllers
                    data[i].peso_minimo.ToString(),
                    data[i].peso_minimo_tolerancia_positiva.ToString(),
                    data[i].peso_minimo_tolerancia_negativa.ToString(),
-                    "true"
+                    "true",
+                    !string.IsNullOrEmpty(data[i].ZZSTAMD) ? data[i].ZZSTAMD : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDPNUM) ? data[i].ZZIDPNUM : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDTOOL) ? data[i].ZZIDTOOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZIDOBSOL) ? data[i].ZZIDOBSOL : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZCLASMOV) ? data[i].ZZCLASMOV : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ZZTOURD) ? data[i].ZZTOURD : string.Empty
             };
 
             }
@@ -8063,11 +8366,6 @@ namespace Portal_2_0.Controllers
             return Json(jsonData, JsonRequestBehavior.AllowGet);
         }
 
-        /// <summary>
-        /// Carga los datos iniciales de la lista tecnica (Rels)
-        /// </summary>
-        /// <param name="id_solicitud"></param>
-        /// <returns></returns>
         public JsonResult CargaListaTecnica(int id_solicitud = 0)
         {
 
@@ -8075,6 +8373,38 @@ namespace Portal_2_0.Controllers
             var data = db.SCDM_solicitud_rel_lista_tecnica.Where(x => x.id_solicitud == id_solicitud).ToList();
 
             var jsonData = new object[data.Count()];
+
+            // --- INICIO: FUNCIÓN AUXILIAR PARA OBTENER DATOS DE MATERIAL DE SAP ---
+            // Esta función reemplaza la lógica de búsqueda en mm_v3
+            Func<string, Tuple<string, string, string, string>> GetSAPMaterialData = (material) =>
+            {
+                if (string.IsNullOrEmpty(material)) return new Tuple<string, string, string, string>("", "", "", "");
+
+                var mm = db_sap.Materials.FirstOrDefault(x => x.Matnr == material);
+                if (mm == null) return new Tuple<string, string, string, string>("", "", "", "");
+
+                // Type of Material (MARA-MTART) o Tipo de Material Adicional (ZZMTLTYP) si es necesario
+                string tipoMaterial = mm.ZZMATTYP?.Trim() ?? mm.Mtart?.Trim() ?? "";
+                string pesoBruto = mm.Brgew?.ToString() ?? "";
+                string pesoNeto = mm.Ntgwe?.ToString() ?? "";
+                string unidadMedida = mm.Meins?.Trim() ?? "";
+                string tipoVenta = mm.ZZSELLTYP?.Trim() ?? "";
+
+                // Para el tipo de material: Si comienza con 'SM', asumimos "Maquila" si no tiene tipo definido.
+                string tipoMaterialDisplay = tipoMaterial;
+                if (string.IsNullOrEmpty(tipoMaterial) && material.StartsWith("SM")) tipoMaterialDisplay = "Maquila";
+
+                // Mapeo de Tipo de Venta (buscando descripción local si es posible)
+                string tipoVentaDisplay = db.SCDM_cat_tipo_venta.FirstOrDefault(x => x.descripcion.ToUpper() == tipoVenta.ToUpper())?.descripcion ?? tipoVenta;
+
+                return new Tuple<string, string, string, string>(
+                    tipoMaterialDisplay, // Item 1: Tipo Material
+                    pesoBruto,           // Item 2: Peso Bruto
+                    pesoNeto,            // Item 3: Peso Neto
+                    unidadMedida         // Item 4: Unidad Medida
+                );
+            };
+            // --- FIN: FUNCIÓN AUXILIAR ---
 
             for (int i = 0; i < data.Count(); i++)
             {
@@ -8095,7 +8425,7 @@ namespace Portal_2_0.Controllers
                 SCDM_solicitud_rel_item_material itemMaterialComponente = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.numero_material == tempComponente);
                 SCDM_solicitud_rel_creacion_referencia itemCreacionReferenciaComponente = db.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.nuevo_material == tempComponente);
 
-                //si existe en la material de solicitud
+                // --- LÓGICA RESULTADO (MATERIAL PADRE) ---
                 if (itemMaterialResultado != null)
                 {
                     tipo_material_resultado = itemMaterialResultado.SCDM_cat_tipo_materiales_solicitud != null ? itemMaterialResultado.SCDM_cat_tipo_materiales_solicitud.descripcion : tempResultado.StartsWith("SM") ? "Maquila" : "--";
@@ -8104,8 +8434,7 @@ namespace Portal_2_0.Controllers
                     unidad_medida = !string.IsNullOrEmpty(itemMaterialResultado.unidad_medida_inventario) ? itemMaterialResultado.unidad_medida_inventario : "--";
                     SCDM_cat_tipo_venta = !string.IsNullOrEmpty(itemMaterialResultado.tipo_venta) ? itemMaterialResultado.tipo_venta : "--";
                 }
-                //si existe en la creacion con referencia
-                if (itemCreacionReferenciaResultado != null)
+                else if (itemCreacionReferenciaResultado != null)
                 {
                     tipo_material_resultado = tempResultado.StartsWith("SM") ? "Maquila" : itemCreacionReferenciaResultado.tipo_material_text;
                     peso_bruto_platina = itemCreacionReferenciaResultado.peso_bruto.HasValue ? itemCreacionReferenciaResultado.peso_bruto.ToString() : "--";
@@ -8113,56 +8442,61 @@ namespace Portal_2_0.Controllers
                     unidad_medida = !string.IsNullOrEmpty(itemCreacionReferenciaResultado.unidad_medida_inventario) ? itemCreacionReferenciaResultado.unidad_medida_inventario : "--";
                     SCDM_cat_tipo_venta = itemCreacionReferenciaResultado.SCDM_cat_tipo_venta != null ? itemCreacionReferenciaResultado.SCDM_cat_tipo_venta.descripcion : "--";
                 }
-
-                //si no se encuentra en ninguna de las anteriores, busca en el catálogo de MM
-                if (itemMaterialResultado == null && itemCreacionReferenciaResultado == null)
+                // Sustitución de la lógica mm_v3 por SAP.Materials
+                else
                 {
-                    mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == tempResultado);
-
-                    if (mm != null)
+                    // --- INICIO MODIFICACIÓN ---
+                    var sapData = GetSAPMaterialData(tempResultado);
+                    if (!string.IsNullOrEmpty(sapData.Item1)) // Item1 es Tipo Material
                     {
-                        tipo_material_resultado = tempResultado.StartsWith("SM") ? "Maquila" : mm.Type_of_Material;
-                        peso_bruto_platina = mm.Gross_weight.HasValue ? mm.Gross_weight.ToString() : "--";
-                        peso_neto_platina = mm.Net_weight.HasValue ? mm.Net_weight.ToString() : "--";
-                        unidad_medida = !string.IsNullOrEmpty(mm.unidad_medida) ? mm.unidad_medida : "--";
-                        SCDM_cat_tipo_venta = mm.Type_of_Selling != null ? mm.Type_of_Selling : "--";
+                        tipo_material_resultado = sapData.Item1;
+                        peso_bruto_platina = sapData.Item2;
+                        peso_neto_platina = sapData.Item3;
+                        unidad_medida = sapData.Item4;
+                        // Nota: El tipo de venta (ZZSELLTYP) no se extrajo directamente aquí, pero se puede añadir si es crítico.
+                        // Usaremos "--" como fallback por ahora si no está en la solicitud/referencia.
                     }
+                    // --- FIN MODIFICACIÓN ---
                 }
 
-                //determina el tipo de material del componente
+                // --- LÓGICA COMPONENTE (MATERIAL HIJO) ---
                 if (itemMaterialComponente != null)
                     tipo_material_componente = itemMaterialComponente.SCDM_cat_tipo_materiales_solicitud != null ? itemMaterialComponente.SCDM_cat_tipo_materiales_solicitud.descripcion : tempComponente.StartsWith("SM") ? "Maquila" : "--";
 
-                if (itemCreacionReferenciaComponente != null)
+                else if (itemCreacionReferenciaComponente != null)
                     tipo_material_componente = tempComponente.StartsWith("SM") ? "Maquila" : itemCreacionReferenciaComponente.tipo_material_text;
 
-                if (itemMaterialComponente == null && itemCreacionReferenciaComponente == null)
+                // Sustitución de la lógica mm_v3 por SAP.Materials
+                else
                 {
-                    mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == tempComponente);
+                    // --- INICIO MODIFICACIÓN ---
+                    var sapData = GetSAPMaterialData(tempComponente);
 
-                    if (mm != null)
-                        tipo_material_componente = tempComponente.StartsWith("SM") ? "Maquila" : mm.Type_of_Material;
+                    if (!string.IsNullOrEmpty(sapData.Item1))
+                        tipo_material_componente = sapData.Item1;
+                    // --- FIN MODIFICACIÓN ---
                 }
 
                 jsonData[i] = new[] {
-                    data[i].id.ToString(),
-                    !string.IsNullOrEmpty(data[i].resultado)? data[i].resultado:string.Empty,
-                    tipo_material_resultado,
-                    SCDM_cat_tipo_venta,
-                    peso_bruto_platina,
-                    peso_neto_platina,
-                    unidad_medida,
-                    data[i].sobrante.HasValue ? data[i].sobrante.Value.ToString() : string.Empty,
-                    !string.IsNullOrEmpty(data[i].componente)? data[i].componente:string.Empty,
-                    tipo_material_componente,
-                    data[i].cantidad_platinas.HasValue ? data[i].cantidad_platinas.Value.ToString() : string.Empty,
-                    data[i].cantidad_cintas.HasValue ? data[i].cantidad_cintas.Value.ToString() : string.Empty,
-                     data[i].fecha_validez_reaplicacion.HasValue?data[i].fecha_validez_reaplicacion.Value.ToString("dd/MM/yyyy"):string.Empty,
+            data[i].id.ToString(),
+            !string.IsNullOrEmpty(data[i].resultado)? data[i].resultado:string.Empty,
+            tipo_material_resultado,
+            SCDM_cat_tipo_venta,
+            peso_bruto_platina,
+            peso_neto_platina,
+            unidad_medida,
+            data[i].sobrante.HasValue ? data[i].sobrante.Value.ToString() : string.Empty,
+            !string.IsNullOrEmpty(data[i].componente)? data[i].componente:string.Empty,
+            tipo_material_componente,
+            data[i].cantidad_platinas.HasValue ? data[i].cantidad_platinas.Value.ToString() : string.Empty,
+            data[i].cantidad_cintas.HasValue ? data[i].cantidad_cintas.Value.ToString() : string.Empty,
+             data[i].fecha_validez_reaplicacion.HasValue?data[i].fecha_validez_reaplicacion.Value.ToString("dd/MM/yyyy"):string.Empty,
 
-                    };
+            };
             }
             return Json(jsonData, JsonRequestBehavior.AllowGet);
         }
+
 
         /// <summary>
         /// Carga los materiales y su uso de CFDI
@@ -8504,6 +8838,8 @@ namespace Portal_2_0.Controllers
 
             //inicializa la lista de objetos
             var objeto = new object[1];
+
+            // --- Búsqueda 1: Tablas de Solicitud (NO SE MODIFICA) ---
             SCDM_solicitud_rel_item_material itemMaterial = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.numero_material == numero_material);
             SCDM_solicitud_rel_creacion_referencia itemCreacionReferencia = db.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.nuevo_material == numero_material);
 
@@ -8518,7 +8854,7 @@ namespace Portal_2_0.Controllers
             }
 
             //si existe en la creacion con referencia
-            if (itemCreacionReferencia != null)
+            else if (itemCreacionReferencia != null)
             {
                 tipo_material = numero_material.StartsWith("SM") ? "Maquila" : itemCreacionReferencia.tipo_material_text;
                 peso_bruto_platina = itemCreacionReferencia.peso_bruto.HasValue ? itemCreacionReferencia.peso_bruto.ToString() : "--";
@@ -8527,21 +8863,25 @@ namespace Portal_2_0.Controllers
                 SCDM_cat_tipo_venta = itemCreacionReferencia.SCDM_cat_tipo_venta != null ? itemCreacionReferencia.SCDM_cat_tipo_venta.descripcion : "--";
             }
 
-            //si no se encuentra en ninguna de las anteriores, busca en el catálogo de MM
-            if (itemMaterial == null && itemCreacionReferencia == null)
+            //si no se encuentra en ninguna de las anteriores, busca en el catálogo de SAP
+            else
             {
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == numero_material);
+                // --- INICIO MODIFICACIÓN: Sustitución de db.mm_v3 por db_sap.Materials ---
+                Materials mm = db_sap.Materials.FirstOrDefault(x => x.Matnr == numero_material);
 
                 if (mm != null)
                 {
-                    tipo_material = numero_material.StartsWith("SM") ? "Maquila" : mm.Type_of_Material;
-                    peso_bruto_platina = mm.Gross_weight.HasValue ? mm.Gross_weight.ToString() : "--";
-                    peso_neto_platina = mm.Net_weight.HasValue ? mm.Net_weight.ToString() : "--";
-                    unidad_medida = !string.IsNullOrEmpty(mm.unidad_medida) ? mm.unidad_medida : "--";
-                    SCDM_cat_tipo_venta = mm.Type_of_Selling != null ? mm.Type_of_Selling : "--";
-                }
-            }
+                    // Nota: Se usa ZZMATTYP como el tipo de material más descriptivo o Mtart (Tipo de Material SAP)
+                    string materialType = mm.ZZMATTYP?.Trim() ?? mm.Mtart?.Trim() ?? "";
 
+                    tipo_material = numero_material.StartsWith("SM") ? "Maquila" : materialType;
+                    peso_bruto_platina = mm.Brgew.HasValue ? mm.Brgew.ToString() : "--";
+                    peso_neto_platina = mm.Ntgwe.HasValue ? mm.Ntgwe.ToString() : "--";
+                    unidad_medida = !string.IsNullOrEmpty(mm.Meins) ? mm.Meins : "--"; // Meins es la unidad base de medida
+                    SCDM_cat_tipo_venta = mm.ZZSELLTYP != null ? mm.ZZSELLTYP : "--"; // ZZSELLTYP es Type of Selling
+                }
+                // --- FIN MODIFICACIÓN ---
+            }
 
             objeto[0] = new
             {
@@ -8552,9 +8892,9 @@ namespace Portal_2_0.Controllers
                 SCDM_cat_tipo_venta,
             };
 
-
             return Json(objeto, JsonRequestBehavior.AllowGet);
         }
+
         public JsonResult GuardaComentario(int? id_solicitud, int? id_seccion, string comentario = "")
         {
             //inicia variables
@@ -9318,7 +9658,7 @@ namespace Portal_2_0.Controllers
 
                     //temporalmente todos los correos se intersecctan
                     servicioCorreo.SendEmailAsync(
-                        new List<string> { /* grupoUsuario.Correo*/ "alfredo.xochitemol@thyssenkrupp-materials.com", "acencion.pani@thyssenkrupp-materials.com", "arlette.diaz@thyssenkrupp-materials.com"},
+                        new List<string> { /* grupoUsuario.Correo*/ "alfredo.xochitemol@thyssenkrupp-materials.com", "acencion.pani@thyssenkrupp-materials.com", "arlette.diaz@thyssenkrupp-materials.com" },
                         "Alerta: Materiales Próximos a Vencer",
                         cuerpoEmail
                     );

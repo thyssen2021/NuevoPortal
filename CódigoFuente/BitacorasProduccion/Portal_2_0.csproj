@@ -38,6 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -47,6 +48,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
@@ -183,6 +185,18 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="QRCoder, Version=1.5.1.0, Culture=neutral, PublicKeyToken=c4ed5b9ae8358a28, processorArchitecture=MSIL">
       <HintPath>..\packages\QRCoder.1.5.1\lib\net40\QRCoder.dll</HintPath>
+    </Reference>
+    <Reference Include="RequeraSapConnector, Version=1.3.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\RequeraSapConnector.dll</HintPath>
+    </Reference>
+    <Reference Include="RequeraSapConnector.Native, Version=1.3.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\RequeraSapConnector.Native.dll</HintPath>
+    </Reference>
+    <Reference Include="sapnco, Version=3.0.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\sapnco.dll</HintPath>
+    </Reference>
+    <Reference Include="sapnco_utils, Version=3.0.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=AMD64">
+      <HintPath>..\packages\RequeraSapConnector.Native.x64.1.3.0\lib\sapnco_utils.dll</HintPath>
     </Reference>
     <Reference Include="SpreadsheetLight, Version=3.5.0.0, Culture=neutral, PublicKeyToken=32fbb46dc1730c57, processorArchitecture=MSIL">
       <HintPath>..\packages\SpreadsheetLight.3.5.0\lib\netstandard2.0\SpreadsheetLight.dll</HintPath>
@@ -494,8 +508,19 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Auxiliares\HangfireAuthorizationFilter.cs" />
+    <Compile Include="Models\Auxiliares\RfcConnectionService.cs" />
+    <Compile Include="Models\Auxiliares\SAPCharacteristics.cs" />
+    <Compile Include="Models\Auxiliares\SapDataViewModels.cs" />
+    <Compile Include="Models\Auxiliares\SapSyncService.cs" />
     <Compile Include="Models\Auxiliares\UtilBulkCopy.cs" />
+    <Compile Include="Models\Auxiliares\UtilMapeoMateriales.cs" />
     <Compile Include="Models\BaseController.cs" />
+    <Compile Include="Models\BatchCharacteristics.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Batches.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\BG_CargaExcel_AniosFiscales.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -589,8 +614,8 @@
     <Compile Include="Models\biblioteca_digital.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\bom_en_sap.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    <Compile Include="Models\BomItems.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\bom_pesos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -663,9 +688,6 @@
     </Compile>
     <Compile Include="Models\Calculation.cs" />
     <Compile Include="Models\CI_conteo_inventario.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\class_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\clientes.cs">
@@ -914,6 +936,18 @@
     <Compile Include="Models\log_inicio_sesion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\MaterialCharacteristics.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\MaterialDescriptions.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\MaterialPlants.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Materials.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\menu_item.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -1072,8 +1106,20 @@
     <Compile Include="Models\MetadataModels\view_SCDM_materiales_x_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_forecastMetatdata.cs" />
-    <Compile Include="Models\mm_v3.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    <Compile Include="Models\ModelServices.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelServices.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ModelServices.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ModelServices.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelServices.edmx</DependentUpon>
     </Compile>
     <Compile Include="Models\ModelViews.cs" />
     <Compile Include="Models\MyRequiredAttributeAdapter.cs" />
@@ -1410,6 +1456,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_cat_usuarios_revision_departamento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_control_consecutivos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_rel_secciones_por_tipo_solicitud.cs">
@@ -4468,6 +4517,16 @@
     <Content Include="History.txt" />
     <Content Include="KnownIssues.txt" />
     <Content Include="License.txt" />
+    <Content Include="Models\ModelServices.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>ModelServices.edmx</DependentUpon>
+      <LastGenOutput>ModelServices.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Models\ModelServices.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>ModelServices.edmx</DependentUpon>
+      <LastGenOutput>ModelServices.cs</LastGenOutput>
+    </Content>
     <Content Include="Models\NuevoPortalModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
@@ -5309,6 +5368,13 @@
     <Content Include="Content\plantillas_excel\PlantillaCargaForecast.xlsx" />
     <Content Include="Content\plantillas_excel\PlantillaHistoricoScrap.xlsx" />
     <Content Include="Content\plantillas_excel\Reporte_IHS.xlsx" />
+    <EntityDeploy Include="Models\ModelServices.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>ModelServices.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="Models\ModelServices.edmx.diagram">
+      <DependentUpon>ModelServices.edmx</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

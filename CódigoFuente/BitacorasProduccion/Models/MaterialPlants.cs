@@ -12,17 +12,11 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class bom_en_sap
+    public partial class MaterialPlants
     {
-        public string Material { get; set; }
-        public string Plnt { get; set; }
-        public string BOM { get; set; }
-        public string AltBOM { get; set; }
-        public string Item { get; set; }
-        public string Component { get; set; }
-        public Nullable<double> Quantity { get; set; }
-        public string Un { get; set; }
-        public Nullable<System.DateTime> Created { get; set; }
-        public Nullable<System.DateTime> LastDateUsed { get; set; }
+        public string Matnr { get; set; }
+        public string Werks { get; set; }
+        public System.DateTime LastSyncTimestamp { get; set; }
+        public string Mmsta { get; set; }
     }
 }

@@ -46,6 +46,7 @@ namespace Portal_2_0.Models
 
             SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath(plantilla), "Sheet1");
             Portal_2_0Entities db = new Portal_2_0Entities();
+            Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
@@ -160,7 +161,7 @@ namespace Portal_2_0.Models
             var datosProduccionRegistrosDBLista = db.produccion_registros.Where(x => listaIds.Contains(x.id)).ToList();
 
 
-            // --- INICIO: CÓDIGO CORREGIDO PARA OBTENER DATOS ADICIONALES ---
+            // --- INICIO MODIFICACIÓN: Carga de datos de SAP ---
             // 1. Recolectar todos los códigos SAP_Platina necesarios de ambas columnas.
             var sapPlatinas = listado.Select(i => i.SAP_Platina)
                                      .Union(listado.Select(i => i.SAP_Platina_2))
@@ -168,18 +169,39 @@ namespace Portal_2_0.Models
                                      .Distinct()
                                      .ToList();
 
-            // 2. Consultar la BD UNA SOLA VEZ por cada tabla.
-            var mmData = db.mm_v3
-                .Where(m => sapPlatinas.Contains(m.Material))
-                .GroupBy(m => m.Material) // <-- CAMBIO CLAVE: Agrupamos por Material para manejar duplicados
-                .ToDictionary(g => g.Key, g => g.First()); // y tomamos solo el primer elemento de cada grupo.
+            // 2. Definir las claves de características que necesitamos usando el Enum
+            string surfaceKey = Portal_2_0.Models.Auxiliares.SAPCharacteristics.SURFACE.ToString();
+            string millKey = Portal_2_0.Models.Auxiliares.SAPCharacteristics.MILL.ToString();
 
-            var classData = db.class_v3
-                .Where(c => sapPlatinas.Contains(c.Object))
-                .ToDictionary(c => c.Object, c => c);
-            // --- FIN: CÓDIGO CORREGIDO ---
+            // 3. Consultar la tabla de Características de SAP UNA SOLA VEZ
+            // Se agrupa por Material (Matnr)
+            // El diccionario interno se agrupa por Característica (Charact)
+            var charData = db_sap.MaterialCharacteristics
+               .Where(c => sapPlatinas.Contains(c.Matnr) && (c.Charact == surfaceKey || c.Charact == millKey))
+               .ToList()
+               .GroupBy(c => c.Matnr) // Agrupa por ID de Material (Platina)
+               .ToDictionary(
+                   g => g.Key, // Clave = ID de Material
+                   g => g.ToDictionary(
+                       c => c.Charact, // Clave interna = Nombre de Característica (SURFACE o MILL)
+                       c => c.Value_Desc_En // Valor interno = Descripción EN
+                   )
+               );
 
-            // --- CAMBIO INICIA: Carga anticipada de todos los lotes ---
+            // Función auxiliar local para buscar de forma segura en el diccionario anidado
+            Func<string, string, string> GetCharValue = (materialId, charactKey) =>
+            {
+                if (charData.TryGetValue(materialId, out var charDict))
+                {
+                    if (charDict.TryGetValue(charactKey, out var valueDesc))
+                    {
+                        return valueDesc?.Trim() ?? string.Empty;
+                    }
+                }
+                return string.Empty;
+            };
+
+            // ---  Carga anticipada de todos los lotes ---
             // 1. Obtenemos los IDs de todos los registros de producción que vamos a procesar.
             var idsProduccion = datosProduccionRegistrosDBLista.Select(p => p.id).ToList();
 
@@ -216,44 +238,26 @@ namespace Portal_2_0.Models
 
                 // --- INICIO: BÚSQUEDA DE NUEVOS CAMPOS EN LOS DICCIONARIOS ---
                 // --- Procesamiento para la primera platina ---
+                // --- INICIO MODIFICACIÓN: BÚSQUEDA DE SAP.MaterialCharacteristics ---              
                 string surface1 = null;
                 string mill1 = null;
-
-                // Solo se realizan búsquedas si la clave es válida
-                if (!string.IsNullOrEmpty(item.SAP_Platina))
-                {
-                    if (classData.TryGetValue(item.SAP_Platina, out var classInfo))
-                    {
-                        surface1 = classInfo.Surface;
-                        mill1 = classInfo.Mill;
-                    }
-                    else if (mmData.TryGetValue(item.SAP_Platina, out var mmInfo))
-                    {
-                        surface1 = mmInfo.Type_of_Metal;
-                    }
-                }
-
-                // --- Procesamiento para la segunda platina ---
                 string surface2 = null;
                 string mill2 = null;
 
-                // Se repite la misma lógica optimizada para la segunda clave
-                if (!string.IsNullOrEmpty(item.SAP_Platina_2))
+                if (!string.IsNullOrEmpty(item.SAP_Platina))
                 {
-                    if (classData.TryGetValue(item.SAP_Platina_2, out var classInfo))
-                    {
-                        surface2 = classInfo.Surface;
-                        mill2 = classInfo.Mill;
-                    }
-                    else if (mmData.TryGetValue(item.SAP_Platina_2, out var mmInfo))
-                    {
-                        surface2 = mmInfo.Type_of_Metal;
-                    }
+                    // Mapeo a SAP: Surface (SURFACE), Mill (MILL)
+                    surface1 = GetCharValue(item.SAP_Platina, Portal_2_0.Models.Auxiliares.SAPCharacteristics.SURFACE.ToString());
+                    mill1 = GetCharValue(item.SAP_Platina, Portal_2_0.Models.Auxiliares.SAPCharacteristics.MILL.ToString());
                 }
 
-
-                // --- FIN: BÚSQUEDA CORREGIDA ---
-
+                if (!string.IsNullOrEmpty(item.SAP_Platina_2))
+                {
+                    // Mapeo a SAP: Surface (SURFACE), Mill (MILL)
+                    surface2 = GetCharValue(item.SAP_Platina_2, Portal_2_0.Models.Auxiliares.SAPCharacteristics.SURFACE.ToString());
+                    mill2 = GetCharValue(item.SAP_Platina_2, Portal_2_0.Models.Auxiliares.SAPCharacteristics.MILL.ToString());
+                }
+       
 
 
                 //encuentra el valor de produccion registro
@@ -5977,6 +5981,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReportePPMExcel(List<inspeccion_categoria_fallas> listadoFallas, List<PPM> listadoPPM, List<produccion_registros> listadoRegistros, List<view_historico_resultado> listadoHistorico)
         {
             Portal_2_0Entities db = new Portal_2_0Entities();
+            Portal_2_0_ServicesEntities db_sap = new Portal_2_0_ServicesEntities();
 
             // SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_piezas_descarte.xlsx"), "Sheet1");
             // Esto elimina la dependencia del archivo físico y previene problemas de corrupción de plantillas.
@@ -6130,6 +6135,26 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Peso Puntas", typeof(double));
             dt.Columns.Add("Peso Colas", typeof(double));
 
+            // --- INICIO MODIFICACIÓN: Carga anticipada de Características SAP ---
+
+            // 1. Recolectar todos los SAP_Platina necesarios de la lista de registros
+            var sapPlatinas = listadoRegistros.Select(i => i.sap_platina)
+                                            .Where(s => !string.IsNullOrEmpty(s))
+                                            .Distinct()
+                                            .ToList();
+
+            // 2. Definir la clave de característica que necesitamos usando el Enum
+            string custPartNumKey = Portal_2_0.Models.Auxiliares.SAPCharacteristics.CUSTOMER_PART_NUMBER.ToString();
+
+            // 3. Consultar la tabla de Características de SAP UNA SOLA VEZ
+            // Se guarda en un diccionario [Key: Matnr (sap_platina), Value: Value_Internal (Customer Part Number)]
+            var charData = db_sap.MaterialCharacteristics
+               .Where(c => sapPlatinas.Contains(c.Matnr) && c.Charact == custPartNumKey)
+               .ToDictionary(
+                   c => c.Matnr,
+                   c => c.Value_Internal?.Trim() ?? string.Empty
+               );
+
             foreach (produccion_registros item in listadoRegistros)
             {
                 string inspectorName = String.Empty;
@@ -6164,7 +6189,13 @@ namespace Portal_2_0.Models
                 row1["supervisor"] = item.produccion_supervisores.empleados.ConcatNombre;
                 row1["operador"] = item.produccion_operadores.empleados.ConcatNombre;
                 row1["inspector"] = inspectorName;
-                row1["Número de parte"] = item.Class_asociado.Customer_part_number;
+                // Búsqueda del Número de Parte en el diccionario de características
+                string customerPartNumber = string.Empty;
+                if (!string.IsNullOrEmpty(item.sap_platina) && charData.TryGetValue(item.sap_platina, out var partNumber))
+                {
+                    customerPartNumber = partNumber;
+                }
+                row1["Número de parte"] = customerPartNumber;
                 row1["Número SAP rollo"] = item.sap_rollo;
                 row1["Número SAP platina"] = item.sap_platina;
                 row1["Lote"] = loteRollo;

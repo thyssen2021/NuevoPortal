@@ -23,6 +23,12 @@ namespace Portal_2_0.Controllers
     public class ProduccionRegistrosController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
+        private readonly SapSyncService _sapSyncService;
+
+        public ProduccionRegistrosController()
+        {
+            _sapSyncService = new SapSyncService();
+        }
 
         // GET: ProduccionRegistros
         public ActionResult Index(int? planta, string linea, string posteado = "ALL", int pagina = 1)
@@ -59,9 +65,9 @@ namespace Portal_2_0.Controllers
                           (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (
                             posteado == "ALL"
-                         ||(x.produccion_datos_entrada!= null && x.produccion_datos_entrada.posteado == true && posteado == "SI")
-                        ||(x.produccion_datos_entrada!= null && x.produccion_datos_entrada.posteado == false && posteado == "NO")
-                        )&& (x.clave_planta == planta)
+                         || (x.produccion_datos_entrada != null && x.produccion_datos_entrada.posteado == true && posteado == "SI")
+                        || (x.produccion_datos_entrada != null && x.produccion_datos_entrada.posteado == false && posteado == "NO")
+                        ) && (x.clave_planta == planta)
                         //     && (idOperador.Contains(x.id_operador.Value) || esOperador)
                         )
                     .OrderByDescending(x => x.fecha)
@@ -185,13 +191,16 @@ namespace Portal_2_0.Controllers
                 ViewBag.Planta = plantas;
                 ViewBag.Linea = lineas;
 
-                //crea un select li
-                List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
-                List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM();
+                // Necesitamos el código SAP de la planta para el servicio de sincronización
+                ViewBag.PlantaCodigoSap = plantas.codigoSap;
 
-                ViewBag.sap_platina = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --");
-                ViewBag.sap_platina_2 = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --");
-                ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(), "Value", "Text");
+                //crea un select li
+                //List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
+                //List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM();
+
+                ViewBag.sap_platina = AddFirstItem(new SelectList(new List<SelectListItem>(), "Value", "Text"), textoPorDefecto: "-- Seleccionar --");
+                ViewBag.sap_platina_2 = AddFirstItem(new SelectList(new List<SelectListItem>(), "Value", "Text"), textoPorDefecto: "-- Seleccionar --");
+                ViewBag.sap_rollo = new SelectList(new List<SelectListItem>(), "Value", "Text");
                 ViewBag.id_supervisor = AddFirstItem(new SelectList(db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == planta.Value),
                     nameof(produccion_supervisores.id), "empleados." + nameof(produccion_supervisores.empleados.ConcatNombre)),
                     textoPorDefecto: "-- Seleccionar --");
@@ -260,11 +269,14 @@ namespace Portal_2_0.Controllers
             ViewBag.Linea = lineas;
 
             //crea un select li
-            List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
-            List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM(produccion_registros.sap_platina);
+            // List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
+            // List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM(produccion_registros.sap_platina);
 
-            ViewBag.sap_platina = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina);
-            ViewBag.sap_platina_2 = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina_2);
+            ViewBag.PlantaCodigoSap = plantas.codigoSap;
+
+
+            ViewBag.sap_platina = AddFirstItem(new SelectList(new List<SelectListItem>(), "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina);
+            ViewBag.sap_platina_2 = AddFirstItem(new SelectList(new List<SelectListItem>(), "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina_2);
             ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(produccion_registros.sap_platina), "Value", "Text", selectedValue: produccion_registros.sap_rollo);
             ViewBag.id_supervisor = AddFirstItem(new SelectList(db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == produccion_registros.clave_planta),
                 nameof(produccion_supervisores.id), "empleados." + nameof(produccion_supervisores.empleados.ConcatNombre)),
@@ -272,6 +284,28 @@ namespace Portal_2_0.Controllers
             ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion_registros.id_linea.Value);
 
             return View(produccion_registros);
+        }
+
+        [HttpGet]
+        public JsonResult SearchMaterials(string term)
+        {
+            // Usamos el contexto de servicios de SAP
+            using (var db_sap = new Portal_2_0_ServicesEntities())
+            {
+                if (string.IsNullOrEmpty(term))
+                {
+                    return Json(new { results = new List<object>() }, JsonRequestBehavior.AllowGet);
+                }
+
+                // Busca materiales que contengan el término y no empiecen con 'sm'
+                var materials = db_sap.Materials
+                    .Where(m => !m.Matnr.StartsWith("sm") && m.Matnr.Contains(term))
+                    .Select(m => new { id = m.Matnr, text = m.Matnr }) // Formato requerido por Select2
+                    .Take(20) // Limita los resultados para velocidad
+                    .ToList();
+
+                return Json(new { results = materials }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         // GET: ProduccionRegistros/Edit/5
@@ -303,17 +337,31 @@ namespace Portal_2_0.Controllers
                     produccion.segunda_platina = true;
 
                 //crea un select li
-                List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
-                List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM(produccion.sap_platina);
+                // --- AÑADE ESTAS LÍNEAS EN SU LUGAR ---
 
-                ViewBag.sap_platina = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion.sap_platina);
-                ViewBag.sap_platina_2 = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion.sap_platina_2);
-                ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(produccion.sap_platina), "Value", "Text", selectedValue: produccion.sap_rollo);
+                // Pre-cargamos una lista SÓLO con el material seleccionado
+                var platina1List = new List<SelectListItem>();
+                if (!string.IsNullOrEmpty(produccion.sap_platina))
+                {
+                    platina1List.Add(new SelectListItem { Text = produccion.sap_platina, Value = produccion.sap_platina });
+                }
+
+                var platina2List = new List<SelectListItem>();
+                if (!string.IsNullOrEmpty(produccion.sap_platina_2))
+                {
+                    platina2List.Add(new SelectListItem { Text = produccion.sap_platina_2, Value = produccion.sap_platina_2 });
+                }
+
+                ViewBag.sap_platina = AddFirstItem(new SelectList(platina1List, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion.sap_platina);
+                ViewBag.sap_platina_2 = AddFirstItem(new SelectList(platina2List, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion.sap_platina_2);
+
+                // La lógica del rollo ya está filtrada y es correcta, la mantenemos
+                ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(produccion.sap_platina, produccion.plantas.codigoSap), "Value", "Text", selectedValue: produccion.sap_rollo);
                 ViewBag.id_supervisor = AddFirstItem(new SelectList(db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == produccion.clave_planta),
                     nameof(produccion_supervisores.id), "empleados." + nameof(produccion_supervisores.empleados.ConcatNombre)),
                     textoPorDefecto: "-- Seleccionar --", selected: produccion.id_supervisor.ToString());
                 ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion.id_linea.Value);
-
+                ViewBag.PlantaCodigoSap = produccion.plantas.codigoSap;
 
                 return View(produccion);
             }
@@ -353,18 +401,30 @@ namespace Portal_2_0.Controllers
             produccion_registros.produccion_turnos = db.produccion_turnos.Find(produccion_registros.id_turno);
 
             //crea un select li
-            List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
-            List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM(produccion_registros.sap_platina);
+            // Pre-cargamos una lista SÓLO con el material seleccionado
+            var platina1List = new List<SelectListItem>();
+            if (!string.IsNullOrEmpty(produccion_registros.sap_platina))
+            {
+                platina1List.Add(new SelectListItem { Text = produccion_registros.sap_platina, Value = produccion_registros.sap_platina });
+            }
 
-            ViewBag.sap_platina = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina);
-            ViewBag.sap_platina_2 = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina_2);
-            ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(produccion_registros.sap_platina), "Value", "Text", selectedValue: produccion_registros.sap_rollo);
+            var platina2List = new List<SelectListItem>();
+            if (!string.IsNullOrEmpty(produccion_registros.sap_platina_2))
+            {
+                platina2List.Add(new SelectListItem { Text = produccion_registros.sap_platina_2, Value = produccion_registros.sap_platina_2 });
+            }
+
+            ViewBag.sap_platina = AddFirstItem(new SelectList(platina1List, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina);
+            ViewBag.sap_platina_2 = AddFirstItem(new SelectList(platina2List, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina_2);
+
+            // La lógica del rollo ya está filtrada y es correcta, la mantenemos
+            ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(produccion_registros.sap_platina, produccion_registros.plantas.codigoSap), "Value", "Text", selectedValue: produccion_registros.sap_rollo);
             ViewBag.id_supervisor = AddFirstItem(new SelectList(db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == produccion_registros.clave_planta),
                 nameof(produccion_supervisores.id), "empleados." + nameof(produccion_supervisores.empleados.ConcatNombre)),
                 textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.id_supervisor.ToString());
             ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion_registros.id_linea.Value);
 
-
+            ViewBag.PlantaCodigoSap = produccion_registros.plantas.codigoSap;
 
 
             return View(produccion_registros);
@@ -409,53 +469,56 @@ namespace Portal_2_0.Controllers
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
-                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
+                // --- INICIO MODIFICACIÓN (Platina 1) ---
+                // 1. Obtiene los datos base de SAP y los mapea a los objetos antiguos
+                mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina, produccion.plantas.codigoSap);
+                class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina); // Aún usamos la función local para class_
 
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina) ?? new mm_v3();
-           
+                // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
+                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
+                DateTime now = DateTime.Now;
+
                 if (pesos_bom_1 != null)
                 {
-                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='"+ 
-                            produccion.plantas.codigoSap + "' AND material ='"+produccion.sap_platina+"'").FirstOrDefault();
-                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='"+ 
-                            produccion.plantas.codigoSap + "' AND material ='"+produccion.sap_platina+"'").FirstOrDefault();
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
 
                     mm.Gross_weight = stringGross;
                     mm.Net_weight = stringNet;
-                                        
-                }                
+
+                }
 
 
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
-                if (class_ == null)
-                    class_ = new class_v3 { };
+                // --- INICIO MODIFICACIÓN (Platina 2) ---
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
+                // 3. Obtiene los datos base de SAP para Platina 2
+                mm_v3 mm_2 = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina_2, produccion.plantas.codigoSap);
+                class_v3 class_2 = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina_2); // Aún usamos la función local para class_
+
+                // 4. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
                 bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina_2 && x.plant == produccion.plantas.codigoSap);
 
-                var mm_2 = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina_2) ?? new mm_v3();
+                if (pesos_bom_2 != null)
+                {
 
-                if (pesos_bom_2 != null) {
-
-                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
-                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
 
                     mm_2.Gross_weight = stringGross;
                     mm_2.Net_weight = stringNet;
                 }
-                
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina_2);
-                if (class_2 == null)
-                    class_2 = new class_v3 { };
+
+                // --- FIN MODIFICACIÓN (Platina 2) ---
+
 
                 //agrega las piezas por golpe en caso de existir
-                if (produccion.produccion_datos_entrada.piezas_por_golpe == null && mm.num_piezas_golpe != null) {
-                    produccion.produccion_datos_entrada.piezas_por_golpe = mm.num_piezas_golpe;                
+                if (produccion.produccion_datos_entrada.piezas_por_golpe == null && mm.num_piezas_golpe != null)
+                {
+                    produccion.produccion_datos_entrada.piezas_por_golpe = mm.num_piezas_golpe;
                 }
 
                 ViewBag.MM = mm;
@@ -482,27 +545,6 @@ namespace Portal_2_0.Controllers
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
         {
             var produccionBD = db.produccion_registros.Find(produccion_registros.id);
-            //comprueba si hay un margen del 3% de toleracnicia
-            //try
-            //{
-            //    //sumatoria de ambas
-            //    double peso_bascula = produccion_registros.produccion_datos_entrada.peso_bascula_kgs.HasValue ? produccion_registros.produccion_datos_entrada.peso_bascula_kgs.Value : 0;
-            //    double peso_regreso_rollo = produccion_registros.produccion_datos_entrada.peso_regreso_rollo_real.HasValue ? produccion_registros.produccion_datos_entrada.peso_regreso_rollo_real.Value : 0;
-            //    double peso_etiqueta = produccion_registros.produccion_datos_entrada.peso_etiqueta.HasValue ? produccion_registros.produccion_datos_entrada.peso_etiqueta.Value : 0;
-            //    double peso_de_rollo_usado_real = peso_bascula - peso_regreso_rollo;
-            //    double dif_abs = Math.Abs(peso_bascula - peso_de_rollo_usado_real);
-            //    double porcentaje_dif = (dif_abs / peso_de_rollo_usado_real) * 100;
-
-            //    if (porcentaje_dif > 3)
-            //        ModelState.AddModelError("", "La diferencia entre el Peso de Rollo Usado Real y el Peso de Báscula es mayor al 3%. Favor de verificar los datos.");
-
-            //}
-            //catch (Exception e)
-            //{
-            //    //do nothing
-            //    //ModelState.AddModelError("", "Ocurrió un error al calcular el porcentaje de diferencia: " + e.Message);
-            //}
-
 
             bool error = false;
             bool errorDoble = false;
@@ -594,10 +636,15 @@ namespace Portal_2_0.Controllers
             produccion_registros.produccion_lineas = db.produccion_lineas.Find(produccion_registros.id_linea);
             produccion_registros.produccion_turnos = db.produccion_turnos.Find(produccion_registros.id_turno);
 
-            //obtiene el primer valor de mm
+            // --- INICIO MODIFICACIÓN ---
+
+            // 1. Obtiene los datos base de SAP usando la clase de utilidad
+            mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(produccionBD.sap_platina, produccionBD.plantas.codigoSap);
+            class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(produccionBD.sap_platina);
+
+            // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
             bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccionBD.sap_platina && x.plant == produccionBD.plantas.codigoSap);
 
-            mm_v3 mm = new mm_v3 { };
             if (pesos_bom_1 != null)
             {
                 double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccionBD.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
@@ -608,17 +655,16 @@ namespace Portal_2_0.Controllers
                 mm.Gross_weight = stringGross;
                 mm.Net_weight = stringNet;
             }
-            //ENVIAR cLASS SEGUN EL MATERIAL
-            class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion_registros.sap_platina);
-            if (class_ == null)
-                class_ = new class_v3 { };
 
-            //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
+            // 3. Obtiene los datos base de SAP para Platina 2
+            mm_v3 mm_2 = UtilMapeoMateriales.GetSAPMaterialData(produccionBD.sap_platina_2, produccionBD.plantas.codigoSap);
+            class_v3 class_2 = UtilMapeoMateriales.GetSAPClassData(produccionBD.sap_platina_2);
+
+            // 4. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
             bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccionBD.sap_platina_2 && x.plant == produccionBD.plantas.codigoSap);
-            mm_v3 mm_2 = new mm_v3 { };
+
             if (pesos_bom_2 != null)
             {
-
                 double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccionBD.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                         produccionBD.plantas.codigoSap + "' AND material ='" + produccionBD.sap_platina_2 + "'").FirstOrDefault();
                 double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccionBD.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
@@ -628,15 +674,12 @@ namespace Portal_2_0.Controllers
                 mm_2.Net_weight = stringNet;
             }
 
-            //ENVIAR cLASS SEGUN EL MATERIAL
-            class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion_registros.sap_platina_2);
-            if (class_2 == null)
-                class_2 = new class_v3 { };
-
             ViewBag.MM = mm;
             ViewBag.Class = class_;
             ViewBag.MM_2 = mm_2;
             ViewBag.Class_2 = class_2;
+
+            // --- FIN MODIFICACIÓN ---
 
             //para agregar sap platina 2
             ViewBag.produccion_datos_entrada_sap_platina_2 = ComboSelect.obtieneMaterial_BOM();
@@ -681,49 +724,60 @@ namespace Portal_2_0.Controllers
                 //agrega datos entrada a la produccion
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
+                // --- INICIO MODIFICACIÓN (Platina 1) ---
+
+                // 1. Obtiene los datos base de SAP usando la clase de utilidad
+                mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina, produccion.plantas.codigoSap);
+                class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina);
+
+                // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
                 bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
 
-                mm_v3 mm = new mm_v3 { };
-                if (pesos_bom_1 != null)
+                DateTime now = DateTime.Now;
+
+                // Asegurarse que la fecha de producción no sea nula para la consulta histórica
+                if (pesos_bom_1 != null && produccion.fecha.HasValue)
                 {
-                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
-                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
 
                     mm.Gross_weight = stringGross;
                     mm.Net_weight = stringNet;
                 }
 
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
-                if (class_ == null)
-                    class_ = new class_v3 { };
+                // --- FIN MODIFICACIÓN (Platina 1) ---
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
+
+                // --- INICIO MODIFICACIÓN (Platina 2) ---
+
+                // 3. Obtiene los datos base de SAP para Platina 2
+                mm_v3 mm_2 = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina_2, produccion.plantas.codigoSap);
+                class_v3 class_2 = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina_2);
+
+                // 4. Lógica de bom_pesos para Platina 2 (SE MANTIENE)
                 bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina_2 && x.plant == produccion.plantas.codigoSap);
-                mm_v3 mm_2 = new mm_v3 { };
-                if (pesos_bom_2 != null)
+
+                if (pesos_bom_2 != null && produccion.fecha.HasValue)
                 {
 
-                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
-                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
                             produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
 
                     mm_2.Gross_weight = stringGross;
                     mm_2.Net_weight = stringNet;
                 }
 
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina_2);
-                if (class_2 == null)
-                    class_2 = new class_v3 { };
+                // --- FIN MODIFICACIÓN (Platina 2) ---
 
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
                 ViewBag.MM_2 = mm_2;
                 ViewBag.Class_2 = class_2;
+
                 return View(produccion);
             }
             else
@@ -731,6 +785,75 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
 
+        }
+
+        /// <summary>
+        /// Sincroniza un material de SAP bajo demanda y devuelve las listas actualizadas.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> SyncSapMaterial(string materialId, string plantCode)
+        {
+            if (string.IsNullOrWhiteSpace(materialId) || string.IsNullOrWhiteSpace(plantCode))
+            {
+                return Json(new { success = false, message = "Material ID o Código de Planta no pueden estar vacíos." });
+            }
+
+            try
+            {
+                // --- INICIO MODIFICACIÓN (Petición del usuario) ---
+                // 1. Definimos la lista fija de TODAS las plantas a sincronizar
+                var allPlants = new List<string> { "5190", "5390", "5490", "5590", "5890" };
+
+                // 2. Ejecutamos el servicio con la lista completa
+                bool syncSuccess = await _sapSyncService.SyncMaterialOnDemandAsync(materialId, allPlants);
+                // --- FIN MODIFICACIÓN ---
+
+                if (syncSuccess)
+                {
+                    // 3. Si la sincronización fue exitosa, generamos las listas
+                    List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
+                    var platinasSelect = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --");
+
+                    // 4. Obtenemos los rollos SÓLO para la planta actual (plantCode)
+                    List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM(materialId);
+                    var rollosSelect = new SelectList(listadoRollos, "Value", "Text");
+
+                    return Json(new
+                    {
+                        success = true,
+                        message = $"Material {materialId} sincronizado correctamente.",
+                        platinas = platinasSelect.Select(s => new { value = s.Value, text = s.Text }),
+                        rollos = rollosSelect.Select(s => new { value = s.Value, text = s.Text })
+                    });
+                }
+                else
+                {
+                    return Json(new { success = false, message = $"Error al sincronizar el material {materialId} desde SAP. Verifique que el material exista." });
+                }
+            }
+            catch (Exception ex)
+            {
+                EscribeExcepcion(ex, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                return Json(new { success = false, message = $"Error interno del servidor: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene la lista de rollos (componentes) para una platina específica.
+        /// </summary>
+        [HttpGet]
+        public JsonResult GetRollosPorPlatina(string material, string plantCode) // <--- MODIFICADO
+        {
+            if (string.IsNullOrEmpty(material))
+            {
+                return Json(new List<SelectListItem>(), JsonRequestBehavior.AllowGet);
+            }
+            // --- INICIO MODIFICACIÓN ---
+            // Pasamos el material Y la plantCode para filtrar
+            var rollos = ComboSelect.obtieneRollo_BOM(material);
+            // --- FIN MODIFICACIÓN ---
+            return Json(rollos, JsonRequestBehavior.AllowGet);
         }
 
         // GET: Plantas/Disable/5
@@ -770,19 +893,59 @@ namespace Portal_2_0.Controllers
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
-                if (mm == null)
-                    mm = new mm_v3 { };
+                // --- INICIO MODIFICACIÓN (Platina 1) ---
 
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
-                if (class_ == null)
-                    class_ = new class_v3 { };
+                // 1. Obtiene los datos base de SAP usando la clase de utilidad
+                mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina, produccion.plantas.codigoSap);
+                class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina);
 
+                // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
+                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
+
+                DateTime now = DateTime.Now;
+
+                // Se usa la fecha del registro 'now'
+                if (pesos_bom_1 != null && produccion.fecha.HasValue)
+                {
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+
+                    mm.Gross_weight = stringGross;
+                    mm.Net_weight = stringNet;
+                }
+
+                // --- FIN MODIFICACIÓN (Platina 1) ---
+
+
+                // --- INICIO MODIFICACIÓN (Platina 2) ---
+
+                // 3. Obtiene los datos base de SAP para Platina 2
+                mm_v3 mm_2 = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina_2, produccion.plantas.codigoSap);
+                class_v3 class_2 = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina_2);
+
+                // 4. Lógica de bom_pesos para Platina 2 (SE MANTIENE)
+                bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina_2 && x.plant == produccion.plantas.codigoSap);
+
+                if (pesos_bom_2 != null && produccion.fecha.HasValue)
+                {
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
+
+                    mm_2.Gross_weight = stringGross;
+                    mm_2.Net_weight = stringNet;
+                }
+
+                // --- FIN MODIFICACIÓN (Platina 2) ---
 
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
+                ViewBag.MM_2 = mm_2;
+                ViewBag.Class_2 = class_2;
+
                 return View(produccion);
             }
             else
@@ -881,18 +1044,30 @@ namespace Portal_2_0.Controllers
                 //agrega datos entrada a la produccion
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
+                // --- INICIO MODIFICACIÓN (Platina 1) ---
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
-                if (mm == null)
-                    mm = new mm_v3 { };
+                // 1. Obtiene los datos base de SAP usando la clase de utilidad
+                mm_v3 mm = UtilMapeoMateriales.GetSAPMaterialData(produccion.sap_platina, produccion.plantas.codigoSap);
+                class_v3 class_ = UtilMapeoMateriales.GetSAPClassData(produccion.sap_platina);
 
-                //ENVIAR cLASS SEGUN EL MATERIAL
-                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
-                if (class_ == null)
-                    class_ = new class_v3 { };
+                // 2. Lógica de bom_pesos (SE MANTIENE, SOBRESCRIBE LOS PESOS DE SAP)
+                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
+
+                DateTime now = DateTime.Now;
 
 
+                if (pesos_bom_1 != null && produccion.fecha.HasValue)
+                {
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + now.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+
+                    mm.Gross_weight = stringGross;
+                    mm.Net_weight = stringNet;
+                }
+
+                // --- FIN MODIFICACIÓN (Platina 1) ---
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
                 return View(produccion);
@@ -956,6 +1131,8 @@ namespace Portal_2_0.Controllers
                 linea = registros.id_linea
             });
         }
+
+
 
         protected override void Dispose(bool disposing)
         {

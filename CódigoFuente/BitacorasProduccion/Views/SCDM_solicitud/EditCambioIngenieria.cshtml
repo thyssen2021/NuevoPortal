@@ -407,7 +407,8 @@
             'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
             'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
             'MSA (Honda)','Diametro Exterior', 'Diametro Interior',
-            'Otro Dato', 'Comentario Adicional', 'Valido'];
+            'Otro Dato', 'Comentario Adicional', 'Valido', 'Status DM', 'ID Part Number', 'ID Tool', 'ID Material Obsoleto', 'ID Clasificacion/Motivo', 'Tour Description'
+        ];
 
         var toastMixin = Swal.mixin({
             toast: true,
@@ -445,6 +446,9 @@
         var diametroInteriorArray = @Html.Raw(Json.Encode(diametroInteriorArray));
         var tipoMetalArray = @Html.Raw(Json.Encode(tipoMetalArray));
 
+        const codigoPlanta = "@ViewBag.CodigoPlanta";
+        const mapaModeloNegocio = @Html.Raw(ViewBag.ModeloNegocioObj);
+
 
         $(document).ready(function () {
             /*
@@ -480,7 +484,7 @@
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: 'Cambios', colspan: 1 },{ label: 'Material Existente', colspan: 5 }, { label: 'Datos Base', colspan: 7 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }],
+                    ['', { label: 'Cambios', colspan: 1 }, { label: 'Material Existente', colspan: 5 }, { label: 'Datos Base', colspan: 7 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }, { label: 'Datos Adicionales SAP', colspan: 7 }],
                     headers
                 ],
                 //colHeaders: headers,
@@ -546,6 +550,12 @@
                             case GetColFromName("MSA (Honda)"):
                             case GetColFromName("Diametro Exterior"):
                             case GetColFromName("Diametro Interior"):
+                            case GetColFromName("Status DM"):
+                            case GetColFromName("ID Part Number"):
+                            case GetColFromName("ID Tool"):
+                            case GetColFromName("ID Material Obsoleto"):
+                            case GetColFromName("ID Clasificacion/Motivo"):
+                            case GetColFromName("Tour Description"):
                                 applyClass(TH, 'HTOrange');
                                 break;
                         }
@@ -888,7 +898,12 @@
                         }
                     },
                     { readOnly: true }, //hidden
-
+                    { readOnly: true }, // ZZSTAMD
+                    { readOnly: true }, // ZZIDPNUM
+                    { readOnly: true }, // ZZIDTOOL
+                    { readOnly: true }, // ZZIDOBSOL
+                    { readOnly: true }, // ZZCLASMOV
+                    { readOnly: true },  // ZZTOURD
 
                 ],
                 colWidths: [0, //ID
@@ -929,11 +944,24 @@
                     120, //Diametro Interior
                     400,//Nuevo Dato
                     300,//Comentarios
-                    0,//Comentarios
+                    0,//Valido
+                    100, // Status DM
+                    300, // ID Part Number
+                    300, // ID Tool
+                    150, // ID Material Obsoleto
+                    80,  // ID Clasif./Motivo
+                    250  // Tour Description
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0, GetColFromName("Valido"), GetColFromName("Cambios"), GetColFromName("Unidad Base Medida")], //contains ID
+                    columns: [0, GetColFromName("Valido"), GetColFromName("Cambios"), GetColFromName("Unidad Base Medida"),
+                        , GetColFromName("ID Material Obsoleto")
+                        , GetColFromName("ID Clasificacion/Motivo")
+                        , GetColFromName("Tour Description")
+                        , GetColFromName("Status DM")
+                        , GetColFromName("ID Part Number")
+                        , GetColFromName("ID Tool")
+                    ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -1012,9 +1040,16 @@
                             //case GetColFromName("Peso del recubrimiento"): //coating weight
                              CambioDimensiones(row);
                                 break;
+                            case GetColFromName("Selling Type (Budget)"):
+                                calculaStatusDM(row);
+                                break;
                             case GetColFromName("Núm. cliente"): //diametro interior
                                 RestableceMSA(row);
-                                //cambioDescripcion(row);
+                                calculaIDTool(row);
+                                break;
+                            case GetColFromName("Tipo de Material"):
+                            case GetColFromName("Forma"):
+                                calculaIDTool(row);
                                 break;
 
                         }
@@ -1022,7 +1057,7 @@
 
                     });
                 }
-               
+
             });
 
             //agrega eventos
@@ -1896,7 +1931,8 @@
             var col = hot.countRows();
             hot.alter('insert_row_below', col, 1);
             hot.setDataAtCell(col, GetColFromName("Planta"), "@Html.Raw(String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.ConcatPlantaSap).Distinct().ToList()))");
-
+            calculaIDPartNumber(col);
+            calculaIDTool(col);
         }
 
         function GetColFromName(name) {
@@ -1946,6 +1982,69 @@
 
         }
 
+        // --- INICIO MODIFICACIÓN ---
+        function calculaStatusDM(row) {
+            const tipoVenta = hot.getDataAtCell(row, GetColFromName("Selling Type (Budget)"));
+            const colStatus = GetColFromName("Status DM");
+
+            if (tipoVenta === "Serie") {
+                hot.setDataAtCell(row, colStatus, codigoPlanta + " S");
+            } else {
+                hot.setDataAtCell(row, colStatus, "");
+            }
+        }
+
+        function calculaIDPartNumber(row) {
+            // En Cambio Ingeniería NO veo columna 'Modelo de negocio' ni 'Program' en los headers que me pasaste.
+            // Si estos campos NO existen en esta vista, no podemos calcular ID Part Number automáticamente.
+            // Revisa los headers: NO están 'Modelo de negocio' ni 'Program'.
+
+            // SOLUCIÓN: Dejaremos el campo vacío o editable manualmente si faltan datos.
+            // Si los necesitas, habría que agregarlos a la vista primero.
+            // Por ahora, omito la lógica de cálculo para no romper el código si faltan columnas.
+            hot.setDataAtCell(row, GetColFromName("ID Part Number"), "/");
+        }
+
+        function calculaIDTool(row) {
+            //const tipoMaterial = hot.getDataAtCell(row, GetColFromName("Tipo de Material"));
+            //const tiposValidos = ["PLATINA", "SHEARING", "PLATINA SOLDADA"];
+
+            //if (!tipoMaterial || !tiposValidos.includes(tipoMaterial.toUpperCase())) {
+            //    hot.setDataAtCell(row, GetColFromName("ID Tool"), "");
+            //    return;
+            //}
+
+            //const forma = hot.getDataAtCell(row, GetColFromName("Forma"));
+            //const cliente = hot.getDataAtCell(row, GetColFromName("Núm. cliente"));
+            //const pzasGolpe = hot.getDataAtCell(row, GetColFromName("Pzas por Golpe")) || "";
+            //// Nota: 'Pzas por Golpe' no está en tus headers de CambioIngenieria. 
+            //// Si no está, usa cadena vacía.
+
+            //let formaCode = "X";
+            //if (forma) {
+            //    const fUpper = forma.toUpperCase();
+            //    if (fUpper === "RECTANGULAR") formaCode = "R";
+            //    else if (fUpper === "TRAPEZOIDE" || fUpper === "TRAPECIO") formaCode = "T";
+            //    else if (fUpper === "CONFIGURADO") formaCode = "C";
+            //    else if (fUpper === "RECTO") formaCode = "S";
+            //}
+
+            //let clienteCodigo = cliente;
+            //if (cliente && cliente.indexOf('(') > -1) {
+            //    const match = cliente.match(/\(([^)]+)\)/);
+            //    if (match) clienteCodigo = match[1];
+            //}
+
+            //if (!cliente) return;
+
+            //// Como 'Program' no está en los headers, usamos vacío
+            //const progStr = "";
+
+            //const idTool = `${codigoPlanta}_${formaCode}_${clienteCodigo}_01_${progStr}_${pzasStr}_#TBD`;
+            //hot.setDataAtCell(row, GetColFromName("ID Tool"), idTool);
+            hot.setDataAtCell(row, GetColFromName("ID Tool"), "/");
+        }
+        // --- FIN MODIFICACIÓN ---
 
         $(window).resize(function () {
             hot.render();
