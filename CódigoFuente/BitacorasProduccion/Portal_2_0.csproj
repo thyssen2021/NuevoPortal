@@ -341,6 +341,7 @@
     </Compile>
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AreasController.cs" />
+    <Compile Include="Controllers\BasculasApiController.cs" />
     <Compile Include="Controllers\BG_CentroCostoController.cs" />
     <Compile Include="Controllers\BG_CuentasSAPController.cs" />
     <Compile Include="Controllers\BG_forecast_cat_clientesController.cs" />
@@ -6178,6 +6179,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\BasculasApi\" />
     <Folder Include="Views\Combos\" />
     <Folder Include="Views\ECharts\" />
     <Folder Include="Views\ReportesPesadasSilao\" />
