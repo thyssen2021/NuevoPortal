@@ -2628,43 +2628,85 @@
     /**
      * Orquesta la sincronización del país y el vehículo usando llamadas SÍNCRONAS.
      */
+    /**
+     * Orquesta la sincronización del país y el vehículo usando llamadas SÍNCRONAS.
+     * Con mensajes de depuración detallados.
+     */
     function syncSingleVehicleAndCountry(vehicleCode, countrySelector, vehicleSelector) {
+        // Agrupamos los logs para no ensuciar la consola
+        console.groupCollapsed("🛠️ DEBUG: syncSingleVehicleAndCountry");
+        console.log(`1. Parámetros -> VehicleCode: "${vehicleCode}", CountrySel: "${countrySelector}", VehicleSel: "${vehicleSelector}"`);
+
         const $countryDropdown = $(countrySelector);
         const $vehicleDropdown = $(vehicleSelector);
 
         // Si no hay código de vehículo, reseteamos los dropdowns y terminamos.
         if (!vehicleCode) {
-            $countryDropdown.val("MEX").trigger('change.select2'); // Opcional: poner un país por defecto
+            console.warn("⚠️ No hay código de vehículo. Reseteando a defaults (MEX).");
+
+            // Usamos la bandera para evitar disparar recargas innecesarias aquí también
+            $countryDropdown.data('in-sync', true);
+            $countryDropdown.val("MEX").trigger('change.select2');
+            $countryDropdown.data('in-sync', false);
+
             loadVehiclesForDropdown("MEX", vehicleSelector);
+            console.groupEnd(); // Fin del grupo de logs
             return;
         }
 
+        // Extraemos el mnemónico base por si necesitamos búsqueda difusa
         const mnemonic = vehicleCode.split('_')[0];
+        console.log(`2. Mnemónico extraído: "${mnemonic}"`);
+
         let country = "MEX"; // País por defecto
 
-        // 1. PRIMERA LLAMADA SÍNCRONA: Obtener el país para este vehículo.
-        // Es síncrona (async: false) para asegurar que tenemos el país antes de continuar.
+        // 1. PRIMERA LLAMADA SÍNCRONA: Obtener el país correcto desde la BD.
+        console.log("📡 Paso 3: Llamando a GetCountryForIHS (Síncrono)...");
+
         $.ajax({
-            url: config.urls.GetCountryForIHS,
+            url: config.urls.getCountryForIHS,
             data: { ihsCode: vehicleCode },
-            async: false,
+            async: false, // IMPORTANTE: Esperar respuesta
             success: function (response) {
+                console.log("   ✅ Respuesta del servidor (País):", response);
                 if (response.success) {
                     country = response.country;
+                    console.log(`   🎯 País determinado por BD: "${country}"`);
+                } else {
+                    console.warn("   ⚠️ No se encontró país en BD. Usando default:", country);
                 }
+            },
+            error: function (xhr, status, error) {
+                console.error("   ❌ Error AJAX obteniendo país:", error);
             }
         });
 
         // 2. SEGUNDA LLAMADA SÍNCRONA: Obtener la lista de vehículos para ese país.
-        // También es síncrona para asegurar que la lista esté cargada antes de intentar seleccionar un valor.
+        console.log(`📡 Paso 4: Llamando a getIHSByCountry para el país "${country}" (Síncrono)...`);
+
         $.ajax({
             url: config.urls.getIHSByCountry,
             data: { country: country },
-            async: false,
+            async: false, // IMPORTANTE: Esperar respuesta
             success: function (vehicleData) {
-                // 3. POBLAR Y SELECCIONAR: Ahora que todo está cargado, podemos asignar valores.
+                console.log(`   ✅ Vehículos encontrados: ${vehicleData ? vehicleData.length : 0}`);
+
+                // --- INICIO CORRECCIÓN DE BUG ---
+                console.log("🔒 Paso 5: Bloqueando evento 'change' (data-in-sync = true)");
+                // 1. Activamos la bandera para bloquear el evento en page.main.js
+                $countryDropdown.data('in-sync', true);
+
+                // 2. Asignamos el país correcto (USA, BRA, etc.)
+                console.log(`   -> Asignando valor "${country}" al dropdown de país.`);
                 $countryDropdown.val(country).trigger('change.select2');
 
+                // 3. Desactivamos la bandera inmediatamente
+                $countryDropdown.data('in-sync', false);
+                console.log("🔓 Desbloqueando evento 'change' (data-in-sync = false)");
+                // --- FIN CORRECCIÓN ---
+
+                // 4. Poblamos el dropdown de vehículos manualmente
+                console.log("📝 Paso 6: Poblando opciones del dropdown de vehículos...");
                 let newOptions = '<option value="">Select a Vehicle</option>';
                 $.each(vehicleData, (i, item) => {
                     newOptions += `<option value="${item.Value}" data-sop="${item.SOP}" data-eop="${item.EOP}"
@@ -2673,16 +2715,30 @@
                 });
                 $vehicleDropdown.html(newOptions);
 
-                // Buscamos el código exacto en la nueva lista y lo seleccionamos.
+                // 5. Buscamos y seleccionamos el vehículo
+                console.log(`🔍 Paso 7: Buscando vehículo que inicie con "${mnemonic}"...`);
                 const matchingVehicle = vehicleData.find(v => v.Value.startsWith(mnemonic + '_'));
+
+                if (matchingVehicle) {
+                    console.log(`   ✅ Coincidencia encontrada: "${matchingVehicle.Value}"`);
+                } else {
+                    console.warn(`   ⚠️ No hubo coincidencia exacta. Usando código original "${vehicleCode}" como fallback.`);
+                }
+
                 const finalVehicleCode = matchingVehicle ? matchingVehicle.Value : vehicleCode;
+
+                console.log(`🎯 Paso 8: Seleccionando vehículo final: "${finalVehicleCode}"`);
                 $vehicleDropdown.val(finalVehicleCode).trigger('change.select2');
 
-
+                // Respetamos los permisos de edición
                 $vehicleDropdown.prop('disabled', !canEditSales).trigger('change.select2');
-
+            },
+            error: function (xhr, status, error) {
+                console.error("   ❌ Error AJAX obteniendo vehículos:", error);
             }
         });
+
+        console.groupEnd(); // Cierra el grupo en la consola
     }
 
     /**

@@ -154,6 +154,13 @@
         // ***************** MANEJO DE EVENTOS *****************
         // Cuando el usuario cambia el país, se recarga la lista de vehículos de forma asíncrona.
         $(document).on('change', '.ihs-country-selector', function () {
+
+            // Si el elemento tiene la bandera 'data-in-sync' en true, ignoramos este evento
+            // porque la función syncSingleVehicleAndCountry ya se está encargando de la carga.
+            if ($(this).data('in-sync') === true) {
+                return;
+
+            }
             const country = $(this).val();
             const targetVehicleSelector = $(this).data('target-vehicle'); // Obtenemos el selector del vehículo asociado
 

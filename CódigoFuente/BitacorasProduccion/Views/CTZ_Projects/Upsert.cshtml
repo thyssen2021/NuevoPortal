@@ -200,290 +200,310 @@
                             @Html.AntiForgeryToken()
                             @Html.HiddenFor(model => model.ID_Project)
 
-                            <div class="form-horizontal">
-                                @if (!Html.ViewData.ModelState.IsValid)
-                                {
-                                    <div class="alert alert-danger" role="alert">
-                                        @Html.ValidationSummary("", new { @class = "text-white" })
-                                    </div>
-                                }
-                                <!-- Sección de Material Owner, Facility y Status -->
-                                <div class="form-card">
-                                    <h3>Project Details</h3>
-                                    <div class="compact-row">
-                                        <div class="compact-col">
-                                            @Html.LabelFor(model => model.ID_Material_Owner, new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_Material_Owner, null, "-- Select Material Owner --", new { @class = "form-control select2", id = "ID_Material_Owner", required = "required" })
-                                            @Html.ValidationMessageFor(model => model.ID_Material_Owner, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="compact-col">
-                                            @Html.LabelFor(model => model.ID_Plant, new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_Plant, null, "-- Select Facility --", new { @class = "form-control select2", required = "required" })
-                                            @Html.ValidationMessageFor(model => model.ID_Plant, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="compact-col">
-                                            @Html.LabelFor(model => model.ID_Status, new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_Status, null, "-- Select Status --", new { @class = "form-control select2", required = "required" })
-                                            @Html.ValidationMessageFor(model => model.ID_Status, "", new { @class = "text-danger" })
-                                        </div>
-                                    </div>
-                                    <div class="compact-row">
-                                        <div class="compact-col">
-                                            @Html.LabelFor(model => model.ID_VehicleType, new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_VehicleType, null, "-- Select Vehicle Type --", new { @class = "form-control select2", required = "required" })
-                                            @Html.ValidationMessageFor(model => model.ID_VehicleType, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="compact-col">
-                                            @Html.LabelFor(model => model.ImportRequired, new { @class = "control-label" })
-                                            <div class="checkbox">
-                                                @Html.CheckBoxFor(model => model.ImportRequired, new { id = "ImportRequired" })
-                                                <label for="ImportRequired">Import Required</label>
-                                            </div>
-                                            @Html.ValidationMessageFor(model => model.ImportRequired, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="compact-col">
-                                            @Html.LabelFor(model => model.HasExternalProcessor, "External Processor?", new { @class = "control-label" })
-                                            <div class="checkbox">
-                                                @Html.CheckBoxFor(model => model.HasExternalProcessor, new { id = "HasExternalProcessor" })
-                                                <label for="HasExternalProcessor">External Processor required</label>
-                                            </div>
-                                            @Html.ValidationMessageFor(model => model.HasExternalProcessor, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="compact-col">
-                                            @Html.LabelFor(model => model.InterplantProcess, new { @class = "control-label" })
-                                            <div class="checkbox">
-                                                @Html.CheckBoxFor(model => model.InterplantProcess, new { id = "InterplantProcess" })
-                                                <label for="InterplantProcess">Requires Interplant Process?</label>
-                                            </div>
-                                            @Html.ValidationMessageFor(model => model.InterplantProcess, "", new { @class = "text-danger" })
-                                        </div>
-                                    </div>
+                        <div class="form-horizontal">
+                            @if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
                                 </div>
+                            }
 
-                                <div id="externalProcessorSection" class="additional-section">
-                                    <h4>External Processor Details</h4>
-                                    <div class="compact-row">
-                                        <div class="compact-col">
-                                            @Html.LabelFor(m => m.ID_ExternalProcessor, "Processor Type", new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_ExternalProcessor, (SelectList)ViewBag.ExternalProcessorList,
-                                                "-- Select Processor --",
-                                                new { @class = "form-control select2" })
-                                            @Html.ValidationMessageFor(m => m.ID_ExternalProcessor, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="compact-col" id="processorNameContainer" style="display: none;">
-                                            @Html.LabelFor(m => m.ID_ExternalProcessorName, new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_ExternalProcessorName, (SelectList)ViewBag.ExternalProcessorNameList,
-                                                "-- Select Processor Name --",
-                                                new { @class = "form-control select2" })
-                                            @Html.ValidationMessageFor(m => m.ID_ExternalProcessorName, "", new { @class = "text-danger" })
-                                        </div>
+                            <div class="alert alert-warning shadow-sm" role="alert"
+                                 style="border-left: 5px solid #ffc107; background-color: #fff3cd; color: #856404; margin-bottom: 20px;">
+                                <div class="d-flex align-items-center">
+                                    <div class="mr-3">
+                                        <i class="fa-solid fa-clock-rotate-left fa-2x"></i>
                                     </div>
-                                </div>
-
-                                <!-- Sección adicional para Material Owner (cuando se selecciona OWN o id=1) -->
-                                <div id="materialOwnerAdditionalSection" class="additional-section">
-                                    <h4>Additional Data for Material Owner</h4>
-                                    <div class="compact-row">
-                                        <div class="compact-col">
-                                            @Html.LabelFor(m => m.ID_Incoterm, "Incoterm", new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_Incoterm, null,
-                                                "-- Select Incoterm --",
-                                                new { @class = "form-control select2", id = "incoterm1" })
-                                            @Html.ValidationMessageFor(m => m.ID_Incoterm, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="compact-col">
-                                            @Html.LabelFor(m => m.ID_Country_Origin, "Material Origin", new { @class = "control-label" })
-                                            <select id="country1"
-                                                    name="ID_Country_Origin"
-                                                    class="form-control select2">
-                                                <option value="">-- Select Country --</option>
-                                                @foreach (var c in countries)
-                                                {
-                                                    <option value="@c.ID_Country"
-                                                            data-warning="@c.Warning.ToString().ToLower()"
-                                                            @(Model.ID_Country_Origin == c.ID_Country ? "selected" : "")>
-                                                        @c.ConcatKey
-                                                    </option>
-                                                }
-                                            </select>
-                                            @Html.ValidationMessageFor(m => m.ID_Country_Origin, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="compact-col" style="display:none">
-                                            @Html.LabelFor(model => model.Mults, new { @class = "control-label" })
-                                            @Html.TextBoxFor(model => model.Mults, new { @class = "form-control", placeholder = "Mults" })
-                                            @Html.ValidationMessageFor(model => model.Mults, "", new { @class = "text-danger" })
-                                        </div>
-
-                                    </div>
-                                    <div class="compact-row">
-                                        <div class="compact-col">
-                                            @Html.LabelFor(model => model.Comments_Material_Owner, new { @class = "control-label" })
-                                            @Html.TextAreaFor(model => model.Comments_Material_Owner, new { @class = "form-control", placeholder = "Enter your comments...", rows = "4" })
-                                            @Html.ValidationMessageFor(model => model.Comments_Material_Owner, "", new { @class = "text-danger" })
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Sección adicional para Import Required -->
-                                <div id="importAdditionalSection" class="additional-section">
-                                    <h4>Import Additional Data</h4>
-                                    <div class="compact-row">
-                                        <div class="compact-col">
-                                            @Html.LabelFor(m => m.ID_Import_Business_Model, "Business Model", new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_Import_Business_Model, null,
-                                                "-- Select a Business Model --",
-                                                new { @class = "form-control select2", id = "modelo_negocio" })
-                                            @Html.ValidationMessageFor(m => m.ID_Import_Business_Model, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="compact-col">
-                                            @Html.Label("incoterm2", "Incoterm", new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_Incoterm, null,
-                                                "-- Select Incoterm --",
-                                                new { @class = "form-control select2", id = "incoterm2" })
-                                            @Html.ValidationMessageFor(m => m.ID_Incoterm, "", new { @class = "text-danger" })
-
-                                        </div>
-                                        <div class="compact-col">
-                                            @Html.Label("country2", "Material Origin", new { @class = "control-label" })
-                                            <select id="country2"
-                                                    name="ID_Country_Origin"
-                                                    class="form-control select2">
-                                                <option value="">-- Select Country --</option>
-                                                @foreach (var c in countries)
-                                                {
-                                                    <option value="@c.ID_Country"
-                                                            data-warning="@c.Warning.ToString().ToLower()"
-                                                            @(Model.ID_Country_Origin == c.ID_Country ? "selected" : "")>
-                                                        @c.ConcatKey
-                                                    </option>
-                                                }
-                                            </select>
-                                            @Html.ValidationMessageFor(m => m.ID_Country_Origin, "", new { @class = "text-danger" })
-
-                                        </div>
-                                    </div>
-                                    <div class="compact-row">
-                                        <div class="compact-col">
-                                            @Html.LabelFor(model => model.Comments_Import, new { @class = "control-label" })
-                                            @Html.TextAreaFor(model => model.Comments_Import, new { @class = "form-control", placeholder = "Enter your comments...", rows = "4" })
-                                            @Html.ValidationMessageFor(model => model.Comments_Import, "", new { @class = "text-danger" })
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Sección de Client y OEM -->
-                                <div class="form-card">
-                                    <h3>Client / OEM Information</h3>
-                                    <div class="compact-row">
-                                        <div class="compact-col">
-                                            @Html.Label("Client", new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_Client, null, "-- Select Client --", new { @class = "form-control select2", id = "ID_Client" })
-                                            @Html.ValidationMessageFor(model => model.ID_Client, "", new { @class = "text-danger" })
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" id="chkOtherClient" name="chkOtherClient"
-                                                           @(!Model.ID_Client.HasValue && !string.IsNullOrEmpty(Model.Cliente_Otro) ? "checked" : "") /> Other Client
-                                                </label>
-                                            </div>
-                                            <div id="divOtherClient" style="margin-top: 15px;">
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Cliente_Otro, "Client Name", new { @class = "control-label" })
-                                                    @Html.TextBoxFor(m => m.Cliente_Otro, new { @class = "form-control", placeholder = "Enter client name" })
-                                                    @Html.ValidationMessageFor(m => m.Cliente_Otro, "", new { @class = "text-danger" })
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.OtherClient_Address, "Address", new { @class = "control-label" })
-                                                    @Html.TextAreaFor(m => m.OtherClient_Address, new { @class = "form-control", placeholder = "Enter client address", @rows = 2 })
-                                                    @Html.ValidationMessageFor(m => m.OtherClient_Address, "", new { @class = "text-danger" })
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.OtherClient_Telephone, "Telephone", new { @class = "control-label" })
-                                                    @Html.TextBoxFor(m => m.OtherClient_Telephone, new { @class = "form-control", placeholder = "Enter telephone" })
-                                                    @Html.ValidationMessageFor(m => m.OtherClient_Telephone, "", new { @class = "text-danger" })
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="compact-col">
-                                            @Html.Label("OEM / Final Client", new { @class = "control-label" })
-                                            @Html.DropDownListFor(model => model.ID_OEM, null, "-- Select OEM --", new { @class = "form-control select2", id = "ID_OEM" })
-                                            @Html.ValidationMessageFor(model => model.ID_OEM, "", new { @class = "text-danger" })
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" id="chkOtherOEM" name="chkOtherOEM"
-                                                           @(!Model.ID_OEM.HasValue && !string.IsNullOrEmpty(Model.OEM_Otro) ? "checked" : "") /> Other OEM / Final Client
-                                                </label>                                                
-                                            </div>
-                                            <div id="divOtherOEM" style="margin-top: 15px;">
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.OEM_Otro, "OEM Name", new { @class = "control-label" })
-                                                    @Html.TextBoxFor(m => m.OEM_Otro, new { @class = "form-control", placeholder = "Enter OEM name" })
-                                                    @Html.ValidationMessageFor(m => m.OEM_Otro, "", new { @class = "text-danger" })
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.OtherOEM_Address, "Address", new { @class = "control-label" })
-                                                    @Html.TextAreaFor(m => m.OtherOEM_Address, new { @class = "form-control", placeholder = "Enter OEM address", @rows = 2 })
-                                                    @Html.ValidationMessageFor(m => m.OtherOEM_Address, "", new { @class = "text-danger" })
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.OtherOEM_Telephone, "Telephone", new { @class = "control-label" })
-                                                    @Html.TextBoxFor(m => m.OtherOEM_Telephone, new { @class = "form-control", placeholder = "Enter telephone" })
-                                                    @Html.ValidationMessageFor(m => m.OtherOEM_Telephone, "", new { @class = "text-danger" })
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-
-                                <!-- Sección de fechas y Quote ID -->
-                                <div class="form-card">
-                                    <h3>Project Data</h3>
-                                    <div class="compact-row">
-                                        <div class="compact-col">
-                                            <label class="control-label">Created By</label>
-                                            <input type="text" class="form-control" value="@(((empleados)ViewBag.EmpleadoLogeado).ConcatNombre)" disabled="disabled" readonly="readonly" />
-                                        </div>
-                                        <div class="compact-col">
-                                            <label class="control-label">Creation Date</label>
-                                            <input type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" disabled="disabled" readonly="readonly" />
-                                        </div>
-                                        <div class="compact-col">
-                                            <label class="control-label">@Html.DisplayNameFor(model => model.ConcatQuoteID)</label>
-                                            <input type="text" class="form-control" value="TBD" disabled="disabled" readonly="readonly" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Sección de Comments -->
-                                <div class="form-card">
-                                    <h3>Comments</h3>
-                                    <div class="form-group">
-                                        @Html.LabelFor(model => model.Comments, new { @class = "control-label" })
-                                        @Html.TextAreaFor(model => model.Comments, new { @class = "form-control", placeholder = "Enter your comments...", rows = "4" })
-                                        @Html.ValidationMessageFor(model => model.Comments, "", new { @class = "text-danger" })
-                                    </div>
-                                </div>
-
-
-                                <!-- chartsContainer -->
-                                <div class="form-card">
-                                    <!-- Texto de aclaración en inglés -->
-                                    <div id="chartsNote" style="margin-bottom: 20px; background-color:#fff3cb; padding:15px; border:1px solid #ddd; border-radius:4px; display:none;">
-                                        <p style="margin:0; font-size:14px; color:#333;">
-                                            <b>Note</b>: The capacity shown in the graphs represents the current operating capacity and does not include the capacity allocated for the current project.
+                                    <div>
+                                        <h5 class="alert-heading" style="font-weight: 700; font-size: 16px; margin-bottom: 5px;">
+                                            Quote Validity Policy
+                                        </h5>
+                                        <p class="mb-0" style="font-size: 14px;">
+                                            All quotes have a default validity of <strong>15 days</strong> from creation.
+                                            After this period, the system will automatically cancel the quote unless a
+                                            <strong>Validity Extension</strong> is processed.
                                         </p>
                                     </div>
-                                    <div id="chartsContainer"></div>
-                                    <!-- LEGEND: leyenda de turnos fuera del canvas -->
-                                    <div id="shiftLegend" class="mt-3 text-center"></div>
-                                </div>
-
-                                <!-- Botón Submit -->
-                                <div class="text-right">
-                                    <button type="submit" class="btn btn-success">@(isNew ? "Create" : "Save Changes")</button>
                                 </div>
                             </div>
+
+                            <!-- Sección de Material Owner, Facility y Status -->
+                            <div class="form-card">
+                                <h3>Project Details</h3>
+                                <div class="compact-row">
+                                    <div class="compact-col">
+                                        @Html.LabelFor(model => model.ID_Material_Owner, new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_Material_Owner, null, "-- Select Material Owner --", new { @class = "form-control select2", id = "ID_Material_Owner", required = "required" })
+                                        @Html.ValidationMessageFor(model => model.ID_Material_Owner, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.LabelFor(model => model.ID_Plant, new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_Plant, null, "-- Select Facility --", new { @class = "form-control select2", required = "required" })
+                                        @Html.ValidationMessageFor(model => model.ID_Plant, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.LabelFor(model => model.ID_Status, new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_Status, null, "-- Select Status --", new { @class = "form-control select2", required = "required" })
+                                        @Html.ValidationMessageFor(model => model.ID_Status, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="compact-row">
+                                    <div class="compact-col">
+                                        @Html.LabelFor(model => model.ID_VehicleType, new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_VehicleType, null, "-- Select Vehicle Type --", new { @class = "form-control select2", required = "required" })
+                                        @Html.ValidationMessageFor(model => model.ID_VehicleType, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.LabelFor(model => model.ImportRequired, new { @class = "control-label" })
+                                        <div class="checkbox">
+                                            @Html.CheckBoxFor(model => model.ImportRequired, new { id = "ImportRequired" })
+                                            <label for="ImportRequired">Import Required</label>
+                                        </div>
+                                        @Html.ValidationMessageFor(model => model.ImportRequired, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.LabelFor(model => model.HasExternalProcessor, "External Processor?", new { @class = "control-label" })
+                                        <div class="checkbox">
+                                            @Html.CheckBoxFor(model => model.HasExternalProcessor, new { id = "HasExternalProcessor" })
+                                            <label for="HasExternalProcessor">External Processor required</label>
+                                        </div>
+                                        @Html.ValidationMessageFor(model => model.HasExternalProcessor, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.LabelFor(model => model.InterplantProcess, new { @class = "control-label" })
+                                        <div class="checkbox">
+                                            @Html.CheckBoxFor(model => model.InterplantProcess, new { id = "InterplantProcess" })
+                                            <label for="InterplantProcess">Requires Interplant Process?</label>
+                                        </div>
+                                        @Html.ValidationMessageFor(model => model.InterplantProcess, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="externalProcessorSection" class="additional-section">
+                                <h4>External Processor Details</h4>
+                                <div class="compact-row">
+                                    <div class="compact-col">
+                                        @Html.LabelFor(m => m.ID_ExternalProcessor, "Processor Type", new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_ExternalProcessor, (SelectList)ViewBag.ExternalProcessorList,
+                                            "-- Select Processor --",
+                                            new { @class = "form-control select2" })
+                                        @Html.ValidationMessageFor(m => m.ID_ExternalProcessor, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col" id="processorNameContainer" style="display: none;">
+                                        @Html.LabelFor(m => m.ID_ExternalProcessorName, new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_ExternalProcessorName, (SelectList)ViewBag.ExternalProcessorNameList,
+                                            "-- Select Processor Name --",
+                                            new { @class = "form-control select2" })
+                                        @Html.ValidationMessageFor(m => m.ID_ExternalProcessorName, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección adicional para Material Owner (cuando se selecciona OWN o id=1) -->
+                            <div id="materialOwnerAdditionalSection" class="additional-section">
+                                <h4>Additional Data for Material Owner</h4>
+                                <div class="compact-row">
+                                    <div class="compact-col">
+                                        @Html.LabelFor(m => m.ID_Incoterm, "Incoterm", new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_Incoterm, null,
+                                            "-- Select Incoterm --",
+                                            new { @class = "form-control select2", id = "incoterm1" })
+                                        @Html.ValidationMessageFor(m => m.ID_Incoterm, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.LabelFor(m => m.ID_Country_Origin, "Material Origin", new { @class = "control-label" })
+                                        <select id="country1"
+                                                name="ID_Country_Origin"
+                                                class="form-control select2">
+                                            <option value="">-- Select Country --</option>
+                                            @foreach (var c in countries)
+                                            {
+                                                <option value="@c.ID_Country"
+                                                        data-warning="@c.Warning.ToString().ToLower()"
+                                                        @(Model.ID_Country_Origin == c.ID_Country ? "selected" : "")>
+                                                    @c.ConcatKey
+                                                </option>
+                                            }
+                                        </select>
+                                        @Html.ValidationMessageFor(m => m.ID_Country_Origin, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col" style="display:none">
+                                        @Html.LabelFor(model => model.Mults, new { @class = "control-label" })
+                                        @Html.TextBoxFor(model => model.Mults, new { @class = "form-control", placeholder = "Mults" })
+                                        @Html.ValidationMessageFor(model => model.Mults, "", new { @class = "text-danger" })
+                                    </div>
+
+                                </div>
+                                <div class="compact-row">
+                                    <div class="compact-col">
+                                        @Html.LabelFor(model => model.Comments_Material_Owner, new { @class = "control-label" })
+                                        @Html.TextAreaFor(model => model.Comments_Material_Owner, new { @class = "form-control", placeholder = "Enter your comments...", rows = "4" })
+                                        @Html.ValidationMessageFor(model => model.Comments_Material_Owner, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección adicional para Import Required -->
+                            <div id="importAdditionalSection" class="additional-section">
+                                <h4>Import Additional Data</h4>
+                                <div class="compact-row">
+                                    <div class="compact-col">
+                                        @Html.LabelFor(m => m.ID_Import_Business_Model, "Business Model", new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_Import_Business_Model, null,
+                                            "-- Select a Business Model --",
+                                            new { @class = "form-control select2", id = "modelo_negocio" })
+                                        @Html.ValidationMessageFor(m => m.ID_Import_Business_Model, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.Label("incoterm2", "Incoterm", new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_Incoterm, null,
+                                            "-- Select Incoterm --",
+                                            new { @class = "form-control select2", id = "incoterm2" })
+                                        @Html.ValidationMessageFor(m => m.ID_Incoterm, "", new { @class = "text-danger" })
+
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.Label("country2", "Material Origin", new { @class = "control-label" })
+                                        <select id="country2"
+                                                name="ID_Country_Origin"
+                                                class="form-control select2">
+                                            <option value="">-- Select Country --</option>
+                                            @foreach (var c in countries)
+                                            {
+                                                <option value="@c.ID_Country"
+                                                        data-warning="@c.Warning.ToString().ToLower()"
+                                                        @(Model.ID_Country_Origin == c.ID_Country ? "selected" : "")>
+                                                    @c.ConcatKey
+                                                </option>
+                                            }
+                                        </select>
+                                        @Html.ValidationMessageFor(m => m.ID_Country_Origin, "", new { @class = "text-danger" })
+
+                                    </div>
+                                </div>
+                                <div class="compact-row">
+                                    <div class="compact-col">
+                                        @Html.LabelFor(model => model.Comments_Import, new { @class = "control-label" })
+                                        @Html.TextAreaFor(model => model.Comments_Import, new { @class = "form-control", placeholder = "Enter your comments...", rows = "4" })
+                                        @Html.ValidationMessageFor(model => model.Comments_Import, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección de Client y OEM -->
+                            <div class="form-card">
+                                <h3>Client / OEM Information</h3>
+                                <div class="compact-row">
+                                    <div class="compact-col">
+                                        @Html.Label("Client", new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_Client, null, "-- Select Client --", new { @class = "form-control select2", id = "ID_Client" })
+                                        @Html.ValidationMessageFor(model => model.ID_Client, "", new { @class = "text-danger" })
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="chkOtherClient" name="chkOtherClient"
+                                                       @(!Model.ID_Client.HasValue && !string.IsNullOrEmpty(Model.Cliente_Otro) ? "checked" : "") /> Other Client
+                                            </label>
+                                        </div>
+                                        <div id="divOtherClient" style="margin-top: 15px;">
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Cliente_Otro, "Client Name", new { @class = "control-label" })
+                                                @Html.TextBoxFor(m => m.Cliente_Otro, new { @class = "form-control", placeholder = "Enter client name" })
+                                                @Html.ValidationMessageFor(m => m.Cliente_Otro, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.OtherClient_Address, "Address", new { @class = "control-label" })
+                                                @Html.TextAreaFor(m => m.OtherClient_Address, new { @class = "form-control", placeholder = "Enter client address", @rows = 2 })
+                                                @Html.ValidationMessageFor(m => m.OtherClient_Address, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.OtherClient_Telephone, "Telephone", new { @class = "control-label" })
+                                                @Html.TextBoxFor(m => m.OtherClient_Telephone, new { @class = "form-control", placeholder = "Enter telephone" })
+                                                @Html.ValidationMessageFor(m => m.OtherClient_Telephone, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.Label("OEM / Final Client", new { @class = "control-label" })
+                                        @Html.DropDownListFor(model => model.ID_OEM, null, "-- Select OEM --", new { @class = "form-control select2", id = "ID_OEM" })
+                                        @Html.ValidationMessageFor(model => model.ID_OEM, "", new { @class = "text-danger" })
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="chkOtherOEM" name="chkOtherOEM"
+                                                       @(!Model.ID_OEM.HasValue && !string.IsNullOrEmpty(Model.OEM_Otro) ? "checked" : "") /> Other OEM / Final Client
+                                            </label>
+                                        </div>
+                                        <div id="divOtherOEM" style="margin-top: 15px;">
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.OEM_Otro, "OEM Name", new { @class = "control-label" })
+                                                @Html.TextBoxFor(m => m.OEM_Otro, new { @class = "form-control", placeholder = "Enter OEM name" })
+                                                @Html.ValidationMessageFor(m => m.OEM_Otro, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.OtherOEM_Address, "Address", new { @class = "control-label" })
+                                                @Html.TextAreaFor(m => m.OtherOEM_Address, new { @class = "form-control", placeholder = "Enter OEM address", @rows = 2 })
+                                                @Html.ValidationMessageFor(m => m.OtherOEM_Address, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.OtherOEM_Telephone, "Telephone", new { @class = "control-label" })
+                                                @Html.TextBoxFor(m => m.OtherOEM_Telephone, new { @class = "form-control", placeholder = "Enter telephone" })
+                                                @Html.ValidationMessageFor(m => m.OtherOEM_Telephone, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- Sección de fechas y Quote ID -->
+                            <div class="form-card">
+                                <h3>Project Data</h3>
+                                <div class="compact-row">
+                                    <div class="compact-col">
+                                        <label class="control-label">Created By</label>
+                                        <input type="text" class="form-control" value="@(((empleados)ViewBag.EmpleadoLogeado).ConcatNombre)" disabled="disabled" readonly="readonly" />
+                                    </div>
+                                    <div class="compact-col">
+                                        <label class="control-label">Creation Date</label>
+                                        <input type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" disabled="disabled" readonly="readonly" />
+                                    </div>
+                                    <div class="compact-col">
+                                        <label class="control-label">@Html.DisplayNameFor(model => model.ConcatQuoteID)</label>
+                                        <input type="text" class="form-control" value="TBD" disabled="disabled" readonly="readonly" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección de Comments -->
+                            <div class="form-card">
+                                <h3>Comments</h3>
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Comments, new { @class = "control-label" })
+                                    @Html.TextAreaFor(model => model.Comments, new { @class = "form-control", placeholder = "Enter your comments...", rows = "4" })
+                                    @Html.ValidationMessageFor(model => model.Comments, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <!-- chartsContainer -->
+                            <div class="form-card">
+                                <!-- Texto de aclaración en inglés -->
+                                <div id="chartsNote" style="margin-bottom: 20px; background-color:#fff3cb; padding:15px; border:1px solid #ddd; border-radius:4px; display:none;">
+                                    <p style="margin:0; font-size:14px; color:#333;">
+                                        <b>Note</b>: The capacity shown in the graphs represents the current operating capacity and does not include the capacity allocated for the current project.
+                                    </p>
+                                </div>
+                                <div id="chartsContainer"></div>
+                                <!-- LEGEND: leyenda de turnos fuera del canvas -->
+                                <div id="shiftLegend" class="mt-3 text-center"></div>
+                            </div>
+
+                            <!-- Botón Submit -->
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-success">@(isNew ? "Create" : "Save Changes")</button>
+                            </div>
+                        </div>
                         }
                         <div class="mt-3">
                             @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-default" })
