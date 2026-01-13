@@ -53,7 +53,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Quality")]
         public string Quality { get; set; }
 
-        [Display(Name = "Tensile Strenght [Rm]")]
+        [Display(Name = "Tensile Strenght [N/mm²]")]
         public Nullable<double> Tensile_Strenght { get; set; }
 
         [Display(Name = "Material Type")]
@@ -102,7 +102,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Theoretical Strokes")]
         public Nullable<double> Theoretical_Strokes { get; set; }  ////////
 
-        [Display(Name = "Real Strokes")]                        /////
+        [Display(Name = "Real Theoretical Strokes")]                        /////
         public Nullable<double> Real_Strokes { get; set; }
 
         [Display(Name = "Ideal Cycle Time Per Tool")]
@@ -242,7 +242,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Returnable Rack")]
         public Nullable<bool> IsReturnableRack { get; set; }
 
-        [Display(Name = "Freight Type")]
+        [Display(Name = "Outbound Incoterm")] // CAMBIO: Antes "Freight Type"
         public Nullable<int> ID_FreightType { get; set; }
 
         [Display(Name = "Number of Uses")]
@@ -440,7 +440,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Interplant Returnable Uses")]
         public Nullable<int> InterplantReturnableUses { get; set; }
 
-        [Display(Name = "Interplant Freight Type")]
+        [Display(Name = "Interplant Outbound Incoterm")] // CAMBIO: Antes "Interplant Freight Type"
         public Nullable<int> ID_Interplant_FreightType { get; set; }
 
         [Display(Name = "Interplant Delivery Conditions")]
@@ -479,6 +479,48 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Interplant Outbound Freight File")]
         public Nullable<int> ID_File_InterplantOutboundFreight { get; set; }
+
+        // ... otros campos existentes ...
+
+        [Display(Name = "Mill")]
+        [StringLength(80, ErrorMessage = "Mill cannot exceed 80 characters.")]
+        public string Mill { get; set; }
+
+        [Display(Name = "Material Specification")]
+        [StringLength(80, ErrorMessage = "Specification cannot exceed 80 characters.")]
+        public string MaterialSpecification { get; set; }
+
+        [Display(Name = "Estimated Annual Volume [Tons]")]
+        public Nullable<double> SlitterEstimatedAnnualVolume { get; set; }
+
+        [Display(Name = "Load Per Transport [Tons]")]
+        public Nullable<double> LoadPerTransport { get; set; }
+
+        [Display(Name = "Interplant Load Per Transport [Tons]")] // NUEVO CAMPO
+        public Nullable<double> InterplantLoadPerTransport { get; set; }
+
+        // --- NUEVOS CAMPOS PARA BLOQUE BLANKING ---
+
+        [Display(Name = "Annual Volume [Vehicles] (Blanking)")]
+        public Nullable<int> Blanking_Annual_Volume { get; set; }
+
+        [Display(Name = "Annual Volume [m tons/year] (Blanking)")]
+        public Nullable<double> Blanking_Volume_Per_year { get; set; }
+
+        [Display(Name = "Initial Weight per Part [kg]")]
+        public Nullable<double> Blanking_InitialWeightPerPart { get; set; }
+
+        [Display(Name = "Process Tons")]
+        public Nullable<double> Blanking_ProcessTons { get; set; }
+
+        [Display(Name = "Shipping Tons")]
+        public Nullable<double> Blanking_ShippingTons { get; set; }
+
+         [NotMapped]
+         [Display(Name = "Initial Weight [kg]")]
+         public Nullable<double> Initial_Weight { get; set; }
+
+     
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
@@ -491,15 +533,7 @@ namespace Portal_2_0.Models
             // no modificas propiedades complejas del objeto clonado.
             return (CTZ_Project_Materials)this.MemberwiseClone();
         }
-
-        [NotMapped]
-        [Display(Name = "Initial Weight [kg]")]
-        public Nullable<double> Initial_Weight { get; set; }
-
-        [NotMapped]
-        [Display(Name = "Weight per Part [kg]")]
-        public Nullable<double> WeightPerPart { get; set; }
-
+                
         [NotMapped]
         public List<int> SelectedRackTypeIds { get; set; }
 

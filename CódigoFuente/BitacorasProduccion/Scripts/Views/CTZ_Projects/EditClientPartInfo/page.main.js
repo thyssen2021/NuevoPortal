@@ -97,6 +97,13 @@
             placeholder: "Select or enter quality"
         }).val(null).trigger("change");  //vacio por defecto
 
+        var millData = config.lists.millList;
+        $(".select2-mill").select2({
+            tags: true, // Permite escribir valores nuevos
+            data: millData,
+            width: '100%',
+            placeholder: "Select or enter Mill",
+        }).val(null).trigger("change"); // Vacío por defecto
 
         //obtiene las lineas de sliter disponibles
         $.getJSON(config.urls.getSlitterLines, { plantId: config.project.plantId })
@@ -553,17 +560,35 @@
             updateLimitsDisplay(); // Usamos la nueva función unificada
 
             // 2. Lógica de visibilidad de campos (oculta todo y luego muestra lo relevante)
+            // 2. Lógica de visibilidad de campos (CON SOPORTE PARA D-FLEX)
             allFields.forEach(field => {
-                $(`#${field}`).prop("disabled", true);
-                $(`#${field}_container`).fadeOut(0);
+                let $input = $(`#${field}`);
+                let $container = $(`#${field}_container`);
+
+                // Deshabilitar input
+                $input.prop("disabled", true);
+
+                // Lógica para ocultar contenedores con d-flex
+                if ($container.hasClass('d-flex')) {
+                    $container.removeClass('d-flex').data('had-flex', true); // Quitamos la clase y guardamos "memoria"
+                }
+                $container.hide(); // Ahora hide() funcionará porque no hay d-flex estorbando
             });
 
             if (routeFieldMap[selectedValue]) {
                 routeFieldMap[selectedValue].forEach(field => {
-                    $(`#${field}_container`).fadeIn(0);
+                    let $container = $(`#${field}_container`);
+                    let $input = $(`#${field}`);
+
+                    // Restaurar d-flex si lo tenía originalmente
+                    if ($container.data('had-flex')) {
+                        $container.addClass('d-flex');
+                    }
+
+                    $container.show();
 
                     if (canEditSales) {
-                        $(`#${field}`).prop("disabled", false);
+                        $input.prop("disabled", false);
                     }
                 });
             }
@@ -668,6 +693,13 @@
             handleDeliveryTransportTypeChange();
             updateDeliveryTransportationTypeState();
 
+            updateMatrixVisibility();
+
+            // NUEVO: Actualizar ubicación del bloque de volumen
+            updateVolumeBlockLocation();
+            // Recalcular pesos por si el movimiento afectó algo visual
+            updateCalculatedWeightFields();
+
             // --- LÓGICA DE VISIBILIDAD DE GRÁFICAS ---
             console.log(`--- Lógica de Visibilidad de Gráficas ---`);
             console.log(`Ruta seleccionada ID: ${selectedId}`);
@@ -691,6 +723,10 @@
             }
             console.log(`--- Fin de Lógica de Visibilidad ---`);
             // --- FIN DE LÓGICA DE VISIBILIDAD ---
+
+            setTimeout(function () {
+                updateSectionVisibility();
+            }, 1000);
 
         });
 
@@ -1583,6 +1619,9 @@
         });
 
 
+
+
+
         // --- AGREGA ESTE BLOQUE PARA LOS THICKNESS ---
         // Este evento se "adhiere" al documento y escucha por cualquier
         // 'input' que ocurra en un elemento que TENGA la clase '.welded-thickness-input',
@@ -1821,6 +1860,9 @@
         //Calcula el valor de Theorical gross
         const debouncedUpdateGross = debounce(updateTheoreticalGrossWeight, 300);
 
+        $("#ID_Material_type").on("change", function () {
+            updateSurfaceCalculation();
+        });
 
         $("#Thickness, #Pitch, #Width, #ID_Material_type, #Blanks_Per_Stroke")
             .on("change keyup", debouncedUpdateGross);
@@ -1878,10 +1920,99 @@
             // Opcional: si necesitas validar los inputs de % cuando se activan
             // validateMaterial("ID_DEL_INPUT_DE_PORCENTAJE");
         });
+
+        // Nuevos campos con Debounce
+        $("#Mill").on("change", debounce(function () {
+            validateMaterial("Mill");
+        }, 500));
+
+        $("#MaterialSpecification").on("input", debounce(function () {
+            validateMaterial("MaterialSpecification");
+        }, 500));
+
+        $("#SlitterEstimatedAnnualVolume").on("input", debounce(function () {
+            validateMaterial("SlitterEstimatedAnnualVolume");
+        }, 500));
+
+        $("#LoadPerTransport").on("input", debounce(function () {
+            validateMaterial("LoadPerTransport");
+        }, 500));
+
+        $("#InterplantLoadPerTransport").on("input", debounce(function () {
+            validateMaterial("InterplantLoadPerTransport");
+        }, 500));
+       
+        // Agrega los selectores de Blanking al evento de input
+        $("#Blanking_Annual_Volume, #Blanking_Volume_Per_year").on("input", function () {
+            // Validar el campo individual
+            validateMaterial($(this).attr('id'));
+            // Recalcular fórmulas
+            updateCalculatedWeightFields();
+        });
     }
 
+    // --- FUNCIÓN NUEVA: Sincronizar visibilidad de matrices ---
+    function updateMatrixVisibility() {
+        // 1. Ocultar columnas individuales (Labels superiores + Inputs)
+        // Busca todos los contenedores de inputs marcados con nuestra clase 'matrix-val-container'
+        $(".matrix-val-container").each(function () {
+            var $inputContainer = $(this);
+            var $parentColumn = $inputContainer.parent(); // La columna (col-md-2 o col-md-3) que tiene el label gris
 
+            // Si el contenedor del input (controlado por routeFieldMap) está oculto...
+            if ($inputContainer.css('display') === 'none') {
+                $parentColumn.hide(); // Ocultamos toda la columna (incluyendo el label "Value [mm]")
+            } else {
+                $parentColumn.show(); // Mostramos la columna
+            }
+        });
+
+        // 2. Ocultar filas completas (Labels laterales "Thickness", "Width", etc.)
+        // Busca las filas marcadas como 'matrix-row'
+        $(".matrix-row").each(function () {
+            var $row = $(this);
+
+            // Verificamos si hay AL MENOS UN input visible en esta fila
+            var hasVisibleInputs = $row.find(".matrix-val-container").filter(function () {
+                return $(this).css('display') !== 'none';
+            }).length > 0;
+
+            if (hasVisibleInputs) {
+                // Si hay algo visible, mostramos la fila (usamos d-flex para mantener alineación si es necesario)
+                $row.removeClass('d-none').addClass('d-flex');
+            } else {
+                // Si todo está oculto, ocultamos la fila completa (incluyendo el título lateral)
+                $row.removeClass('d-flex').addClass('d-none');
+            }
+        });
+    }
+
+    function updateSurfaceCalculation() {
+        // Obtener el TEXTO de la opción seleccionada en Material Type
+        const selectedText = $("#ID_Material_type option:selected").text().trim();
+
+        const surfaceInput = $("#Surface");
+
+        if (!selectedText || selectedText === "Select Material Type") {
+            surfaceInput.val("");
+            return;
+        }
+
+        // Lógica: Todo lo que comienza con "E" es Exposed, el resto Unexposed.
+        // Ajuste: Verificamos si empieza con E mayúscula.
+        if (selectedText.startsWith("E")) {
+            surfaceInput.val("Exposed");
+        } else {
+            surfaceInput.val("Unexposed");
+        }
+    }
+
+    window.updateSurfaceCalculation = updateSurfaceCalculation;
     window.IniciaValidacionTiempoReal = IniciaValidacionTiempoReal;
     window.debouncedUpdateTheoreticalLine = debouncedUpdateTheoreticalLine;
     window.debouncedFetchAndApplyValidationRanges = debouncedFetchAndApplyValidationRanges;
+    window.updateMatrixVisibility = updateMatrixVisibility;
+
+
+
 })(); // <-- Fin de la IIFE

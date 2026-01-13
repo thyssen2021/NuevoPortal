@@ -84,6 +84,10 @@
                     <div class="x_title">
                         <h2>@ViewBag.Title</h2>
                         <div class="nav navbar-right panel_toolbox">
+
+                            <button type="button" id="btnExportMatrix" class="btn btn-success" style="margin-right: 5px;">
+                                <i class="fa-solid fa-file-excel"></i> Export Matrix
+                            </button>
                             <a href="@Url.Action("Upsert", "CTZ_Projects")" class="btn btn-primary" style="display: @(!canUpsert ? "none" : string.Empty)">New Quote</a>
                         </div>
                         <div class="clearfix"></div>
@@ -267,7 +271,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <!-- DataTables -->
     @Scripts.Render("~/bundles/dataTables_js")
-    <script>
+<script>
         $(document).ready(function () {
             // Inicializar Select2 en los selects de búsqueda
             $(".select2").select2({ width: '100%' });
@@ -323,6 +327,31 @@
             $("#searchForm").submit(function () {
                 $("#loadingIndicator").fadeIn();
             });
+
+            // ... (código existente del debounce) ...
+
+            // --- LÓGICA PARA EXPORTAR MATRIZ ---
+            $("#btnExportMatrix").click(function (e) {
+                e.preventDefault();
+
+                // 1. Guardar la acción original del formulario (la ruta de búsqueda)
+                var originalAction = $("#searchForm").attr("action");
+
+                // 2. Cambiar la acción a la ruta de Exportación
+                $("#searchForm").attr("action", '@Url.Action("ExportProjectMatrix", "CTZ_Projects")');
+
+                // 3. Enviar el formulario (esto enviará todos los filtros searchProject, searchClient, etc.)
+                $("#searchForm").submit();
+
+                // 4. Restaurar la acción original inmediatamente
+                // Usamos un pequeño timeout para asegurar que el submit capture el cambio primero
+                setTimeout(function() {
+                    $("#searchForm").attr("action", originalAction);
+                    // Ocultamos el indicador de carga porque la descarga no recarga la página
+                    $("#loadingIndicator").fadeOut();
+                }, 1000);
+            });
+
         });
-    </script>
+</script>
 }

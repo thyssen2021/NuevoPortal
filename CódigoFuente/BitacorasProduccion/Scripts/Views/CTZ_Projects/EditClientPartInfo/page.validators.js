@@ -2168,6 +2168,13 @@
             let validInterplantHeadTailClient = validateInterplantClientHeadTailReconciliationPercent();
             let validInterplantOutboundFile = validateInterplantOutboundFreightFile();
             let validWeightMultsComb = validateWeightMultsCombination();
+            let validMill = validateMill();
+            let validSpec = validateMaterialSpecification();
+            let validSlitterVol = validateSlitterEstimatedAnnualVolume();
+            let validLoad = validateLoadPerTransport();
+            let validInterplantLoad = validateInterplantLoadPerTransport(); // <-- NUEVO
+            let validBlankingAnnual = validateBlankingAnnualVolume();
+            let validBlankingVolYear = validateBlankingVolumePerYear();
 
             return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
                 && validRealSOP && validRealEOP && validShipTo && validRoute && validTensile && validMaterialType
@@ -2202,7 +2209,7 @@
                 && validInterplantScrapOpt && validInterplantScrapMax && validInterplantScrapClient
                 && validInterplantHeadTailRec && validInterplantHeadTailMin && validInterplantHeadTailOpt
                 && validInterplantHeadTailMax && validInterplantHeadTailClient && validInterplantOutboundFile && validWeightMultsComb
-                ;
+                && validMill && validSpec && validSlitterVol && validLoad && validInterplantLoad && validBlankingAnnual && validBlankingVolYear;
         }
 
         // Validar sólo el campo indicado
@@ -2430,6 +2437,13 @@
             case "InterplantHeadTailReconciliationPercent_Max": return validateInterplantHeadTailReconciliationPercent_Max();
             case "InterplantClientHeadTailReconciliationPercent": return validateInterplantClientHeadTailReconciliationPercent();
             case "interplantOutboundFreightAdditionalFile": return validateInterplantOutboundFreightFile();
+            case "Mill": return validateMill();
+            case "MaterialSpecification": return validateMaterialSpecification();
+            case "SlitterEstimatedAnnualVolume": return validateSlitterEstimatedAnnualVolume();
+            case "LoadPerTransport": return validateLoadPerTransport();
+            case "InterplantLoadPerTransport": return validateInterplantLoadPerTransport();
+            case "Blanking_Annual_Volume": return validateBlankingAnnualVolume();
+            case "Blanking_Volume_Per_year": return validateBlankingVolumePerYear();
             default:
                 return true;
         }
@@ -2691,6 +2705,14 @@
             return false;
         }
 
+        // Validamos que sea un año "lógico" (entre 2000 y 2100).
+        const year = realSOPDate.getFullYear();
+        if (year > 2100 || year < 2000) {
+            errorEl.text(`Invalid year (${year}). Please check for typos.`).show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
         // Validar contra Real EOP (Lógica Bloqueante)
         let realEOPStr = $("#Real_EOP").val().trim();
         if (realEOPStr) {
@@ -2760,6 +2782,13 @@
         let realEOPDate = window.parseYearMonth(realEOPStr);
         if (!realEOPDate) {
             errorEl.text("Invalid date format. Use yyyy-mm.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        const year = realEOPDate.getFullYear();
+        if (year > 2100 || year < 2000) {
+            errorEl.text(`Invalid year (${year}). Please check for typos.`).show();
             input.css("border", "1px solid red");
             return false;
         }
@@ -3419,6 +3448,7 @@
     function validateMultipliers() {
         const input = $("#Multipliers");
         const errorEl = $("#MultipliersError");
+        const multsDisplay = $("#mults-limit-display"); // Selector del mensaje informativo
         const status = statusId;
         const isExternalSlitter = (hasExternalProcessor && externalProcessorId === 1);
         const requiredStatus = [
@@ -3431,29 +3461,29 @@
         if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
             errorEl.text("").hide();
             input.css("border", "");
+            multsDisplay.text("").hide(); // Limpiar display al ocultar
             return true;
         }
 
-        // Limpiar errores previos que no sean de la validación de combinación de ANCHO
-        if (!errorEl.text().startsWith("Total width of mults")) {
-            errorEl.text("").hide();
-            input.css("border", "");
-        }
+        // Limpiamos errores, borde, y mensaje informativo antes de validar
+        errorEl.text("").hide();
+        input.css("border", "");
+        multsDisplay.text("").hide();
 
         let raw = input.val() ? input.val().trim() : "";
 
         if (!raw) {
             if (isExternalSlitter) {
-                validateWeightMultsCombination(); // NUEVO: Validar peso para limpiar
-                return validateWidthMultsCombination(); // Revalidar ancho para limpiar
+                validateWeightMultsCombination();
+                return validateWidthMultsCombination();
             }
             else if (requiredStatus.includes(status)) {
                 errorEl.text(config.displayNames.Multipliers + " is required.").show();
                 input.css("border", "1px solid red");
                 return false;
             }
-            validateWeightMultsCombination(); // NUEVO: Validar peso para limpiar
-            return validateWidthMultsCombination(); // Revalidar ancho para limpiar
+            validateWeightMultsCombination();
+            return validateWidthMultsCombination();
         }
 
         let val = parseFloat(raw);
@@ -3464,26 +3494,38 @@
         }
 
         if (!isExternalSlitter) {
-            if (window.maxMultsAllowed === null || window.maxMultsAllowed === 0) {
+
+            const maxMults = window.maxMultsAllowed;
+
+            if (maxMults === 999) {
+                // Caso 1: Validación omitida (Planta != Puebla). Muestra el mensaje simple y pasa la validación.
+                multsDisplay.text("Slitting Rule validation is skipped for this plant.").show();
+                input.css("border", "");
+            }
+            else if (maxMults === null || maxMults === 0) {
+                // Caso 2: Falta información para validar (o regla faltante)
                 errorEl.text("A validation rule is missing for the current Thickness and Tensile values.").show();
                 input.css("border", "1px solid red");
                 return false;
             }
-
-            if (val > window.maxMultsAllowed) {
-                errorEl.text(`Value cannot exceed the maximum of ${window.maxMultsAllowed} strips.`).show();
+            else if (val > maxMults) {
+                // Caso 3: El valor excede el límite real.
+                errorEl.text(`Value cannot exceed the maximum of ${maxMults} strips.`).show();
                 input.css("border", "1px solid red");
+                multsDisplay.text(`Max. allowed: ${maxMults} strips`).show(); // Mostrar el límite máximo que falló
                 return false;
+            } else {
+                // Caso 4: Validación de límites pasada (Slitter de Puebla, límites OK)
+                multsDisplay.text(`Max. allowed: ${maxMults} strips`).show();
             }
         }
 
         // Validar ambas combinaciones
         const isWidthValid = validateWidthMultsCombination();
-        const isWeightValid = validateWeightMultsCombination(); 
+        const isWeightValid = validateWeightMultsCombination();
 
         return isWidthValid && isWeightValid;
     }
-
     function validateMajorBase() {
         const input = $("#MajorBase");
         const errorEl = $("#MajorBaseError");
@@ -5134,7 +5176,6 @@
         return true;
     }
 
-    // ... (Crea funciones similares para _Max y Client)
     function validateInterplantScrapReconciliationPercent_Max() {
         const input = $("#InterplantScrapReconciliationPercent_Max");
         const errorEl = $("#InterplantScrapReconciliationPercent_MaxError");
@@ -5306,7 +5347,170 @@
         return true;
     }
 
-    // --- Publicación (no se necesitan más cambio en el resto de los archivos)---        
+    function validateMill() {
+        const input = $("#Mill");
+        const errorEl = $("#MillError");
+        const container = $("#Mill_container");
+
+        // Si está deshabilitado u oculto, es válido
+        if (!container.is(":visible") || input.prop("disabled")) {
+            errorEl.text("").hide();
+            // Limpiar borde rojo del contenedor Select2
+            input.next(".select2-container").find(".select2-selection").css("border", "");
+            return true;
+        }
+
+        // Obtener valor (funciona igual para select2)
+        let val = input.val(); // Puede ser null si está vacío
+        val = val ? val.trim() : "";
+
+        // Limpiar estados previos
+        errorEl.text("").hide();
+        input.next(".select2-container").find(".select2-selection").css("border", "");
+
+        // Validación de longitud
+        if (val.length > 80) {
+            errorEl.text("Cannot exceed 80 characters.").show();
+            input.next(".select2-container").find(".select2-selection").css("border", "1px solid red");
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateMaterialSpecification() {
+        const input = $("#MaterialSpecification");
+        const errorEl = $("#MaterialSpecificationError");
+        const container = $("#MaterialSpecification_container");
+
+        if (!container.is(":visible") || input.prop("disabled")) return true;
+
+        let val = input.val().trim();
+        errorEl.text("").hide();
+        input.css("border", "");
+
+        if (val.length > 80) {
+            errorEl.text("Cannot exceed 80 characters.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+        return true;
+    }
+
+    function validateSlitterEstimatedAnnualVolume() {
+        const input = $("#SlitterEstimatedAnnualVolume");
+        const errorEl = $("#SlitterEstimatedAnnualVolumeError");
+        const container = $("#SlitterEstimatedAnnualVolume_container");
+
+        if (!container.is(":visible") || input.prop("disabled")) return true;
+
+        let raw = input.val().trim();
+        errorEl.text("").hide();
+        input.css("border", "");
+
+        if (!raw) return true; // Opcional, si fuera requerido agregar check aquí
+
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0) {
+            errorEl.text("Must be a positive number.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+        return true;
+    }
+
+    function validateLoadPerTransport() {
+        const input = $("#LoadPerTransport");
+        const errorEl = $("#LoadPerTransportError");
+        const container = $("#LoadPerTransport_container");
+
+        if (!container.is(":visible") || input.prop("disabled")) return true;
+
+        let raw = input.val().trim();
+        errorEl.text("").hide();
+        input.css("border", "");
+
+        if (!raw) return true; // Opcional
+
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0) {
+            errorEl.text("Must be a positive number.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+        return true;
+    }
+
+    // En page.validators.js
+
+    function validateInterplantLoadPerTransport() {
+        const input = $("#InterplantLoadPerTransport");
+        const errorEl = $("#InterplantLoadPerTransportError");
+        const container = $("#InterplantLoadPerTransport_container");
+
+        if (!container.is(":visible") || input.prop("disabled")) return true;
+
+        let raw = input.val().trim();
+        errorEl.text("").hide();
+        input.css("border", "");
+
+        if (!raw) return true; // Opcional
+
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0) {
+            errorEl.text("Must be a positive number.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+        return true;
+    }
+
+    function validateBlankingAnnualVolume() {
+        const input = $("#Blanking_Annual_Volume");
+        const errorEl = $("#Blanking_Annual_VolumeError");
+        if (!input.is(":visible") || input.prop("disabled") || input.prop("readonly")) {
+            errorEl.text("").hide(); input.css("border", ""); return true;
+        }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+
+        if (!raw) return true; // Opcional (si quieres obligatorio, cambia lógica)
+
+        let val = parseInt(raw, 10);
+        if (isNaN(val) || val < 0) {
+            errorEl.text("Must be a positive whole number.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+        return true;
+    }
+
+    function validateBlankingVolumePerYear() {
+        const input = $("#Blanking_Volume_Per_year");
+        const errorEl = $("#Blanking_Volume_Per_yearError");
+        if (!input.is(":visible") || input.prop("disabled") || input.prop("readonly")) {
+            errorEl.text("").hide(); input.css("border", ""); return true;
+        }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+
+        if (!raw) return true; // Opcional
+
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0) {
+            errorEl.text("Must be a positive number.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+        return true;
+    }
+
+    // Exponer la funciones
+    window.validateInterplantLoadPerTransport = validateInterplantLoadPerTransport;     
+    window.validateMill = validateMill;
+    window.validateMaterialSpecification = validateMaterialSpecification;
+    window.validateSlitterEstimatedAnnualVolume = validateSlitterEstimatedAnnualVolume;
+    window.validateLoadPerTransport = validateLoadPerTransport;
     window.validatePiecesPerPackage = validatePiecesPerPackage;
     window.validatePartName = validatePartName;
     window.validateShearing_Width = validateShearing_Width;

@@ -207,6 +207,18 @@ namespace Portal_2_0.Models
         public Nullable<double> InterplantHeadTailReconciliationPercent_Max { get; set; }
         public Nullable<double> InterplantClientHeadTailReconciliationPercent { get; set; }
         public Nullable<int> ID_File_InterplantOutboundFreight { get; set; }
+        public string Mill { get; set; }
+        public string MaterialSpecification { get; set; }
+        public Nullable<double> SlitterEstimatedAnnualVolume { get; set; }
+        public Nullable<double> LoadPerTransport { get; set; }
+        public Nullable<double> InterplantLoadPerTransport { get; set; }
+        public Nullable<int> Blanking_Annual_Volume { get; set; }
+        public Nullable<double> Blanking_Volume_Per_year { get; set; }
+        public Nullable<double> Blanking_InitialWeightPerPart { get; set; }
+        public Nullable<double> Blanking_ProcessTons { get; set; }
+        public Nullable<double> Blanking_ShippingTons { get; set; }
+        public Nullable<double> WeightPerPart { get; set; }
+        public Nullable<double> Initial_Weight { get; set; }
     
         public virtual CTZ_Arrival_Warehouses CTZ_Arrival_Warehouses { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }

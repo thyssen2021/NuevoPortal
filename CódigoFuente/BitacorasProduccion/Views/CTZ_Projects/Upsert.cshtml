@@ -454,6 +454,31 @@
                                 </div>
                             </div>
 
+                            <div class="form-card">
+                                <h3>Buyer Contact Information</h3>
+                                <div class="compact-row">
+                                    <div class="compact-col">
+                                        @Html.LabelFor(m => m.BuyerName, new { @class = "control-label" })
+                                        @Html.TextBoxFor(m => m.BuyerName, new { @class = "form-control", placeholder = "Full Name" })
+                                        @Html.ValidationMessageFor(m => m.BuyerName, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.LabelFor(m => m.BuyerJobPosition, new { @class = "control-label" })
+                                        @Html.TextBoxFor(m => m.BuyerJobPosition, new { @class = "form-control", placeholder = "Job Position" })
+                                        @Html.ValidationMessageFor(m => m.BuyerJobPosition, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.LabelFor(m => m.BuyerTelephone, new { @class = "control-label" })
+                                        @Html.TextBoxFor(m => m.BuyerTelephone, new { @class = "form-control", placeholder = "Phone Number" })
+                                        @Html.ValidationMessageFor(m => m.BuyerTelephone, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="compact-col">
+                                        @Html.LabelFor(m => m.BuyerEmail, new { @class = "control-label" })
+                                        @Html.TextBoxFor(m => m.BuyerEmail, new { @class = "form-control", placeholder = "name@company.com", type = "email" })
+                                        @Html.ValidationMessageFor(m => m.BuyerEmail, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
 
 
                             <!-- Sección de fechas y Quote ID -->

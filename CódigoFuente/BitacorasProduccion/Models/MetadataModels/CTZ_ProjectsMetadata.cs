@@ -57,7 +57,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Updated Date")]
         public Nullable<System.DateTime> Update_Date { get; set; }
 
-        [Display(Name = "Vehicle Type")]
+        [Display(Name = "Market Type")]
         public Nullable<int> ID_VehicleType { get; set; }
 
         [Display(Name = "Import Required?")]
@@ -99,6 +99,23 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Processor Name")]
         public int? ID_ExternalProcessorName { get; set; }
+
+        [Display(Name = "Buyer Name")]
+        [StringLength(150, ErrorMessage = "Name cannot exceed 150 characters.")]
+        public string BuyerName { get; set; }
+
+        [Display(Name = "Job Position")]
+        [StringLength(100, ErrorMessage = "Position cannot exceed 100 characters.")]
+        public string BuyerJobPosition { get; set; }
+
+        [Display(Name = "Telephone")]
+        [StringLength(50, ErrorMessage = "Telephone cannot exceed 50 characters.")]
+        public string BuyerTelephone { get; set; }
+
+        [Display(Name = "Email")]
+        [StringLength(150, ErrorMessage = "Email cannot exceed 150 characters.")]
+        [EmailAddress(ErrorMessage = "Invalid Email Address format.")]
+        public string BuyerEmail { get; set; }
     }
 
     [MetadataType(typeof(CTZ_ProjectsMetadata))]
@@ -406,8 +423,8 @@ namespace Portal_2_0.Models
             var SummarizeData = SummarizeCapacityByLineAndFYScenario(materials);
 
            //   Debug: imprimir la producción base
-             // Debug.WriteLine("=== Minutos por linea ===");
-             // DebugCapacityByLineAndFY(SummarizeData);
+              Debug.WriteLine("=== Minutos por linea ===");
+              DebugCapacityByLineAndFY(SummarizeData);
 
 
             //Paso 2: Sustituye el valor maximo por la produccion máxima
@@ -426,16 +443,16 @@ namespace Portal_2_0.Models
             deepCopy = DeepCopySummary(SummarizaDataWithReplace);
 
             ////muestra la capacidad agregada de cada linea de produccion
-            //Debug.WriteLine("===== Capacidad agregada =====");
-            //DebugCapacityByLineAndFY(minutosPorLineaSP);
+            Debug.WriteLine("===== Capacidad agregada =====");
+            DebugCapacityByLineAndFY(minutosPorLineaSP);
 
             // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
             var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy, allLines: true);
-            
-           //Debug.WriteLine("=== % de capacidad ===");
-           // Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
-           // Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
-           // DebugLineStatusFYPercentage(finalPercentageDict);
+
+            Debug.WriteLine("=== % de capacidad ===");
+            Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
+            Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
+            DebugLineStatusFYPercentage(finalPercentageDict);
 
             return finalPercentageDict;
         }
@@ -936,7 +953,7 @@ namespace Portal_2_0.Models
                 //    o con el valor calculado si es > 0.
                 data[lineId][fyWithMaxValue] = sumRealMin;
 
-                //Debug.WriteLine($"Line {lineId}: Max value {maxValue} (FY-ID {fyWithMaxValue}) reemplazado por {sumRealMin}.");
+                Debug.WriteLine($"Line {lineId}: Max value {maxValue} (FY-ID {fyWithMaxValue}) reemplazado por {sumRealMin}.");
 
                 // 3. Dividir todos los valores del diccionario interno entre 60 (convertir minutos a horas)
                 foreach (var fy in data[lineId].Keys.ToList())

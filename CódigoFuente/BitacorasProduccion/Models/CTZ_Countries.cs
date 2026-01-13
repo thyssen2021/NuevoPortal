@@ -17,9 +17,9 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public CTZ_Countries()
         {
-            this.CTZ_Projects = new HashSet<CTZ_Projects>();
             this.CTZ_Clients = new HashSet<CTZ_Clients>();
             this.CTZ_OEMClients = new HashSet<CTZ_OEMClients>();
+            this.CTZ_Projects = new HashSet<CTZ_Projects>();
         }
     
         public int ID_Country { get; set; }
@@ -31,10 +31,10 @@ namespace Portal_2_0.Models
         public bool Warning { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Clients> CTZ_Clients { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_OEMClients> CTZ_OEMClients { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
     }
 }

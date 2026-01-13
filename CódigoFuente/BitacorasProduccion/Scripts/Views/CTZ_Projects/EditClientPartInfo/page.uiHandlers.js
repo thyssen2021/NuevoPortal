@@ -94,6 +94,28 @@
         let turnoversideContainer = $("#TurnOverSide_container");
         let turnoversideInput = $("#TurnOverSide");
 
+        // =====================================================================
+        // NUEVA LÓGICA: Control de Technical Sheet y Additional Files por RUTA
+        // =====================================================================
+        const routeId = parseInt($("#ID_Route").val(), 10);
+        // Usamos la variable global blankingRouteIds para saber si aplica
+        const isBlanking = (typeof blankingRouteIds !== 'undefined') && blankingRouteIds.includes(routeId);
+
+        if (isBlanking) {
+            // SI es ruta de Blanking: Mostramos los archivos (Input o Link según corresponda)
+            // Delegamos a updateFileUIGeneric para que decida si muestra el input file o el botón de descarga
+            updateFileUIGeneric('ID_File_TechnicalSheet', 'TechnicalSheetFileName', 'file_container_technicalSheetFile', 'fileActions_containerTechnicalSheetFile', 'downloadFileTechnicalSheetFile');
+            updateFileUIGeneric('ID_File_Additional', 'AdditionalFileName', 'file_container_AdditionalFile', 'fileActions_containerAdditionalFile', 'downloadFileAdditional');
+        } else {
+            // NO es ruta de Blanking: Ocultamos y limpiamos forzosamente
+            $("#file_container_technicalSheetFile, #fileActions_containerTechnicalSheetFile").hide();
+            $("#technicalSheetFile").val("").prop("disabled", true);
+
+            $("#file_container_AdditionalFile, #fileActions_containerAdditionalFile").hide();
+            $("#AdditionalFile").val("").prop("disabled", true);
+        }
+        // =====================================================================
+
         // Campos relacionados con los ángulos
         let camposAngulos = [
             "Angle_A",
@@ -110,7 +132,7 @@
             "MajorBaseTolerancePositive"
         ];
 
-        // 1) Si Shape no está visible, ocultamos todo y deshabilitamos TurnOver
+        // 1) Lógica existente: Si Shape no está visible, ocultamos todo lo demás relacionado con Shape
         if (!shapeInput.is(":visible")) {
             camposAngulos.forEach(campo => {
                 $("#" + campo).prop("disabled", true).val("");
@@ -121,7 +143,7 @@
 
             // TurnOver también se oculta y deshabilita
             turnoverInput.prop("disabled", true).prop("checked", false);
-            turnoverContainer.hide();
+            turnoverContainer.removeClass('d-flex').hide();
             turnoversideInput.prop("disabled", true);
             turnoversideInput.val(null).trigger('change.select2');
             turnoversideContainer.hide();
@@ -143,9 +165,7 @@
             }
         });
 
-        // 3) Lógica de archivo sólo si Shape = "18"
-
-
+        // 3) Lógica de archivo CAD (Sigue dependiendo solo de Shape = "18")
         if (shapeVal === "18") {
             updateFileUI();
         } else {
@@ -157,7 +177,7 @@
         // 4) Lógica para TurnOver y TurnOverSide, dependiente de Shape = "18"
         if (shapeVal === "18") {
             // El checkbox "TurnOver" siempre es visible y se puede editar si el shape es 18
-            turnoverContainer.show();
+            turnoverContainer.addClass('d-flex').show();
             if (canEditSales) {
                 turnoverInput.prop("disabled", false);
             }
@@ -177,7 +197,7 @@
 
         } else {
             // Si el Shape no es "18", ocultamos y reseteamos ambos campos
-            turnoverContainer.hide();
+            turnoverContainer.removeClass('d-flex').hide();
             turnoverInput.prop("disabled", true).prop("checked", false);
 
             turnoversideContainer.hide();
@@ -1055,75 +1075,104 @@
     function updateCalculatedWeightFields() {
         console.log("Recalculando campos de peso y tonelaje...");
 
-        // 1. Obtener valores de los inputs
-        const routeId = parseInt($('#ID_Route').val());
-        const annualVolume = parseFloat($('#Annual_Volume').val()) || 0;
-        const volumePerYear = parseFloat($('#Volume_Per_year').val()) || 0;
-        const theoreticalGrossWeight = parseFloat($('#Theoretical_Gross_Weight').val()) || 0;
-        const grossWeight = parseFloat($('#Gross_Weight').val()) || 0;
-        const clientNetWeight = parseFloat($('#ClientNetWeight').val()) || 0;
-        const partsPerVehicle = parseFloat($('#Parts_Per_Vehicle').val()) || 0;
+        // --- 1. Obtener valores de forma segura (Helper) ---
+        const getVal = (selector) => {
+            let val = parseFloat($(selector).val());
+            return (isNaN(val) || val < 0) ? 0 : val;
+        };
 
-        // Obtenemos el TEXTO del material seleccionado, lo limpiamos y lo pasamos a mayúsculas.
+        // Inputs Generales
+        const annualVolume = getVal('#Annual_Volume');
+        const volumePerYear = getVal('#Volume_Per_year');
+
+        // Inputs para Blanking
+        const theoreticalGrossWeight = getVal('#Theoretical_Gross_Weight');
+        const grossWeight = getVal('#Gross_Weight');
+        const clientNetWeight = getVal('#ClientNetWeight');
+        const partsPerVehicle = getVal('#Parts_Per_Vehicle');
+        const blankingAnnualVolume = getVal('#Blanking_Annual_Volume');
+
+        // Determinar Scrap %
         const materialTypeText = $('#ID_Material_type option:selected').text().trim().toUpperCase();
-        let scrapPercent = 0.015; // Por defecto es 1.5% (No Expuesto)
-
-        // Si el texto empieza con "E " (E seguido de un espacio), es Expuesto.
+        let scrapPercent = 0.015; // 1.5% default
         if (materialTypeText.startsWith("E ")) {
-            scrapPercent = 0.025; // 2.5%
-            console.log("Material Expuesto detectado. Usando scrap del 2.5%");
-        } else {
-            console.log("Material No Expuesto (o no definido). Usando scrap del 1.5%");
+            scrapPercent = 0.025; // 2.5% Exposed
         }
 
-        // 2. Definir variables para los resultados
+        // --- 2. CÁLCULO VOLUMEN ESTÁNDAR (WeightPerPart, Initial_Weight, etc.) ---
         let weightPerPart = 0;
         let initialWeight = 0;
-        let initialWeightPerPart = 0;
         let annualTonnage = 0;
         let shippingTons = 0;
 
-        // 3. Realizar los cálculos
+        // -> WeightPerPart = (Volume_Per_year / Annual_Volume) * 1000
         if (annualVolume > 0 && volumePerYear > 0) {
             weightPerPart = (volumePerYear / annualVolume) * 1000;
+        }
+
+        // -> Initial_Weight = WeightPerPart x (1 + scrapPercent)
+        if (weightPerPart > 0) {
             initialWeight = weightPerPart * (1 + scrapPercent);
         }
 
-        // CORRECCIÓN: Se invierte el orden para dar prioridad a 'blanking'.
-        if (routeCalculationConfig.blanking.includes(routeId)) {
-            // --- CÁLCULO PARA BLANKING Y SUS VARIANTES ---
-            // Este bloque se ejecutará para cualquier ruta que incluya BLK.
-            console.log("Ruta de Blanking detectada. Aplicando cálculo complejo.");
-
-            if (theoreticalGrossWeight > 0) {
-                initialWeightPerPart = (initialWeight / theoreticalGrossWeight) * grossWeight;
-            }
-            if (initialWeightPerPart > 0) {
-                annualTonnage = (initialWeightPerPart * annualVolume) / 1000 * partsPerVehicle;
-                // Usamos ClientNetWeight si existe, si no, GrossWeight como fallback
-                const netWeight = clientNetWeight > 0 ? clientNetWeight : grossWeight;
-                shippingTons = netWeight * annualVolume * partsPerVehicle / 1000;
-            }
-        }
-        else if (routeCalculationConfig.coil.includes(routeId)) {
-            // --- CÁLCULO PARA COIL / SLITTER / WAREHOUSE ---
-            // Este bloque solo se ejecutará si la ruta NO es de blanking.
-            console.log("Ruta de Coil/Slitter detectada. Aplicando cálculo simple.");
-
-            if (initialWeight > 0) {
-                annualTonnage = (initialWeight * annualVolume) / 1000;
-                shippingTons = initialWeight * annualVolume / 1000; // La fórmula era Peso Inicial * Autos
-            }
+        // -> AnnualTonnage = (Initial_Weight * Annual_Volume)/1000
+        if (initialWeight > 0 && annualVolume > 0) {
+            annualTonnage = (initialWeight * annualVolume) / 1000;
         }
 
-        // 4. Actualizar los campos del formulario
-        $('#WeightPerPart').val(weightPerPart > 0 ? weightPerPart.toFixed(3) : "");
-        $('#Initial_Weight').val(initialWeight > 0 ? initialWeight.toFixed(3) : "");
-        $('#InitialWeightPerPart').val(initialWeightPerPart > 0 ? initialWeightPerPart.toFixed(3) : "");
-        $('#AnnualTonnage').val(annualTonnage > 0 ? annualTonnage.toFixed(3) : "");
-        $('#ShippingTons').val(shippingTons > 0 ? shippingTons.toFixed(3) : "");
+        // -> ShippingTons = WeightPerPart * Annual_Volume / 1000
+        if (weightPerPart > 0 && annualVolume > 0) {
+            shippingTons = (weightPerPart * annualVolume) / 1000;
+        }
+
+        // --- 3. CÁLCULO VOLUMEN BLANKING ---
+        let blankingInitialWeightPerPart = 0;
+        let initialWeightPerPart = 0;
+        let blankingProcessTons = 0;
+        let blankingShippingTons = 0;
+
+        // -> Blanking_InitialWeightPerPart = Theoretical_Gross_Weight * (1 + scrap %)
+        if (theoreticalGrossWeight > 0) {
+            blankingInitialWeightPerPart = theoreticalGrossWeight * (1 + scrapPercent);
+        }
+
+        // -> InitialWeightPerPart = (Blanking_InitialWeightPerPart / Theoretical_Gross_Weight) * Gross_Weight
+        if (theoreticalGrossWeight > 0 && blankingInitialWeightPerPart > 0 && grossWeight > 0) {
+            initialWeightPerPart = (blankingInitialWeightPerPart / theoreticalGrossWeight) * grossWeight;
+        }
+
+        // -> Blanking_ProcessTons = (InitialWeightPerPart * Blanking_Annual_Volume * Parts_Per_Vehicle)/1000
+        if (initialWeightPerPart > 0 && blankingAnnualVolume > 0 && partsPerVehicle > 0) {
+            blankingProcessTons = (initialWeightPerPart * blankingAnnualVolume * partsPerVehicle) / 1000;
+        }
+
+        // -> Blanking_ShippingTons = (ClientNetWeight * Blanking_Annual_Volume * Parts_Per_Vehicle)/1000
+        // Nota: Usamos GrossWeight como fallback si ClientNetWeight es 0, para evitar ceros si el usuario no llenó el neto.
+        const netWeightToUse = clientNetWeight > 0 ? clientNetWeight : grossWeight;
+
+        if (netWeightToUse > 0 && blankingAnnualVolume > 0 && partsPerVehicle > 0) {
+            blankingShippingTons = (netWeightToUse * blankingAnnualVolume * partsPerVehicle) / 1000;
+        }
+
+        // --- 4. ACTUALIZAR UI (Función Helper) ---
+        const setInput = (selector, val) => {
+            $(selector).val(val > 0 ? val.toFixed(3) : "");
+        };
+
+        // Set Standard Values
+        setInput('#WeightPerPart', weightPerPart);
+        setInput('#Initial_Weight', initialWeight);
+        setInput('#AnnualTonnage', annualTonnage);
+        setInput('#ShippingTons', shippingTons);
+
+        // Set Blanking Values
+        setInput('#Blanking_InitialWeightPerPart', blankingInitialWeightPerPart);
+       
+        setInput('#InitialWeightPerPart', initialWeightPerPart);
+
+        setInput('#Blanking_ProcessTons', blankingProcessTons);
+        setInput('#Blanking_ShippingTons', blankingShippingTons);
     }
-
     /**
      * Busca y aplica el OEE para una línea de producción específica,
      * solo si el campo OEE está vacío.
@@ -1284,55 +1333,76 @@
     }
 
     function updateFileUIGeneric(fileIdText, fileNameText, fileContainerText, fileActionContainer, downloadContainer) {
+        // --- DEPURACIÓN VISUAL ---
+        console.groupCollapsed(`🛠️ Debug File UI: ${fileIdText}`);
 
-        // --- INICIO DE DEPURACIÓN ---
-        console.groupCollapsed(`--- DEPURANDO: ${fileIdText} ---`);
-        console.log(`Parámetros recibidos:
-        ID Field (Hidden): ${fileIdText}
-        Name Field (Hidden): ${fileNameText}
-        File Container (Input): ${fileContainerText}
-        Action Container (Download): ${fileActionContainer}`);
-        // --- FIN DE DEPURACIÓN ---
+        // 1. Obtener Elementos del DOM
+        const $idInput = $("#" + fileIdText);
+        const $nameInput = $("#" + fileNameText);
+        const $inputContainer = $("#" + fileContainerText);
+        const $actionContainer = $("#" + fileActionContainer);
+        const $downloadLink = $("#" + downloadContainer);
 
-        let fileId = $("#" + fileIdText).val();
-        let fileName = $("#" + fileNameText).val();
+        // 2. Obtener Ruta Actual y Mapa de Campos
+        // Convertimos a string para asegurar coincidencia con las llaves de routeFieldMap ("1", "8", etc.)
+        const currentRouteId = String($("#ID_Route").val());
+        const allowedFields = window.routeFieldMap ? window.routeFieldMap[currentRouteId] : [];
 
-        // --- INICIO DE DEPURACIÓN ---
-        console.log(`Valor de ID_File (${fileIdText}): "${fileId}"`);
-        console.log(`Valor de FileName (${fileNameText}): "${fileName}"`);
+        console.log(`Ruta Actual: ${currentRouteId}`);
+        console.log(`¿El campo '${fileIdText}' está permitido en esta ruta?`, allowedFields ? allowedFields.includes(fileIdText) : "Mapa no definido");
 
-        const hasFile = fileId && fileName && fileId.trim() !== "" && fileName.trim() !== "";
-        console.log(`Condición de existencia (fileId && fileName): ${hasFile}`);
-        // --- FIN DE DEPURACIÓN ---
+        // 3. VALIDACIÓN MAESTRA: ¿El campo debe existir en esta ruta?
+        if (!allowedFields || !allowedFields.includes(fileIdText)) {
+            console.log("⛔ BLOQUEADO: El campo no pertenece a la ruta actual. Ocultando todo.");
+
+            // Forzamos ocultamiento
+            $inputContainer.hide();
+            $actionContainer.hide();
+
+            // Limpiamos valor por seguridad si no está permitido
+            // (Opcional: puedes comentar esto si prefieres mantener el dato en memoria)
+            $idInput.val("");
+
+            console.groupEnd();
+            return; // <--- SALIDA ANTICIPADA
+        }
+
+        // 4. Si llegamos aquí, el campo ESTÁ PERMITIDO. Ahora revisamos si hay archivo.
+        const fileId = $idInput.val();
+        const fileName = $nameInput.val();
+        const hasFile = (fileId && fileName && fileId.trim() !== "" && fileName.trim() !== "");
+
+        console.log(`Archivo existente: ${hasFile} (ID: ${fileId}, Name: ${fileName})`);
 
         if (hasFile) {
-            // --- CASO 1: Archivo existe en BD (se muestra el enlace) ---
-            $("#" + fileContainerText).hide();
-            $("#" + fileActionContainer).show();
+            // --- CASO A: Archivo existe en BD ---
+            console.log("✅ Mostrando enlace de descarga.");
 
-            // Configuramos el enlace de descarga
-            $("#" + downloadContainer)
+            $inputContainer.hide();
+            $actionContainer.show();
+
+            // Configurar enlace
+            $downloadLink
                 .attr("href", "/CTZ_Projects/DownloadFile?fileId=" + fileId)
                 .attr("title", fileName)
                 .html('<i class="fa-solid fa-download"></i> ' + fileName);
 
-            // --- INICIO DE DEPURACIÓN ---
-            console.log(`✅ Resultado: Mostrando enlace de descarga en #${fileActionContainer}.`);
-            // --- FIN DE DEPURACIÓN ---
-
         } else {
-            // --- CASO 2: Archivo NO existe (se muestra el input de carga) ---
-            $("#" + fileContainerText).show();
-            $("#" + fileActionContainer).hide();
+            // --- CASO B: No hay archivo (Mostrar Input) ---
+            console.log("📂 Mostrando input de carga.");
 
-            // --- INICIO DE DEPURACIÓN ---
-            console.log(`❌ Resultado: Mostrando input de archivo en #${fileContainerText}.`);
-            // --- FIN DE DEPURACIÓN ---
+            $inputContainer.show();
+            $actionContainer.hide();
+
+            // Asegurar que el input file esté habilitado si el usuario puede editar
+            // (Asumimos canEditSales disponible en el scope o window)
+            const canEdit = window.pageConfig.permissions.canEditSales;
+            const $fileInput = $inputContainer.find("input[type='file']");
+            $fileInput.prop("disabled", !canEdit);
         }
 
-        console.groupEnd(); // Cierra el grupo de depuración
+        console.groupEnd();
     }
-
     function updateRealStrokes() {
 
         var productionLineId = $("#ID_Real_Blanking_Line option:selected").val();
@@ -1482,10 +1552,11 @@
         console.log("--- updateLimitsDisplay ---");
 
         const rangesToUse = window.engineeringRanges;
+        const multsDisplay = $("#mults-limit-display");
 
         // Mapeo de los campos que queremos actualizar en la UI.
         const limits = [
-            { displayId: "#tensil-limit-display", criterioId: 14 },     // Tensile Strength
+            { displayId: "#tensil-limit-display", criterioId: 14 },      // Tensile Strength
             { displayId: "#thickness-limit-display", criterioId: 7 },    // Thickness
             { displayId: "#width-limit-display", criterioId: 8 },        // Width
             { displayId: "#pitch-limit-display", criterioId: 9 }         // Pitch
@@ -1495,8 +1566,7 @@
         limits.forEach(({ displayId }) => {
             $(displayId).text("");
         });
-        // Limpiamos también el display de mults
-        $("#mults-limit-display").text("");
+        multsDisplay.text(""); // Limpiamos también el display de mults
 
         // 2. Si tenemos un array de rangos para mostrar, los procesamos.
         if (rangesToUse && Array.isArray(rangesToUse)) {
@@ -1511,7 +1581,18 @@
 
         // 3. Actualizamos el display para el máximo de mults permitido
         if (typeof window.maxMultsAllowed === 'number') {
-            $("#mults-limit-display").text(`Max. allowed: ${window.maxMultsAllowed} strips`);
+            const maxMults = window.maxMultsAllowed;
+
+            if (maxMults === 999) {
+                // CASO ESPECIAL: Validación omitida (Planta != Puebla)
+                multsDisplay.text("Slitting Rule validation is skipped for this plant.").show();
+            } else if (maxMults !== null && maxMults !== 0) {
+                // CASO NORMAL: Límite real encontrado.
+                multsDisplay.text(`Max. allowed: ${maxMults} strips`).show();
+            } else {
+                // CASO ERROR: Límite es 0 o null (error de regla)
+                multsDisplay.text("");
+            }
         }
     }
 
@@ -2035,6 +2116,10 @@
                         if (previouslySelectedMaterialType && materialTypeSelect.find(`option[value="${previouslySelectedMaterialType}"]`).length > 0) {
                             materialTypeSelect.val(previouslySelectedMaterialType);
                         }
+
+                        console.log("Materiales cargados. Recalculando línea teórica...");
+                        materialTypeSelect.prop('disabled', !canEditSales);
+                        updateTheoreticalLine();
                         // --- FIN DE LA MODIFICACIÓN ---
 
                         toastr.info("Material Type list has been filtered for the selected Slitting Line.");
@@ -2213,9 +2298,8 @@
     }
 
     function fetchAndApplyValidationRanges() {
-        // 1. Guardar estado previo
-        const previousRangesJSON = JSON.stringify(window.engineeringRanges);
-        const previousMaxMults = window.maxMultsAllowed;
+        // 1. ELIMINAMOS LA CAPTURA PREMATURA DE AQUÍ
+        // (Antes guardabas previousRangesJSON aquí, eso causaba el bug)
 
         const selectedRouteId = parseInt($("#ID_Route").val(), 10);
         const materialTypeId = $("#ID_Material_type").val();
@@ -2227,17 +2311,27 @@
         const tensileValue = parseFloat($("#Tensile_Strenght").val()) || null;
 
         const errorDiv = $('#slittingRuleError');
+        const plantId = config.project.plantId;
 
-        // Aseguramos acceso a la variable global o usamos fallback
-        const slittingRouteIdsLocal = (typeof slittingRouteIds !== 'undefined') ? slittingRouteIds : [8, 9, 10];
+        const slittingRouteIdsLocal = (typeof slittingRouteIds !== 'undefined') ? slittingRouteIds : [8, 9, 10, 13];
         const isSlittingRoute = slittingRouteIdsLocal.includes(selectedRouteId);
 
-        // 2. Si falta el tipo de material, no podemos consultar reglas al servidor.
+        // 2. Validaciones iniciales
         if (!materialTypeId) {
             window.engineeringRanges = null;
             window.maxMultsAllowed = null;
             errorDiv.slideUp();
             updateLimitsDisplay();
+            return;
+        }
+
+        if (isSlittingRoute && plantId !== 1) {
+            console.log("Validation skipped: Slitting route detected, but Plant ID is not 1.");
+            window.maxMultsAllowed = 999;
+            window.engineeringRanges = null;
+            errorDiv.slideUp();
+            updateLimitsDisplay();
+            validateMultipliers();
             return;
         }
 
@@ -2249,20 +2343,14 @@
 
         let isCallNeeded = false;
 
-        // Configurar IDs para Blanking si aplica
         if (typeof blankingRouteIds !== 'undefined' && blankingRouteIds.includes(selectedRouteId)) {
             ajaxData.primaryLineId = realLineId || theoreticalLineId;
             isCallNeeded = !!ajaxData.primaryLineId;
         }
 
-        // Configurar IDs para Slitting
         if (isSlittingRoute) {
-            ajaxData.slitterLineId = slitterLineId;
-            if (!ajaxData.primaryLineId) {
-                ajaxData.primaryLineId = slitterLineId;
-            }
-            // Para Slitter SIEMPRE intentamos validar para obtener la tabla de reglas,
-            // incluso si faltan dimensiones.
+            if (plantId == 1) ajaxData.slitterLineId = 8;
+            if (!ajaxData.primaryLineId) ajaxData.primaryLineId = slitterLineId;
             isCallNeeded = true;
         }
 
@@ -2277,37 +2365,36 @@
         $.getJSON(config.urls.getEngineeringDimensions, ajaxData)
             .done(function (response) {
                 if (response.success) {
+                    // --- CORRECCIÓN CLAVE AQUÍ ---
+                    // 1. Capturamos el estado ACTUAL justo antes de comparar (dentro del callback)
+                    const currentRangesJSON = JSON.stringify(window.engineeringRanges);
+                    const currentMaxMults = window.maxMultsAllowed;
+
+                    // 2. Preparamos los nuevos valores
                     const newRangesJSON = JSON.stringify(response.validationRanges);
                     const newMaxMults = response.maxMultsAllowed;
 
+                    // 3. Actualizamos las globales
                     window.engineeringRanges = response.validationRanges;
                     window.maxMultsAllowed = newMaxMults;
 
-                    if (newRangesJSON !== previousRangesJSON) {
+                    // 4. Comparamos lo que acabamos de leer vs lo que llegó
+                    // Si la primera llamada ya actualizó 'window.engineeringRanges', la segunda llamada
+                    // verá que son iguales y NO mostrará el toast.
+                    if (newRangesJSON !== currentRangesJSON) {
                         toastr.info("Validation limits updated.");
                     }
 
-                    // --- LÓGICA DE VISIBILIDAD CON DEPURACIÓN ---
+                    // Lógica de visualización de errores (Slitter)
                     if (isSlittingRoute) {
-                        console.log(`[Slitter Validation] MaxMults recibido: ${newMaxMults}`);
-
-                        // Si el servidor nos devuelve un Máximo de Mults válido (> 0),
-                        // significa que la combinación (Thickness + Tensile) es CORRECTA.
                         if (newMaxMults !== null && newMaxMults > 0) {
-                            console.log("[Slitter Validation] Regla encontrada. OCULTANDO tabla de error.");
                             errorDiv.slideUp();
-                        }
-                        // Si nos devuelve 0 o null (porque faltan datos O porque están fuera de rango),
-                        // MOSTRAMOS la tabla para guiar al usuario.
-                        else {
-                            console.log("[Slitter Validation] Regla NO encontrada (0 o null). MOSTRANDO tabla de error.");
+                        } else {
                             errorDiv.slideDown();
                         }
                     } else {
-                        // No es ruta de Slitter
                         errorDiv.slideUp();
                     }
-                    // ---------------------------------------
 
                 } else {
                     window.engineeringRanges = null;
@@ -2321,7 +2408,6 @@
             .always(function () {
                 updateLimitsDisplay();
                 validateMultipliers();
-                // Revalidar campos dependientes
                 validateTensileStrength();
                 validateThickness();
                 validateWidth();
@@ -2361,6 +2447,8 @@
     // Muestra u oculta los campos de empaque de tkMM según la selección
     function toggleTkmmPackagingFields() {
         const standard = $('#PackagingStandard').val();
+        // Obtenemos la ruta actual
+        const routeId = parseInt($("#ID_Route").val(), 10);
 
         // Contenedores a controlar
         const rackContainer = $('#RequiresRackManufacturing_container');
@@ -2368,37 +2456,45 @@
         const additionalGroup = $('#additionals-group_container');
         const strapGroup = $('#straps-group_container');
 
-        if (standard === 'OWN') {
-            // --- LÓGICA PARA MOSTRAR ---
-            // Primero nos aseguramos de que los contenedores tengan la clase d-flex ANTES de animar.
-            rackContainer.addClass('d-flex');
-            dieContainer.addClass('d-flex');
+        // Verificamos si es ruta de blanking usando la variable global
+        const isBlankingRoute = blankingRouteIds && blankingRouteIds.includes(routeId);
 
-            // Ahora ejecutamos la animación para todos.
+        // Lógica estricta: Solo entramos aquí si es explícitamente "OWN"
+        if (standard === 'OWN') {
+
+            // 1. Mostrar grupos generales (Additionals y Straps)
             additionalGroup.slideDown();
             strapGroup.slideDown();
-            rackContainer.slideDown();
-            dieContainer.slideDown();
+
+            // 2. Rack siempre visible si es OWN (según tu lógica actual)
+            rackContainer.addClass('d-flex').slideDown();
+            if (canEditSales) rackContainer.find('input').prop('disabled', false);
+
+            // 3. Validación específica para Troquel (Die)
+            // Solo se muestra si es OWN **Y ADEMÁS** es una ruta de Blanking
+            if (isBlankingRoute) {
+                dieContainer.addClass('d-flex').slideDown();
+                if (canEditSales) dieContainer.find('input').prop('disabled', false);
+            } else {
+                // Si es OWN pero la ruta NO es Blanking -> OCULTAR Troquel
+                dieContainer.hide().removeClass('d-flex');
+                dieContainer.find('input').prop('checked', false);
+            }
 
         } else {
-            // --- LÓGICA PARA OCULTAR (LA CORRECCIÓN) ---
-            // Animamos hacia arriba y, en el callback (que se ejecuta al terminar),
-            // quitamos la clase 'd-flex' que causa el conflicto.
-            rackContainer.slideUp(function () {
-                $(this).removeClass('d-flex');
-            });
-            dieContainer.slideUp(function () {
-                $(this).removeClass('d-flex');
-            });
+            // --- LÓGICA DE LIMPIEZA (Para "CM", Vacío, o cualquier otro) ---
+            // Aquí entra si standard es "" (Select an option) o "CM"
 
-            // Los otros dos contenedores también usan flexbox a través de la clase 'checkbox-group-container',
-            // por lo que aplicamos la misma lógica para ser consistentes.
+            // 1. Ocultar contenedores con animación
+            rackContainer.slideUp(function () { $(this).removeClass('d-flex'); });
+            dieContainer.slideUp(function () { $(this).removeClass('d-flex'); });
             additionalGroup.slideUp();
             strapGroup.slideUp();
 
-            // Limpiamos los valores (esta parte no cambia)
-            rackContainer.find('input[type="checkbox"]').prop('checked', false);
-            dieContainer.find('input[type="checkbox"]').prop('checked', false);
+            // 2. Limpiar y deshabilitar valores para evitar envíos incorrectos
+            rackContainer.find('input[type="checkbox"]').prop('checked', false).prop('disabled', true);
+            dieContainer.find('input[type="checkbox"]').prop('checked', false).prop('disabled', true);
+
             additionalGroup.find('input[type="checkbox"]').prop('checked', false).trigger('change');
             strapGroup.find('input[type="checkbox"]').prop('checked', false).trigger('change');
             strapGroup.find('textarea').val('');
@@ -2904,6 +3000,18 @@
                         // en este elemento específico para forzar la actualización visual de Select2.
                         $qualitySelect.val(val).trigger('change');
                     }
+                    else if (col.key === 'Mill') {
+                        const $millSelect = $(col.selector); // Esto apunta a #Mill
+
+                        // Paso A: Si hay valor y NO existe en la lista, creamos la opción
+                        if (val && $millSelect.find(`option[value="${val}"]`).length === 0) {
+                            let newOption = new Option(val, val, true, true);
+                            $millSelect.append(newOption);
+                        }
+
+                        // Paso B: Asignar valor y disparar change
+                        $millSelect.val(val).trigger('change');
+                    }
                     else {
                         // --- INICIO DE LA MODIFICACIÓN (Manejar N/A al cargar) ---
                         // Comprobamos si la clave es uno de los campos de Coil Position
@@ -2972,6 +3080,7 @@
 
         // 4. Se actualiza el resto de la UI
         $("#ID_Route").trigger("change");
+        updateVolumeBlockLocation();
 
         let slittingLineId = row.find("input[name$='.ID_Slitting_Line']").val();
         if (slittingLineId === "8") {
@@ -3000,6 +3109,13 @@
         handleArrivalTransportTypeChange();
         toggleRunningChangeWarning();
 
+        // Forzar el cálculo de Surface basado en el Material Type que se acaba de cargar
+        if (typeof window.updateSurfaceCalculation === "function") {
+            // Pequeño timeout para asegurar que Select2 haya renderizado el texto seleccionado
+            setTimeout(function () {
+                window.updateSurfaceCalculation();
+            }, 100);
+        }
         $("#materialIndex").val(row.data("index"));
         $("#materialId").val(row.data("material-id"));
 
@@ -3056,13 +3172,17 @@
         $('#IsInterplantReturnableRack').trigger('change');
         $('#InterplantScrapReconciliation').trigger('change');
         $('#InterplantHeadTailReconciliation').trigger('change');
+             
+       
+        // Disparar updateVolumeBlockLocation para que se acomoden los fieldsets
+        updateVolumeBlockLocation();
 
-     
-        // Usamos 'false' porque estamos cargando datos al formulario para una posible edición (escenario what-if).
+        // Usamos 'false' porque estamos cargando datos al formulario.
         debouncedUpdateSlitterChart();
 
-
-
+        setTimeout(function () {
+            updateSectionVisibility();
+        }, 1000);
     }
 
 
@@ -3359,6 +3479,20 @@
         $('#Initial_Weight').val('');
         $('#AnnualTonnage').val('');
 
+    
+        $("#Mill").val(null).trigger("change");
+        $("#MaterialSpecification").val("");
+        $("#Surface").val(""); // Limpia el calculado
+        $("#SlitterEstimatedAnnualVolume").val("");
+        $("#LoadPerTransport").val("");
+        $("#InterplantLoadPerTransport").val("");
+
+        $("#Blanking_Annual_Volume").val("");
+        $("#Blanking_Volume_Per_year").val("");
+        $("#Blanking_InitialWeightPerPart").val("");
+        $("#Blanking_ProcessTons").val("");
+        $("#Blanking_ShippingTons").val("");
+
         if (canEditSales) {
             $("#PassesThroughSouthWarehouse").prop('disabled', false);
         }
@@ -3532,8 +3666,89 @@
         return finalRoutes;
     }
 
+    function updateVolumeBlockLocation() {
+        const routeId = parseInt($("#ID_Route").val(), 10);
+        const generalBlock = $("#GeneralVolumeBlock");
+
+        // Definición de grupos según tu imagen:
+        // Coil Group: Coil To Coil (6), Warehousing (11), Warehousing/Rep (12)
+        const coilRoutes = [6, 11, 12];
+
+        // Slitter Group: Rewinded (7), SLT (8), SLT+BLK (9), SLT+BLK+WLD (10), Weight Div (13)
+        // Nota: En tu imagen 'Rewinded' aparece bajo Slitter.
+        const slitterRoutes = [7, 8, 9, 10, 13];
+
+        // Blanking Group (X - Oculto): BLK (1), BLK+RP (2), BLK+SH (4), BLK+WLD (5)
+        // No necesitamos array explícito, será el "else".
+
+        if (coilRoutes.includes(routeId)) {
+            // Mover a Coil y mostrar
+            // .detach() mantiene los eventos y datos asociados al elemento
+            generalBlock.detach().appendTo("#PlaceHolder_Coil").show();
+        }
+        else if (slitterRoutes.includes(routeId)) {
+            // Mover a Slitter y mostrar
+            generalBlock.detach().appendTo("#PlaceHolder_Slitter").show();
+        }
+        else {
+            // Ocultar (Caso X en tu tabla)
+            generalBlock.hide();
+        }
+    }
+
+    /**
+      * Recorre todos los fieldsets. Oculta los que no tengan inputs "activos".
+      * CORRECCIÓN: Usa .css('display') !== 'none' en lugar de .is(':visible')
+      * para detectar inputs activos incluso si el padre está oculto.
+      */
+    function updateSectionVisibility() {
+        // console.log("--- Limpiando secciones vacías (Logic Fix) ---");
+
+        const blocksToCheck = $(".material-form fieldset, #GeneralVolumeBlock");
+
+        blocksToCheck.each(function () {
+            const $fieldset = $(this);
+
+            // Buscamos si hay AL MENOS UN contenedor de input que NO esté oculto (display != none)
+            // Asumimos que tu lógica de visibilidad (routeFieldMap) oculta los contenedores padres (.col-md...) 
+            // o los contenedores directos con ID terminado en _container.
+
+            let hasVisibleInputs = false;
+
+            // Estrategia: Buscar todos los inputs/selects/textareas que no sean hidden
+            const inputs = $fieldset.find("input, select, textarea").not("[type='hidden']");
+
+            inputs.each(function () {
+                const $input = $(this);
+                // Verificamos el input mismo Y sus contenedores padres inmediatos
+                // hasta llegar al fieldset. Si alguno tiene display:none explícito, el input está "oculto logicamente".
+
+                // Truco: Verificamos si el input tiene display:none
+                if ($input.css('display') === 'none') return; // Sigue al siguiente
+
+                // Verificamos el contenedor inmediato (ej. el div col-md-...)
+                const $container = $input.closest("div[id$='_container'], .col-md-2, .col-md-3, .col-md-4, .col-md-6");
+
+                if ($container.length > 0 && $container.css('display') === 'none') {
+                    return; // El contenedor está oculto, sigue buscando
+                }
+
+                // Si llegamos aquí, encontramos un input que debería verse
+                hasVisibleInputs = true;
+                return false; // Break del bucle each
+            });
+
+            if (hasVisibleInputs) {
+                $fieldset.show();
+            } else {
+                $fieldset.hide();
+            }
+        });
+    }
 
     //publicar las funciones
+    window.updateSectionVisibility = updateSectionVisibility;
+    window.updateVolumeBlockLocation = updateVolumeBlockLocation;
     window.handleHeadTailReconciliationChange = handleHeadTailReconciliationChange;
     window.handleScrapReconciliationChange = handleScrapReconciliationChange;
     window.handleWeldedBlankChange = handleWeldedBlankChange;

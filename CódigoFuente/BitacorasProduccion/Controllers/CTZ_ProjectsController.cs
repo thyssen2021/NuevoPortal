@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -451,7 +452,6 @@ namespace Portal_2_0.Controllers
                     if (existing == null) return HttpNotFound();
 
                     // copiar sólo los campos que vengan del form...
-                    // por ejemplo:
                     existing.ID_Client = cTZ_Projects.ID_Client;
                     existing.Cliente_Otro = cTZ_Projects.Cliente_Otro;
                     existing.ID_OEM = cTZ_Projects.ID_OEM;
@@ -477,6 +477,10 @@ namespace Portal_2_0.Controllers
                     existing.OtherOEM_Address = cTZ_Projects.OtherOEM_Address;
                     existing.OtherOEM_Telephone = cTZ_Projects.OtherOEM_Telephone;
                     existing.InterplantProcess = cTZ_Projects.InterplantProcess;
+                    existing.BuyerName = cTZ_Projects.BuyerName;
+                    existing.BuyerJobPosition = cTZ_Projects.BuyerJobPosition;
+                    existing.BuyerTelephone = cTZ_Projects.BuyerTelephone;
+                    existing.BuyerEmail = cTZ_Projects.BuyerEmail;
 
                     existing.HasExternalProcessor = cTZ_Projects.HasExternalProcessor;
                     if (existing.HasExternalProcessor)
@@ -1846,6 +1850,8 @@ namespace Portal_2_0.Controllers
             // 4. Crear el SelectList para el ViewBag con la lista ya ordenada
             ViewBag.LabelList = new SelectList(allLabels, nameof(CTZ_Packaging_LabelType.ID_LabelType), nameof(CTZ_Packaging_LabelType.LabelTypeName));
 
+            ViewBag.MillList = GetMillsFromExternalDB();
+
             ///-- Aditional OTHER AL FINAL ---
 
             // 1. Obtener todos los additionals activos de la BD
@@ -2219,6 +2225,7 @@ namespace Portal_2_0.Controllers
                     .ToList();
                 ViewBag.InterplantPlantList = new SelectList(interplantList, "ID_Plant", "Description");
 
+                ViewBag.MillList = GetMillsFromExternalDB();
 
                 // --- INICIO DE LA MODIFICACIÓN ---
                 // Cargar lista para "Rack Type"
@@ -4496,6 +4503,221 @@ namespace Portal_2_0.Controllers
             return Json(new { isValid = isValid }, JsonRequestBehavior.AllowGet);
         }
 
+
+        // POST: CTZ_Projects/ExportProjectMatrix
+        [HttpPost]
+        public ActionResult ExportProjectMatrix(
+            string searchProject = null,
+            string searchClient = "0",
+            string searchFacility = "0",
+            string searchStatus = "0",
+            string searchCreatedBy = "0",
+            DateTime? searchDateStart = null,
+            DateTime? searchDateEnd = null)
+        {
+            try
+            {
+                // 1. REPLICAR FILTROS Y AGREGAR LOS INCLUDES NECESARIOS
+                var query = db.CTZ_Projects
+                    .Include(p => p.CTZ_Clients)
+                    .Include(p => p.CTZ_OEMClients)       // Necesario para columna OEM
+                    .Include(p => p.CTZ_plants)           // Necesario para Facility/Plant
+                    .Include(p => p.CTZ_Project_Status)
+                    .Include(p => p.empleados)            // Necesario para Account Manager
+                    .Include(p => p.CTZ_Vehicle_Types)    // Necesario para Type (Automotive/Heavy Truck)
+                    .Include(p => p.CTZ_Project_Materials) // Necesario para los materiales
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_Type)) // Para "Type 1" (Steel/Alu)
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Route))         // Para "Business Mode"
+                    .AsQueryable();
+
+                // 2. APLICAR FILTROS (Igual que antes)
+                if (searchClient != "0") query = query.Where(p =>
+                    (p.CTZ_Clients != null && p.CTZ_Clients.Client_Name == searchClient) ||
+                    (p.Cliente_Otro != null && p.Cliente_Otro == searchClient));
+
+                if (searchFacility != "0") query = query.Where(p => p.CTZ_plants != null && p.CTZ_plants.Description == searchFacility);
+
+                if (searchStatus != "0") query = query.Where(p => p.CTZ_Project_Status != null && p.CTZ_Project_Status.Description == searchStatus);
+
+                if (searchCreatedBy != "0") query = query.Where(p => p.empleados != null && p.empleados.nombre == searchCreatedBy);
+
+                if (searchDateStart.HasValue) query = query.Where(p => p.Creted_Date >= searchDateStart.Value);
+
+                if (searchDateEnd.HasValue) query = query.Where(p => p.Creted_Date <= searchDateEnd.Value);
+
+                // 3. MATERIALIZAR DATOS
+                var rawProjects = query
+                    .OrderByDescending(x => x.Creted_Date)
+                    .ToList();
+
+                // 4. FILTRO FINAL EN MEMORIA (Para ConcatQuoteID)
+                if (!string.IsNullOrEmpty(searchProject))
+                {
+                    string lower = searchProject.ToLower();
+                    rawProjects = rawProjects.Where(p => p.ConcatQuoteID.ToLower().Contains(lower)).ToList();
+                }
+
+                // 5. GENERAR EXCEL CON SPREADSHEETLIGHT
+                using (SLDocument sl = new SLDocument())
+                {
+                    // --- ESTILOS ---
+                    SLStyle headerStyle = sl.CreateStyle();
+                    headerStyle.Font.Bold = true;
+                    headerStyle.Font.FontColor = System.Drawing.Color.White;
+                    // Azul corporativo (#009ff5)
+                    headerStyle.Fill.SetPattern(PatternValues.Solid, System.Drawing.Color.FromArgb(0, 159, 245), System.Drawing.Color.White);
+                    headerStyle.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+                    headerStyle.Alignment.Vertical = VerticalAlignmentValues.Center;
+                    headerStyle.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+
+                    SLStyle dateStyle = sl.CreateStyle();
+                    dateStyle.FormatCode = "dd/mm/yyyy";
+
+                    // --- CABECERAS ---
+                    int col = 1;
+                    string[] headers = {
+                "Item",                 // A: Consecutivo
+                "Area",                 // B: Derivado de Planta
+                "Type 1",               // C: Steel/Alu (Material Type)
+                "Type",                 // D: Automotive/Heavy Truck (Vehicle Type)
+                "TKMM Plant",           // E: Facility
+                "Sales Account Manager",// F: Created By
+                "Reception Date",       // G: Created Date
+                "Customer",             // J: Client
+                "OEM",                  // K: OEM
+                "Platform",             // L: Program / Platform
+                "Vehicle",              // M: Vehicle Name
+                "Part Number",          // Extra: Importante en matrices
+                "SOP",                  // N: Start of Production
+                "EOP",                  // O: End of Production
+                "Total Annual Vol",     // Q: Annual Volume
+                "Business Model",       // W: Route / Business Model
+                "Project ID"            // Extra: Referencia
+            };
+
+                    foreach (var header in headers)
+                    {
+                        sl.SetCellValue(1, col, header);
+                        sl.SetCellStyle(1, col, headerStyle);
+                        col++;
+                    }
+
+                    // --- LLENADO DE DATOS ---
+                    int rowIndex = 2;
+                    int itemCounter = 1;
+
+                    foreach (var project in rawProjects)
+                    {
+                        // Datos Generales del Proyecto
+                        string plantName = project.CTZ_plants?.Description ?? "";
+
+                        // Lógica simple para "Area" basada en la planta (Puedes ajustar esto)
+                        string area = "Center";
+                        if (plantName.ToUpper().Contains("SILAO")) area = "Bajio";
+                        else if (plantName.ToUpper().Contains("SALTILLO")) area = "Northeast";
+                        else if (plantName.ToUpper().Contains("PUEBLA")) area = "Center";
+                        else area = "Other";
+
+                        string vehicleType = project.CTZ_Vehicle_Types?.VehicleType_Name ?? "General";
+                        string salesManager = project.empleados?.nombre ?? "Unknown";
+                        DateTime receptionDate = project.Creted_Date;
+                        string customer = project.CTZ_Clients?.Client_Name ?? project.Cliente_Otro;
+                        string oem = project.CTZ_OEMClients?.Client_Name ?? project.OEM_Otro;
+                        string quoteID = project.ConcatQuoteID;
+
+                        // Obtenemos los materiales. Si no hay materiales, imprimimos al menos una fila con datos del proyecto.
+                        var materials = project.CTZ_Project_Materials.ToList();
+
+                        if (materials.Any())
+                        {
+                            foreach (var mat in materials)
+                            {
+                                // Determinar "Type 1" (Steel vs Aluminum) basado en el nombre del material
+                                string matTypeName = mat.CTZ_Material_Type?.Material_Name ?? "";
+                                string type1 = "Steel";
+                                if (matTypeName.ToUpper().Contains("ALU")) type1 = "Aluminum";
+
+                                // Determinar fechas SOP/EOP (Prioridad: Real -> Planned)
+                                DateTime? sop = mat.Real_SOP ?? mat.SOP_SP;
+                                DateTime? eop = mat.Real_EOP ?? mat.EOP_SP;
+
+                                // Escribir fila
+                                sl.SetCellValue(rowIndex, 1, itemCounter++);        // Item
+                                sl.SetCellValue(rowIndex, 2, area);                 // Area
+                                sl.SetCellValue(rowIndex, 3, type1);                // Type 1
+                                sl.SetCellValue(rowIndex, 4, vehicleType);          // Type
+                                sl.SetCellValue(rowIndex, 5, plantName);            // TKMM Plant
+                                sl.SetCellValue(rowIndex, 6, salesManager);         // Sales Manager
+
+                                sl.SetCellValue(rowIndex, 7, receptionDate);        // Reception Date
+                                sl.SetCellStyle(rowIndex, 7, dateStyle);
+
+                                sl.SetCellValue(rowIndex, 8, customer);             // Customer
+                                sl.SetCellValue(rowIndex, 9, oem);                  // OEM
+                                sl.SetCellValue(rowIndex, 10, mat.Program_SP ?? ""); // Platform
+                                sl.SetCellValue(rowIndex, 11, mat.Vehicle ?? "");    // Vehicle
+                                sl.SetCellValue(rowIndex, 12, mat.Part_Number ?? "");// Part Number
+
+                                if (sop.HasValue)
+                                {
+                                    sl.SetCellValue(rowIndex, 13, sop.Value);       // SOP
+                                    sl.SetCellStyle(rowIndex, 13, dateStyle);
+                                }
+
+                                if (eop.HasValue)
+                                {
+                                    sl.SetCellValue(rowIndex, 14, eop.Value);       // EOP
+                                    sl.SetCellStyle(rowIndex, 14, dateStyle);
+                                }
+
+                                sl.SetCellValue(rowIndex, 15, mat.Annual_Volume ?? 0); // Annual Volume (Numeric)
+
+                                string routeName = mat.CTZ_Route?.Route_Name ?? "";
+                                sl.SetCellValue(rowIndex, 16, routeName);           // Business Model (Route)
+
+                                sl.SetCellValue(rowIndex, 17, quoteID);             // Project ID
+
+                                rowIndex++;
+                            }
+                        }
+                        else
+                        {
+                            // CASO: Proyecto sin materiales (Imprimir solo cabecera del proyecto)
+                            sl.SetCellValue(rowIndex, 1, itemCounter++);
+                            sl.SetCellValue(rowIndex, 2, area);
+                            sl.SetCellValue(rowIndex, 4, vehicleType);
+                            sl.SetCellValue(rowIndex, 5, plantName);
+                            sl.SetCellValue(rowIndex, 6, salesManager);
+                            sl.SetCellValue(rowIndex, 7, receptionDate);
+                            sl.SetCellStyle(rowIndex, 7, dateStyle);
+                            sl.SetCellValue(rowIndex, 8, customer);
+                            sl.SetCellValue(rowIndex, 9, oem);
+                            sl.SetCellValue(rowIndex, 17, quoteID);
+
+                            rowIndex++;
+                        }
+                    }
+
+                    // --- AJUSTES FINALES ---
+                    sl.AutoFitColumn(1, 17); // Autoajustar todas las columnas
+
+                    // Retornar Archivo
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        sl.SaveAs(ms);
+                        ms.Position = 0;
+                        string fileName = $"Project_Matrix_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+                        return File(ms.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error exporting matrix: " + ex.Message);
+                return RedirectToAction("Index");
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -5738,6 +5960,50 @@ namespace Portal_2_0.Controllers
             // ========= FIN DEL CAMBIO ============
         }
         #endregion
+
+        /// <summary>
+        /// Conecta a la BD externa Portal_2_0_Services y obtiene los molinos.
+        /// </summary>
+        private List<object> GetMillsFromExternalDB()
+        {
+            var result = new List<object>();
+            // Conexion Temporal a BD
+            string connectionString = "Server=10.183.110.7, 60915; Database=Portal_2_0_services; User Id=ThyssenTest; Password=P0rt4l*;";
+
+            string query = "SELECT DISTINCT DescriptionEn FROM SAP.CharacteristicValues WHERE CharName = 'MILL' ORDER BY DescriptionEn";
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                if (!reader.IsDBNull(0))
+                                {
+                                    string val = reader.GetString(0);
+                                    // Formato para Select2: id y text iguales
+                                    result.Add(new { id = val, text = val });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // En caso de error de conexión, retornamos lista vacía para no romper la vista,
+                // pero podrías loguear el error 'ex' aquí.
+                System.Diagnostics.Debug.WriteLine("Error fetching mills: " + ex.Message);
+            }
+
+            return result;
+        }
+
 
         #region Exporta Excel
         [HttpGet]
