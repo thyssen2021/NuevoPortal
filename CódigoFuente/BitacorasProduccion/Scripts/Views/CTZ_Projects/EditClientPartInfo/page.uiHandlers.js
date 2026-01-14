@@ -101,19 +101,39 @@
         // Usamos la variable global blankingRouteIds para saber si aplica
         const isBlanking = (typeof blankingRouteIds !== 'undefined') && blankingRouteIds.includes(routeId);
 
-        if (isBlanking) {
-            // SI es ruta de Blanking: Mostramos los archivos (Input o Link según corresponda)
-            // Delegamos a updateFileUIGeneric para que decida si muestra el input file o el botón de descarga
-            updateFileUIGeneric('ID_File_TechnicalSheet', 'TechnicalSheetFileName', 'file_container_technicalSheetFile', 'fileActions_containerTechnicalSheetFile', 'downloadFileTechnicalSheetFile');
-            updateFileUIGeneric('ID_File_Additional', 'AdditionalFileName', 'file_container_AdditionalFile', 'fileActions_containerAdditionalFile', 'downloadFileAdditional');
-        } else {
-            // NO es ruta de Blanking: Ocultamos y limpiamos forzosamente
-            $("#file_container_technicalSheetFile, #fileActions_containerTechnicalSheetFile").hide();
-            $("#technicalSheetFile").val("").prop("disabled", true);
 
-            $("#file_container_AdditionalFile, #fileActions_containerAdditionalFile").hide();
-            $("#AdditionalFile").val("").prop("disabled", true);
-        }
+        updateFileUIGeneric('ID_File_TechnicalSheet', 'TechnicalSheetFileName', 'file_container_technicalSheetFile', 'fileActions_containerTechnicalSheetFile', 'downloadFileTechnicalSheetFile');
+        updateFileUIGeneric('ID_File_Additional', 'AdditionalFileName', 'file_container_AdditionalFile', 'fileActions_containerAdditionalFile', 'downloadFileAdditional');
+        updateFileUIGeneric('ID_File_ArrivalAdditional', 'ArrivalAdditionalFileName', 'file_container_arrivalAdditionalFile', 'fileActions_containerArrivalAdditionalFile', 'downloadArrivalAdditionalFile');
+        updateFileUIGeneric('ID_File_CoilDataAdditional', 'CoilDataAdditionalFileName', 'file_container_coilDataAdditionalFile', 'fileActions_containerCoilDataAdditionalFile', 'downloadCoilDataAdditionalFile');
+        updateFileUIGeneric('ID_File_SlitterDataAdditional', 'SlitterDataAdditionalFileName', 'file_container_slitterDataAdditionalFile', 'fileActions_containerSlitterDataAdditionalFile', 'downloadSlitterDataAdditionalFile');
+        updateFileUIGeneric('ID_File_VolumeAdditional', 'VolumeAdditionalFileName', 'file_container_volumeAdditionalFile', 'fileActions_containerVolumeAdditionalFile', 'downloadVolumeAdditionalFile');
+        updateFileUIGeneric('ID_File_OutboundFreightAdditional', 'OutboundFreightAdditionalFileName', 'file_container_outboundFreightAdditionalFile', 'fileActions_containerOutboundFreightAdditionalFile', 'downloadOutboundFreightAdditionalFile');
+        updateFileUIGeneric('ID_File_DeliveryPackagingAdditional', 'DeliveryPackagingAdditionalFileName', 'file_container_deliveryPackagingAdditionalFile', 'fileActions_containerDeliveryPackagingAdditionalFile', 'downloadDeliveryPackagingAdditionalFile');
+        updateFileUIGeneric('ID_File_InterplantPackaging', 'InterplantPackagingFileName', 'file_container_interplant_packaging_archivo', 'fileActions_containerInterplantPackagingFile', 'downloadInterplantPackagingFile');
+        updateFileUIGeneric('ID_File_InterplantOutboundFreight', 'InterplantOutboundFreightFileName', 'file_container_interplantOutboundFreightAdditionalFile', 'fileActions_containerInterplantOutboundFreightFile', 'downloadInterplantOutboundFreightFile');
+
+
+
+        //if (isBlanking) {
+        //    // SI es ruta de Blanking: Mostramos los archivos (Input o Link según corresponda)
+        //    // Delegamos a updateFileUIGeneric para que decida si muestra el input file o el botón de descarga
+        //    updateFileUIGeneric('ID_File_TechnicalSheet', 'TechnicalSheetFileName', 'file_container_technicalSheetFile', 'fileActions_containerTechnicalSheetFile', 'downloadFileTechnicalSheetFile');
+        //    updateFileUIGeneric('ID_File_Additional', 'AdditionalFileName', 'file_container_AdditionalFile', 'fileActions_containerAdditionalFile', 'downloadFileAdditional');
+        //    updateFileUIGeneric('ID_File_VolumeAdditional', 'VolumeAdditionalFileName', 'file_container_volumeAdditionalFile', 'fileActions_containerVolumeAdditionalFile', 'downloadVolumeAdditionalFile');
+
+        //} else {
+        //    // NO es ruta de Blanking: Ocultamos y limpiamos forzosamente
+        //    $("#file_container_technicalSheetFile, #fileActions_containerTechnicalSheetFile").hide();
+        //    $("#technicalSheetFile").val("").prop("disabled", true);
+
+        //    $("#file_container_AdditionalFile, #fileActions_containerAdditionalFile").hide();
+        //    $("#AdditionalFile").val("").prop("disabled", true);
+
+        //    //tambien debe validar la visibilidad del campo de file para ocultarlo
+        //    updateFileUIGeneric('ID_File_VolumeAdditional', 'VolumeAdditionalFileName', 'file_container_volumeAdditionalFile', 'fileActions_containerVolumeAdditionalFile', 'downloadVolumeAdditionalFile');
+
+        //}
         // =====================================================================
 
         // Campos relacionados con los ángulos

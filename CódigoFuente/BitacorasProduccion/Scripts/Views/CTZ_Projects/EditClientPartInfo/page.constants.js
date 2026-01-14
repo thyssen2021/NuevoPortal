@@ -21,6 +21,7 @@
             fields.Thickness,
             fields.WidthToleranceNegative,
             fields.ThicknessTolerancePositive,
+            fields.ThicknessToleranceNegative,
             fields.Width,
             "WidthToleranceNegative",
             "WidthTolerancePositive",
@@ -56,8 +57,8 @@
             //Weight & Volume
             "Theoretical_Gross_Weight",
             "Gross_Weight",
-            "Annual_Volume",
-            "Volume_Per_year",
+            //"Annual_Volume",
+            //"Volume_Per_year",
             //Packaging
             "PackagingStandard",
             "SpecialRequirement",
@@ -81,7 +82,7 @@
             "Is_Stackable",
             "Stackable_Levels",
             "Arrival_Comments",
-            "AnnualTonnage",
+            //"AnnualTonnage",
             "PiecesPerPackage",
             "StacksPerPackage",
             "PackageWeight",
@@ -114,10 +115,10 @@
             "HeadTailReconciliationPercent_Min",
             "HeadTailReconciliationPercent_Max",
             "PassesThroughSouthWarehouse",
-            "WeightPerPart",
-            "Initial_Weight",
+            //"WeightPerPart",
+            //"Initial_Weight",
             'InitialWeightPerPart',
-            'ShippingTons',
+            //'ShippingTons',
             'ID_InterplantDelivery_Coil_Position',
             'ID_InterplantDelivery_Transport_Type',
             'InterplantDelivery_Transport_Type_Other',
@@ -157,6 +158,7 @@
             fields.Thickness,
             fields.WidthToleranceNegative,
             fields.ThicknessTolerancePositive,
+            fields.ThicknessToleranceNegative,
             fields.Width,
             "WidthToleranceNegative",
             "WidthTolerancePositive",
@@ -194,8 +196,8 @@
             //Weight & Volume
             "Theoretical_Gross_Weight",
             "Gross_Weight",
-            "Annual_Volume",
-            "Volume_Per_year",
+            //"Annual_Volume",
+            //"Volume_Per_year",
             //Packaging
             "PackagingStandard",
             "SpecialRequirement",
@@ -219,7 +221,7 @@
             "Is_Stackable",
             "Stackable_Levels",
             "Arrival_Comments",
-            "AnnualTonnage",
+            //"AnnualTonnage",
             "PiecesPerPackage",
             "StacksPerPackage",
             "PackageWeight",
@@ -252,10 +254,10 @@
             "HeadTailReconciliationPercent_Min",
             "HeadTailReconciliationPercent_Max",
             "PassesThroughSouthWarehouse",
-            "WeightPerPart",
-            "Initial_Weight",
+            //"WeightPerPart",
+            //"Initial_Weight",
             'InitialWeightPerPart',
-            'ShippingTons',
+            //'ShippingTons',
             'ID_InterplantDelivery_Coil_Position',
             'ID_InterplantDelivery_Transport_Type',
             'InterplantDelivery_Transport_Type_Other',
@@ -295,6 +297,7 @@
             fields.Thickness,
             fields.WidthToleranceNegative,
             fields.ThicknessTolerancePositive,
+            fields.ThicknessToleranceNegative,
             fields.Width,
             "WidthToleranceNegative",
             "WidthTolerancePositive",
@@ -332,8 +335,8 @@
             //Weight & Volume
             "Theoretical_Gross_Weight",
             "Gross_Weight",
-            "Annual_Volume",
-            "Volume_Per_year",
+            //"Annual_Volume",
+            //"Volume_Per_year",
             //Packaging
             "PackagingStandard",
             "SpecialRequirement",
@@ -357,7 +360,7 @@
             "Is_Stackable",
             "Stackable_Levels",
             "Arrival_Comments",
-            "AnnualTonnage",
+            //"AnnualTonnage",
             "PiecesPerPackage",
             "StacksPerPackage",
             "PackageWeight",
@@ -395,10 +398,10 @@
             'Shearing_Weight',
             //'Shearing_Weight_Tol_Pos', 'Shearing_Weight_Tol_Neg',
             'Shearing_Pieces_Per_Stroke', 'Shearing_Pieces_Per_Car',
-            "WeightPerPart",
-            "Initial_Weight",
+            //"WeightPerPart",
+            //"Initial_Weight",
             'InitialWeightPerPart',
-            'ShippingTons',
+            //'ShippingTons',
             'ID_InterplantDelivery_Coil_Position',
             'ID_InterplantDelivery_Transport_Type',
             'InterplantDelivery_Transport_Type_Other',
@@ -438,6 +441,7 @@
             fields.Thickness,
             fields.WidthToleranceNegative,
             fields.ThicknessTolerancePositive,
+            fields.ThicknessToleranceNegative,
             fields.Width,
             "WidthToleranceNegative",
             "WidthTolerancePositive",
@@ -475,8 +479,8 @@
             //Weight & Volume
             "Theoretical_Gross_Weight",
             "Gross_Weight",
-            "Annual_Volume",
-            "Volume_Per_year",
+            //"Annual_Volume",
+            //"Volume_Per_year",
             //Packaging
             "PackagingStandard",
             "SpecialRequirement",
@@ -500,7 +504,7 @@
             "Is_Stackable",
             "Stackable_Levels",
             "Arrival_Comments",
-            "AnnualTonnage",
+            //"AnnualTonnage",
             "PiecesPerPackage",
             "StacksPerPackage",
             "PackageWeight",
@@ -533,10 +537,10 @@
             "HeadTailReconciliationPercent_Min",
             "HeadTailReconciliationPercent_Max",
             "PassesThroughSouthWarehouse",
-            "WeightPerPart",
-            "Initial_Weight",
+            //"WeightPerPart",
+            //"Initial_Weight",
             'InitialWeightPerPart',
-            'ShippingTons',
+            //'ShippingTons',
             'ID_InterplantDelivery_Coil_Position',
             'ID_InterplantDelivery_Transport_Type',
             'InterplantDelivery_Transport_Type_Other',
@@ -654,6 +658,7 @@
             "Surface",
             "LoadPerTransport",
             "InterplantLoadPerTransport", // <-- NUEVO
+            "ID_File_VolumeAdditional"
         ],
         //Route con ID = 7 = "REWINDED" //pendiente
         "7": [
@@ -726,6 +731,9 @@
             "Surface",
             "LoadPerTransport",
             "InterplantLoadPerTransport", // <-- NUEVO
+            "Annual_Volume",
+            "Volume_Per_year",
+            "ID_File_VolumeAdditional"
         ],
         //Route con ID = 8 = "SLT"
         "8": [
@@ -733,6 +741,7 @@
             fields.Thickness,
             fields.WidthToleranceNegative,
             fields.ThicknessTolerancePositive,
+            fields.ThicknessToleranceNegative,
             fields.Width,
             "WidthToleranceNegative",
             "WidthTolerancePositive",
@@ -832,6 +841,7 @@
             "SlitterEstimatedAnnualVolume",
             "LoadPerTransport",
             "InterplantLoadPerTransport", // <-- NUEVO
+            "ID_File_VolumeAdditional"
         ],
         //Route con ID = 9 = "SLT + BLK"
         "9": [
@@ -839,6 +849,7 @@
             fields.Thickness,
             fields.WidthToleranceNegative,
             fields.ThicknessTolerancePositive,
+            fields.ThicknessToleranceNegative,
             fields.Width,
             "WidthToleranceNegative",
             "WidthTolerancePositive",
@@ -961,6 +972,7 @@
             "Blanking_InitialWeightPerPart",
             "Blanking_ProcessTons",
             "Blanking_ShippingTons",
+            "ID_File_VolumeAdditional"
         ],
         //Route con ID = 10 = "SLT + BLK + WLD"
         "10": [
@@ -968,6 +980,7 @@
             fields.Thickness,
             fields.WidthToleranceNegative,
             fields.ThicknessTolerancePositive,
+            fields.ThicknessToleranceNegative,
             fields.Width,
             "WidthToleranceNegative",
             "WidthTolerancePositive",
@@ -1090,6 +1103,7 @@
             "Blanking_InitialWeightPerPart",
             "Blanking_ProcessTons",
             "Blanking_ShippingTons",
+            "ID_File_VolumeAdditional"
         ],
         //Route con ID = 11 = "WAREHOUSING"
         "11": [
@@ -1142,7 +1156,7 @@
             "IsRunningChange",            
             "ID_File_ArrivalAdditional",
             "ArrivalAdditionalFileName",
-            "IsWeldedBlank",
+            //"IsWeldedBlank",
             "NumberOfPlates",
             "ScrapReconciliationPercent_Min",
             "ScrapReconciliationPercent_Max",
@@ -1178,6 +1192,7 @@
             "Surface", 
             "LoadPerTransport",
             "InterplantLoadPerTransport", // <-- NUEVO
+            "ID_File_VolumeAdditional"
         ],
         //Route con ID = 12 = "WAREHOUSING / REPALLETIZING" (Platinas)
         "12": [
@@ -1185,6 +1200,7 @@
             fields.Thickness,
             fields.WidthToleranceNegative,
             fields.ThicknessTolerancePositive,
+            fields.ThicknessToleranceNegative,
             "Width_Plates",
             "Width_Plates_Tol_Pos",
             "Width_Plates_Tol_Neg",
@@ -1273,6 +1289,7 @@
             "Surface", 
             "LoadPerTransport",
             "InterplantLoadPerTransport", // <-- NUEVO
+            "ID_File_VolumeAdditional"
         ],
         //Route con ID = 13 = "WEIGHT DIVISION"
         "13": [
@@ -1281,6 +1298,7 @@
             fields.Thickness,
             fields.WidthToleranceNegative,
             fields.ThicknessTolerancePositive,
+            fields.ThicknessToleranceNegative,
             fields.Width,
             "WidthToleranceNegative",
             "WidthTolerancePositive",
@@ -1336,7 +1354,7 @@
             "IsRunningChange",            
             "ID_File_ArrivalAdditional",
             "ArrivalAdditionalFileName",
-            "IsWeldedBlank",
+            //"IsWeldedBlank",
             "NumberOfPlates",
             "WeightOfFinalMults_Min",
             "WeightOfFinalMults_Max",
@@ -1374,6 +1392,9 @@
             "Surface", 
             "LoadPerTransport",
             "InterplantLoadPerTransport", 
+            "Annual_Volume",
+            "Volume_Per_year",
+            "ID_File_VolumeAdditional"
         ],
     };
 
@@ -1384,6 +1405,7 @@
         fields.Thickness,
         fields.WidthToleranceNegative,
         fields.ThicknessTolerancePositive,
+        fields.ThicknessToleranceNegative,
         fields.Width,
         'ID_Interplant_Plant',
         "WidthToleranceNegative",
@@ -1536,6 +1558,7 @@
         "Blanking_InitialWeightPerPart",
         "Blanking_ProcessTons",
         "Blanking_ShippingTons",
+        "ID_File_VolumeAdditional",
     ];
 
     // Lista de nombres de campos que están dentro del fieldset "Blank Data"
