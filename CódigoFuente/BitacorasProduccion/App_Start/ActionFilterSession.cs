@@ -32,6 +32,7 @@ namespace Portal_2_0.App_Start
                 //   new RouteValueDictionary {
                 //   { "Controller", "Account" },
                 //   { "Action", "CerrarSesion" } });
+                // new comment 
 
                 System.Diagnostics.Debug.Print("Se ha cerrado Sessión!!!");
             }
