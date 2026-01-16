@@ -1055,6 +1055,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.budget_cantidad_bud
           <Property Name="Blanking_ShippingTons" Type="float" />
           <Property Name="WeightPerPart" Type="float" />
           <Property Name="Initial_Weight" Type="float" />
+          <Property Name="Max_Production_Factor" Type="float" />
+          <Property Name="Max_Production_Effective" Type="float" />
         </EntityType>
         <EntityType Name="CTZ_Project_Materials_History">
           <Key>
@@ -1252,6 +1254,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.budget_cantidad_bud
           <Property Name="Blanking_ShippingTons" Type="float" />
           <Property Name="WeightPerPart" Type="float" />
           <Property Name="Initial_Weight" Type="float" />
+          <Property Name="Max_Production_Factor" Type="float" />
+          <Property Name="Max_Production_Effective" Type="float" />
         </EntityType>
         <EntityType Name="CTZ_Project_Status">
           <Key>
@@ -24776,6 +24780,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <Property Name="Blanking_ShippingTons" Type="Double" />
           <Property Name="WeightPerPart" Type="Double" />
           <Property Name="Initial_Weight" Type="Double" />
+          <Property Name="Max_Production_Factor" Type="Double" />
+          <Property Name="Max_Production_Effective" Type="Double" />
           <NavigationProperty Name="CTZ_Arrival_Warehouses" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Arrival_Warehouses" FromRole="CTZ_Project_Materials" ToRole="CTZ_Arrival_Warehouses" />
           <NavigationProperty Name="CTZ_Coil_Position" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Coil_Position" FromRole="CTZ_Project_Materials" ToRole="CTZ_Coil_Position" />
           <NavigationProperty Name="CTZ_Coil_Position1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Coil_Position1" FromRole="CTZ_Project_Materials" ToRole="CTZ_Coil_Position" />
@@ -25013,6 +25019,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <Property Name="Blanking_ShippingTons" Type="Double" />
           <Property Name="WeightPerPart" Type="Double" />
           <Property Name="Initial_Weight" Type="Double" />
+          <Property Name="Max_Production_Factor" Type="Double" />
+          <Property Name="Max_Production_Effective" Type="Double" />
           <NavigationProperty Name="CTZ_Arrival_Warehouses" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Arrival_Warehouses" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Arrival_Warehouses" />
           <NavigationProperty Name="CTZ_Coil_Position" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Coil_Position" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Coil_Position" />
           <NavigationProperty Name="CTZ_Coil_Position1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Coil_Position1" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Coil_Position" />
@@ -30517,6 +30525,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <EntitySetMapping Name="CTZ_Project_Materials">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Materials">
               <MappingFragment StoreEntitySet="CTZ_Project_Materials">
+                <ScalarProperty Name="Max_Production_Effective" ColumnName="Max_Production_Effective" />
+                <ScalarProperty Name="Max_Production_Factor" ColumnName="Max_Production_Factor" />
                 <ScalarProperty Name="Initial_Weight" ColumnName="Initial_Weight" />
                 <ScalarProperty Name="WeightPerPart" ColumnName="WeightPerPart" />
                 <ScalarProperty Name="Blanking_ShippingTons" ColumnName="Blanking_ShippingTons" />
@@ -30714,6 +30724,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <EntitySetMapping Name="CTZ_Project_Materials_History">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Materials_History">
               <MappingFragment StoreEntitySet="CTZ_Project_Materials_History">
+                <ScalarProperty Name="Max_Production_Effective" ColumnName="Max_Production_Effective" />
+                <ScalarProperty Name="Max_Production_Factor" ColumnName="Max_Production_Factor" />
                 <ScalarProperty Name="Initial_Weight" ColumnName="Initial_Weight" />
                 <ScalarProperty Name="WeightPerPart" ColumnName="WeightPerPart" />
                 <ScalarProperty Name="Blanking_ShippingTons" ColumnName="Blanking_ShippingTons" />

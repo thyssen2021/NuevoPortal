@@ -219,6 +219,8 @@ namespace Portal_2_0.Models
         public Nullable<double> Blanking_ShippingTons { get; set; }
         public Nullable<double> WeightPerPart { get; set; }
         public Nullable<double> Initial_Weight { get; set; }
+        public Nullable<double> Max_Production_Factor { get; set; }
+        public Nullable<double> Max_Production_Effective { get; set; }
     
         public virtual CTZ_Arrival_Warehouses CTZ_Arrival_Warehouses { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }

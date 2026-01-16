@@ -871,7 +871,8 @@
                                                     <input type="hidden" name="materials[@i].Blanking_ShippingTons" value="@material.Blanking_ShippingTons" />
                                                     <input type="hidden" name="materials[@i].WeightPerPart" value="@material.WeightPerPart" />
                                                     <input type="hidden" name="materials[@i].Initial_Weight" value="@material.Initial_Weight" />
-
+                                                    <input type="hidden" name="materials[@i].Max_Production_Factor" value="@(material.Max_Production_Factor <= 0 ? 100 : material.Max_Production_Factor)" />
+                                                    <input type="hidden" name="materials[@i].Max_Production_Effective" value="@material.Max_Production_Effective" />
                                                 </td>
                                                 <td nowrap>@Html.DisplayFor(model => material.Vehicle)</td>
                                                 <td nowrap>@material.Vehicle_version</td>
@@ -1159,6 +1160,30 @@
                                     <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)</label>
                                     <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)" readonly />
                                     <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))Error" class="error-message" style="color: red; display: none;"></span>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label>Adjustment Factor %</label>
+                                    <input type="number"
+                                           step="any"
+                                           id="Max_Production_Factor"
+                                           class="form-control"
+                                           placeholder="%"
+                                           value="100"
+                                           min="0"
+                                           max="200"
+                                           autocomplete="off"
+                                           @(canEditSales ? "" : "readonly") />
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label>Effective Max Prod.</label>
+                                    <input type="text"
+                                           id="Max_Production_Effective"
+                                           class="form-control"
+                                           placeholder="Calculated"
+                                           readonly
+                                           style="background-color: #e9ecef; font-weight: bold;" />
                                 </div>
                             </div>
 

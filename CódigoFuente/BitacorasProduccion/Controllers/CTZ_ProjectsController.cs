@@ -2492,6 +2492,34 @@ namespace Portal_2_0.Controllers
                                 material.EOP_SP = new DateTime(eop.Year, eop.Month, 1);
                             }
 
+                            // 1. Asignar el factor
+                            // Usamos .GetValueOrDefault(100) para convertir double? a double de forma segura.
+                            double currentFactor = material.Max_Production_Factor.GetValueOrDefault(100);
+
+                            // Validar que no sea 0 o negativo para evitar errores de lógica
+                            if (currentFactor <= 0)
+                            {
+                                currentFactor = 100;
+                            }
+
+                            // Reasignamos al objeto para asegurar que se guarde el valor corregido (si era null o <= 0)
+                            material.Max_Production_Factor = currentFactor;
+
+                            // 2. Calcular la Producción Efectiva en el Servidor
+                            if (material.Max_Production_SP.HasValue)
+                            {
+                                double original = material.Max_Production_SP.Value;
+
+                                // Cálculo: Original * (Factor / 100)
+                                // Math.Round devuelve double, hacemos cast explícito a int
+                                material.Max_Production_Effective = (int)Math.Round(original * (currentFactor / 100.0));
+                            }
+                            else
+                            {
+                                material.Max_Production_Effective = null;
+                            }
+
+
                             // 1. Archivo CAD (Lógica existente, pero con depuración)
                             // Si este material tiene la bandera Y se subió un archivo, se asigna el ID.
                             if (material.IsFile == true && newFileId_CAD.HasValue) material.ID_File_CAD_Drawing = newFileId_CAD;

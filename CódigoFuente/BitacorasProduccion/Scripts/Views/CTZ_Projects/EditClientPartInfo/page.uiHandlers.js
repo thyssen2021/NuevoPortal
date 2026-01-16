@@ -2100,8 +2100,21 @@
 
         $("#Max_Production_SP").val(maxProduction);
 
+        // --- NUEVO: Disparar cálculo de Efectiva ---
+        // Verificamos si la función existe (por si page.main.js no cargó aún, aunque debería)
+        // O simplemente disparamos el evento 'change' sobre el input recién actualizado.
+
+        $("#Max_Production_SP").trigger("change");
+
+        // O si prefieres llamar directo (si está en scope global):
+        // if (typeof calculateEffectiveProduction === 'function') {
+        //     calculateEffectiveProduction();
+        // }
+
         //llamamos a grafica de slitter
-        debouncedUpdateSlitterChart();
+        if (typeof debouncedUpdateSlitterChart === 'function') {
+            debouncedUpdateSlitterChart();
+        }
     }
 
     /**

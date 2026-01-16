@@ -520,7 +520,13 @@ namespace Portal_2_0.Models
          [Display(Name = "Initial Weight [kg]")]
          public Nullable<double> Initial_Weight { get; set; }
 
-     
+        [Display(Name = "Adjustment Factor (%)")]
+        public double Max_Production_Factor { get; set; }
+
+        [Display(Name = "Effective Max Production")]
+        public Nullable<int> Max_Production_Effective { get; set; }
+
+
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]

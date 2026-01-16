@@ -1783,7 +1783,9 @@
         { key: "Blanking_ProcessTons", selector: "#Blanking_ProcessTons", type: "number" },
         { key: "Blanking_ShippingTons", selector: "#Blanking_ShippingTons", type: "number" },
         { key: "WeightPerPart", selector: "#WeightPerPart", type: "number" },
-    { key: "Initial_Weight", selector: "#Initial_Weight", type: "number" },
+        { key: "Initial_Weight", selector: "#Initial_Weight", type: "number" },
+        { key: "Max_Production_Factor", selector: "#Max_Production_Factor", type: "number" },
+        { key: "Max_Production_Effective", selector: "#Max_Production_Effective", type: "number" }
     ];
 
 

@@ -52,6 +52,18 @@
         // Activa la lógica para los textareas condicionales
         setupConditionalTextareas();
 
+        // Listener para cálculo en tiempo real
+        $("#Max_Production_Factor, #Max_Production_SP").on("input change", function () {
+            calculateEffectiveProduction();
+        });
+
+        // Listener para el VEHÍCULO (cambio de selección)
+        // Usamos setTimeout para esperar a que el otro script llene el campo Max_Production_SP
+        $("#Vehicle").on("change", function () {
+            setTimeout(function () {
+                calculateEffectiveProduction();
+            }, 200); // Espera 200ms
+        });
 
         if (isDetailsMode) {
             // --- MODO DETALLES ACTIVADO ---
@@ -2007,6 +2019,31 @@
         }
     }
 
+    function calculateEffectiveProduction() {
+        // Obtener valores. Usamos || 0 para evitar NaN
+        // Nota: Max_Production_SP a veces tiene comas si es texto formateado, asegúrate de limpiarlo si es necesario.
+        // Aquí asumo que es input numérico simple o texto limpio.
+        let spRaw = $("#Max_Production_SP").val();
+        let factorRaw = $("#Max_Production_Factor").val();
+
+        // Limpieza básica (si usas comas para miles)
+        let sp = parseFloat(String(spRaw).replace(/,/g, '')) || 0;
+        let factor = parseFloat(factorRaw) || 0;
+
+        // Validar factor por defecto visual
+        if (factorRaw === "") {
+            factor = 100;
+        }
+
+        // Cálculo
+        let effective = Math.round(sp * (factor / 100));
+
+        // Asignar
+        $("#Max_Production_Effective").val(effective);
+    }
+
+
+    window.calculateEffectiveProduction = calculateEffectiveProduction;
     window.updateSurfaceCalculation = updateSurfaceCalculation;
     window.IniciaValidacionTiempoReal = IniciaValidacionTiempoReal;
     window.debouncedUpdateTheoreticalLine = debouncedUpdateTheoreticalLine;
