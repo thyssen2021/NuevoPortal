@@ -989,199 +989,289 @@ namespace Portal_2_0.Models
         }
 
         public static List<budget_cantidad> BudgetLeeConcentrado(
-            HttpPostedFileBase stream,
-            int filaInicio,
-            ref bool valido,
-            ref string msjError,
-            ref int noEncontrados,
-            ref List<budget_rel_comentarios> listComentarios,
-            ref List<int> idRels)
+                HttpPostedFileBase stream,
+                int filaInicio,
+                ref bool valido,
+                ref string msjError,
+                ref int noEncontrados,
+                ref List<budget_rel_comentarios> listComentarios,
+                ref List<int> idRels)
         {
             var lista = new List<budget_cantidad>();
-            valido = true;
-
-            // Declarar el HashSet para evitar duplicados.
+            valido = false;
             HashSet<int> idRelsSet = new HashSet<int>();
 
             using (var db = new Portal_2_0Entities())
             {
-                // Diccionario de cuentas SAP (clave: sap_account)
-                var cuentasDict = db.budget_cuenta_sap.ToDictionary(c => c.sap_account);
+                // DESACTIVAR DETECCION DE CAMBIOS AUTOMATICA PARA ACELERAR LECTURAS MASIVAS
+                db.Configuration.AutoDetectChangesEnabled = false;
 
-                // Diccionario de relaciones FY/CC (clave: (id_anio_fiscal, num_centro_costo))
+                // 1. Cargar diccionarios para optimizar rendimiento
+                // Usamos AsNoTracking donde solo leemos para ahorrar memoria
+                var cuentasDict = db.budget_cuenta_sap.AsNoTracking().ToDictionary(c => c.sap_account);
+
+                // Diccionario de Centros de Costo para búsqueda rápida (Optimización #1)
+                var centrosCostoDict = db.budget_centro_costo.AsNoTracking().ToDictionary(c => c.num_centro_costo);
+
+                // Carga eficiente de relaciones FY-Centro existentes
                 var fyccDict = db.budget_rel_fy_centro
+                                 .Include("budget_centro_costo")
                                  .ToList()
-                                 .ToDictionary(x => (x.id_anio_fiscal, x.budget_centro_costo.num_centro_costo));
+                                 .GroupBy(x => new { x.id_anio_fiscal, x.budget_centro_costo.num_centro_costo })
+                                 .ToDictionary(g => (g.Key.id_anio_fiscal, g.Key.num_centro_costo), g => g.First());
 
-                // Diccionario de años fiscales, clave por anio_inicio.
-                var fyDict = db.budget_anio_fiscal.ToDictionary(x => x.anio_inicio);
+                var fyDict = db.budget_anio_fiscal.AsNoTracking().ToDictionary(x => x.anio_inicio);
 
                 using (var reader = ExcelReaderFactory.CreateReader(stream.InputStream))
                 {
                     var result = reader.AsDataSet();
-                    var table = result.Tables[0];
+                    DataTable table = null;
 
-                    // Leer encabezados fijos (se asume que la fila de encabezados es filaInicio - 1)
-                    var encabezadosOriginal = new List<string>();
-                    var encabezadosMayus = new List<string>();
-                    for (int col = 0; col < table.Columns.Count; col++)
+                    // Buscar la hoja por nombre "TEMPLETE"
+                    foreach (DataTable t in result.Tables)
                     {
-                        string title = table.Rows[filaInicio - 1][col].ToString();
-                        encabezadosOriginal.Add(title);
-                        encabezadosMayus.Add(!string.IsNullOrEmpty(title) ? title.ToUpperInvariant() : string.Empty);
+                        if (t.TableName.ToUpper().Trim() == "TEMPLETE")
+                        {
+                            table = t;
+                            valido = true;
+                            break;
+                        }
                     }
 
-                    // Validar que existan las columnas fijas requeridas.
-                    if (!encabezadosMayus.Contains("SAP ACCOUNT") ||
-                        !encabezadosMayus.Contains("NAME") ||
-                        !encabezadosMayus.Contains("COST CENTER") ||
-                        !encabezadosMayus.Contains("DEPARTMENT"))
+                    if (table == null)
                     {
-                        msjError = "No cuenta con los encabezados correctos.";
+                        msjError = "El archivo no contiene una hoja visible llamada 'Templete'.";
                         valido = false;
                         return lista;
                     }
 
-                    // Índices de columnas fijas.
-                    int idxSAP = encabezadosMayus.IndexOf("SAP ACCOUNT");
-                    int idxCC = encabezadosMayus.IndexOf("COST CENTER");
+                    // Validar Fila Inicio
+                    if (filaInicio < 5)
+                    {
+                        msjError = "La fila de inicio debe ser al menos 5 para permitir leer encabezados.";
+                        valido = false;
+                        return lista;
+                    }
 
-                    // Precalcular la configuración de las columnas dinámicas.
+                    int idxFilaMonedas = filaInicio - 2;
+                    int idxFilaFechas = filaInicio - 3;
+
+                    if (table.Rows.Count <= idxFilaMonedas)
+                    {
+                        msjError = "La hoja 'Templete' está vacía o no tiene suficientes filas de encabezado.";
+                        valido = false;
+                        return lista;
+                    }
+
+                    // Leer encabezados fijos
+                    var encabezadosFila = new List<string>();
+                    for (int col = 0; col < table.Columns.Count; col++)
+                    {
+                        string title = table.Rows[idxFilaMonedas][col].ToString();
+                        encabezadosFila.Add(!string.IsNullOrEmpty(title) ? title.ToUpper().Trim() : string.Empty);
+                    }
+
+                    if (!encabezadosFila.Contains("SAP ACCOUNT") || !encabezadosFila.Contains("COST CENTER"))
+                    {
+                        msjError = "La hoja 'Templete' no tiene los encabezados 'SAP ACCOUNT' y 'COST CENTER' en la fila 4.";
+                        valido = false;
+                        return lista;
+                    }
+
+                    int idxSAP = encabezadosFila.IndexOf("SAP ACCOUNT");
+                    int idxCC = encabezadosFila.IndexOf("COST CENTER");
+                    int idxComentario = encabezadosFila.FindIndex(x => x.Contains("COMENTARIO"));
+
+                    // Mapeo de columnas dinámicas
                     var dynamicColumns = new List<DynamicColumnInfo>();
-                    CultureInfo enUS = new CultureInfo("en-US");
+                    CultureInfo cultureUS = new CultureInfo("en-US");
 
                     for (int j = 0; j < table.Columns.Count; j++)
                     {
-                        string header = encabezadosMayus[j];
-                        string anioMesStr = string.Empty;
-                        DateTime fecha;
-                        int fiscalYearId;
+                        string header = encabezadosFila[j];
+                        string fechaTexto = string.Empty;
 
                         if (header == "MXN")
-                        {
-                            anioMesStr = table.Rows[2][j].ToString();
-                        }
-                        else if (header == "USD")
-                        {
-                            if (j - 1 < 0) continue;
-                            anioMesStr = table.Rows[2][j - 1].ToString();
-                        }
-                        else if (header == "EUR")
-                        {
-                            if (j - 2 < 0) continue;
-                            anioMesStr = table.Rows[2][j - 2].ToString();
-                        }
-                        else if (header == "LOCAL USD")
-                        {
-                            if (j - 3 < 0) continue;
-                            anioMesStr = table.Rows[2][j - 3].ToString();
-                        }
+                            fechaTexto = table.Rows[idxFilaFechas][j].ToString();
+                        else if (header == "USD" && j > 0)
+                            fechaTexto = table.Rows[idxFilaFechas][j - 1].ToString();
+                        else if (header == "EUR" && j > 1)
+                            fechaTexto = table.Rows[idxFilaFechas][j - 2].ToString();
+                        else if (header == "LOCAL USD" && j > 2)
+                            fechaTexto = table.Rows[idxFilaFechas][j - 3].ToString();
                         else
-                        {
                             continue;
-                        }
 
-                        // Extraer la parte de la fecha (se espera formato "MMM-yy" al final de la cadena)
-                        var parts = anioMesStr.Split(' ');
-                        string datePart = parts.Last();
+                        string datePart = fechaTexto.Trim().Split(' ').Last();
 
-                        if (DateTime.TryParseExact(datePart, "MMM-yy", enUS, DateTimeStyles.None, out fecha))
+                        if (DateTime.TryParseExact(datePart, "MMM-yy", cultureUS, DateTimeStyles.None, out DateTime fecha))
                         {
                             int anioInicio = (fecha.Month >= 10) ? fecha.Year : fecha.Year - 1;
                             if (fyDict.TryGetValue(anioInicio, out var fy))
                             {
-                                fiscalYearId = fy.id;
                                 dynamicColumns.Add(new DynamicColumnInfo
                                 {
                                     DataColumnIndex = j,
                                     Currency = (header == "LOCAL USD") ? "USD" : header,
                                     Local = (header == "LOCAL USD"),
                                     ReportDate = fecha,
-                                    FiscalYearId = fiscalYearId
+                                    FiscalYearId = fy.id
                                 });
                             }
                         }
                     }
 
-                    // Procesar cada fila de datos a partir de filaInicio.
-                    for (int i = filaInicio; i < table.Rows.Count; i++)
+                    if (dynamicColumns.Count == 0)
+                    {
+                        msjError = "No se encontraron columnas de fechas válidas en la hoja 'Templete'.";
+                        valido = false;
+                        return lista;
+                    }
+
+                    // -----------------------------------------------------------------------------------------
+                    // OPTIMIZACIÓN CRÍTICA: PRE-PROCESAMIENTO DE RELACIONES FALTANTES
+                    // -----------------------------------------------------------------------------------------
+                    // Identificamos todas las combinaciones (AñoFiscal, CentroCosto) que vienen en el Excel
+                    // y creamos las faltantes en UN SOLO paso antes de leer los datos.
+
+                    var combinacionesNecesarias = new HashSet<(int fyId, string cc)>();
+
+                    // Barrido rápido solo para recolectar llaves
+                    for (int i = filaInicio - 1; i < table.Rows.Count; i++)
+                    {
+                        string cc_ = table.Rows[i][idxCC].ToString();
+                        if (string.IsNullOrWhiteSpace(cc_)) continue;
+
+                        // Solo nos interesan los años fiscales detectados en las columnas
+                        foreach (var col in dynamicColumns)
+                        {
+                            combinacionesNecesarias.Add((col.FiscalYearId, cc_));
+                        }
+                    }
+
+                    // Lista temporal para guardar los nuevos objetos antes de insertarlos al diccionario
+                    var nuevasRelacionesParaDict = new List<KeyValuePair<(int, string), budget_rel_fy_centro>>();
+                    bool huboCambios = false;
+
+                    foreach (var comb in combinacionesNecesarias)
+                    {
+                        // Si no existe en el diccionario actual...
+                        if (!fyccDict.ContainsKey(comb))
+                        {
+                            // Verificar que el centro de costo exista realmente
+                            if (centrosCostoDict.TryGetValue(comb.cc, out var centroCostoObj))
+                            {
+                                var nuevaRel = new budget_rel_fy_centro
+                                {
+                                    id_anio_fiscal = comb.fyId,
+                                    id_centro_costo = centroCostoObj.id,
+                                    estatus = true
+                                };
+
+                                db.budget_rel_fy_centro.Add(nuevaRel);
+                                huboCambios = true;
+
+                                // Guardamos referencia para actualizar el diccionario después del SaveChanges
+                                nuevasRelacionesParaDict.Add(new KeyValuePair<(int, string), budget_rel_fy_centro>(comb, nuevaRel));
+                            }
+                        }
+                    }
+
+                    // GUARDADO MASIVO DE RELACIONES (1 solo SaveChanges en lugar de miles)
+                    if (huboCambios)
+                    {
+                        db.Configuration.AutoDetectChangesEnabled = true; // Reactivar para guardar
+                        db.SaveChanges();
+                        db.Configuration.AutoDetectChangesEnabled = false; // Desactivar de nuevo
+
+                        // Actualizar el diccionario en memoria con los IDs generados
+                        foreach (var item in nuevasRelacionesParaDict)
+                        {
+                            if (!fyccDict.ContainsKey(item.Key))
+                            {
+                                fyccDict.Add(item.Key, item.Value);
+                            }
+                        }
+                    }
+                    // -----------------------------------------------------------------------------------------
+
+
+                    // --- Lectura de Datos Principal ---
+                    for (int i = filaInicio - 1; i < table.Rows.Count; i++)
                     {
                         try
                         {
                             string sap_account = table.Rows[i][idxSAP].ToString();
                             string cc_ = table.Rows[i][idxCC].ToString();
 
-                            // Buscar la cuenta SAP
-                            if (!cuentasDict.TryGetValue(sap_account, out var cuenta))
+                            if (string.IsNullOrWhiteSpace(sap_account) || string.IsNullOrWhiteSpace(cc_))
                                 continue;
 
-                            // Recorrer columnas dinámicas
+                            if (!cuentasDict.TryGetValue(sap_account, out var cuenta))
+                            {
+                                noEncontrados++;
+                                continue;
+                            }
+
+                            string comentarioFila = (idxComentario >= 0) ? table.Rows[i][idxComentario].ToString() : null;
+
                             foreach (var col in dynamicColumns)
                             {
                                 string cellStr = table.Rows[i][col.DataColumnIndex].ToString();
-                                if (!decimal.TryParse(cellStr, out decimal cantidad))
-                                    cantidad = 0;
 
-                                // ==> 1) BUSCAR o CREAR la relación FY/CC AUNQUE LA CANTIDAD SEA 0
-                                if (!fyccDict.TryGetValue((col.FiscalYearId, cc_), out var fy_cc))
+                                if (decimal.TryParse(cellStr, out decimal cantidad))
                                 {
-                                    // Buscar centro
-                                    var centroCosto = db.budget_centro_costo.FirstOrDefault(c => c.num_centro_costo == cc_);
-                                    if (centroCosto == null)
+                                    var key = (col.FiscalYearId, cc_);
+
+                                    // Búsqueda en diccionario (Ahora GARANTIZADA de ser rápida y sin DB hits)
+                                    if (fyccDict.TryGetValue(key, out var fy_cc))
                                     {
-                                        noEncontrados++;
-                                        continue; // Pasa a siguiente columna
+                                        idRelsSet.Add(fy_cc.id);
+                                        cantidad = Decimal.Round(cantidad, 2);
+
+                                        if (cantidad != 0)
+                                        {
+                                            lista.Add(new budget_cantidad
+                                            {
+                                                id_budget_rel_fy_centro = fy_cc.id,
+                                                id_cuenta_sap = cuenta.id,
+                                                mes = col.ReportDate.Month,
+                                                currency_iso = col.Currency,
+                                                cantidad = cantidad,
+                                                moneda_local_usd = col.Local,
+                                                comentario = !string.IsNullOrEmpty(comentarioFila) ? UsoStrings.RecortaString(comentarioFila, 150) : null
+                                            });
+                                        }
+
+                                        if (!string.IsNullOrEmpty(comentarioFila) && listComentarios != null)
+                                        {
+                                            if (!listComentarios.Any(x => x.id_budget_rel_fy_centro == fy_cc.id && x.id_cuenta_sap == cuenta.id))
+                                            {
+                                                listComentarios.Add(new budget_rel_comentarios
+                                                {
+                                                    id_budget_rel_fy_centro = fy_cc.id,
+                                                    id_cuenta_sap = cuenta.id,
+                                                    comentarios = UsoStrings.RecortaString(comentarioFila, 200)
+                                                });
+                                            }
+                                        }
                                     }
-
-                                    // Crear la relación
-                                    fy_cc = new budget_rel_fy_centro
-                                    {
-                                        id_anio_fiscal = col.FiscalYearId,
-                                        id_centro_costo = centroCosto.id,
-                                        estatus = true
-                                    };
-                                    db.budget_rel_fy_centro.Add(fy_cc);
-                                    db.SaveChanges();
-
-                                    fyccDict.Add((col.FiscalYearId, cc_), fy_cc);
-                                }
-
-                                // Agrega el ID al set, independientemente de la cantidad
-                                idRelsSet.Add(fy_cc.id);
-
-                                // ==> 2) SOLO si cantidad != 0, agregar la fila a 'lista'
-                                cantidad = Decimal.Round(cantidad, 2);
-                                if (cantidad != 0)
-                                {
-                                    lista.Add(new budget_cantidad
-                                    {
-                                        id_budget_rel_fy_centro = fy_cc.id,
-                                        id_cuenta_sap = cuenta.id,
-                                        mes = col.ReportDate.Month,
-                                        currency_iso = col.Currency,
-                                        cantidad = cantidad,
-                                        moneda_local_usd = col.Local
-                                    });
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.Print("Error en la fila " + i + ": " + ex.Message);
+                            System.Diagnostics.Debug.Print("Error fila " + i + ": " + ex.Message);
                         }
                     }
                 }
             }
 
-            // Al finalizar, convertir el hashset a un list
-            idRels = idRelsSet.ToList();
+            idRels.Clear();
+            idRels.AddRange(idRelsSet);
 
             return lista;
         }
-
-
-
-
 
         /// <summary>
         /// Lee un archivo y obtiene un List de budget_cantidad con los valores leidos

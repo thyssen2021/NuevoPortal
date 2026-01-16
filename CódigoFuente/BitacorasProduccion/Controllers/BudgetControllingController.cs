@@ -1008,7 +1008,7 @@ namespace Portal_2_0.Controllers
 
                     // Lee el archivo Excel y obtiene la lista de cantidades
                     List<budget_cantidad> lista_cantidad_form = UtilExcel.BudgetLeeConcentrado(
-                        stream, 4, ref estructuraValida, ref msjError, ref noEncontrados,
+                        stream, 5, ref estructuraValida, ref msjError, ref noEncontrados,
                         ref lista_comentarios_form, ref idRels);
 
                     if (!estructuraValida)
