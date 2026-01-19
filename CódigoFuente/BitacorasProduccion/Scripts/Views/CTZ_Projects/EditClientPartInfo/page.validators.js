@@ -2671,83 +2671,38 @@
 
 
     function validateRealSOP() {
-        const input = $("#Real_SOP");
-        const errorEl = $("#Real_SOPError");
-        const warningEl = $("#Real_SOPWarning"); // Nuevo selector para advertencia
+        const input = $(config.fieldSelectors.Real_SOP);
+        const errorEl = $(config.fieldSelectors.Real_SOP + "Error");
+        const warningEl = $("#Real_SOPWarning"); // Asegúrate que este ID exista en tu HTML, si no, usa el span de error con otro color.
 
-        // Si readonly/disabled, limpiamos todo y salimos
-        if (input.prop("readonly") || input.prop("disabled")) {
-            errorEl.text("").hide();
-            warningEl.text("").hide();
-            return true;
+        // Limpiar estados previos
+        errorEl.hide().text("");
+        warningEl.hide().text("");
+        input.removeClass("input-error-focus"); // Clase CSS para borde rojo si la tienes, o usa .css("border", "")
+
+        let raw = input.val();
+        if (!raw) return true; // Si es opcional, retorna true. Si es obligatorio, retorna false y muestra error.
+
+        // Obtener fechas
+        const inputDate = new Date(raw + "-01"); // Añadimos día para evitar problemas de zona horaria con "YYYY-MM"
+        const currentDate = new Date();
+
+        const inputYear = inputDate.getFullYear();
+        const currentYear = currentDate.getFullYear();
+        const minAllowedYear = currentYear - 2; // Ejemplo: 2026 - 2 = 2024. Acepta 2024, 2025, 2026.
+
+        // 1. VALIDACIÓN ESTRICTA (ERROR): No permitir años anteriores al límite (ej. 2023 o menos)
+        if (inputYear < minAllowedYear) {
+            const msg = `Date cannot be older than ${minAllowedYear} (max 2 years prior).`;
+            errorEl.text(msg).show();
+            input.addClass("input-error-focus"); // Borde rojo
+            return false; // Detiene el guardado
         }
 
-        // 1. Limpiar estados previos
-        errorEl.text("").hide();
-        warningEl.text("").hide();
-        input.css("border", "");
-
-        let realSOPStr = input.val().trim();
-
-        // --- ERRORES BLOQUEANTES (Rojo) ---
-        if (!realSOPStr) {
-            errorEl.text("Real SOP is required.").show();
-            input.css("border", "1px solid red");
-            return false;
-        }
-
-        // Usamos window.parseYearMonth ya que se define en page.main.js y se exporta a window
-        let realSOPDate = window.parseYearMonth(realSOPStr);
-
-        if (!realSOPDate) {
-            errorEl.text("Invalid date format. Use yyyy-mm.").show();
-            input.css("border", "1px solid red");
-            return false;
-        }
-
-        // Validamos que sea un año "lógico" (entre 2000 y 2100).
-        const year = realSOPDate.getFullYear();
-        if (year > 2100 || year < 2000) {
-            errorEl.text(`Invalid year (${year}). Please check for typos.`).show();
-            input.css("border", "1px solid red");
-            return false;
-        }
-
-        // Validar contra Real EOP (Lógica Bloqueante)
-        let realEOPStr = $("#Real_EOP").val().trim();
-        if (realEOPStr) {
-            let realEOPDate = window.parseYearMonth(realEOPStr);
-            if (realEOPDate && realSOPDate >= realEOPDate) {
-                errorEl.text("Real SOP must be before Real EOP.").show();
-                input.css("border", "1px solid red");
-                return false;
-            }
-        }
-
-        // --- ADVERTENCIAS (Naranja - No bloquean el guardado) ---
-        let warningMsg = "";
-        const currentYear = new Date().getFullYear();
-
-        // Advertencia 1: Año anterior al actual
-        if (realSOPDate.getFullYear() < currentYear) {
-            warningMsg = `Year is before current year (${currentYear}).`;
-        }
-
-        // Advertencia 2: Anterior al Planned SOP
-        let sopSPStr = $("#SOP_SP").val().trim();
-        if (sopSPStr) {
-            let sopSPDate = window.parseYearMonth(sopSPStr);
-            if (sopSPDate && realSOPDate < sopSPDate) {
-                // Concatenamos si ya existe un mensaje o lo ponemos nuevo
-                warningMsg = warningMsg
-                    ? warningMsg + " Also before Planned SOP."
-                    : "Date is before Planned SOP.";
-            }
-        }
-
-        // Si hay mensaje de advertencia, lo mostramos
-        if (warningMsg) {
-            warningEl.text(warningMsg).show();
+        // 2. ADVERTENCIA (WARNING): Si es año anterior al actual, pero permitido (ej. 2024 o 2025)
+        if (inputYear < currentYear) {
+            warningEl.text("Year is before current year.").show();
+            // Retorna true porque es solo advertencia, permite guardar
         }
 
         return true;
