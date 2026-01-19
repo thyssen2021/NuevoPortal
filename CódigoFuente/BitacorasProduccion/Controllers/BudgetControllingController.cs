@@ -972,7 +972,6 @@ namespace Portal_2_0.Controllers
             }
         }
 
-        // POST: Dante/CargaConcentrado/5
         // POST: BudgetControlling/CargaConcentrado
         [HttpPost]
         public ActionResult CargaConcentrado(ExcelViewModel excelViewModel, FormCollection collection)
@@ -985,20 +984,18 @@ namespace Portal_2_0.Controllers
                 {
                     HttpPostedFileBase stream = Request.Files["PostedFile"];
 
-                    // Validación de tamaño y extensión
+                    // Validación de tamaño y extensión (Sin cambios)
                     if (stream.InputStream.Length > 8388608)
                     {
                         msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
                         throw new Exception(msjError);
                     }
-                    else
+
+                    string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
+                    if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
                     {
-                        string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
-                        if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
-                        {
-                            msjError = "Sólo se permiten archivos Excel.";
-                            throw new Exception(msjError);
-                        }
+                        msjError = "Sólo se permiten archivos Excel.";
+                        throw new Exception(msjError);
                     }
 
                     bool estructuraValida = false;
@@ -1006,7 +1003,7 @@ namespace Portal_2_0.Controllers
                     List<budget_rel_comentarios> lista_comentarios_form = new List<budget_rel_comentarios>();
                     List<int> idRels = new List<int>();
 
-                    // Lee el archivo Excel y obtiene la lista de cantidades
+                    // Lee el archivo Excel. Importante: idRels traerá TODOS los centros del Excel, incluso si vienen en 0.
                     List<budget_cantidad> lista_cantidad_form = UtilExcel.BudgetLeeConcentrado(
                         stream, 5, ref estructuraValida, ref msjError, ref noEncontrados,
                         ref lista_comentarios_form, ref idRels);
@@ -1017,14 +1014,14 @@ namespace Portal_2_0.Controllers
                         throw new Exception(msjError);
                     }
 
-                    if (lista_cantidad_form.Count > 0)
+                    // CORRECCIÓN: Entrar si hay datos O si hay centros identificados (para permitir borrado masivo)
+                    if (lista_cantidad_form.Count > 0 || idRels.Count > 0)
                     {
-                        // 1. Obtener cadena de conexión (Patrón solicitado)
+                        // 1. Obtener cadena de conexión
                         string efConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["Portal_2_0Entities"].ConnectionString;
                         var builder = new System.Data.Entity.Core.EntityClient.EntityConnectionStringBuilder(efConnectionString);
                         string connectionString = builder.ProviderConnectionString;
 
-                        // 2. Iniciar conexión y transacción SQL nativa
                         using (SqlConnection conn = new SqlConnection(connectionString))
                         {
                             conn.Open();
@@ -1034,20 +1031,20 @@ namespace Portal_2_0.Controllers
                                 {
                                     // --- BLOQUE 1: PROCESAMIENTO DE CANTIDADES ---
 
-                                    // A. Crear tabla temporal para Cantidades
+                                    // A. Crear tabla temporal
                                     string createTempCantidades = @"
-                                        CREATE TABLE #TempBudgetCantidad (
-                                            id_budget_rel_fy_centro int,
-                                            id_cuenta_sap int,
-                                            mes int,
-                                            currency_iso varchar(3),
-                                            cantidad decimal(14,2),
-                                            comentario varchar(150),
-                                            moneda_local_usd bit
-                                        )";
+                                CREATE TABLE #TempBudgetCantidad (
+                                    id_budget_rel_fy_centro int,
+                                    id_cuenta_sap int,
+                                    mes int,
+                                    currency_iso varchar(3),
+                                    cantidad decimal(14,2),
+                                    comentario varchar(150),
+                                    moneda_local_usd bit
+                                )";
                                     using (SqlCommand cmd = new SqlCommand(createTempCantidades, conn, transaction)) { cmd.ExecuteNonQuery(); }
 
-                                    // B. Preparar DataTable
+                                    // B. Preparar DataTable (puede estar vacío si todo es 0, y está bien)
                                     System.Data.DataTable dtCantidades = new System.Data.DataTable();
                                     dtCantidades.Columns.Add("id_budget_rel_fy_centro", typeof(int));
                                     dtCantidades.Columns.Add("id_cuenta_sap", typeof(int));
@@ -1063,110 +1060,95 @@ namespace Portal_2_0.Controllers
                                                             item.currency_iso, item.cantidad, item.comentario, item.moneda_local_usd);
                                     }
 
-                                    // C. BulkCopy a tabla temporal
+                                    // C. BulkCopy (sube datos o tabla vacía)
                                     using (SqlBulkCopy bulkCopy = new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, transaction))
                                     {
                                         bulkCopy.DestinationTableName = "#TempBudgetCantidad";
                                         bulkCopy.WriteToServer(dtCantidades);
                                     }
 
-                                    // D. MERGE (Delete, Update, Insert)
-                                    // Nota: Se elimina primero la dependencia en budget_rel_conceptos_cantidades
-                                    string mergeSqlCantidades = @"
-                                        -- 1. Eliminar dependencias de registros que van a ser borrados
-                                        DELETE FROM budget_rel_conceptos_cantidades 
-                                        WHERE id_budget_cantidad IN (
-                                            SELECT T.id 
-                                            FROM budget_cantidad T
-                                            WHERE T.id_budget_rel_fy_centro IN (SELECT DISTINCT id_budget_rel_fy_centro FROM #TempBudgetCantidad)
-                                            AND NOT EXISTS (
-                                                SELECT 1 FROM #TempBudgetCantidad S
-                                                WHERE T.id_budget_rel_fy_centro = S.id_budget_rel_fy_centro 
-                                                  AND T.id_cuenta_sap = S.id_cuenta_sap 
-                                                  AND T.mes = S.mes 
-                                                  AND T.currency_iso = S.currency_iso 
-                                                  AND T.moneda_local_usd = S.moneda_local_usd
-                                            )
-                                        );
+                                    // D. MERGE (Aquí ocurre la magia del borrado)
+                                    string idsRelJoined = idRels.Any() ? string.Join(",", idRels.Distinct()) : "0";
 
-                                        -- 2. Ejecutar MERGE en budget_cantidad
-                                        MERGE budget_cantidad AS T
-                                        USING #TempBudgetCantidad AS S
-                                        ON T.id_budget_rel_fy_centro = S.id_budget_rel_fy_centro 
-                                           AND T.id_cuenta_sap = S.id_cuenta_sap 
-                                           AND T.mes = S.mes 
-                                           AND T.currency_iso = S.currency_iso 
-                                           AND T.moneda_local_usd = S.moneda_local_usd
-                                        WHEN MATCHED AND (T.cantidad <> S.cantidad OR ISNULL(T.comentario,'') <> ISNULL(S.comentario,'')) THEN
-                                            UPDATE SET T.cantidad = S.cantidad, T.comentario = S.comentario
-                                        WHEN NOT MATCHED BY TARGET THEN
-                                            INSERT (id_budget_rel_fy_centro, id_cuenta_sap, mes, currency_iso, cantidad, comentario, moneda_local_usd)
-                                            VALUES (S.id_budget_rel_fy_centro, S.id_cuenta_sap, S.mes, S.currency_iso, S.cantidad, S.comentario, S.moneda_local_usd)
-                                        WHEN NOT MATCHED BY SOURCE AND T.id_budget_rel_fy_centro IN (SELECT DISTINCT id_budget_rel_fy_centro FROM #TempBudgetCantidad) THEN
-                                            DELETE;
-                                    ";
+                                    string mergeSqlCantidades = $@"
+                                -- 1. Eliminar dependencias
+                                DELETE FROM budget_rel_conceptos_cantidades 
+                                WHERE id_budget_cantidad IN (
+                                    SELECT T.id 
+                                    FROM budget_cantidad T
+                                    WHERE T.id_budget_rel_fy_centro IN ({idsRelJoined}) -- Borrar solo de los centros del Excel
+                                    AND NOT EXISTS (
+                                        SELECT 1 FROM #TempBudgetCantidad S
+                                        WHERE T.id_budget_rel_fy_centro = S.id_budget_rel_fy_centro 
+                                            AND T.id_cuenta_sap = S.id_cuenta_sap 
+                                            AND T.mes = S.mes 
+                                            AND T.currency_iso = S.currency_iso 
+                                            AND T.moneda_local_usd = S.moneda_local_usd
+                                    )
+                                );
+
+                                -- 2. MERGE
+                                MERGE budget_cantidad AS T
+                                USING #TempBudgetCantidad AS S
+                                ON T.id_budget_rel_fy_centro = S.id_budget_rel_fy_centro 
+                                    AND T.id_cuenta_sap = S.id_cuenta_sap 
+                                    AND T.mes = S.mes 
+                                    AND T.currency_iso = S.currency_iso 
+                                    AND T.moneda_local_usd = S.moneda_local_usd
+                                WHEN MATCHED AND (T.cantidad <> S.cantidad OR ISNULL(T.comentario,'') <> ISNULL(S.comentario,'')) THEN
+                                    UPDATE SET T.cantidad = S.cantidad, T.comentario = S.comentario
+                                WHEN NOT MATCHED BY TARGET THEN
+                                    INSERT (id_budget_rel_fy_centro, id_cuenta_sap, mes, currency_iso, cantidad, comentario, moneda_local_usd)
+                                    VALUES (S.id_budget_rel_fy_centro, S.id_cuenta_sap, S.mes, S.currency_iso, S.cantidad, S.comentario, S.moneda_local_usd)
+                                WHEN NOT MATCHED BY SOURCE AND T.id_budget_rel_fy_centro IN ({idsRelJoined}) THEN
+                                    DELETE; -- ESTO BORRA LOS DATOS VIEJOS SI LA TABLA TEMPORAL ESTÁ VACÍA
+                            ";
 
                                     using (SqlCommand cmdMerge = new SqlCommand(mergeSqlCantidades, conn, transaction))
                                     {
                                         cmdMerge.ExecuteNonQuery();
                                     }
 
+                                    // --- BLOQUE 2: COMENTARIOS ---
+                                    // Igual: Creamos tabla temporal siempre, aunque venga vacía, para permitir limpieza
+                                    string createTempComments = @"
+                                CREATE TABLE #TempComments (
+                                    id_budget_rel_fy_centro int,
+                                    id_cuenta_sap int,
+                                    comentarios varchar(200)
+                                )";
+                                    using (SqlCommand cmd = new SqlCommand(createTempComments, conn, transaction)) { cmd.ExecuteNonQuery(); }
 
-                                    // --- BLOQUE 2: PROCESAMIENTO DE COMENTARIOS ---
-                                    if (lista_comentarios_form.Count > 0)
+                                    System.Data.DataTable dtComments = new System.Data.DataTable();
+                                    dtComments.Columns.Add("id_budget_rel_fy_centro", typeof(int));
+                                    dtComments.Columns.Add("id_cuenta_sap", typeof(int));
+                                    dtComments.Columns.Add("comentarios", typeof(string));
+
+                                    foreach (var c in lista_comentarios_form)
                                     {
-                                        // A. Crear tabla temporal para Comentarios
-                                        string createTempComments = @"
-                                            CREATE TABLE #TempComments (
-                                                id_budget_rel_fy_centro int,
-                                                id_cuenta_sap int,
-                                                comentarios varchar(200)
-                                            )";
-                                        using (SqlCommand cmd = new SqlCommand(createTempComments, conn, transaction)) { cmd.ExecuteNonQuery(); }
-
-                                        // B. Preparar DataTable
-                                        System.Data.DataTable dtComments = new System.Data.DataTable();
-                                        dtComments.Columns.Add("id_budget_rel_fy_centro", typeof(int));
-                                        dtComments.Columns.Add("id_cuenta_sap", typeof(int));
-                                        dtComments.Columns.Add("comentarios", typeof(string));
-
-                                        foreach (var c in lista_comentarios_form)
-                                        {
-                                            dtComments.Rows.Add(c.id_budget_rel_fy_centro, c.id_cuenta_sap, c.comentarios);
-                                        }
-
-                                        // C. BulkCopy a tabla temporal
-                                        using (SqlBulkCopy bulkComments = new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, transaction))
-                                        {
-                                            bulkComments.DestinationTableName = "#TempComments";
-                                            bulkComments.WriteToServer(dtComments);
-                                        }
-
-                                        // D. MERGE para Comentarios
-                                        string mergeComments = @"
-                                            MERGE budget_rel_comentarios AS T
-                                            USING #TempComments AS S
-                                            ON T.id_budget_rel_fy_centro = S.id_budget_rel_fy_centro 
-                                               AND T.id_cuenta_sap = S.id_cuenta_sap
-                                            WHEN MATCHED AND ISNULL(T.comentarios,'') <> S.comentarios THEN
-                                                UPDATE SET T.comentarios = S.comentarios
-                                            WHEN NOT MATCHED BY TARGET THEN
-                                                INSERT (id_budget_rel_fy_centro, id_cuenta_sap, comentarios)
-                                                VALUES (S.id_budget_rel_fy_centro, S.id_cuenta_sap, S.comentarios)
-                                            WHEN NOT MATCHED BY SOURCE AND T.id_budget_rel_fy_centro IN (SELECT DISTINCT id_budget_rel_fy_centro FROM #TempComments) THEN
-                                                DELETE;
-                                        ";
-                                        using (SqlCommand cmdC = new SqlCommand(mergeComments, conn, transaction)) { cmdC.ExecuteNonQuery(); }
+                                        dtComments.Rows.Add(c.id_budget_rel_fy_centro, c.id_cuenta_sap, c.comentarios);
                                     }
-                                    else
+
+                                    using (SqlBulkCopy bulkComments = new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, transaction))
                                     {
-                                        // Si el excel viene sin comentarios pero existen en BD para esos centros, hay que borrarlos (lógica de limpieza)
-                                        // Usamos los IDs de budget_cantidad procesados para saber qué ambito limpiar
-                                        string cleanComments = @"
-                                            DELETE FROM budget_rel_comentarios 
-                                            WHERE id_budget_rel_fy_centro IN (SELECT DISTINCT id_budget_rel_fy_centro FROM #TempBudgetCantidad)";
-                                        using (SqlCommand cmdClean = new SqlCommand(cleanComments, conn, transaction)) { cmdClean.ExecuteNonQuery(); }
+                                        bulkComments.DestinationTableName = "#TempComments";
+                                        bulkComments.WriteToServer(dtComments);
                                     }
+
+                                    string mergeComments = $@"
+                                MERGE budget_rel_comentarios AS T
+                                USING #TempComments AS S
+                                ON T.id_budget_rel_fy_centro = S.id_budget_rel_fy_centro 
+                                    AND T.id_cuenta_sap = S.id_cuenta_sap
+                                WHEN MATCHED AND ISNULL(T.comentarios,'') <> S.comentarios THEN
+                                    UPDATE SET T.comentarios = S.comentarios
+                                WHEN NOT MATCHED BY TARGET THEN
+                                    INSERT (id_budget_rel_fy_centro, id_cuenta_sap, comentarios)
+                                    VALUES (S.id_budget_rel_fy_centro, S.id_cuenta_sap, S.comentarios)
+                                WHEN NOT MATCHED BY SOURCE AND T.id_budget_rel_fy_centro IN ({idsRelJoined}) THEN
+                                    DELETE;
+                            ";
+                                    using (SqlCommand cmdC = new SqlCommand(mergeComments, conn, transaction)) { cmdC.ExecuteNonQuery(); }
 
                                     transaction.Commit();
                                 }
@@ -1178,10 +1160,7 @@ namespace Portal_2_0.Controllers
                             }
                         }
 
-                        // --- BLOQUE 3: CÁLCULOS POSTERIORES (STORED PROCEDURES) ---
-                        // Esto se mantiene fuera de la transacción de carga masiva para evitar bloqueos largos, 
-                        // o puede incluirse si es crítico que sea atómico. Aquí se mantiene como en el original.
-
+                        // --- BLOQUE 3: CÁLCULOS POSTERIORES ---
                         var fiscalYears = db.budget_rel_fy_centro
                             .Where(x => idRels.Contains(x.id))
                             .Select(x => x.id_anio_fiscal)
@@ -1192,7 +1171,6 @@ namespace Portal_2_0.Controllers
                         {
                             for (int mes = 1; mes <= 12; mes++)
                             {
-                                // Verificar si existen tipos de cambio antes de ejecutar SP
                                 var tc = db.budget_rel_tipo_cambio_fy
                                     .Where(x => x.id_budget_anio_fiscal == id_fy && x.mes == mes && (x.id_tipo_cambio == 1 || x.id_tipo_cambio == 2))
                                     .ToList();
@@ -1211,6 +1189,8 @@ namespace Portal_2_0.Controllers
                         string mensaje = $"Proceso completado. Registros procesados: {lista_cantidad_form.Count}.";
                         if (noEncontrados > 0)
                             mensaje += $" Cuentas SAP no encontradas: {noEncontrados}.";
+                        if (lista_cantidad_form.Count == 0 && idRels.Count > 0)
+                            mensaje += " Se han limpiado los datos de los centros de costo incluidos en el archivo.";
 
                         TempData["Mensaje"] = new MensajesSweetAlert(mensaje, TipoMensajesSweetAlerts.SUCCESS);
                         return RedirectToAction("centros");
@@ -1226,13 +1206,14 @@ namespace Portal_2_0.Controllers
                     return View(excelViewModel);
                 }
             }
+
+            // Si ModelState no es válido
             ViewBag.planta = AddFirstItem(new SelectList(db.budget_plantas.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Todos --");
             ViewBag.centro_costo = AddFirstItem(new SelectList(db.budget_centro_costo.Where(x => x.activo == true), "id", nameof(budget_centro_costo.ConcatCentro)), textoPorDefecto: "-- Todos --");
             ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x => x.id != 1), "id", "ConcatAnio"), textoPorDefecto: "-- Seleccionar --");
 
             return View(excelViewModel);
         }
-
 
 
         public ActionResult Reportes(int? planta, string responsable, string centro_costo, int pagina = 1)

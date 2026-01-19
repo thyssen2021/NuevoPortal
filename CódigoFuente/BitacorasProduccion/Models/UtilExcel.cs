@@ -989,31 +989,30 @@ namespace Portal_2_0.Models
         }
 
         public static List<budget_cantidad> BudgetLeeConcentrado(
-                HttpPostedFileBase stream,
-                int filaInicio,
-                ref bool valido,
-                ref string msjError,
-                ref int noEncontrados,
-                ref List<budget_rel_comentarios> listComentarios,
-                ref List<int> idRels)
+            HttpPostedFileBase stream,
+            int filaInicio, // Se espera 5
+            ref bool valido,
+            ref string msjError,
+            ref int noEncontrados,
+            ref List<budget_rel_comentarios> listComentarios,
+            ref List<int> idRels)
         {
             var lista = new List<budget_cantidad>();
             valido = false;
-            HashSet<int> idRelsSet = new HashSet<int>();
+            HashSet<int> idRelsSet = new HashSet<int>(); // Usamos un Set para evitar duplicados
 
             using (var db = new Portal_2_0Entities())
             {
-                // DESACTIVAR DETECCION DE CAMBIOS AUTOMATICA PARA ACELERAR LECTURAS MASIVAS
+                // DESACTIVAR DETECCION DE CAMBIOS AUTOMATICA PARA ACELERAR LECTURAS
                 db.Configuration.AutoDetectChangesEnabled = false;
 
-                // 1. Cargar diccionarios para optimizar rendimiento
-                // Usamos AsNoTracking donde solo leemos para ahorrar memoria
+                // 1. Cargar diccionarios para optimizar rendimiento (Lecturas en memoria)
                 var cuentasDict = db.budget_cuenta_sap.AsNoTracking().ToDictionary(c => c.sap_account);
 
-                // Diccionario de Centros de Costo para búsqueda rápida (Optimización #1)
+                // Diccionario de Centros de Costo
                 var centrosCostoDict = db.budget_centro_costo.AsNoTracking().ToDictionary(c => c.num_centro_costo);
 
-                // Carga eficiente de relaciones FY-Centro existentes
+                // Carga eficiente de relaciones FY-Centro existentes (Clave compuesta: ID_Anio, Num_Centro)
                 var fyccDict = db.budget_rel_fy_centro
                                  .Include("budget_centro_costo")
                                  .ToList()
@@ -1027,7 +1026,7 @@ namespace Portal_2_0.Models
                     var result = reader.AsDataSet();
                     DataTable table = null;
 
-                    // Buscar la hoja por nombre "TEMPLETE"
+                    // BUSCAR LA HOJA POR NOMBRE "TEMPLETE"
                     foreach (DataTable t in result.Tables)
                     {
                         if (t.TableName.ToUpper().Trim() == "TEMPLETE")
@@ -1045,7 +1044,7 @@ namespace Portal_2_0.Models
                         return lista;
                     }
 
-                    // Validar Fila Inicio
+                    // VALIDACIONES DE ESTRUCTURA
                     if (filaInicio < 5)
                     {
                         msjError = "La fila de inicio debe ser al menos 5 para permitir leer encabezados.";
@@ -1053,8 +1052,8 @@ namespace Portal_2_0.Models
                         return lista;
                     }
 
-                    int idxFilaMonedas = filaInicio - 2;
-                    int idxFilaFechas = filaInicio - 3;
+                    int idxFilaMonedas = filaInicio - 2; // Fila 4 Excel (Indice 3)
+                    int idxFilaFechas = filaInicio - 3;  // Fila 3 Excel (Indice 2)
 
                     if (table.Rows.Count <= idxFilaMonedas)
                     {
@@ -1063,7 +1062,7 @@ namespace Portal_2_0.Models
                         return lista;
                     }
 
-                    // Leer encabezados fijos
+                    // LEER ENCABEZADOS FIJOS
                     var encabezadosFila = new List<string>();
                     for (int col = 0; col < table.Columns.Count; col++)
                     {
@@ -1082,7 +1081,7 @@ namespace Portal_2_0.Models
                     int idxCC = encabezadosFila.IndexOf("COST CENTER");
                     int idxComentario = encabezadosFila.FindIndex(x => x.Contains("COMENTARIO"));
 
-                    // Mapeo de columnas dinámicas
+                    // MAPEO DE COLUMNAS DINÁMICAS (Fechas y Monedas)
                     var dynamicColumns = new List<DynamicColumnInfo>();
                     CultureInfo cultureUS = new CultureInfo("en-US");
 
@@ -1091,6 +1090,7 @@ namespace Portal_2_0.Models
                         string header = encabezadosFila[j];
                         string fechaTexto = string.Empty;
 
+                        // Lógica de celdas combinadas para obtener la fecha
                         if (header == "MXN")
                             fechaTexto = table.Rows[idxFilaFechas][j].ToString();
                         else if (header == "USD" && j > 0)
@@ -1129,74 +1129,80 @@ namespace Portal_2_0.Models
                     }
 
                     // -----------------------------------------------------------------------------------------
-                    // OPTIMIZACIÓN CRÍTICA: PRE-PROCESAMIENTO DE RELACIONES FALTANTES
+                    // OPTIMIZACIÓN Y CORRECCIÓN: IDENTIFICAR Y CREAR RELACIONES FALTANTES
                     // -----------------------------------------------------------------------------------------
-                    // Identificamos todas las combinaciones (AñoFiscal, CentroCosto) que vienen en el Excel
-                    // y creamos las faltantes en UN SOLO paso antes de leer los datos.
 
+                    // Identificamos todas las combinaciones (AñoFiscal, CentroCosto) presentes en el archivo,
+                    // sin importar si sus cantidades son cero.
                     var combinacionesNecesarias = new HashSet<(int fyId, string cc)>();
 
-                    // Barrido rápido solo para recolectar llaves
                     for (int i = filaInicio - 1; i < table.Rows.Count; i++)
                     {
                         string cc_ = table.Rows[i][idxCC].ToString();
                         if (string.IsNullOrWhiteSpace(cc_)) continue;
 
-                        // Solo nos interesan los años fiscales detectados en las columnas
+                        // Agregamos todas las combinaciones posibles para este centro en base a las columnas detectadas
                         foreach (var col in dynamicColumns)
                         {
                             combinacionesNecesarias.Add((col.FiscalYearId, cc_));
                         }
                     }
 
-                    // Lista temporal para guardar los nuevos objetos antes de insertarlos al diccionario
-                    var nuevasRelacionesParaDict = new List<KeyValuePair<(int, string), budget_rel_fy_centro>>();
+                    // Crear relaciones faltantes en DB
+                    var nuevasRelaciones = new List<KeyValuePair<(int, string), budget_rel_fy_centro>>();
                     bool huboCambios = false;
 
                     foreach (var comb in combinacionesNecesarias)
                     {
-                        // Si no existe en el diccionario actual...
-                        if (!fyccDict.ContainsKey(comb))
+                        // Si la relación ya existe en el diccionario
+                        if (fyccDict.TryGetValue(comb, out var relExistente))
                         {
-                            // Verificar que el centro de costo exista realmente
-                            if (centrosCostoDict.TryGetValue(comb.cc, out var centroCostoObj))
+                            // IMPORTANTE: Agregamos el ID al set de "IDs tocados".
+                            // Esto asegura que el MERGE sepa que este centro venía en el archivo,
+                            // por lo tanto, si no trae datos (cantidades), debe limpiarlo.
+                            idRelsSet.Add(relExistente.id);
+                        }
+                        else
+                        {
+                            // Si no existe, verificamos que el centro de costo sea válido y creamos la relación
+                            if (centrosCostoDict.TryGetValue(comb.cc, out var centroObj))
                             {
                                 var nuevaRel = new budget_rel_fy_centro
                                 {
                                     id_anio_fiscal = comb.fyId,
-                                    id_centro_costo = centroCostoObj.id,
+                                    id_centro_costo = centroObj.id,
                                     estatus = true
                                 };
 
                                 db.budget_rel_fy_centro.Add(nuevaRel);
+                                nuevasRelaciones.Add(new KeyValuePair<(int, string), budget_rel_fy_centro>(comb, nuevaRel));
                                 huboCambios = true;
-
-                                // Guardamos referencia para actualizar el diccionario después del SaveChanges
-                                nuevasRelacionesParaDict.Add(new KeyValuePair<(int, string), budget_rel_fy_centro>(comb, nuevaRel));
                             }
                         }
                     }
 
-                    // GUARDADO MASIVO DE RELACIONES (1 solo SaveChanges en lugar de miles)
+                    // Guardado masivo de nuevas relaciones
                     if (huboCambios)
                     {
-                        db.Configuration.AutoDetectChangesEnabled = true; // Reactivar para guardar
+                        db.Configuration.AutoDetectChangesEnabled = true;
                         db.SaveChanges();
-                        db.Configuration.AutoDetectChangesEnabled = false; // Desactivar de nuevo
+                        db.Configuration.AutoDetectChangesEnabled = false;
 
-                        // Actualizar el diccionario en memoria con los IDs generados
-                        foreach (var item in nuevasRelacionesParaDict)
+                        // Actualizar diccionario y agregar los nuevos IDs generados a idRelsSet
+                        foreach (var item in nuevasRelaciones)
                         {
                             if (!fyccDict.ContainsKey(item.Key))
                             {
                                 fyccDict.Add(item.Key, item.Value);
                             }
+                            // IMPORTANTE: Agregar el nuevo ID para que el MERGE lo considere
+                            idRelsSet.Add(item.Value.id);
                         }
                     }
                     // -----------------------------------------------------------------------------------------
 
 
-                    // --- Lectura de Datos Principal ---
+                    // --- LECTURA DE DATOS (Cantidades) ---
                     for (int i = filaInicio - 1; i < table.Rows.Count; i++)
                     {
                         try
@@ -1219,16 +1225,19 @@ namespace Portal_2_0.Models
                             {
                                 string cellStr = table.Rows[i][col.DataColumnIndex].ToString();
 
+                                // Intentamos parsear. Si falla o es vacío, cantidad será 0.
                                 if (decimal.TryParse(cellStr, out decimal cantidad))
                                 {
                                     var key = (col.FiscalYearId, cc_);
 
-                                    // Búsqueda en diccionario (Ahora GARANTIZADA de ser rápida y sin DB hits)
+                                    // La relación YA DEBE EXISTIR en el diccionario tras el paso anterior
                                     if (fyccDict.TryGetValue(key, out var fy_cc))
                                     {
-                                        idRelsSet.Add(fy_cc.id);
+                                        // Nota: Ya agregamos el ID a idRelsSet en el paso previo, no es necesario repetirlo aquí.
+
                                         cantidad = Decimal.Round(cantidad, 2);
 
+                                        // SOLO agregamos a la lista de inserción si tiene valor diferente de cero
                                         if (cantidad != 0)
                                         {
                                             lista.Add(new budget_cantidad
@@ -1243,8 +1252,10 @@ namespace Portal_2_0.Models
                                             });
                                         }
 
+                                        // Procesar comentarios (si existen y es válido)
                                         if (!string.IsNullOrEmpty(comentarioFila) && listComentarios != null)
                                         {
+                                            // Evitar duplicados en memoria antes de enviar
                                             if (!listComentarios.Any(x => x.id_budget_rel_fy_centro == fy_cc.id && x.id_cuenta_sap == cuenta.id))
                                             {
                                                 listComentarios.Add(new budget_rel_comentarios
@@ -1267,11 +1278,13 @@ namespace Portal_2_0.Models
                 }
             }
 
+            // Actualizar la referencia de idRels con el conjunto completo de IDs tocados
             idRels.Clear();
             idRels.AddRange(idRelsSet);
 
             return lista;
         }
+
 
         /// <summary>
         /// Lee un archivo y obtiene un List de budget_cantidad con los valores leidos
