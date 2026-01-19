@@ -1216,7 +1216,7 @@ namespace Portal_2_0.Controllers
         }
 
 
-        public ActionResult Reportes(int? planta, string responsable, string centro_costo, int pagina = 1)
+        public ActionResult Reportes(int? planta, string responsable, string centro_costo, int pagina = 1, string origen = "budget")
         {
 
             if (TieneRol(TipoRoles.BG_REPORTES))
@@ -1225,6 +1225,24 @@ namespace Portal_2_0.Controllers
                 if (TempData["Mensaje"] != null)
                 {
                     ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                // LÓGICA NUEVA: Configuración de ViewBags según el origen
+                ViewBag.OrigenReporte = origen; // Pasamos el origen a la vista
+
+                if (origen == "forecast")
+                {
+                    ViewBag.Title = "Reportes Forecast Controlling";
+                    // Ajusta estas claves según cómo se llamen tus IDs en el _Layout para que el menú se quede abierto
+                    ViewBag.PrimerNivel = "forecast";
+                    ViewBag.SegundoNivel = "forecast_reportes";
+                }
+                else
+                {
+                    // Comportamiento por defecto (Budget)
+                    ViewBag.Title = "Concentrado de información";
+                    ViewBag.PrimerNivel = "plantilla_budget";
+                    ViewBag.SegundoNivel = "reportes";
                 }
 
                 var cantidadRegistrosPorPagina = 20; // parámetro

@@ -125,12 +125,20 @@
                                                 </div>
                                                 <label class="control-label col-md-1 col-sm-1" style="text-align:right">Fuente:</label>
                                                 <div class="col-md-1 col-sm-1">
-                                                    <input type="radio" id="forecast" name="tipo_reporte" value="forecast" checked>
-                                                    <label for="forecast" data-toggle="tooltip" data-placement="top" title="Datos capturados por el usuario">Captura Usuario</label><br>
-                                                    <input type="radio" id="budget" name="tipo_reporte" value="budget">
+                                                    @if (ViewBag.OrigenReporte != "forecast")
+                                                    {
+                                                        <input type="radio" id="forecast" name="tipo_reporte" value="forecast" checked>
+                                                        <label for="forecast" data-toggle="tooltip" data-placement="top" title="Datos capturados por el usuario">Captura Usuario</label><br>
+                                                        <input type="radio" id="budget" name="tipo_reporte" value="budget">
                                                         <label for="budget" data-toggle="tooltip" data-placement="bottom" title="Historico">Budget Historico</label><br>
-                                                    <input type="radio" id="forecast_controlling" name="tipo_reporte" value="forecast_controlling">
-                                                    <label for="forecast_controlling" data-toggle="tooltip" data-placement="bottom" title="Proyecciones de Controlling">Forecast Controlling</label><br>
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="radio" id="forecast_controlling" name="tipo_reporte" value="forecast_controlling">
+                                                        <label for="forecast_controlling" data-toggle="tooltip" data-placement="bottom" title="Proyecciones de Controlling">Forecast Controlling</label><br>
+                                                    }
+
+
                                                 </div>
 
                                             </div>

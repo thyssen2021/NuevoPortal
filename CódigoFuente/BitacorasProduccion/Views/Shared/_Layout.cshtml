@@ -853,6 +853,12 @@
                                                         <li class="@(ViewBag.TercelNivel == "budget_rel_tipo_cambio_fy_forecast" ? "current-page" : null )"><a href="@Url.Action( "Index", "budget_rel_tipo_cambio_fy_forecast")">Tipo de Cambio</a></li>
                                                     </ul>
                                                 </li>
+                                                @if (User.IsInRole(TipoRoles.BG_REPORTES))
+                                                {
+                                                    <h3>Reportes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "forecast_reportes" ? "current-page" : "")">
+                                                        @Html.ActionLink("Reportes Controlling", "Reportes", "BudgetControlling", new { origen = "forecast" }, null)
+                                                    </li>                                                }
                                             </ul>
                                         </li>
                                     }
