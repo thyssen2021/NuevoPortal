@@ -54,7 +54,10 @@
 
         // Listener para cálculo en tiempo real
         $("#Max_Production_Factor, #Max_Production_SP").on("input change", function () {
-            calculateEffectiveProduction();
+            // 1. Calcular el input local "Max Production Effective" (si ya tenías esa lógica)
+            calculateEffectiveProduction();            
+            debouncedUpdateCapacityHansontable();
+            debouncedUpdateCapacityGraphs();
         });
 
         // Listener para el VEHÍCULO (cambio de selección)

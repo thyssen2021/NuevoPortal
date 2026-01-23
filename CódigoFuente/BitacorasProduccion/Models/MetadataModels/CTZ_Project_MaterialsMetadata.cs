@@ -819,137 +819,210 @@ namespace Portal_2_0.Models
         /// Por ahora retorna 0 por defecto.
         /// </summary>
         /// <returns>Porcentaje de capacidad (double)</returns>
-        public Dictionary<int, double> GetRealMinutes()
+        /// <summary>
+        /// Calcula el porcentaje de capacidad aplicando el factor de producción a las unidades brutas
+        /// ANTES de convertir a minutos/capacidad.
+        /// </summary>
+        public Dictionary<int, double> GetRealMinutes(List<string> debugTrace = null)
         {
-            // Paso 1: Obtener la producción por año fiscal (ID_Fiscal_Year -> producción)
-            var fiscalYearData = GetProductionByFiscalYearID();
+            // 1. Obtener la producción "cruda"
+            if (debugTrace != null) debugTrace.Add($"   [GetRealMinutes] Iniciando cálculo para Material: {this.Part_Number}");
 
-            //// Debug: imprimir la producción base
-            //Debug.WriteLine("=== Producción base ===");
-            //DebugProductionDictionary(fiscalYearData);
+            var fiscalYearDataRaw = GetProductionByFiscalYearID(debugTrace);
 
-            // Paso 2: Transformar con las fórmulas
-            var transformedData = ApplyStep2Formulas(fiscalYearData);
+            // --- NUEVO BLOQUE: LÓGICA DE FACTOR MEJORADA ---
 
-            //// Debug: imprimir la producción tras aplicar el paso 2
-            //Debug.WriteLine("=== Producción tras aplicar Paso 2 ===");
-            //DebugProductionDictionary(transformedData);
+            // Determinar el factor a usar
+            double factorPercent;
+            bool isDefault = false;
 
-            // Por el momento, la implementación retorna 0.
+            if (this.Max_Production_Factor.HasValue && this.Max_Production_Factor.Value > 0)
+            {
+                factorPercent = this.Max_Production_Factor.Value;
+            }
+            else
+            {
+                factorPercent = 100.0;
+                isDefault = true;
+            }
+
+            double multiplier = factorPercent / 100.0;
+
+            // LOG: Reportar explícitamente qué está pasando
+            if (debugTrace != null)
+            {
+                if (isDefault)
+                {
+                    // Mensaje específico cuando NO se define valor
+                    debugTrace.Add($"   [FACTOR] Valor no definido o cero. Aplicando por defecto: 100% (x1.0)");
+                }
+                else
+                {
+                    // Mensaje cuando SÍ hay valor
+                    debugTrace.Add($"   [FACTOR] Ajuste definido por usuario: {factorPercent}% (x{multiplier:F2})");
+                }
+            }
+
+            var fiscalYearDataAdjusted = new Dictionary<int, double>();
+
+            // Diccionario temporal para nombres de FY
+            var fyNamesMap = new Dictionary<int, string>();
+
+            if (debugTrace != null && fiscalYearDataRaw.Any())
+            {
+                using (var db = new Portal_2_0Entities())
+                {
+                    var fyIds = fiscalYearDataRaw.Keys.ToList();
+                    fyNamesMap = db.CTZ_Fiscal_Years
+                        .Where(f => fyIds.Contains(f.ID_Fiscal_Year))
+                        .ToDictionary(f => f.ID_Fiscal_Year, f => f.Fiscal_Year_Name);
+                }
+            }
+
+            foreach (var kvp in fiscalYearDataRaw)
+            {
+                int fyId = kvp.Key;
+                double rawUnits = kvp.Value;
+                double adjustedUnits = rawUnits * multiplier;
+
+                fiscalYearDataAdjusted[fyId] = adjustedUnits;
+
+                // Solo mostrar el detalle línea por línea si el factor NO es 100%, para no saturar el log
+                if (debugTrace != null && Math.Abs(multiplier - 1.0) > 0.001)
+                {
+                    string fyName = fyNamesMap.ContainsKey(fyId) ? fyNamesMap[fyId] : $"ID {fyId}";
+                    debugTrace.Add($"     -> {fyName}: {rawUnits:N0} uds * {multiplier:F2} = {adjustedUnits:N0} uds");
+                }
+            }
+            // -------------------------------------------------------------
+
+            // 2. Transformar con las fórmulas
+            var transformedData = ApplyStep2Formulas(fiscalYearDataAdjusted, debugTrace);
+
+            if (debugTrace != null)
+            {
+                debugTrace.Add($"   [GetRealMinutes] Resultados finales (Minutos requeridos):");
+                foreach (var kvp in transformedData)
+                {
+                    string fyName = fyNamesMap.ContainsKey(kvp.Key) ? fyNamesMap[kvp.Key] : $"ID {kvp.Key}";
+                    debugTrace.Add($"     -> {fyName}: {kvp.Value:F2} min");
+                }
+            }
+
             return transformedData;
         }
 
         /// <summary>
         /// Obtiene la producción total por año fiscal para este material.
-        /// El año fiscal se define de octubre a septiembre.
-        /// Se utiliza el campo Vehicle del material, que es una concatenación que debe coincidir con CTZ_Temp_IHS.ConcatCodigo.
         /// </summary>
-        /// <returns>Diccionario donde la clave es el año fiscal y el valor es la producción total (Production_Amount) para ese año.</returns>        
-        public Dictionary<int, double> GetProductionByFiscalYearID()
+        public Dictionary<int, double> GetProductionByFiscalYearID(List<string> debugTrace = null)
         {
             var productionByFYId = new Dictionary<int, double>();
+            // Diccionario auxiliar para guardar los nombres de los FY solo para debug
+            var fyNamesDebug = new Dictionary<int, string>();
 
             // 1. Validar que la propiedad Vehicle no sea nula o vacía.
             if (string.IsNullOrEmpty(this.Vehicle))
             {
+                if (debugTrace != null) debugTrace.Add("     [ERROR] Vehicle es nulo o vacío. Retornando 0 producción.");
                 return productionByFYId;
             }
 
-            // 2. Extraer la clave de búsqueda (la parte antes del '_').
-            //    Esta lógica maneja el caso donde el guion bajo no exista.
+            // 2. Extraer la clave de búsqueda
             string vehiclePlantKey;
             int underscoreIndex = this.Vehicle.IndexOf('_');
 
             if (underscoreIndex > -1)
-            {
-                // Si se encuentra un guion bajo, tomar la parte anterior.
                 vehiclePlantKey = this.Vehicle.Substring(0, underscoreIndex).Trim();
-            }
             else
-            {
-                // Si no hay guion bajo, se usa la cadena completa como clave.
                 vehiclePlantKey = this.Vehicle.Trim();
-            }
 
-            // Si después de limpiar no queda nada, salimos.
             if (string.IsNullOrEmpty(vehiclePlantKey))
             {
+                if (debugTrace != null) debugTrace.Add("     [ERROR] Clave de vehículo vacía tras limpieza. Retornando 0.");
                 return productionByFYId;
             }
 
+            if (debugTrace != null) debugTrace.Add($"     Buscando IHS con Mnemonic_Vehicle_plant: '{vehiclePlantKey}'");
 
             using (var db = new Portal_2_0Entities())
-            {            
-                // 3. Buscar el registro CTZ_Temp_IHS usando la nueva clave y la columna correcta.
-                //    Esta consulta ahora se traduce directamente a SQL, es más eficiente.
+            {
+                // 3. Buscar el registro CTZ_Temp_IHS
                 var tempIHS = db.CTZ_Temp_IHS
                                 .FirstOrDefault(t => t.Mnemonic_Vehicle_plant == vehiclePlantKey);
 
-
                 if (tempIHS == null)
                 {
-                    // Si no existe, retornamos diccionario vacío
+                    if (debugTrace != null) debugTrace.Add($"     [WARNING] No se encontró registro en CTZ_Temp_IHS para '{vehiclePlantKey}'.");
                     return productionByFYId;
                 }
 
-                //determinar el starsop y endeop
-                DateTime startSearchDate = this.Real_SOP.HasValue? this.Real_SOP.Value : tempIHS.SOP.Value;
-                DateTime endSearchDate = this.Real_EOP.HasValue? this.Real_EOP.Value : tempIHS.EOP.Value;
+                DateTime startSearchDate = this.Real_SOP.HasValue ? this.Real_SOP.Value : (tempIHS.SOP ?? DateTime.MinValue);
+                DateTime endSearchDate = this.Real_EOP.HasValue ? this.Real_EOP.Value : (tempIHS.EOP ?? DateTime.MaxValue);
 
-                // 4. Obtener la lista de AÑOS FISCALES que se traslapan con el rango de búsqueda.
-                //    Un FY se traslapa si no termina antes de que el rango empiece, y no empieza después de que el rango termine.
+                if (debugTrace != null) debugTrace.Add($"     Rango Fechas: {startSearchDate:yyyy-MM-dd} a {endSearchDate:yyyy-MM-dd}");
+
+                // 4. Obtener la lista de AÑOS FISCALES traslapados
                 var overlappingFiscalYears = db.CTZ_Fiscal_Years
                     .Where(fy => !(fy.End_Date < startSearchDate || fy.Start_Date > endSearchDate))
                     .ToList();
 
-                // Si no hay años fiscales en el rango, no hay nada que hacer.
                 if (!overlappingFiscalYears.Any())
                 {
+                    if (debugTrace != null) debugTrace.Add("     [INFO] No hay Años Fiscales en el rango de fechas.");
                     return productionByFYId;
                 }
 
-                // 5. Traer las producciones para ese IHS, PERO filtrando por el rango de fechas.
+                // 5. Traer las producciones y filtrar
                 var productions = db.CTZ_Temp_IHS_Production
                     .Where(p => p.ID_IHS == tempIHS.ID_IHS)
-                    .ToList() // Traemos los datos del IHS a memoria para poder construir la fecha
+                    .ToList()
                     .Where(p =>
                     {
-                        // Creamos una fecha a partir de los datos de producción.
-                        // Se usa una salvaguarda por si el mes es 0.
                         var productionDate = new DateTime(p.Production_Year, p.Production_Month > 0 ? p.Production_Month : 1, 1);
-
-                        // Verificamos si la fecha de producción cae dentro de CUALQUIERA de los años fiscales válidos.
                         return overlappingFiscalYears.Any(fy => productionDate >= fy.Start_Date && productionDate <= fy.End_Date);
                     })
                     .ToList();
 
+                if (debugTrace != null) debugTrace.Add($"     Registros de producción encontrados: {productions.Count}");
 
-                // 4) Para cada producción, calcular el año fiscal y buscar en CTZ_Fiscal_Years
+                // 6. Sumarizar por Año Fiscal
                 foreach (var prod in productions)
                 {
-                    // Calcular el año fiscal base
-                    int fy = (prod.Production_Month >= 10)
-                                ? prod.Production_Year + 1
-                                : prod.Production_Year;
+                    int fy = (prod.Production_Month >= 10) ? prod.Production_Year + 1 : prod.Production_Year;
+                    DateTime startDate = new DateTime(fy - 1, 10, 1);
+                    DateTime endDate = new DateTime(fy, 9, 30);
 
-                    // Generar las fechas de inicio y fin de ese FY: 1-Oct-(fy-1) a 30-Sep-fy
-                    DateTime startDate = new DateTime(fy - 1, 10, 1); // 1-oct del año anterior
-                    DateTime endDate = new DateTime(fy, 9, 30);       // 30-sep del año calculado
-
-                    // Buscar en la tabla CTZ_Fiscal_Years la fila que coincida con ese rango
                     var fiscalRow = db.CTZ_Fiscal_Years
                         .FirstOrDefault(x => x.Start_Date == startDate && x.End_Date == endDate);
 
                     if (fiscalRow != null)
                     {
-                        // Tomamos el ID_Fiscal_Year
                         int fyId = fiscalRow.ID_Fiscal_Year;
 
-                        // Sumamos la producción
                         if (!productionByFYId.ContainsKey(fyId))
                             productionByFYId[fyId] = 0;
 
                         productionByFYId[fyId] += prod.Production_Amount;
+
+                        // CAMBIO AQUÍ: Guardamos el nombre para el debug
+                        if (debugTrace != null && !fyNamesDebug.ContainsKey(fyId))
+                        {
+                            fyNamesDebug[fyId] = fiscalRow.Fiscal_Year_Name; // Guardamos "FY 25/26"
+                        }
+                    }
+                }
+
+                // IMPRESIÓN DEL LOG CON NOMBRE AMIGABLE
+                if (debugTrace != null)
+                {
+                    // Ordenamos por ID para que salgan en orden cronológico
+                    foreach (var kvp in productionByFYId.OrderBy(x => x.Key))
+                    {
+                        // Usamos el nombre si existe, si no, el ID como fallback
+                        string fyName = fyNamesDebug.ContainsKey(kvp.Key) ? fyNamesDebug[kvp.Key] : $"ID {kvp.Key}";
+
+                        debugTrace.Add($"     -> {fyName}: {kvp.Value:N0} unidades");
                     }
                 }
             }
@@ -966,26 +1039,30 @@ namespace Portal_2_0.Models
         /// </summary>
         /// <param name="fyData">Diccionario con la producción por ID_Fiscal_Year</param>
         /// <returns>Nuevo diccionario con los valores transformados</returns>
-        private Dictionary<int, double> ApplyStep2Formulas(Dictionary<int, double> fyData)
+        private Dictionary<int, double> ApplyStep2Formulas(Dictionary<int, double> fyData, List<string> debugTrace = null) // <--- Parámetro agregado
         {
-            // --- Mensajes de depuración agregados ---
-            //System.Diagnostics.Debug.WriteLine("--- Iniciando Cálculo de OEE (Paso 2) ---");
+            if (debugTrace != null) debugTrace.Add(">> Inicio: Aplicación de Fórmulas (Paso 2)");
 
             // 1. Calcular OEE a usar
             double oeeToUse;
+
+            // --- LÓGICA DE OEE ---
             if (this.OEE.HasValue)
             {
                 // Caso A: El OEE fue proporcionado directamente en el formulario.
                 var raw = this.OEE.Value;
                 oeeToUse = (raw > 1.0) ? raw / 100.0 : raw; // Normaliza si el valor es > 1 (ej. 85 -> 0.85)
 
-                //System.Diagnostics.Debug.WriteLine($"[OEE] Se proporcionó un valor de OEE explícito: {raw}");
-                //System.Diagnostics.Debug.WriteLine($"[OEE] Valor normalizado a usar: {oeeToUse:P2}"); // P2 formatea como porcentaje
+                if (debugTrace != null)
+                {
+                    debugTrace.Add($"   [OEE] Valor explícito en material: {raw}");
+                    debugTrace.Add($"   [OEE] -> Normalizado: {oeeToUse:P2}");
+                }
             }
             else
             {
                 // Caso B: No se proporcionó OEE, se debe calcular el promedio.
-                //System.Diagnostics.Debug.WriteLine("[OEE] No hay OEE proporcionado. Se procederá a calcular el promedio de los últimos 6 meses.");
+                if (debugTrace != null) debugTrace.Add("   [OEE] No hay valor explícito. Calculando promedio histórico (6 meses)...");
 
                 // Fecha de corte: últimos 6 meses.
                 var cutoffDate = DateTime.Now.AddMonths(-5);
@@ -1012,18 +1089,18 @@ namespace Portal_2_0.Models
 
                 // 1.a. Determinar cuál línea usar: real si existe, si no, la teórica.
                 int? lineToUse = this.ID_Real_Blanking_Line.HasValue && this.ID_Real_Blanking_Line != 0
-                                     ? this.ID_Real_Blanking_Line
-                                     : this.ID_Theoretical_Blanking_Line;
+                                      ? this.ID_Real_Blanking_Line
+                                      : this.ID_Theoretical_Blanking_Line;
 
                 List<double> oeeValues = new List<double>();
                 if (lineToUse.HasValue)
                 {
-                    //System.Diagnostics.Debug.WriteLine($"[OEE] Buscando valores para la línea ID: {lineToUse.Value}");
+                    if (debugTrace != null) debugTrace.Add($"   [OEE] Consultando BD para Línea ID: {lineToUse.Value}");
                     oeeValues = FetchOee(lineToUse.Value);
                 }
                 else
                 {
-                    //System.Diagnostics.Debug.WriteLine("[OEE] ADVERTENCIA: No hay línea Real ni Teórica definida. No se puede buscar OEE.");
+                    if (debugTrace != null) debugTrace.Add("   [OEE] [WARNING] Sin línea Real ni Teórica. No se puede buscar OEE.");
                 }
 
                 // 1.c. Promediar y normalizar, o usar el valor por defecto.
@@ -1032,36 +1109,58 @@ namespace Portal_2_0.Models
                     var avg = oeeValues.Average();
                     oeeToUse = (avg > 1.0) ? avg / 100.0 : avg; // Normalizar
 
-                    // Mensaje detallado con los valores encontrados y el resultado.
-                    string valoresEncontrados = string.Join(", ", oeeValues.Select(v => v.ToString("0.0")));
-                    //System.Diagnostics.Debug.WriteLine($"[OEE] Valores encontrados: [{valoresEncontrados}]");
-                    //System.Diagnostics.Debug.WriteLine($"[OEE] Promedio calculado: {avg:F2}. Valor normalizado a usar: {oeeToUse:P2}");
+                    if (debugTrace != null)
+                    {
+                        string valoresEncontrados = string.Join(", ", oeeValues.Select(v => v.ToString("0.0")));
+                        debugTrace.Add($"   [OEE] Valores hallados: [{valoresEncontrados}]");
+                        debugTrace.Add($"   [OEE] -> Promedio: {avg:F2}. Normalizado: {oeeToUse:P2}");
+                    }
                 }
                 else
                 {
                     // Fallback si no se encontraron valores de OEE.
-                    oeeToUse = 1.0; // Se usa 1.0 (100%) para no afectar el cálculo si no hay datos.
-                    //System.Diagnostics.Debug.WriteLine($"[OEE] No se encontraron valores de OEE para la línea ID: {lineToUse?.ToString() ?? "N/A"}. Usando valor por defecto: {oeeToUse:P2}");
+                    oeeToUse = 1.0;
+                    if (debugTrace != null) debugTrace.Add($"   [OEE] Sin historial. Usando Default: {oeeToUse:P0}");
                 }
             }
 
-            // El resto del método no necesita cambios...
+            // --- VARIABLES DE FÓRMULA ---
             double partsPerVehicle = this.Parts_Per_Vehicle ?? 1.0;
             double idealCycleTimePerTool = this.Ideal_Cycle_Time_Per_Tool ?? 1.0;
             double blanksPerStroke = this.Blanks_Per_Stroke ?? 1.0;
 
+            if (debugTrace != null)
+            {
+                debugTrace.Add($"   [FÓRMULA] Parámetros usados:");
+                debugTrace.Add($"     • Parts/Veh: {partsPerVehicle}");
+                debugTrace.Add($"     • CycleTime (Strokes/min): {idealCycleTimePerTool}");
+                debugTrace.Add($"     • Blanks/Stroke: {blanksPerStroke}");
+                debugTrace.Add($"     • OEE Final: {oeeToUse:P2}");
+                debugTrace.Add($"   [FÓRMULA] Ecuación: (Volumen(S&P) * PartsPerVeh) / (Strokes * BlanksPerStroke * OEE)");
+            }
+
             var transformedData = new Dictionary<int, double>();
+
             foreach (var kvp in fyData)
             {
                 double production = kvp.Value;
-                double result = (idealCycleTimePerTool > 0 && blanksPerStroke > 0 && oeeToUse > 0)
-                                    ? (production * partsPerVehicle) / (idealCycleTimePerTool * blanksPerStroke * oeeToUse)
-                                    : 0; // Evitar división por cero
+
+                // Evitar división por cero
+                double denominator = (idealCycleTimePerTool * blanksPerStroke * oeeToUse);
+                double result = 0;
+
+                if (denominator > 0)
+                {
+                    result = (production * partsPerVehicle) / denominator;
+                }
+                else
+                {
+                    if (debugTrace != null) debugTrace.Add($"   [ERROR] Denominador cero en FY {kvp.Key}. Revise parámetros.");
+                }
 
                 transformedData[kvp.Key] = result;
             }
 
-            //System.Diagnostics.Debug.WriteLine("--- Finalizado Cálculo de OEE ---");
             return transformedData;
         }
 

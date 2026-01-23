@@ -382,6 +382,7 @@
         var idealCycleTimePerTool = parseFloat($("#Ideal_Cycle_Time_Per_Tool").val()) || null;
         var blanksPerStroke = parseFloat($("#Blanks_Per_Stroke").val()) || null;
         var oee = parseFloat($("#OEE").val()) || null;
+        var maxProductionFactor = parseFloat($("#Max_Production_Factor").val()) || 100;
         var rawSOP = $("#Real_SOP").val().trim();
         var rawEOP = $("#Real_EOP").val().trim();
         // Regex simple para YYYY-MM
@@ -455,6 +456,7 @@
                 realEOP: realEOP,
                 annualVol: annualVol,
                 partNumber: $("#partNumber").val() || null,
+                maxProductionFactor: maxProductionFactor,
                 OnlyBDMaterials: OnlyBDMaterials
             },
             success: function (response) {
@@ -462,6 +464,11 @@
                 container.innerHTML = ""; // Limpiar contenedor
                 if (response.success) {
                     generateCharts(response.data, response.dateRanges || {});
+
+                    // Si el servidor nos mandó logs, los mostramos
+                    if (response.debugLog && window.renderDebugLog) {
+                        window.renderDebugLog(response.debugLog);
+                    }
 
                     // 2) Relleno los inputs dm_status
                     //    Asumo que cada fila/material tiene un <input name="dm_status" data-material-id="…">

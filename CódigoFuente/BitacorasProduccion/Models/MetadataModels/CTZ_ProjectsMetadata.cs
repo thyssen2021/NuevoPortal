@@ -410,49 +410,46 @@ namespace Portal_2_0.Models
         }
 
         //obtiene los posibles escenarios para el material indicado
-        public Dictionary<int, Dictionary<int, Dictionary<int, double>>> GetGraphCapacityScenarios(ICollection<CTZ_Project_Materials> materials)
+        // 1. Método Principal Orquestador
+        public Dictionary<int, Dictionary<int, Dictionary<int, double>>> GetGraphCapacityScenarios(
+            ICollection<CTZ_Project_Materials> materials,
+            List<string> debugTrace = null) // <--- Parámetro agregado
         {
-            //Encaso de no tener ideal Cycle, toma los theoreical strokes . En caso de no tener ID_real_blankin_line, toma la teorica.
+            if (debugTrace != null) debugTrace.Add("=== INICIO CÁLCULO: GetGraphCapacityScenarios ===");
+
+            // Normalización de datos
             foreach (var item in materials)
             {
                 item.Ideal_Cycle_Time_Per_Tool = item.Ideal_Cycle_Time_Per_Tool.HasValue ? item.Ideal_Cycle_Time_Per_Tool.Value : item.Theoretical_Strokes.HasValue ? item.Theoretical_Strokes.Value : 1;
                 item.ID_Real_Blanking_Line = item.ID_Real_Blanking_Line.HasValue ? item.ID_Real_Blanking_Line.Value : item.ID_Theoretical_Blanking_Line.HasValue ? item.ID_Theoretical_Blanking_Line.Value : 0;
             }
 
-            // Paso 1: Obtener la suma (cambiando la linea de producion indicada)
-            var SummarizeData = SummarizeCapacityByLineAndFYScenario(materials);
+            // Paso 1: Obtener la suma (Minutos por línea)
+            if (debugTrace != null) debugTrace.Add(">> Paso 1: Sumarizar Minutos por Línea y Año Fiscal");
+            var SummarizeData = SummarizeCapacityByLineAndFYScenario(materials, debugTrace); // Pasamos el trace
 
-           //   Debug: imprimir la producción base
-              Debug.WriteLine("=== Minutos por linea ===");
-              DebugCapacityByLineAndFY(SummarizeData);
-
-
-            //Paso 2: Sustituye el valor maximo por la produccion máxima
-            // Crear una copia profunda para que el método no modifique SummarizeData
+            // Paso 2: Sustituye el valor maximo por la produccion máxima
             var deepCopy = DeepCopySummary(SummarizeData);
+            if (debugTrace != null) debugTrace.Add(">> Paso 2: Reemplazar Valor Máximo con Suma de RealMin (Lógica de Negocio)");
+            var SummarizaDataWithReplace = ReplaceMaxValueWithSumOfRealMin(deepCopy, materials, debugTrace); // Pasamos el trace
 
-            var SummarizaDataWithReplace = ReplaceMaxValueWithSumOfRealMin(deepCopy, materials);
-          
-            //Paso 3:Toma los minutos por linea sin sustituir y los divide entre 60 
-            // Crear una copia profunda para que el método no modifique SummarizeData
-            deepCopy = DeepCopySummary(SummarizeData);
-            var minutosPorLineaSP = ConvertMinutesToHours(deepCopy);      
+            // Paso 3: Toma los minutos por linea sin sustituir y los divide entre 60 
+            deepCopy = DeepCopySummary(SummarizeData); // Nota: Aquí usabas SummarizeData original, no el reemplazado, mantengo tu lógica original.
+
+            // NOTA: ConvertMinutesToHours parece que solo convierte unidades, si quieres trazarlo puedes pasarlo, 
+            // pero para no saturar solo lo haré si es crítico. Lo agregaré por consistencia.
+            var minutosPorLineaSP = ConvertMinutesToHours(deepCopy, debugTrace);
 
             // Paso 4: Generar el diccionario de porcentajes por línea, status y FY
-            //         basado en la versión que sí sustituyó el valor máximo (SummarizaDataWithReplace).
+            // basado en la versión que sí sustituyó el valor máximo (SummarizaDataWithReplace).
             deepCopy = DeepCopySummary(SummarizaDataWithReplace);
 
-            ////muestra la capacidad agregada de cada linea de produccion
-            Debug.WriteLine("===== Capacidad agregada =====");
-            DebugCapacityByLineAndFY(minutosPorLineaSP);
+            if (debugTrace != null) debugTrace.Add(">> Paso 4: Calcular Porcentajes Finales vs Capacidad Instalada");
 
             // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
-            var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy, allLines: true);
+            var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy, true, debugTrace); // Pasamos el trace
 
-            Debug.WriteLine("=== % de capacidad ===");
-            Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
-            Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
-            DebugLineStatusFYPercentage(finalPercentageDict);
+            if (debugTrace != null) debugTrace.Add("=== FIN CÁLCULO: GetGraphCapacityScenarios ===");
 
             return finalPercentageDict;
         }
@@ -616,13 +613,31 @@ namespace Portal_2_0.Models
         /// <returns>
         /// Diccionario [lineId -> [statusId -> [fyId -> % capacidad]]].
         /// </returns>
-        public Dictionary<int, Dictionary<int, Dictionary<int, double>>>
-    BuildLineStatusFYPercentage(Dictionary<int, Dictionary<int, double>> replacedData, bool allLines = false)
+        public Dictionary<int, Dictionary<int, Dictionary<int, double>>> BuildLineStatusFYPercentage(
+    Dictionary<int, Dictionary<int, double>> replacedData,
+    bool allLines = false,
+    List<string> debugTrace = null)
         {
             var result = new Dictionary<int, Dictionary<int, Dictionary<int, double>>>();
 
             using (var db = new Portal_2_0Entities())
             {
+                // --- PREPARACIÓN DE DEBUG (Nombres Amigables) ---
+                Dictionary<int, string> lineNamesMap = new Dictionary<int, string>();
+                Dictionary<int, string> fyNamesMap = new Dictionary<int, string>();
+                Dictionary<int, string> statusNamesMap = new Dictionary<int, string>();
+
+                if (debugTrace != null)
+                {
+                    debugTrace.Add(">> Paso 4: Cálculo de Porcentaje de Ocupación Final");
+
+                    // Carga ligera de nombres (Líneas, Años y Estatus)
+                    lineNamesMap = db.CTZ_Production_Lines.ToDictionary(l => l.ID_Line, l => l.Description);
+                    fyNamesMap = db.CTZ_Fiscal_Years.ToDictionary(f => f.ID_Fiscal_Year, f => f.Fiscal_Year_Name);
+                    statusNamesMap = db.CTZ_Project_Status.ToDictionary(s => s.ID_Status, s => s.Description);
+                }
+                // ------------------------------------------------
+
                 var hoursByLine = db.CTZ_Hours_By_Line
                     .GroupBy(x => new { x.ID_Line, x.ID_Status, x.ID_Fiscal_Year })
                     .Select(g => new
@@ -634,17 +649,12 @@ namespace Portal_2_0.Models
                     })
                     .ToList();
 
-                // --- INICIO DE LA MODIFICACIÓN ---
-
-                // 1. Crear un lookup para obtener el ID de planta y si es Slitter para cada línea.
                 var lineDetailsLookup = db.CTZ_Production_Lines
                     .ToDictionary(
                         l => l.ID_Line,
                         l => new { PlantId = l.ID_Plant, IsSlitter = l.IsSlitter }
                     );
 
-                // 2. Cargar TODAS las horas/turnos disponibles y organizarlos por Planta y Año Fiscal.
-                // Resuelve el error de clave duplicada.
                 var totalTimeByPlantAndFY = db.CTZ_Total_Time_Per_Fiscal_Year
                     .GroupBy(t => t.ID_Plant)
                     .ToDictionary(
@@ -655,9 +665,9 @@ namespace Portal_2_0.Models
                         )
                     );
 
-                // --- FIN DE LA MODIFICACIÓN ---
-
                 int projectStatusId = this.ID_Status;
+
+                // Determinamos qué líneas procesar para el resultado final
                 List<int> linesToProcess = allLines
                     ? db.CTZ_Production_Lines.Where(l => l.Active).Select(l => l.ID_Line).ToList()
                     : replacedData.Keys.ToList();
@@ -667,13 +677,10 @@ namespace Portal_2_0.Models
                     if (!result.ContainsKey(lineId))
                         result[lineId] = new Dictionary<int, Dictionary<int, double>>();
 
-                    // Obtener los detalles de la línea actual (su planta y si es slitter)
                     if (!lineDetailsLookup.TryGetValue(lineId, out var lineInfo))
-                    {
-                        continue; // Si la línea no existe o está inactiva, la saltamos.
-                    }
-                    int plantId = lineInfo.PlantId;
+                        continue;
 
+                    int plantId = lineInfo.PlantId;
                     var lineHours = hoursByLine.Where(h => h.ID_Line == lineId).ToList();
 
                     var distinctStatuses = lineHours.Select(h => h.ID_Status).Distinct().ToList();
@@ -700,29 +707,54 @@ namespace Portal_2_0.Models
                                 .Select(r => r.TotalHours)
                                 .FirstOrDefault();
 
-                            // --- LÓGICA DE CAPACIDAD CORREGIDA ---
-                            double totalAvailable = 1.0; // Valor por defecto
+                            double totalAvailable = 1.0;
 
-                            // Buscar la capacidad para la PLANTA y el AÑO FISCAL correctos
                             if (totalTimeByPlantAndFY.TryGetValue(plantId, out var fyTimes) && fyTimes.TryGetValue(fyId, out var timeInfo))
                             {
-                                // Decidir si usar horas de BLK o turnos de SLT basado en el tipo de línea
                                 totalAvailable = lineInfo.IsSlitter
                                     ? timeInfo.SltShifts.GetValueOrDefault(1.0)
                                     : timeInfo.BlkHours.GetValueOrDefault(1.0);
                             }
-                            // --- FIN DE LA LÓGICA CORREGIDA ---
 
                             double replacedValue = 0;
-                            if (replacedData.ContainsKey(lineId) && replacedData[lineId].ContainsKey(fyId))
+                            // Verificamos si esta línea tiene datos del proyecto actual
+                            bool hasProjectData = replacedData.ContainsKey(lineId);
+
+                            if (hasProjectData && replacedData[lineId].ContainsKey(fyId))
                                 replacedValue = replacedData[lineId][fyId];
 
                             double finalValue = 0;
+                            double numerator = 0;
+
                             if (totalAvailable > 0)
                             {
-                                finalValue = (statusId == projectStatusId)
-                                    ? (hoursLineStatus + replacedValue) / totalAvailable
-                                    : hoursLineStatus / totalAvailable;
+                                if (statusId == projectStatusId)
+                                {
+                                    numerator = (hoursLineStatus + replacedValue);
+                                    finalValue = numerator / totalAvailable;
+
+                                    // --- DEBUG TRACE MEJORADO Y FILTRADO ---
+                                    // Solo mostramos log si:
+                                    // 1. El debug está activo.
+                                    // 2. La línea actual es parte de los materiales del proyecto (hasProjectData).
+                                    if (debugTrace != null && hasProjectData)
+                                    {
+                                        string lineName = lineNamesMap.ContainsKey(lineId) ? lineNamesMap[lineId] : $"ID {lineId}";
+                                        string fyName = fyNamesMap.ContainsKey(fyId) ? fyNamesMap[fyId] : $"ID {fyId}";
+                                        string statusName = statusNamesMap.ContainsKey(statusId) ? statusNamesMap[statusId] : $"Status {statusId}";
+
+                                        debugTrace.Add($"   [{lineName} | {statusName} | {fyName}]");
+                                        debugTrace.Add($"     Base BD: {hoursLineStatus:N2}h + Proyecto: {replacedValue:N2}h = {numerator:N2}h");
+                                        debugTrace.Add($"     Capacidad Total: {totalAvailable:N2}h");
+                                        debugTrace.Add($"     -> Resultado: {numerator:N2} / {totalAvailable:N2} = {finalValue:P2}");
+                                    }
+                                    // ---------------------------------------
+                                }
+                                else
+                                {
+                                    numerator = hoursLineStatus;
+                                    finalValue = numerator / totalAvailable;
+                                }
                             }
 
                             result[lineId][statusId][fyId] = finalValue;
@@ -867,44 +899,103 @@ namespace Portal_2_0.Models
             return result;
         }
 
-        public Dictionary<int, Dictionary<int, double>> SummarizeCapacityByLineAndFYScenario(ICollection<CTZ_Project_Materials> materials)
+        // 2. Método de Sumarización
+        public Dictionary<int, Dictionary<int, double>> SummarizeCapacityByLineAndFYScenario(
+    ICollection<CTZ_Project_Materials> materials,
+    List<string> debugTrace = null)
         {
+            // result: Acumulador [ID_Linea -> [ID_AñoFiscal -> Minutos Totales]]
             var result = new Dictionary<int, Dictionary<int, double>>();
 
-            // Si no hay materiales, devolvemos el diccionario vacío
             if (materials == null) return result;
 
-            // Recorremos cada material del proyecto
+            // --- PREPARACIÓN DE DEBUG (NOMBRES AMIGABLES) ---
+            Dictionary<int, string> lineNamesMap = new Dictionary<int, string>();
+            Dictionary<int, string> fyNamesMap = new Dictionary<int, string>();
+
+            if (debugTrace != null)
+            {
+                debugTrace.Add("   [INFO] Iniciando sumarización de capacidad (result)...");
+
+                // Carga ligera de nombres para mostrarlos en el log (solo IDs relevantes si es posible, o todos)
+                using (var db = new Portal_2_0Entities())
+                {
+                    lineNamesMap = db.CTZ_Production_Lines.ToDictionary(l => l.ID_Line, l => l.Description);
+                    fyNamesMap = db.CTZ_Fiscal_Years.ToDictionary(f => f.ID_Fiscal_Year, f => f.Fiscal_Year_Name);
+                }
+            }
+            // ------------------------------------------------
+
+            // 1. PROCESO DE ACUMULACIÓN (MATERIAL POR MATERIAL)
             foreach (var material in materials)
             {
-                
-                // Asegurarnos de que tenga una línea real o teorica
+                // Validación de línea
                 if (!material.ID_Real_Blanking_Line.HasValue && !material.ID_Theoretical_Blanking_Line.HasValue)
                     continue;
 
-                int lineId = material.ID_Real_Blanking_Line.HasValue? material.ID_Real_Blanking_Line.Value : material.ID_Theoretical_Blanking_Line.Value;
-               
-                // Llamamos al método del material que retorna (ID_Fiscal_Year -> valor)
-                var capacityByFY = material.GetRealMinutes();
+                int lineId = material.ID_Real_Blanking_Line.HasValue ? material.ID_Real_Blanking_Line.Value : material.ID_Theoretical_Blanking_Line.Value;
 
-                // Sumamos esos valores en el diccionario principal
+                // Obtener minutos de este material (ya incluye el factor si lo aplicaste en el paso anterior)
+                var capacityByFY = material.GetRealMinutes(debugTrace);
+
                 foreach (var kvp in capacityByFY)
                 {
                     int fyId = kvp.Key;
                     double capacityValue = kvp.Value;
 
-                    if (!result.ContainsKey(lineId))
-                    {
-                        result[lineId] = new Dictionary<int, double>();
-                    }
-                    if (!result[lineId].ContainsKey(fyId))
-                    {
-                        result[lineId][fyId] = 0;
-                    }
+                    // Inicializar diccionarios si no existen
+                    if (!result.ContainsKey(lineId)) result[lineId] = new Dictionary<int, double>();
+                    if (!result[lineId].ContainsKey(fyId)) result[lineId][fyId] = 0;
 
-                    // Sumamos el valor (por si hay varios materiales en la misma línea y FY)
+                    // ACUMULAR
                     result[lineId][fyId] += capacityValue;
+
+                    // LOG DETALLADO (Paso a paso)
+                    if (debugTrace != null)
+                    {
+                        string lineName = lineNamesMap.ContainsKey(lineId) ? lineNamesMap[lineId] : $"Line {lineId}";
+                        string fyName = fyNamesMap.ContainsKey(fyId) ? fyNamesMap[fyId] : $"FY {fyId}";
+
+                        // Muestra cuánto suma este material y cuánto lleva acumulado la línea en ese año
+                        debugTrace.Add($"   + Mat {material.ID_Material} ({material.Part_Number}) | {lineName} | {fyName}");
+                        debugTrace.Add($"     Sumando: {capacityValue:N2} min -> Nuevo Acumulado: {result[lineId][fyId]:N2} min");
+                    }
                 }
+            }
+
+            // 2. RESUMEN FINAL CONSOLIDADO (¡LO QUE FALTABA!)
+            if (debugTrace != null)
+            {
+                debugTrace.Add("   ============================================================");
+                debugTrace.Add("   [RESULT] RESUMEN FINAL DE MINUTOS REQUERIDOS (Variable 'result')");
+                debugTrace.Add("   ============================================================");
+
+                if (result.Count == 0)
+                {
+                    debugTrace.Add("   (Sin resultados acumulados)");
+                }
+                else
+                {
+                    foreach (var lineKvp in result)
+                    {
+                        int lId = lineKvp.Key;
+                        string lName = lineNamesMap.ContainsKey(lId) ? lineNamesMap[lId] : $"Line {lId}";
+
+                        debugTrace.Add($"   LÍNEA: {lName}");
+
+                        foreach (var fyKvp in lineKvp.Value.OrderBy(x => x.Key))
+                        {
+                            int fId = fyKvp.Key;
+                            string fName = fyNamesMap.ContainsKey(fId) ? fyNamesMap[fId] : $"FY {fId}";
+                            double totalMin = fyKvp.Value;
+                            double totalHoras = totalMin / 60.0;
+
+                            // Muestra el total final en minutos y horas
+                            debugTrace.Add($"     -> {fName}: {totalMin:N2} min ({totalHoras:N2} horas)");
+                        }
+                    }
+                }
+                debugTrace.Add("   ============================================================");
             }
 
             return result;
@@ -918,48 +1009,128 @@ namespace Portal_2_0.Models
         /// </summary>
         /// <param name="data">Diccionario [ID_Real_Blanking_Line -> [ID_Fiscal_Year -> valor]]</param>
         /// <returns>El mismo diccionario 'data', con los máximos reemplazados.</returns>
+        // 3. Método de Reemplazo de Máximos (Lógica Crítica)
         public Dictionary<int, Dictionary<int, double>> ReplaceMaxValueWithSumOfRealMin(
-            Dictionary<int, Dictionary<int, double>> data, ICollection<CTZ_Project_Materials> materials)
+     Dictionary<int, Dictionary<int, double>> data,
+     ICollection<CTZ_Project_Materials> materials,
+     List<string> debugTrace = null)
         {
             if (data == null) return null;
 
-            // Recorremos cada línea de producción que exista en el diccionario
+            // --- PREPARACIÓN DE DEBUG (Nombres Amigables) ---
+            Dictionary<int, string> lineNamesMap = new Dictionary<int, string>();
+            Dictionary<int, string> fyNamesMap = new Dictionary<int, string>();
+
+            if (debugTrace != null)
+            {
+                debugTrace.Add(">> Paso 2.1: Reemplazo de Picos y Conversión a Horas");
+                debugTrace.Add($"   [FÓRMULA] Strokes per Auto = Parts_per_Auto / BLANKS PER STROKE");
+                debugTrace.Add($"   [FÓRMULA] BLANKS PER YEAR [1/1000] = Parts_per_Auto *  ANNUAL_VOLUME");
+                debugTrace.Add($"   [FÓRMULA] Min. Max. Reales = BLANKS PER YEAR [1/1000] / IDEAL CYCLE TIME PER TOOL  / BLANKS PER STROKE");
+                debugTrace.Add($"   [FÓRMULA] Min. Reales = Min. Max. Reales / OEE");
+                debugTrace.Add($"   [FÓRMULA] Turno Reales = Min. Reales / 7.5 / 60");
+                debugTrace.Add($"   [FÓRMULA] Strokes per Turno = BLANKS PER YEAR [1/1000] / BLANKS PER STROKE / Turno Reales");
+
+
+                using (var db = new Portal_2_0Entities())
+                {
+                    // Cargar nombres de líneas y años fiscales para que el log sea legible
+                    var allFyIds = data.Values.SelectMany(d => d.Keys).Distinct().ToList();
+                    var allLineIds = data.Keys.ToList();
+
+                    fyNamesMap = db.CTZ_Fiscal_Years
+                        .Where(f => allFyIds.Contains(f.ID_Fiscal_Year))
+                        .ToDictionary(f => f.ID_Fiscal_Year, f => f.Fiscal_Year_Name);
+
+                    lineNamesMap = db.CTZ_Production_Lines
+                        .Where(l => allLineIds.Contains(l.ID_Line))
+                        .ToDictionary(l => l.ID_Line, l => l.Description);
+                }
+            }
+            // ------------------------------------------------
+
             foreach (var lineKvp in data)
             {
                 int lineId = lineKvp.Key;
+                string lineName = (debugTrace != null && lineNamesMap.ContainsKey(lineId)) ? lineNamesMap[lineId] : $"ID {lineId}";
 
                 // 1. Sumar RealMin de todos los materiales que tengan ID_Real_Blanking_Line = lineId
-                //    (si no hay materiales o no tienen esa línea, la suma será 0)
                 double sumRealMin = 0;
+
                 if (materials != null)
                 {
-                    sumRealMin = materials
-                        .Where(m => m.ID_Real_Blanking_Line == lineId)
-                        .Sum(m => m.RealMin);
+                    // Filtramos la lista para usarla tanto en el cálculo como en el debug
+                    var materialsOnLine = materials.Where(m => m.ID_Real_Blanking_Line == lineId).ToList();
+
+                    sumRealMin = materialsOnLine.Sum(m => m.RealMin);
+
+                    // --- DEBUG: Desglose de la suma ---
+                    if (debugTrace != null)
+                    {
+                        debugTrace.Add($"   --------------------------------------------------");
+                        debugTrace.Add($" ===  LÍNEA: {lineName}");
+
+                        if (materialsOnLine.Any())
+                        {
+                         //   debugTrace.Add($"   [FÓRMULA] RealMin = (Vol * PartsPerVeh) / (ICT * BlanksPerStroke * OEE) / 7.5 / 60");
+                            debugTrace.Add($"   [DETALLE] Suma de 'RealMin' por linea Produccion ({materialsOnLine.Count} materiales):");
+                            foreach (var m in materialsOnLine)
+                            {
+                                debugTrace.Add($"     + Mat {m.ID_Material} ({m.Part_Number}): {m.RealMin:N2} min");
+                            }
+                            debugTrace.Add($"   = SUMA TOTAL REALMIN: {sumRealMin:N2} min");
+                        }
+                        else
+                        {
+                            debugTrace.Add($"   [DETALLE] No hay materiales asignados a esta línea (Suma = 0).");
+                        }
+                    }
                 }
 
                 // 2. Encontrar el valor máximo en 'data[lineId]'
-                //    Si el diccionario interno está vacío, continuamos a la siguiente línea
                 if (data[lineId].Count == 0)
                     continue;
 
-                // Tomamos el par (FY, Valor) con mayor 'Valor'
                 var maxKvp = data[lineId].OrderByDescending(k => k.Value).FirstOrDefault();
                 int fyWithMaxValue = maxKvp.Key;
                 double maxValue = maxKvp.Value;
 
+                // --- DEBUG TRACE: Acción de Reemplazo ---
+                if (debugTrace != null)
+                {
+                    string fyName = fyNamesMap.ContainsKey(fyWithMaxValue) ? fyNamesMap[fyWithMaxValue] : $"FY {fyWithMaxValue}";
+
+                    debugTrace.Add($"   [PICO DETECTADO] Valor máximo actual: {maxValue:N2} min en {fyName}");
+
+                    if (Math.Abs(maxValue - sumRealMin) > 0.01)
+                    {
+                        debugTrace.Add($"   > ACCIÓN: Reemplazando pico ({maxValue:N2}) por Suma RealMin ({sumRealMin:N2})");
+                    }
+                    else
+                    {
+                        debugTrace.Add($"   > ACCIÓN: El pico y la suma son iguales. Se mantiene {sumRealMin:N2}");
+                    }
+                }
+
                 // 3. Reemplazar el valor máximo con sumRealMin
-                //    Si sumRealMin es 0, simplemente se sobreescribirá con 0, 
-                //    o con el valor calculado si es > 0.
                 data[lineId][fyWithMaxValue] = sumRealMin;
+                
+                if (debugTrace != null)
+                    debugTrace.Add(">> Paso 2.2: Convierte a minutos a horas (Reemplazando Pico)");
 
-                Debug.WriteLine($"Line {lineId}: Max value {maxValue} (FY-ID {fyWithMaxValue}) reemplazado por {sumRealMin}.");
-
-                // 3. Dividir todos los valores del diccionario interno entre 60 (convertir minutos a horas)
+                // 4. Dividir todos los valores del diccionario interno entre 60 (convertir minutos a horas)
+                // Usamos ToList() para iterar sobre una copia de las claves y poder modificar el diccionario
                 foreach (var fy in data[lineId].Keys.ToList())
                 {
                     double originalValue = data[lineId][fy];
                     data[lineId][fy] = originalValue / 60.0;
+
+                    // --- DEBUG TRACE: Conversión ---
+                    if (debugTrace != null)
+                    {
+                        string fyName = fyNamesMap.ContainsKey(fy) ? fyNamesMap[fy] : $"FY {fy}";
+                        debugTrace.Add($"     -> Conversión {fyName}: {originalValue:N2} min / 60 = {data[lineId][fy]:N2} hrs");
+                    }
                 }
             }
 
@@ -973,28 +1144,31 @@ namespace Portal_2_0.Models
         /// <param name="data">Diccionario con el resumen por línea y año fiscal.</param>
         /// <returns>Diccionario anidado con los valores transformados a horas.</returns>
         public Dictionary<int, Dictionary<int, double>> ConvertMinutesToHours(
-            Dictionary<int, Dictionary<int, double>> data)
+     Dictionary<int, Dictionary<int, double>> data,
+     List<string> debugTrace = null)
         {
+
+            debugTrace.Add(">> Paso 3: Convierte de minutos a horas (sin reemplazar)");
+
             var result = new Dictionary<int, Dictionary<int, double>>();
 
-            // Recorremos cada línea
             foreach (var kvLine in data)
             {
                 int lineId = kvLine.Key;
                 var fyDictionary = kvLine.Value;
 
-                // Creamos un diccionario anidado para la línea actual
                 result[lineId] = new Dictionary<int, double>();
 
-                // Recorremos cada año fiscal y convertimos su valor
                 foreach (var kvFy in fyDictionary)
                 {
                     int fyId = kvFy.Key;
                     double minutesValue = kvFy.Value;
-                    double hoursValue = minutesValue / 60.0; // Conversión a horas
+                    double hoursValue = minutesValue / 60.0;
 
-                    // Asignamos al nuevo diccionario
                     result[lineId][fyId] = hoursValue;
+
+                    // --- DEBUG TRACE ---
+                    if (debugTrace != null) debugTrace.Add($"   [Conv] Línea {lineId} FY {fyId}: {minutesValue:F2} min -> {hoursValue:F2} hrs");
                 }
             }
 

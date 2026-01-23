@@ -5144,11 +5144,24 @@ namespace Portal_2_0.Controllers
 
         [HttpGet]
         public ActionResult GetMaterialCapacityScenariosGraphs(int projectId, int? materialId, int? blkID, string vehicle, double? partsPerVehicle,
-                    double? idealCycleTimePerTool, double? blanksPerStroke,double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol, 
-                    bool OnlyBDMaterials = false, bool isSnapShot = false, int? versionId = null, string partNumber = null)
+            double? idealCycleTimePerTool, double? blanksPerStroke, double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol,
+            bool OnlyBDMaterials = false, bool isSnapShot = false, int? versionId = null, string partNumber = null,
+            double? maxProductionFactor = null)
         {
             try
             {
+                // 1. CONFIGURACIÓN DE DEBUG (NUEVO)
+                bool enableMathDebug = true; // <--- Cambiar a false para desactivar en producción
+                List<string> traceLog = enableMathDebug ? new List<string>() : null; // <--- La lista que recolectará los logs
+
+                // --- NUEVO: LOG DE PARÁMETROS DE ENTRADA ---
+                if (enableMathDebug)
+                {
+                    traceLog.Add("=== SOLICITUD RECIBIDA (BLANKING): GetMaterialCapacityScenariosGraphs ===");
+                    traceLog.Add($"[PARAMS] ProjectId: {projectId}" );
+                    traceLog.Add($"[PARAMS] Flags: OnlyBD: {OnlyBDMaterials} | SnapShot: {isSnapShot} | VerID: {versionId}");
+                }
+
                 // Declaramos las nuevas variables que vamos a retornar
                 double? oeeToReturn = null;
                 bool oeeIsCalculated = false;
@@ -5167,7 +5180,10 @@ namespace Portal_2_0.Controllers
                 if (!OnlyBDMaterials)
                 { //si onlyBDmaterials no esta activo
 
-                    var oeeResult = GetOeeToUse(oee, blkID, db);
+                    traceLog.Add(">> Cálculo de OEE para num parte actual. "+ partNumber);
+
+                    var oeeResult = GetOeeToUse(oee, blkID, db, traceLog);
+                    //var oeeResult = GetOeeToUse(oee, blkID, db);
                     oeeToReturn = oeeResult.OeeValue; // Guardamos el valor para el JSON de respuesta.
                     oeeIsCalculated = oeeResult.IsCalculated; // Guardamos el indicador.
 
@@ -5191,6 +5207,7 @@ namespace Portal_2_0.Controllers
                         selectedMaterial.Real_EOP = realEOP;
                         selectedMaterial.Annual_Volume = annualVol;
                         selectedMaterial.Part_Number = partNumber;
+                        selectedMaterial.Max_Production_Factor = maxProductionFactor;
                     }
                     else
                     {
@@ -5207,7 +5224,8 @@ namespace Portal_2_0.Controllers
                             Real_SOP = realSOP,
                             Real_EOP = realEOP,
                             Annual_Volume = annualVol,
-                            Part_Number = partNumber
+                            Part_Number = partNumber,
+                            Max_Production_Factor = maxProductionFactor,
                         };
                         project.CTZ_Project_Materials.Add(selectedMaterial);
                     }
@@ -5216,6 +5234,7 @@ namespace Portal_2_0.Controllers
                 // ↓↓↓ AQUÍ: Elegimos la lista que vamos a pasar a GetGraphCapacityScenarios ↓↓↓
                 List<CTZ_Project_Materials> materialsToUse;
 
+                //sustituye el material si es es una version historica
                 if (isSnapShot && versionId.HasValue)
                 {
                     // Cargo los snapshot desde el history y mapeo a CTZ_Project_Materials
@@ -5311,28 +5330,75 @@ namespace Portal_2_0.Controllers
                     materialsToUse = project.CTZ_Project_Materials.ToList();
                 }
 
-                // agrupamos por línea real o teórica y calculamos FY de inicio/fin
+                // --- NUEVO BLOQUE: Resumen de Materiales a Procesar ---
+                if (enableMathDebug)
+                {
+                    traceLog.Add(">> Resumen de Materiales a Procesar (Lista: materialsToUse)");
+                    traceLog.Add($"   Total de elementos: {materialsToUse.Count}");
+
+                    foreach (var m in materialsToUse)
+                    {
+                        // Determinar qué línea se está usando para visualización
+                        string lineStr = m.ID_Real_Blanking_Line.HasValue ? $"L.Real:{m.ID_Real_Blanking_Line}" :
+                                         (m.ID_Theoretical_Blanking_Line.HasValue ? $"L.Theo:{m.ID_Theoretical_Blanking_Line}" : "Sin Línea");
+
+                        // Formatear fechas
+                        string sopStr = (m.Real_SOP ?? m.SOP_SP)?.ToString("yyyy-MM-dd") ?? "N/A";
+                        string eopStr = (m.Real_EOP ?? m.EOP_SP)?.ToString("yyyy-MM-dd") ?? "N/A";
+
+                        // Construir línea de log
+                        string info = $"   -> ID:{m.ID_Material} | Part#:{m.Part_Number} | Veh:{m.Vehicle} | {lineStr} | Vol:{m.Annual_Volume:N0} | Strokes:{m.Ideal_Cycle_Time_Per_Tool} | Fechas:[{sopStr} a {eopStr}]";
+
+                        traceLog.Add(info);
+                    }
+                }
+
+                // --- DEBUG: Inicio de cálculo de rangos fiscales ---
+                if (enableMathDebug)
+                {
+                    traceLog.Add(">> Calculando Rangos de Años Fiscales (fyRanges)");
+                    traceLog.Add($"   Total materiales con fechas completas: {materialsToUse.Count(m => m.Real_SOP.HasValue && m.Real_EOP.HasValue)}");
+                }
+
+                // --- LÓGICA ORIGINAL ---
                 var fyRanges = materialsToUse
                     .Where(m => m.Real_SOP.HasValue && m.Real_EOP.HasValue)
                     .GroupBy(m => m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line)
                     .Where(g => g.Key.HasValue && g.Key.Value != 0)
                     .ToDictionary(
-                      g => g.Key.Value.ToString(),
-                      g =>
-                      {
-                          var minDate = g.Min(m => m.Real_SOP.Value);
-                          var maxDate = g.Max(m => m.Real_EOP.Value);
-                          // FY que contiene minDate
-                          var startFY = fiscalYears
-            .First(f => f.Start_Date <= minDate && f.End_Date >= minDate)
-            .Fiscal_Year_Name;
-                          // FY que contiene maxDate
-                          var endFY = fiscalYears
-            .First(f => f.Start_Date <= maxDate && f.End_Date >= maxDate)
-            .Fiscal_Year_Name;
-                          return new { MinFY = startFY, MaxFY = endFY };
-                      }
+                        g => g.Key.Value.ToString(),
+                        g =>
+                        {
+                            var minDate = g.Min(m => m.Real_SOP.Value);
+                            var maxDate = g.Max(m => m.Real_EOP.Value);
+
+                            // FY que contiene minDate
+                            var startFYObj = fiscalYears.FirstOrDefault(f => f.Start_Date <= minDate && f.End_Date >= minDate);
+                            var startFY = startFYObj != null ? startFYObj.Fiscal_Year_Name : "N/A";
+
+                            // FY que contiene maxDate
+                            var endFYObj = fiscalYears.FirstOrDefault(f => f.Start_Date <= maxDate && f.End_Date >= maxDate);
+                            var endFY = endFYObj != null ? endFYObj.Fiscal_Year_Name : "N/A";
+
+                            return new { MinFY = startFY, MaxFY = endFY };
+                        }
                     );
+
+                // --- DEBUG: Resultado del cálculo ---
+                if (enableMathDebug)
+                {
+                    if (fyRanges.Any())
+                    {
+                        foreach (var range in fyRanges)
+                        {
+                            traceLog.Add($"   -> Línea {range.Key}: Inicio [{range.Value.MinFY}] - Fin [{range.Value.MaxFY}]");
+                        }
+                    }
+                    else
+                    {
+                        traceLog.Add("   -> [INFO] No se generaron rangos (posiblemente faltan fechas reales o líneas asignadas).");
+                    }
+                }
 
 
                 // --- INICIO: Bloque para filtrar la producción de materialsToUse ---
@@ -5344,8 +5410,7 @@ namespace Portal_2_0.Controllers
 
                 // 3. Obtener el diccionario final de capacidad utilizando tu método existente.
                 // finalPercentageDict es del tipo Dictionary<int, Dictionary<int, Dictionary<int, double>>>
-                var finalPercentageDict = project.GetGraphCapacityScenarios(materialsToUse);
-
+                var finalPercentageDict = project.GetGraphCapacityScenarios(materialsToUse, traceLog); // <--- AQUÍ PASAMOS LA LISTA
 
                 // *** NUEVO BLOQUE: CALCULO Y GUARDO DM_Status ***
                 var dmStatuses = new Dictionary<int, string>();
@@ -5555,7 +5620,8 @@ namespace Portal_2_0.Controllers
                     dmStatusComments = dmStatusComments.ToDictionary(k => k.Key.ToString(), k => k.Value),
                     // Nuevas propiedades añadidas a la respuesta:
                     oeeValue = oeeToReturn.HasValue ? Math.Round(oeeToReturn.Value * 100, 2) : (double?)null,
-                    oeeIsCalculated = oeeIsCalculated
+                    oeeIsCalculated = oeeIsCalculated,
+                    debugLog = traceLog // <--- AGREGAMOS ESTA PROPIEDAD AL JSON
                 }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -5564,17 +5630,26 @@ namespace Portal_2_0.Controllers
             }
         }
 
-        private OeeResult GetOeeToUse(double? oeeFromForm, int? lineId, Portal_2_0Entities db)
+
+        private OeeResult GetOeeToUse(double? oeeFromForm, int? lineId, Portal_2_0Entities db, List<string> debugTrace = null)
         {
+            if (debugTrace != null) debugTrace.Add(">> Inicio: Determinación de OEE");
+
             // Caso A: El OEE fue proporcionado desde el formulario.
             if (oeeFromForm.HasValue)
             {
+                if (debugTrace != null)
+                    debugTrace.Add($"   -> OEE proporcionado por usuario: {oeeFromForm.Value} (Se omite búsqueda en BD)");
+
                 return new OeeResult { OeeValue = null, IsCalculated = false, FoundRecords = false };
             }
+
             // Caso B: El OEE no fue proporcionado, se debe calcular.
             if (!lineId.HasValue || lineId.Value == 0)
             {
-                // No hay línea, por lo tanto, no se encontraron registros.
+                if (debugTrace != null)
+                    debugTrace.Add("   -> [WARNING] No hay Línea Real seleccionada. No se puede calcular OEE.");
+
                 return new OeeResult { OeeValue = null, IsCalculated = true, FoundRecords = false };
             }
 
@@ -5583,32 +5658,52 @@ namespace Portal_2_0.Controllers
             int cutoffYear = cutoffDate.Year;
             int cutoffMonth = cutoffDate.Month;
 
+            if (debugTrace != null)
+                debugTrace.Add($"   Query BD: Línea ID {lineId} | Desde: {cutoffDate:MMM-yyyy}");
+
             // Búsqueda en la base de datos de los valores de OEE.
             var oeeValues = db.CTZ_OEE
-                                .Where(x =>
-                                    x.ID_Line == lineId.Value &&
-                                    (x.Year > cutoffYear || (x.Year == cutoffYear && x.Month >= cutoffMonth)))
-                                .OrderByDescending(x => x.Year)
-                                .ThenByDescending(x => x.Month)
-                                .Take(6)
-                                .Where(x => x.OEE.HasValue)
-                                .Select(x => x.OEE.Value)
-                                .ToList();
-
+                            .Where(x =>
+                                x.ID_Line == lineId.Value &&
+                                (x.Year > cutoffYear || (x.Year == cutoffYear && x.Month >= cutoffMonth)))
+                            .OrderByDescending(x => x.Year)
+                            .ThenByDescending(x => x.Month)
+                            .Take(6)
+                            .Where(x => x.OEE.HasValue)
+                            .Select(x => x.OEE.Value)
+                            .ToList();
 
             if (oeeValues.Any())
             {
                 var avg = oeeValues.Average();
+
+                if (debugTrace != null)
+                {
+                    // Mostramos los valores encontrados para que el usuario vea de dónde sale el promedio
+                    string valuesStr = string.Join(", ", oeeValues.Select(v => v.ToString("F2")));
+                    debugTrace.Add($"   Registros encontrados ({oeeValues.Count}): [{valuesStr}]");
+                    debugTrace.Add($"   Promedio Raw: {avg:F4}");
+                }
+
                 double calculatedOee = (avg > 1.0) ? avg / 100.0 : avg; // Normalizar
-                                                                        // Se encontraron registros y se calculó un valor.
+
+                if (debugTrace != null && avg > 1.0)
+                    debugTrace.Add($"   -> Normalización aplicada (>1.0): {calculatedOee:F4}");
+
+                if (debugTrace != null)
+                    debugTrace.Add($"   -> OEE Final Calculado: {calculatedOee:P2}");
+
                 return new OeeResult { OeeValue = calculatedOee, IsCalculated = true, FoundRecords = true };
             }
             else
             {
-                // Se intentó calcular pero no se encontraron registros.
+                if (debugTrace != null)
+                    debugTrace.Add("   -> [INFO] No se encontraron registros de OEE en BD para esta línea en los últimos 6 meses.");
+
                 return new OeeResult { OeeValue = null, IsCalculated = true, FoundRecords = false };
             }
         }
+
         [HttpGet]
         public JsonResult GetOeeForLine(int? lineId)
         {
