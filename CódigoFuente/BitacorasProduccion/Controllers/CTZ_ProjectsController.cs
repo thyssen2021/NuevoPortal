@@ -16,6 +16,7 @@ using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Newtonsoft.Json;
 using Portal_2_0.Models;
+using Portal_2_0.Models.AuxiliarModels;
 using SpreadsheetLight;
 using HorizontalAlignmentValues = DocumentFormat.OpenXml.Spreadsheet.HorizontalAlignmentValues;
 
@@ -1042,6 +1043,13 @@ namespace Portal_2_0.Controllers
             return View(vm);
         }
 
+        public ActionResult ReactBeta()
+        {
+            // Solo retornamos la vista contenedora. 
+            // Más adelante aquí podrías pasar datos iniciales en el ViewBag si quisieras.
+            ViewBag.Title = "React Beta - Hello World";
+            return View();
+        }
 
         #region New Versions
         // GET: muestra el formulario
@@ -1628,6 +1636,683 @@ namespace Portal_2_0.Controllers
         // GET: CTZ_Projects/EditClientPartInformation/{id}
         public ActionResult EditClientPartInformation(int id, bool details = false)
         {
+            // 1. Validar Permisos
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
+                return View("../Home/ErrorPermisos");
+
+            // -----------------------------------------------------------------------
+            // OPTIMIZACIÓN DE MEMORIA (SERVER-SIDE)
+            // -----------------------------------------------------------------------
+            // Desactivamos proxies para evitar carga diferida accidental durante la serialización.
+            db.Configuration.ProxyCreationEnabled = false;
+            db.Configuration.LazyLoadingEnabled = false;
+
+            try
+            {
+                // 2. Cargar Proyecto con sus relaciones (EXCLUYENDO LOS ARCHIVOS PESADOS)
+                // Usamos AsNoTracking para máxima velocidad.
+                var project = db.CTZ_Projects.AsNoTracking()
+                    .Include(p => p.CTZ_Clients)
+                    .Include(p => p.CTZ_OEMClients)
+                    .Include(p => p.CTZ_Material_Owner)
+                    .Include(p => p.CTZ_Project_Status)
+                    .Include(p => p.empleados)
+                    // Includes de Materiales y sus hijos (Ligeros)
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Route))
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_RackTypes))
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_Additionals))
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_Labels))
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_StrapTypes))
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantRackTypes))
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantLabelTypes))
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantAdditionals))
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantStrapTypes))
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_WeldedPlates))
+                    //aqui no se cargan los archivos pesados
+                    .FirstOrDefault(p => p.ID_Project == id);
+
+                if (project == null) return HttpNotFound();
+
+                // =======================================================================
+                // NUEVO: CARGA DE LISTAS (Países y Material Types)
+                // =======================================================================
+
+                #region Listas
+                // 1. Obtener lista de Países (S&P) de la tabla CTZ_Temp_IHS
+                var countries = db.CTZ_Temp_IHS
+                    .Select(i => i.Country)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToList()
+                    .Select(c => new { Value = c, Text = c }) // Formato simple para React
+                    .ToList();
+
+                // 2. Obtener lista de Tipos de Material (La necesitarás para la otra columna)
+                // (Adaptado de tu legacy para Saltillo vs Otras plantas)
+                var materialTypes = db.CTZ_Material_Type
+                     .Where(mt => mt.Active)
+                     .OrderBy(mt => mt.Material_Name)
+                     .Select(mt => new { Value = mt.ID_Material_Type, Text = mt.Material_Name })
+                     .ToList();
+
+                var routeList = db.CTZ_Route
+                 .Where(r => r.Active)
+                 .OrderBy(r => r.Route_Name)
+                 .Select(r => new { Value = r.ID_Route, Text = r.Route_Name })
+                 .ToList();
+
+                // Excluye la planta actual del proyecto (project.ID_Plant) igual que el legacy
+                var interplantPlants = db.CTZ_plants
+                    .Where(p => p.Active && p.ID_Plant != project.ID_Plant)
+                    .OrderBy(p => p.Description)
+                    .Select(p => new { Value = p.ID_Plant, Text = p.Description })
+                    .ToList();
+
+                var coilPositions = db.CTZ_Coil_Position
+                .Where(cp => cp.Active)
+                .OrderBy(cp => cp.ID_Coil_Position) // O el orden que prefieras
+                .ToList()
+                .Select(cp => new { Value = cp.ID_Coil_Position, Text = cp.ConcatDescription })
+                .ToList();
+
+                // 1. Obtener lista base
+                var transportTypes = db.CTZ_Transport_Types.Where(t => t.activo).ToList();
+
+                // 2. Lógica Legacy: Mover "Other" (ID 5) al final
+                var otherOption = transportTypes.FirstOrDefault(t => t.ID_Transport_Type == 5);
+                if (otherOption != null)
+                {
+                    transportTypes.Remove(otherOption);
+                    transportTypes.Add(otherOption);
+                }
+
+                // 3. Convertir a formato simple para React (Value/Text)
+                var transportList = transportTypes.Select(t => new
+                {
+                    Value = t.ID_Transport_Type,
+                    Text = t.descripcion
+                }).ToList();
+
+                // 1. Obtener las entidades de la BD (Sin ordenar aún para manipular la lista)
+                var rackEntities = db.CTZ_Packaging_RackType
+                    .Where(r => r.IsActive)
+                    .OrderBy(r => r.RackTypeName) // Ordenamos alfabéticamente primero
+                    .ToList();
+
+                // 2. Buscar la opción "N/A" (ID 5)
+                var naOption = rackEntities.FirstOrDefault(r => r.ID_RackType == 5);
+
+                // 3. Si existe, la quitamos de su posición actual y la mandamos al final
+                if (naOption != null)
+                {
+                    rackEntities.Remove(naOption);
+                    rackEntities.Add(naOption);
+                }
+
+                // 4. Proyectar a la estructura simple para React (Value/Text)
+                var arrivalRackList = rackEntities.Select(r => new
+                {
+                    Value = r.ID_RackType,
+                    Text = r.RackTypeName
+                }).ToList();
+
+                // 1. Obtener lista de la BD (CTZ_Packaging_Additionals)
+                var protectiveMaterials = db.CTZ_Packaging_Additionals
+                    .Where(a => a.IsActive)
+                    .OrderBy(a => a.AdditionalName)
+                    .ToList();
+
+                // 2. Buscar opciones especiales (N/A = 13, Other = 6)
+                var naOptionPM = protectiveMaterials.FirstOrDefault(a => a.ID_Additional == 13);
+                var otherOptionPM = protectiveMaterials.FirstOrDefault(a => a.ID_Additional == 6);
+
+                // 3. Mover N/A al final (Penúltimo)
+                if (naOption != null)
+                {
+                    protectiveMaterials.Remove(naOptionPM);
+                    protectiveMaterials.Add(naOptionPM);
+                }
+
+                // 4. Mover Other al FINAL DE TODO (Último)
+                if (otherOption != null)
+                {
+                    protectiveMaterials.Remove(otherOptionPM);
+                    protectiveMaterials.Add(otherOptionPM);
+                }
+
+                // 5. Proyectar a formato simple
+                var arrivalProtectiveList = protectiveMaterials.Select(a => new
+                {
+                    Value = a.ID_Additional,
+                    Text = a.AdditionalName
+                }).ToList();
+
+                var warehouseList = db.CTZ_Arrival_Warehouses
+                .Where(w => w.Active && w.ID_Plant == project.ID_Plant)
+                .OrderBy(w => w.WarehouseName)
+                .Select(w => new { Value = w.ID_Warehouse, Text = w.WarehouseName })
+                .ToList();
+
+                // 1. CARGA MAESTRA DE VEHÍCULOS (Optimizado)
+                // Traemos TODOS los vehículos y su producción en una sola consulta eficiente.
+                var allVehiclesRaw = db.CTZ_Temp_IHS.AsNoTracking().ToList();
+                var allIds = allVehiclesRaw.Select(v => v.ID_IHS).ToList();
+
+                // 2. Traer producción de golpe
+                var allProduction = db.CTZ_Temp_IHS_Production.AsNoTracking()
+                    .Where(p => allIds.Contains(p.ID_IHS))
+                    .Select(p => new { p.ID_IHS, p.Production_Year, p.Production_Amount })
+                    .ToList()
+                    .GroupBy(p => p.ID_IHS)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                // 3. Construir el "Diccionario Maestro" agrupado por PAÍS
+                // Estructura: { "MEXICO": [ { Vehicle1 }, { Vehicle2 } ], "USA": [...] }
+                var vehicleMasterData = allVehiclesRaw
+                    .GroupBy(v => v.Country) // Agrupamos por país para facilitar el filtrado en React
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => new
+                        {
+                            Value = x.ConcatCodigo,
+                            Text = x.ConcatCodigo,
+                            SOP = x.SOP.HasValue ? x.SOP.Value.ToString("yyyy-MM") : "",
+                            EOP = x.EOP.HasValue ? x.EOP.Value.ToString("yyyy-MM") : "",
+                            Program = x.Program,
+                            MaxProduction = x.Max_Production,
+                            // Serializamos la producción aquí mismo
+                            ProductionDataJson = allProduction.ContainsKey(x.ID_IHS)
+                                ? JsonConvert.SerializeObject(allProduction[x.ID_IHS].Select(p => new { p.Production_Year, p.Production_Amount }))
+                                : "[]"
+                        }).OrderBy(x => x.Text).ToList()
+                    );
+
+                var qualityList = db.SCDM_cat_grado_calidad
+                    .Where(q => q.activo)
+                    .OrderBy(q => q.grado_calidad)
+                    .Select(q => new
+                    {
+                        Value = q.grado_calidad, // El valor es el texto mismo
+                        Text = q.grado_calidad
+                    })
+                    .ToList();
+
+                // 1. Obtener la lista (Reutilizando tu lógica existente)
+                // Asegúrate de proyectarlo al formato simple { Value, Text }
+                var millList = GetMillsFromExternalDB();
+
+                // Replicando lógica Legacy: Solo IDs 2 (Rectangular), 18 (Configurado), 3 (Trapecio)
+                var shapeList = db.SCDM_cat_forma_material
+                   .AsNoTracking() // Buena práctica para lectura rápida
+                   .Where(s => new int[] { 2, 18, 3 }.Contains(s.id))
+                   .OrderBy(s => s.descripcion)
+                   .ToList() // <--- ¡AQUÍ ESTÁ EL TRUCO! Traemos los datos a memoria primero
+                   .Select(s => new
+                   {
+                       Value = s.id,
+                       Text = s.ConcatKey // Ahora sí funciona porque ya estamos en memoria (C#)
+                   })
+                   .ToList();
+
+
+
+                // 3. Empaquetar todas las listas en un objeto
+                var listsPayload = new
+                {
+                    ihsCountries = countries,
+                    materialTypes = materialTypes,
+                    routeList = routeList, //  AGREGAMOS ESTA LÍNEA
+                    interplantPlants = interplantPlants,
+                    coilPositions = coilPositions,
+                    transportTypes = transportList,
+                    arrivalRackTypes = arrivalRackList,
+                    arrivalProtectiveMaterials = arrivalProtectiveList,
+                    warehouseList = warehouseList,
+                    vehicleMasterData = vehicleMasterData,
+                    qualityList = qualityList,
+                    millList = millList,
+                    shapes = shapeList,
+                };
+
+                // 4. Serializar las listas (Es seguro usar settings por defecto aquí)
+                ViewBag.ReactLists = JsonConvert.SerializeObject(listsPayload);
+
+                #endregion
+
+                // 3. CARGA QUIRÚRGICA DE METADATOS DE ARCHIVOS (SOLO NOMBRE E ID)
+                // Esto evita que el servidor descargue los 40MB de la BD.
+                if (project.CTZ_Project_Materials != null && project.CTZ_Project_Materials.Any())
+                {
+                    // A. Recolectar todos los IDs de archivos que necesitamos
+                    var fileIdsToFetch = new HashSet<int>();
+
+                    foreach (var m in project.CTZ_Project_Materials)
+                    {
+                        if (m.ID_File_CAD_Drawing.HasValue) fileIdsToFetch.Add(m.ID_File_CAD_Drawing.Value);
+                        if (m.ID_File_Packaging.HasValue) fileIdsToFetch.Add(m.ID_File_Packaging.Value);
+                        if (m.ID_File_TechnicalSheet.HasValue) fileIdsToFetch.Add(m.ID_File_TechnicalSheet.Value);
+                        if (m.ID_File_Additional.HasValue) fileIdsToFetch.Add(m.ID_File_Additional.Value);
+                        if (m.ID_File_ArrivalAdditional.HasValue) fileIdsToFetch.Add(m.ID_File_ArrivalAdditional.Value);
+                        if (m.ID_File_CoilDataAdditional.HasValue) fileIdsToFetch.Add(m.ID_File_CoilDataAdditional.Value);
+                        if (m.ID_File_SlitterDataAdditional.HasValue) fileIdsToFetch.Add(m.ID_File_SlitterDataAdditional.Value);
+                        if (m.ID_File_VolumeAdditional.HasValue) fileIdsToFetch.Add(m.ID_File_VolumeAdditional.Value);
+                        if (m.ID_File_OutboundFreightAdditional.HasValue) fileIdsToFetch.Add(m.ID_File_OutboundFreightAdditional.Value);
+                        if (m.ID_File_DeliveryPackagingAdditional.HasValue) fileIdsToFetch.Add(m.ID_File_DeliveryPackagingAdditional.Value);
+                        if (m.ID_File_InterplantPackaging.HasValue) fileIdsToFetch.Add(m.ID_File_InterplantPackaging.Value);
+                        if (m.ID_File_InterplantOutboundFreight.HasValue) fileIdsToFetch.Add(m.ID_File_InterplantOutboundFreight.Value);
+                    }
+
+                    // B. Consultar SOLO las columnas ligeras (ID, Nombre, Tipo)
+                    // IMPORTANTE: NO seleccionamos la columna 'Data' en este select
+                    var fileMetadataMap = new Dictionary<int, CTZ_Files>();
+
+                    if (fileIdsToFetch.Any())
+                    {
+                        var lightFiles = db.CTZ_Files.AsNoTracking()
+                            .Where(f => fileIdsToFetch.Contains(f.ID_File))
+                            .Select(f => new
+                            {
+                                f.ID_File,
+                                f.Name,
+                                f.MineType
+                                // NO TRAEMOS f.Data
+                            })
+                            .ToList();
+
+                        foreach (var lf in lightFiles)
+                        {
+                            // Reconstruimos un objeto CTZ_Files ligero
+                            fileMetadataMap[lf.ID_File] = new CTZ_Files
+                            {
+                                ID_File = lf.ID_File,
+                                Name = lf.Name,
+                                MineType = lf.MineType,
+                                Data = null // Explícitamente nulo para que pese 0 bytes
+                            };
+                        }
+                    }
+
+                    // C. Asignar (Stitch) los objetos ligeros a los materiales en memoria
+                    foreach (var m in project.CTZ_Project_Materials)
+                    {
+                        // Asignamos a las propiedades de navegación correspondientes (CTZ_Files, CTZ_Files1, etc.)
+                        // Basado en el orden típico de EF para tus FKs:
+                        if (m.ID_File_CAD_Drawing.HasValue && fileMetadataMap.ContainsKey(m.ID_File_CAD_Drawing.Value))
+                            m.CTZ_Files = fileMetadataMap[m.ID_File_CAD_Drawing.Value];
+
+                        if (m.ID_File_Packaging.HasValue && fileMetadataMap.ContainsKey(m.ID_File_Packaging.Value))
+                            m.CTZ_Files1 = fileMetadataMap[m.ID_File_Packaging.Value];
+
+                        if (m.ID_File_TechnicalSheet.HasValue && fileMetadataMap.ContainsKey(m.ID_File_TechnicalSheet.Value))
+                            m.CTZ_Files2 = fileMetadataMap[m.ID_File_TechnicalSheet.Value];
+
+                        if (m.ID_File_Additional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_Additional.Value))
+                            m.CTZ_Files3 = fileMetadataMap[m.ID_File_Additional.Value];
+
+                        if (m.ID_File_ArrivalAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_ArrivalAdditional.Value))
+                            m.CTZ_Files4 = fileMetadataMap[m.ID_File_ArrivalAdditional.Value];
+
+                        if (m.ID_File_CoilDataAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_CoilDataAdditional.Value))
+                            m.CTZ_Files5 = fileMetadataMap[m.ID_File_CoilDataAdditional.Value];
+
+                        if (m.ID_File_SlitterDataAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_SlitterDataAdditional.Value))
+                            m.CTZ_Files6 = fileMetadataMap[m.ID_File_SlitterDataAdditional.Value];
+
+                        if (m.ID_File_VolumeAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_VolumeAdditional.Value))
+                            m.CTZ_Files7 = fileMetadataMap[m.ID_File_VolumeAdditional.Value];
+
+                        if (m.ID_File_OutboundFreightAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_OutboundFreightAdditional.Value))
+                            m.CTZ_Files8 = fileMetadataMap[m.ID_File_OutboundFreightAdditional.Value];
+
+                        if (m.ID_File_DeliveryPackagingAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_DeliveryPackagingAdditional.Value))
+                            m.CTZ_Files9 = fileMetadataMap[m.ID_File_DeliveryPackagingAdditional.Value];
+
+                        if (m.ID_File_InterplantPackaging.HasValue && fileMetadataMap.ContainsKey(m.ID_File_InterplantPackaging.Value))
+                            m.CTZ_Files10 = fileMetadataMap[m.ID_File_InterplantPackaging.Value];
+
+                        if (m.ID_File_InterplantOutboundFreight.HasValue && fileMetadataMap.ContainsKey(m.ID_File_InterplantOutboundFreight.Value))
+                            m.CTZ_Files11 = fileMetadataMap[m.ID_File_InterplantOutboundFreight.Value];
+                    }
+                }
+
+                // 4. Preparar Datos Auxiliares para React
+                var currentUser = obtieneEmpleadoLogeado();
+                ViewBag.EmpleadoLogeado = currentUser;
+
+                var auth = new AuthorizationService(db);
+                var authContext = new Dictionary<string, object> { ["ProjectId"] = id };
+
+                ViewBag.CanEditSales = auth.CanPerform(currentUser.id, ResourceKey.EditClientPartInformationSalesSection, ActionKey.Edit, authContext);
+                ViewBag.CanEditEngineering = auth.CanPerform(currentUser.id, ResourceKey.EditClientPartInformationEngineeringSection, ActionKey.Edit, authContext);
+                ViewBag.CanEditDataManagement = auth.CanPerform(currentUser.id, ResourceKey.EditClientPartInformationDataManagementSection, ActionKey.Edit, authContext);
+                ViewBag.IsDetailsMode = details;
+
+                // Definimos las rutas a las que React hará fetch (POST/GET)
+                var urlsPayload = new
+                {
+                    saveUrl = Url.Action("SaveSingleMaterial", "CTZ_Projects"),
+                    deleteUrl = Url.Action("DeleteMaterial", "CTZ_Projects"),
+                    backUrl = Url.Action("Index", "CTZ_Projects"),
+                    getVehiclesUrl = Url.Action("GetIHSByCountry", "CTZ_Projects"),
+                    getIHSDetailsUrl = Url.Action("GetIHSDetails", "CTZ_Projects")
+                };
+
+                // Serializamos para pasarlo a la vista
+                ViewBag.ReactUrls = JsonConvert.SerializeObject(urlsPayload);
+
+                // 5. SERIALIZACIÓN SEGURA
+                try
+                {
+                    var jsonSettings = new Newtonsoft.Json.JsonSerializerSettings
+                    {
+                        ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
+                        NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
+                        // Mantenemos el Resolver por seguridad (por si se nos escapó algo)
+                        ContractResolver = new SmartOptimizerResolver()
+                    };
+
+                    // Ahora 'project' tiene los archivos pero SIN la data binaria. Es ligero.
+                    string jsonString = JsonConvert.SerializeObject(project, jsonSettings);
+                    ViewBag.ReactPayload = jsonString;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("ERROR AL SERIALIZAR: " + ex.ToString());
+                    ViewBag.ReactPayload = "{}";
+                }
+
+                return View("EditClientPartInformation", project);
+            }
+            finally
+            {
+                // 6. RESTAURAR CONFIGURACIÓN
+                // Importante para no afectar el resto del sistema
+                db.Configuration.ProxyCreationEnabled = true;
+                db.Configuration.LazyLoadingEnabled = true;
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetIHSDetails(string term)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(term))
+                    return Json(null, JsonRequestBehavior.AllowGet);
+
+                // 1. EXTRAER EL ID (MNEMONIC)
+                // Como tu ConcatCodigo es: "{Mnemonic}_{Vehicle}..."
+                // Hacemos split por el guion bajo para obtener solo el Mnemonic (ej: "111720723")
+                string mnemonic = term.Contains("_") ? term.Split('_')[0] : term;
+
+                // 2. BUSCAR POR LA COLUMNA REAL (Mnemonic_Vehicle_plant)
+                // Entity Framework SÍ sabe traducir esto a SQL
+                var ihsItem = db.CTZ_Temp_IHS
+                    .FirstOrDefault(i => i.Mnemonic_Vehicle_plant == mnemonic);
+
+                if (ihsItem == null)
+                    return Json(null, JsonRequestBehavior.AllowGet);
+
+                // 3. OBTENER PRODUCCIÓN
+                var productionList = db.CTZ_Temp_IHS_Production
+                    .Where(p => p.ID_IHS == ihsItem.ID_IHS)
+                    .Select(p => new {
+                        p.Production_Year,
+                        p.Production_Month,
+                        p.Production_Amount
+                    })
+                    .ToList();
+
+                // 4. RETORNAR RESULTADO
+                var result = new
+                {
+                    // Usamos la propiedad ConcatCodigo aquí porque ya estamos en memoria (C#),
+                    // no en la consulta a base de datos. Aquí sí funciona.
+                    id = ihsItem.ConcatCodigo,
+                    text = ihsItem.ConcatCodigo,
+                    Country = ihsItem.Country,
+                    Program = ihsItem.Program,
+                    // Formato seguro para fechas (null check)
+                    SOP = ihsItem.SOP.HasValue ? ihsItem.SOP.Value.ToString("yyyy-MM-dd") : "",
+                    EOP = ihsItem.EOP.HasValue ? ihsItem.EOP.Value.ToString("yyyy-MM-dd") : "",
+
+                    ProductionDataJson = JsonConvert.SerializeObject(productionList)
+                };
+
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        // IMPORTANTE: Agregamos el parámetro 'arrivalAdditionalFile' para recibir el binario
+        public JsonResult SaveSingleMaterial(CTZ_Project_Materials material, HttpPostedFileBase arrivalAdditionalFile)
+        {
+            try
+            {
+                // 1. Validar Permisos
+                if (!TieneRol(TipoRoles.CTZ_ACCESO))
+                    return Json(new { success = false, message = "Access Denied." });
+
+                // Truco para evitar conflictos con Proxies de EF si usas validaciones internas
+                db.Configuration.ProxyCreationEnabled = false;
+
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        // --- A. LÓGICA DE GUARDADO DE ARCHIVO (NUEVO) ---
+                        // Si el usuario subió un archivo, lo procesamos antes de guardar el material
+                        if (arrivalAdditionalFile != null && arrivalAdditionalFile.ContentLength > 0)
+                        {
+                            byte[] fileData;
+                            using (var binaryReader = new System.IO.BinaryReader(arrivalAdditionalFile.InputStream))
+                            {
+                                fileData = binaryReader.ReadBytes(arrivalAdditionalFile.ContentLength);
+                            }
+
+                            var newFile = new CTZ_Files
+                            {
+                                Name = System.IO.Path.GetFileName(arrivalAdditionalFile.FileName),
+                                MineType = arrivalAdditionalFile.ContentType,
+                                Data = fileData
+                            };
+
+                            db.CTZ_Files.Add(newFile);
+                            db.SaveChanges(); // Guardamos para obtener el ID
+
+                            // Asignamos el nuevo ID al objeto material que llegó del form
+                            material.ID_File_ArrivalAdditional = newFile.ID_File;
+                        }
+                        // ---------------------------------------------
+
+                        CTZ_Project_Materials entity;
+
+                        // 2. Determinar si es Insert o Update
+                        if (material.ID_Material == 0)
+                        {
+                            // --- INSERT ---
+                            entity = new CTZ_Project_Materials();
+                            entity.ID_Project = material.ID_Project;
+
+                            // Si se creó un archivo nuevo, lo asignamos
+                            if (material.ID_File_ArrivalAdditional > 0)
+                                entity.ID_File_ArrivalAdditional = material.ID_File_ArrivalAdditional;
+
+                            db.CTZ_Project_Materials.Add(entity);
+                        }
+                        else
+                        {
+                            // --- UPDATE ---
+                            entity = db.CTZ_Project_Materials.Find(material.ID_Material);
+                            if (entity == null)
+                                return Json(new { success = false, message = "Material not found in DB." });
+
+                            // Solo actualizamos el archivo si viene uno nuevo
+                            if (material.ID_File_ArrivalAdditional.HasValue && material.ID_File_ArrivalAdditional > 0)
+                            {
+                                entity.ID_File_ArrivalAdditional = material.ID_File_ArrivalAdditional;
+                            }
+                        }
+
+                        // 3. Mapeo de campos
+                        entity.Vehicle = material.Vehicle;
+                        entity.IHS_Country = material.IHS_Country; 
+                        entity.Vehicle_2 = material.Vehicle_2;
+                        entity.IHS_Country_2 = material.IHS_Country_2;
+                        entity.Vehicle_3 = material.Vehicle_3;
+                        entity.IHS_Country_3 = material.IHS_Country_3; 
+                        entity.Vehicle_version = material.Vehicle_version;
+                        entity.Program_SP = material.Program_SP;
+                        entity.IsRunningChange = material.IsRunningChange;
+                        entity.IsCarryOver = material.IsCarryOver;
+                        entity.SOP_SP = material.SOP_SP;
+                        entity.EOP_SP = material.EOP_SP;
+                        entity.Real_SOP = material.Real_SOP;
+                        entity.Real_EOP = material.Real_EOP;
+                        entity.Max_Production_SP = material.Max_Production_SP;
+                        entity.Max_Production_Factor = material.Max_Production_Factor;
+                        entity.Max_Production_Effective = material.Max_Production_Effective;
+                        entity.ID_Route = material.ID_Route;
+                        entity.Part_Number = material.Part_Number;
+                        entity.Part_Name = material.Part_Name;
+                        entity.Ship_To = material.Ship_To;
+                        entity.Annual_Volume = material.Annual_Volume;
+                        entity.ID_Interplant_Plant = material.ID_Interplant_Plant;
+                        entity.ID_Delivery_Coil_Position = material.ID_Delivery_Coil_Position;
+
+                        // Mapeos adicionales importantes para Arrival
+                        entity.ID_Arrival_Transport_Type = material.ID_Arrival_Transport_Type;
+                        entity.Arrival_Transport_Type_Other = material.Arrival_Transport_Type_Other;
+                        entity.ID_Arrival_Packaging_Type = material.ID_Arrival_Packaging_Type;
+                        entity.ID_Arrival_Protective_Material = material.ID_Arrival_Protective_Material;
+                        entity.Arrival_Protective_Material_Other = material.Arrival_Protective_Material_Other;
+                        entity.Is_By_Container = material.Is_By_Container;
+                        entity.Is_Stackable = material.Is_Stackable;
+                        entity.Stackable_Levels = material.Stackable_Levels;
+                        entity.ID_Arrival_Warehouse = material.ID_Arrival_Warehouse;
+                        entity.PassesThroughSouthWarehouse = material.PassesThroughSouthWarehouse;
+                        entity.Arrival_Comments = material.Arrival_Comments;
+                        entity.Quality = material.Quality;
+                        entity.ID_Material_type = material.ID_Material_type;
+                        entity.Mill = material.Mill;
+                        entity.MaterialSpecification = material.MaterialSpecification;
+
+                        // 4. Guardar Cambios
+                        db.SaveChanges();
+                        transaction.Commit();
+
+                        string fileNameToReturn = null;
+
+                        // Caso A: Acabamos de subir uno nuevo
+                        if (arrivalAdditionalFile != null && arrivalAdditionalFile.ContentLength > 0)
+                        {
+                            fileNameToReturn = System.IO.Path.GetFileName(arrivalAdditionalFile.FileName);
+                        }
+
+                        // --- SOLUCIÓN ERROR CIRCULAR ---
+                        // No retornes 'entity' directamente. Crea un objeto anónimo limpio.
+                        // Esto rompe la cadena de referencias de Entity Framework.
+                        var safeEntity = new
+                        {
+                            ID_Material = entity.ID_Material,
+                            ID_Project = entity.ID_Project,
+                            ID_File_ArrivalAdditional = entity.ID_File_ArrivalAdditional,
+                            FileName_ArrivalAdditional = fileNameToReturn,
+                            // Agrega aquí solo los campos que necesitas actualizar en el frontend inmediatamente
+                            // o devuelve el mismo input 'material' con el ID actualizado.
+                            Vehicle = entity.Vehicle,
+                            Part_Number = entity.Part_Number
+                        };
+
+                        return Json(new { success = true, message = "Saved successfully", data = safeEntity });
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        System.Diagnostics.Debug.WriteLine(ex.ToString());
+                        // Devuelve el mensaje interno para entender mejor el error
+                        var msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        return Json(new { success = false, message = "DB Error: " + msg });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Server Error: " + ex.Message });
+            }
+            finally
+            {
+                // Restaurar configuración por si acaso (opcional)
+                db.Configuration.ProxyCreationEnabled = true;
+            }
+        }
+        [HttpPost]
+        public JsonResult DeleteMaterial(int id)
+        {
+            try
+            {
+                // 1. Validar Permisos
+                if (!TieneRol(TipoRoles.CTZ_ACCESO))
+                    return Json(new { success = false, message = "Access Denied." });
+
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var material = db.CTZ_Project_Materials
+                            .Include(m => m.CTZ_Material_RackTypes)
+                            .Include(m => m.CTZ_Material_Labels)
+                            .Include(m => m.CTZ_Material_Additionals)
+                            .Include(m => m.CTZ_Material_StrapTypes)
+                            .Include(m => m.CTZ_Material_InterplantRackTypes)
+                            .Include(m => m.CTZ_Material_InterplantLabelTypes)
+                            .Include(m => m.CTZ_Material_InterplantAdditionals)
+                            .Include(m => m.CTZ_Material_InterplantStrapTypes)
+                            .Include(m => m.CTZ_Material_WeldedPlates)
+                            .FirstOrDefault(m => m.ID_Material == id);
+
+                        if (material == null)
+                            return Json(new { success = false, message = "Material not found." });
+
+                        // 2. Eliminar dependencias (Hijos)
+                        db.CTZ_Material_RackTypes.RemoveRange(material.CTZ_Material_RackTypes);
+                        db.CTZ_Material_Labels.RemoveRange(material.CTZ_Material_Labels);
+                        db.CTZ_Material_Additionals.RemoveRange(material.CTZ_Material_Additionals);
+                        db.CTZ_Material_StrapTypes.RemoveRange(material.CTZ_Material_StrapTypes);
+                        db.CTZ_Material_InterplantRackTypes.RemoveRange(material.CTZ_Material_InterplantRackTypes);
+                        db.CTZ_Material_InterplantLabelTypes.RemoveRange(material.CTZ_Material_InterplantLabelTypes);
+                        db.CTZ_Material_InterplantAdditionals.RemoveRange(material.CTZ_Material_InterplantAdditionals);
+                        db.CTZ_Material_InterplantStrapTypes.RemoveRange(material.CTZ_Material_InterplantStrapTypes);
+                        db.CTZ_Material_WeldedPlates.RemoveRange(material.CTZ_Material_WeldedPlates);
+
+                        // 3. Eliminar Material (Padre)
+                        db.CTZ_Project_Materials.Remove(material);
+
+                        db.SaveChanges();
+                        transaction.Commit();
+
+                        return Json(new { success = true, message = "Material deleted successfully." });
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return Json(new { success = false, message = "Error deleting: " + ex.Message });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Server Error: " + ex.Message });
+            }
+        }
+
+        // GET: CTZ_Projects/EditClientPartInformation/{id}
+        public ActionResult EditClientPartInformationLegacy(int id, bool details = false, bool legacy = false)
+        {
             // Validar permisos: si el usuario no tiene rol ADMIN, mostrar error.
             if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
@@ -1642,15 +2327,13 @@ namespace Portal_2_0.Controllers
                 .Include(p => p.empleados)
                 .FirstOrDefault(p => p.ID_Project == id);
 
-            if (project == null)
-            {
-                return HttpNotFound();
-            }
+            if (project == null) return HttpNotFound();
+
 
             // PASO 2: Cargar la colección de materiales (hijos) y TODAS sus relaciones (nietos) 
             // en una CONSULTA SEPARADA, filtrando por el ID del proyecto.
             var materials = db.CTZ_Project_Materials
-                .Include(m => m.CTZ_Route)           
+                .Include(m => m.CTZ_Route)
                 .Include(m => m.CTZ_Material_RackTypes)
                 .Include(m => m.CTZ_Material_Additionals)
                 .Include(m => m.CTZ_Material_Labels)
@@ -2072,7 +2755,14 @@ namespace Portal_2_0.Controllers
             ViewBag.IsDetailsMode = details;
             ViewBag.ProjectPlantId = project.ID_Plant;
 
-            // Retornar la vista con el proyecto cargado y sus materiales.
+            if (legacy)
+            {
+                // Si el usuario (o un botón de emergencia) pide la versión vieja,
+                // cargamos explícitamente el archivo de respaldo que renombramos.
+                return View("_EditClientPartInformation_LEGACY", project);
+            }
+
+            // Por defecto, carga "EditClientPartInformation.cshtml" (La nueva vista con React)
             return View(project);
         }
 
@@ -2709,6 +3399,640 @@ namespace Portal_2_0.Controllers
 
 
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditClientPartInformationLegacy(CTZ_Projects project, List<CTZ_Project_Materials> materials, HttpPostedFileBase archivo, HttpPostedFileBase packaging_archivo,
+               HttpPostedFileBase technicalSheetFile, HttpPostedFileBase AdditionalFile, HttpPostedFileBase arrivalAdditionalFile, HttpPostedFileBase coilDataAdditionalFile, HttpPostedFileBase slitterDataAdditionalFile, HttpPostedFileBase volumeAdditionalFile,
+               HttpPostedFileBase outboundFreightAdditionalFile, HttpPostedFileBase deliveryPackagingAdditionalFile, HttpPostedFileBase interplant_packaging_archivo,
+               HttpPostedFileBase interplantOutboundFreightAdditionalFile
+               )
+        {
+            // Validar permisos
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
+                return View("../Home/ErrorPermisos");
+
+            // Valida el modelo antes de cualquier operación
+            if (!ModelState.IsValid)
+            {
+
+                string errorMessage = "Validation errors occurred. Please correct the following errors:\n";
+                // --- INICIO: Código de depuración para errores de validación ---
+                Debug.WriteLine("--- ERRORES DE VALIDACIÓN DE MODELSTATE ---");
+                foreach (var key in ModelState.Keys)
+                {
+                    var state = ModelState[key];
+                    if (state.Errors.Any())
+                    {
+                        Debug.WriteLine($"Campo: {key}");
+                        foreach (var error in state.Errors)
+                        {
+                            // Imprime el error específico
+                            Debug.WriteLine($"  - Error: {error.ErrorMessage}");
+
+                            errorMessage += $"- Campo: {key}, Error: {error.ErrorMessage}\n";
+                            // También puedes revisar si hubo una excepción en el binding
+                            if (error.Exception != null)
+                            {
+                                Debug.WriteLine($"    Excepción: {error.Exception.Message}");
+                            }
+                        }
+                    }
+                }
+
+                throw new Exception(errorMessage);
+
+                Debug.WriteLine("--- FIN DE ERRORES DE VALIDACIÓN ---");
+
+                var vehicles = db.CTZ_Temp_IHS
+                .AsEnumerable()  // Materializa la consulta para usar propiedades calculadas en memoria
+                .Select(x => new VehicleItem
+                {
+                    Value = x.ConcatCodigo,
+                    Text = x.ConcatCodigo,
+                    SOP = x.SOP.HasValue ? x.SOP.Value.ToString("yyyy-MM") : "",
+                    EOP = x.EOP.HasValue ? x.EOP.Value.ToString("yyyy-MM") : "",
+                    Program = x.Program,
+                    MaxProduction = x.Max_Production.ToString()
+                })
+                .ToList();
+                ViewBag.VehicleList = vehicles;
+
+                var qualityList = db.SCDM_cat_grado_calidad
+                    .Where(q => q.activo)
+                    .Select(q => new
+                    {
+                        id = q.grado_calidad, // o puedes usar q.clave si lo prefieres
+                        text = q.grado_calidad
+                    })
+                    .ToList();
+
+                ViewBag.QualityList = qualityList;
+
+                // En tu acción GET, antes de retornar la vista
+                var routes = db.CTZ_Route
+                    .Where(r => r.Active)  // si solo deseas rutas activas
+                    .Select(r => new SelectListItem
+                    {
+                        Value = r.ID_Route.ToString(),
+                        Text = r.Route_Name
+                    })
+                    .ToList();
+
+                ViewBag.ID_RouteList = routes;
+
+                // ID_Plant
+                int plantId = project.ID_Plant;
+
+                // Obtener los IDs de líneas de producción para esa planta
+                var productionLineIds = db.CTZ_Production_Lines
+                    .Where(l => l.ID_Plant == plantId)
+                    .Select(l => l.ID_Line)
+                    .ToList();
+
+                // Obtener los IDs de Material Type asociados a esas líneas
+                var materialTypeIds = db.CTZ_Material_Type_Lines
+                    .Where(mt => productionLineIds.Contains(mt.ID_Line))
+                    .Select(mt => mt.ID_Material_Type)
+                    .Distinct();
+
+                // Obtener la lista de tipos de material disponibles
+                var availableMaterialTypes = db.CTZ_Material_Type
+                    .Where(mt => materialTypeIds.Contains(mt.ID_Material_Type) && mt.Active)
+                    .Select(mt => new
+                    {
+                        Value = mt.ID_Material_Type,
+                        Text = mt.Material_Name
+                    })
+                    .ToList();
+
+                // Crear el SelectList y asignarlo al ViewBag
+                ViewBag.MaterialTypeList = new SelectList(availableMaterialTypes, "Value", "Text");
+
+                // Obtener la lista de formas (Shape) disponibles usando ConcatKey para el texto
+                var shapeList = db.SCDM_cat_forma_material
+                             .Where(s => new int[] { 19, 18, 3 }.Contains(s.id)) //19 = Recto, 18 = configurado, 3 = Trapecio 
+                             .ToList()
+                             .Select(s => new
+                             {
+                                 Value = s.id,
+                                 Text = s.ConcatKey
+                             })
+                             .ToList();
+
+                ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
+
+                // Obtener la lista de lineas de produccion según la planta
+                var LinesList = db.CTZ_Production_Lines.Where(x => x.ID_Plant == project.ID_Plant).ToList()
+                    .Select(s => new
+                    {
+                        Value = s.ID_Line,
+                        Text = s.Description
+                    })
+                    .ToList();
+                ViewBag.LinesList = new SelectList(LinesList, "Value", "Text");
+
+                var allIhsCountries = db.CTZ_Temp_IHS
+                                  .Select(i => i.Country)
+                                  .Distinct()
+                                  .OrderBy(c => c)
+                                  .ToList();
+                ViewBag.IHSCountries = new SelectList(allIhsCountries, "MEX");
+
+                // 1. Pasar la bandera del proceso interplantas a la vista.
+                ViewBag.RequiresInterplant = project.InterplantProcess;
+
+                // 2. Crear la lista para el nuevo dropdown, excluyendo la planta principal.
+                var interplantList = db.CTZ_plants
+                    .Where(p => p.Active && p.ID_Plant != project.ID_Plant)
+                    .ToList();
+                ViewBag.InterplantPlantList = new SelectList(interplantList, "ID_Plant", "Description");
+
+                ViewBag.MillList = GetMillsFromExternalDB();
+
+                // --- INICIO DE LA MODIFICACIÓN ---
+                // Cargar lista para "Rack Type"
+                ViewBag.RackTypeList = new SelectList(db.CTZ_Packaging_RackType.Where(r => r.IsActive), "ID_RackType", "RackTypeName");
+                // Cargar lista para "Additionals"
+                ViewBag.AdditionalList = new SelectList(db.CTZ_Packaging_Additionals.Where(a => a.IsActive), "ID_Additional", "AdditionalName");
+                // Cargar lista para "Strap Type"
+                ViewBag.StrapTypeList = new SelectList(db.CTZ_Packaging_StrapType.Where(s => s.IsActive), "ID_StrapType", "StrapTypeName");
+                ViewBag.LabelList = new SelectList(db.CTZ_Packaging_LabelType.Where(l => l.IsActive).ToList(), nameof(CTZ_Packaging_LabelType.ID_LabelType), nameof(CTZ_Packaging_LabelType.LabelTypeName));
+                // Cargar lista para "Coil Position"
+                ViewBag.CoilPositionList = new SelectList(db.CTZ_Coil_Position.Where(cp => cp.Active), "ID_Coil_Position", nameof(CTZ_Coil_Position.ConcatDescription));
+                ViewBag.ArrivalTransportTypeList = new SelectList(db.CTZ_Transport_Types.Where(t => t.activo), "ID_Transport_Type", "descripcion");
+
+                return View(project);
+            }
+
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                try
+                {
+
+                    // 1. CREAMOS UNA FUNCIÓN AUXILIAR REUTILIZABLE PARA GUARDAR ARCHIVOS.
+                    //    Esto nos ahorrará mucho código repetido.
+                    // Función auxiliar reutilizable para guardar un archivo en la BD
+                    Func<HttpPostedFileBase, int?> saveFileToDb = (fileToSave) =>
+                    {
+                        if (fileToSave != null && fileToSave.ContentLength > 0)
+                        {
+                            byte[] fileData;
+                            using (var binaryReader = new System.IO.BinaryReader(fileToSave.InputStream))
+                            {
+                                fileData = binaryReader.ReadBytes(fileToSave.ContentLength);
+                            }
+                            var newFile = new CTZ_Files
+                            {
+                                Name = System.IO.Path.GetFileName(fileToSave.FileName), // Se puede agregar lógica de saneamiento aquí
+                                MineType = fileToSave.ContentType,
+                                Data = fileData
+                            };
+                            db.CTZ_Files.Add(newFile);
+                            db.SaveChanges();
+                            System.Diagnostics.Debug.WriteLine($"Archivo '{newFile.Name}' guardado en BD con ID: {newFile.ID_File}");
+                            return newFile.ID_File;
+                        }
+                        return null;
+                    };
+
+
+                    #region guarda y limpia archivos
+                    // 2. PROCESAMOS TODOS LOS ARCHIVOS ANTES DEL BUCLE.
+                    //    Guardamos los nuevos archivos (si se subieron) y obtenemos sus IDs.
+                    int? newFileId_CAD = saveFileToDb(archivo);
+                    int? newFileId_Packaging = saveFileToDb(packaging_archivo);
+                    int? newFileId_TechnicalSheet = saveFileToDb(technicalSheetFile);
+                    int? newFileId_Additional = saveFileToDb(AdditionalFile);
+                    int? newFileId_ArrivalAdditional = saveFileToDb(arrivalAdditionalFile);
+                    int? newFileId_CoilDataAdditional = saveFileToDb(coilDataAdditionalFile);
+                    int? newFileId_SlitterDataAdditional = saveFileToDb(slitterDataAdditionalFile);
+                    int? newFileId_VolumeAdditional = saveFileToDb(volumeAdditionalFile);
+                    int? newFileId_OutboundFreightAdditional = saveFileToDb(outboundFreightAdditionalFile);
+                    int? newFileId_DeliveryPackagingAdditional = saveFileToDb(deliveryPackagingAdditionalFile);
+                    int? newFileId_InterplantPackaging = saveFileToDb(interplant_packaging_archivo);
+                    int? newFileId_InterplantOutboundFreight = saveFileToDb(interplantOutboundFreightAdditionalFile);
+
+                    // Obtener el proyecto existente
+                    var existingProject = db.CTZ_Projects
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_WeldedPlates))
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantRackTypes))
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantLabelTypes))
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantAdditionals))
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantStrapTypes))
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_WeldedPlates)) // Incluir las platinas soldadas
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files10)) // InterplantPackaging
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files11))
+                        .FirstOrDefault(p => p.ID_Project == project.ID_Project);
+
+                    if (existingProject == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+
+                    var fileIdsToDelete = new List<int>();
+
+                    // Lógica para CAD
+                    // --- Lógica para ID_File_CAD_Drawing ---
+                    var oldCadFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_CAD_Drawing.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_CAD_Drawing.Value }).ToList();
+                    foreach (var oldLink in oldCadFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        // Borrar si: 1) El material ya no existe, 2) Se subió un archivo nuevo (reemplazo), 3) Se desvinculó el archivo.
+                        if (newMaterial == null || newMaterial.IsFile == true || !newMaterial.ID_File_CAD_Drawing.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // --- Lógica para ID_File_Packaging ---
+                    var oldPackagingFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_Packaging.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_Packaging.Value }).ToList();
+                    foreach (var oldLink in oldPackagingFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsPackagingFile == true || !newMaterial.ID_File_Packaging.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // --- Lógica para ID_File_TechnicalSheet ---
+                    var oldTechSheetFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_TechnicalSheet.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_TechnicalSheet.Value }).ToList();
+                    foreach (var oldLink in oldTechSheetFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsTechnicalSheetFile == true || !newMaterial.ID_File_TechnicalSheet.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // --- Lógica para ID_File_Additional ---
+                    var oldAdditionalFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_Additional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_Additional.Value }).ToList();
+                    foreach (var oldLink in oldAdditionalFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsAdditionalFile == true || !newMaterial.ID_File_Additional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // --- Lógica para ID_File_ArrivalAdditional ---
+                    var oldArrivalAdditionalFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_ArrivalAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_ArrivalAdditional.Value }).ToList();
+                    foreach (var oldLink in oldArrivalAdditionalFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsArrivalAdditionalFile == true || !newMaterial.ID_File_ArrivalAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+
+                    // Lógica para Coil Data Additional
+                    var oldCoilDataFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_CoilDataAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_CoilDataAdditional.Value }).ToList();
+                    foreach (var oldLink in oldCoilDataFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsCoilDataAdditionalFile == true || !newMaterial.ID_File_CoilDataAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // Lógica para Slitter Data Additional
+                    var oldSlitterDataFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_SlitterDataAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_SlitterDataAdditional.Value }).ToList();
+                    foreach (var oldLink in oldSlitterDataFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsSlitterDataAdditionalFile == true || !newMaterial.ID_File_SlitterDataAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // Lógica para Volume Additional
+                    var oldVolumeFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_VolumeAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_VolumeAdditional.Value }).ToList();
+                    foreach (var oldLink in oldVolumeFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsVolumeAdditionalFile == true || !newMaterial.ID_File_VolumeAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // Lógica para Outbound Freight Additional
+                    var oldOutboundFreightFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_OutboundFreightAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_OutboundFreightAdditional.Value }).ToList();
+                    foreach (var oldLink in oldOutboundFreightFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsOutboundFreightAdditionalFile == true || !newMaterial.ID_File_OutboundFreightAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // Lógica para Delivery Packaging Additional
+                    var oldDeliveryPackagingFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_DeliveryPackagingAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_DeliveryPackagingAdditional.Value }).ToList();
+                    foreach (var oldLink in oldDeliveryPackagingFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsDeliveryPackagingAdditionalFile == true || !newMaterial.ID_File_DeliveryPackagingAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    var oldInterplantPackagingFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_InterplantPackaging.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_InterplantPackaging.Value }).ToList();
+                    foreach (var oldLink in oldInterplantPackagingFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsInterplantPackagingFile == true || !newMaterial.ID_File_InterplantPackaging.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    var oldInterplantOutboundFreightFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_InterplantOutboundFreight.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_InterplantOutboundFreight.Value }).ToList();
+                    foreach (var oldLink in oldInterplantOutboundFreightFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsInterplantOutboundFreightFile == true || !newMaterial.ID_File_InterplantOutboundFreight.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+
+                    // Eliminamos explícitamente los hijos (RackTypes) y luego los padres (Materials).
+                    // Esto asegura que EF entienda el orden correcto de eliminación.
+                    foreach (var mat in existingProject.CTZ_Project_Materials.ToList())
+                    {
+                        db.CTZ_Material_RackTypes.RemoveRange(mat.CTZ_Material_RackTypes);
+                        db.CTZ_Material_Labels.RemoveRange(mat.CTZ_Material_Labels);
+                        db.CTZ_Material_Additionals.RemoveRange(mat.CTZ_Material_Additionals);
+                        db.CTZ_Material_StrapTypes.RemoveRange(mat.CTZ_Material_StrapTypes);
+                        db.CTZ_Material_InterplantRackTypes.RemoveRange(mat.CTZ_Material_InterplantRackTypes);
+                        db.CTZ_Material_InterplantLabelTypes.RemoveRange(mat.CTZ_Material_InterplantLabelTypes);
+                        db.CTZ_Material_InterplantAdditionals.RemoveRange(mat.CTZ_Material_InterplantAdditionals);
+                        db.CTZ_Material_InterplantStrapTypes.RemoveRange(mat.CTZ_Material_InterplantStrapTypes);
+                    }
+                    db.CTZ_Project_Materials.RemoveRange(existingProject.CTZ_Project_Materials);
+
+                    #endregion
+
+                    // Guardamos la eliminación. Ahora la BD está limpia de los registros viejos.
+                    db.SaveChanges();
+
+                    // Agregar los materiales recibidos en la lista "materials" 
+                    if (materials != null)
+                    {
+                        foreach (var material in materials)
+                        {
+                            //si teorical blk line es cero converir a null
+                            if (material.ID_Real_Blanking_Line == 0)
+                                material.ID_Real_Blanking_Line = null;
+                            if (material.ID_Theoretical_Blanking_Line == 0)
+                                material.ID_Theoretical_Blanking_Line = null;
+
+                            if (material.ID_Slitting_Line == 0) material.ID_Slitting_Line = null;
+
+
+                            material.ID_Project = project.ID_Project;
+
+                            // Si la fecha tiene valor, convertirla para que el día sea 1.
+                            if (material.SOP_SP.HasValue)
+                            {
+                                var sop = material.SOP_SP.Value;
+                                material.SOP_SP = new DateTime(sop.Year, sop.Month, 1);
+                            }
+                            if (material.EOP_SP.HasValue)
+                            {
+                                var eop = material.EOP_SP.Value;
+                                material.EOP_SP = new DateTime(eop.Year, eop.Month, 1);
+                            }
+
+                            // 1. Asignar el factor
+                            // Usamos .GetValueOrDefault(100) para convertir double? a double de forma segura.
+                            double currentFactor = material.Max_Production_Factor.GetValueOrDefault(100);
+
+                            // Validar que no sea 0 o negativo para evitar errores de lógica
+                            if (currentFactor <= 0)
+                            {
+                                currentFactor = 100;
+                            }
+
+                            // Reasignamos al objeto para asegurar que se guarde el valor corregido (si era null o <= 0)
+                            material.Max_Production_Factor = currentFactor;
+
+                            // 2. Calcular la Producción Efectiva en el Servidor
+                            if (material.Max_Production_SP.HasValue)
+                            {
+                                double original = material.Max_Production_SP.Value;
+
+                                // Cálculo: Original * (Factor / 100)
+                                // Math.Round devuelve double, hacemos cast explícito a int
+                                material.Max_Production_Effective = (int)Math.Round(original * (currentFactor / 100.0));
+                            }
+                            else
+                            {
+                                material.Max_Production_Effective = null;
+                            }
+
+
+                            // 1. Archivo CAD (Lógica existente, pero con depuración)
+                            // Si este material tiene la bandera Y se subió un archivo, se asigna el ID.
+                            if (material.IsFile == true && newFileId_CAD.HasValue) material.ID_File_CAD_Drawing = newFileId_CAD;
+                            if (material.IsPackagingFile == true && newFileId_Packaging.HasValue) material.ID_File_Packaging = newFileId_Packaging;
+                            if (material.IsTechnicalSheetFile == true && newFileId_TechnicalSheet.HasValue) material.ID_File_TechnicalSheet = newFileId_TechnicalSheet;
+                            if (material.IsAdditionalFile == true && newFileId_Additional.HasValue) material.ID_File_Additional = newFileId_Additional;
+                            if (material.IsArrivalAdditionalFile == true && newFileId_ArrivalAdditional.HasValue) material.ID_File_ArrivalAdditional = newFileId_ArrivalAdditional;
+                            if (material.IsCoilDataAdditionalFile == true && newFileId_CoilDataAdditional.HasValue) material.ID_File_CoilDataAdditional = newFileId_CoilDataAdditional;
+                            if (material.IsSlitterDataAdditionalFile == true && newFileId_SlitterDataAdditional.HasValue) material.ID_File_SlitterDataAdditional = newFileId_SlitterDataAdditional;
+                            if (material.IsVolumeAdditionalFile == true && newFileId_VolumeAdditional.HasValue) material.ID_File_VolumeAdditional = newFileId_VolumeAdditional;
+                            if (material.IsOutboundFreightAdditionalFile == true && newFileId_OutboundFreightAdditional.HasValue) material.ID_File_OutboundFreightAdditional = newFileId_OutboundFreightAdditional;
+                            if (material.IsDeliveryPackagingAdditionalFile == true && newFileId_DeliveryPackagingAdditional.HasValue) material.ID_File_DeliveryPackagingAdditional = newFileId_DeliveryPackagingAdditional;
+                            if (material.IsInterplantPackagingFile == true && newFileId_InterplantPackaging.HasValue) material.ID_File_InterplantPackaging = newFileId_InterplantPackaging;
+                            if (material.IsInterplantOutboundFreightFile == true && newFileId_InterplantOutboundFreight.HasValue) material.ID_File_InterplantOutboundFreight = newFileId_InterplantOutboundFreight;
+                            // Si el valor recibido es 0 (es decir, "N/A"), lo convertimos a null.
+                            if (material.ID_Arrival_Packaging_Type == 0) { material.ID_Arrival_Packaging_Type = null; }
+                            if (material.ID_Arrival_Protective_Material == 0) { material.ID_Arrival_Protective_Material = null; }
+
+                            db.CTZ_Project_Materials.Add(material);
+
+
+                            // --- INICIO DE LA NUEVA LÓGICA PARA PLATINAS SOLDADAS ---
+                            if (material.IsWeldedBlank == true && !string.IsNullOrEmpty(material.WeldedPlatesJson))
+                            {
+                                var plates = new System.Web.Script.Serialization.JavaScriptSerializer()
+                                                .Deserialize<List<WeldedPlateInfo>>(material.WeldedPlatesJson);
+
+                                if (plates != null)
+                                {
+                                    foreach (var plate in plates)
+                                    {
+                                        var newPlate = new CTZ_Material_WeldedPlates
+                                        {
+                                            ID_Material = material.ID_Material, // Asignamos el nuevo ID del material recién guardado
+                                            PlateNumber = plate.PlateNumber,
+                                            Thickness = (double)plate.Thickness
+                                        };
+                                        db.CTZ_Material_WeldedPlates.Add(newPlate);
+                                    }
+                                }
+                            }
+                            // --- FIN DE LA NUEVA LÓGICA ---
+
+                            var rackTypesToAdd = new List<CTZ_Material_RackTypes>();
+                            if (material.SelectedRackTypeIds != null && material.SelectedRackTypeIds.Any())
+                            {
+                                foreach (var rackTypeId in material.SelectedRackTypeIds)
+                                {
+                                    rackTypesToAdd.Add(new CTZ_Material_RackTypes { ID_RackType = rackTypeId });
+                                }
+                            }
+
+                            var labelsToAdd = new List<CTZ_Material_Labels>();
+                            if (material.SelectedLabelIds != null && material.SelectedLabelIds.Any())
+                            {
+                                foreach (var labelId in material.SelectedLabelIds)
+                                {
+                                    labelsToAdd.Add(new CTZ_Material_Labels { ID_LabelType = labelId });
+                                }
+                            }
+                            var strapsToAdd = new List<CTZ_Material_StrapTypes>();
+                            if (material.SelectedStrapTypeIds != null && material.SelectedStrapTypeIds.Any())
+                            {
+                                foreach (var strapId in material.SelectedStrapTypeIds)
+                                {
+                                    strapsToAdd.Add(new CTZ_Material_StrapTypes { ID_StrapType = strapId });
+                                }
+                            }
+                            var additionalsToAdd = new List<CTZ_Material_Additionals>();
+                            if (material.SelectedAdditionalIds != null && material.SelectedAdditionalIds.Any())
+                            {
+                                foreach (var additionalID in material.SelectedAdditionalIds)
+                                {
+                                    additionalsToAdd.Add(new CTZ_Material_Additionals { ID_Additional = additionalID });
+                                }
+                            }
+                            if (material.SelectedInterplantRackTypeIds != null && material.SelectedInterplantRackTypeIds.Any())
+                            {
+                                // Filtramos cualquier ID que sea 0 para evitar el error de FK.
+                                foreach (var interplantRackTypeId in material.SelectedInterplantRackTypeIds.Where(id => id > 0))
+                                {
+                                    // Crea la entidad de enlace y EF la asociará al 'material'
+                                    material.CTZ_Material_InterplantRackTypes.Add(new CTZ_Material_InterplantRackTypes { ID_RackType = interplantRackTypeId });
+                                }
+                            }
+                            if (material.SelectedInterplantLabelIds != null && material.SelectedInterplantLabelIds.Any())
+                            {
+                                // Filtramos cualquier ID que sea 0 (N/A) si es que existiera
+                                foreach (var interplantLabelId in material.SelectedInterplantLabelIds.Where(id => id > 0))
+                                {
+                                    // Crea la entidad de enlace y EF la asociará al 'material'
+                                    material.CTZ_Material_InterplantLabelTypes.Add(new CTZ_Material_InterplantLabelTypes { ID_LabelType = interplantLabelId });
+                                }
+                            }
+                            if (material.SelectedInterplantAdditionalIds != null && material.SelectedInterplantAdditionalIds.Any())
+                            {
+                                foreach (var interplantAdditionalId in material.SelectedInterplantAdditionalIds.Where(id => id > 0))
+                                {
+                                    material.CTZ_Material_InterplantAdditionals.Add(new CTZ_Material_InterplantAdditionals { ID_Additional = interplantAdditionalId });
+                                }
+                            }
+
+                            if (material.SelectedInterplantStrapTypeIds != null && material.SelectedInterplantStrapTypeIds.Any())
+                            {
+                                foreach (var interplantStrapId in material.SelectedInterplantStrapTypeIds.Where(id => id > 0))
+                                {
+                                    material.CTZ_Material_InterplantStrapTypes.Add(new CTZ_Material_InterplantStrapTypes { ID_StrapType = interplantStrapId });
+                                }
+                            }
+                            // Asignamos la colección al objeto material. EF entenderá la relación.
+                            material.CTZ_Material_RackTypes = rackTypesToAdd;
+                            material.CTZ_Material_Labels = labelsToAdd;
+                            material.CTZ_Material_StrapTypes = strapsToAdd;
+                            material.CTZ_Material_Additionals = additionalsToAdd;
+
+
+                        }
+                    }
+
+                    // --------------------------------------------------------------------------
+                    // ELIMINAR LOS ARCHIVOS HUÉRFANOS DE LA TABLA CTZ_Files
+                    // --------------------------------------------------------------------------
+                    foreach (var fileId in fileIdsToDelete.Distinct())
+                    {
+                        bool isStillReferenced = db.CTZ_Project_Materials.Any(m =>
+                            m.ID_File_CAD_Drawing == fileId ||
+                            m.ID_File_Packaging == fileId ||
+                            m.ID_File_TechnicalSheet == fileId ||
+                            m.ID_File_Additional == fileId ||
+                            m.ID_File_ArrivalAdditional == fileId ||
+                            m.ID_File_CoilDataAdditional == fileId ||
+                            m.ID_File_SlitterDataAdditional == fileId ||
+                            m.ID_File_VolumeAdditional == fileId ||
+                            m.ID_File_OutboundFreightAdditional == fileId ||
+                            m.ID_File_DeliveryPackagingAdditional == fileId ||
+                            m.ID_File_InterplantPackaging == fileId ||
+                            m.ID_File_InterplantOutboundFreight == fileId
+                        );
+
+                        if (!isStillReferenced)
+                        {
+                            var oldFile = db.CTZ_Files.Find(fileId);
+                            if (oldFile != null)
+                            {
+                                db.CTZ_Files.Remove(oldFile);
+                            }
+                        }
+                    }
+
+                    // Guardar cambios, antes de validar referencias al ID file
+                    db.SaveChanges();
+
+                    // (4) Verificar globalmente que esos archivos ya no sean referenciados en otros materiales y eliminarlos
+                    foreach (var fileId in fileIdsToDelete)
+                    {
+                        // Se comprueba en toda la tabla de materiales si hay algún registro con ese fileId.
+                        bool isStillReferenced = db.CTZ_Project_Materials.Any(m => m.ID_File_CAD_Drawing == fileId);
+                        if (!isStillReferenced)
+                        {
+                            var oldFile = db.CTZ_Files.Find(fileId);
+                            if (oldFile != null)
+                            {
+                                db.CTZ_Files.Remove(oldFile);
+                            }
+                        }
+                    }
+                    //guarda cambios
+                    db.SaveChanges();
+
+                    transaction.Commit();
+
+                }
+                catch (Exception ex)
+                {
+                    // Si algo falla, revertir todos los cambios
+                    transaction.Rollback();
+                    // Guardar o mostrar el error para depuración
+                    TempData["ErrorMessage"] = "An error occurred while saving: " + ex.Message;
+                    // Es importante redirigir o devolver una vista de error
+                    return RedirectToAction("EditClientPartInformation", new { id = project.ID_Project });
+                }
+            }
+
+
+            TempData["SuccessMessage"] = "Material saved successfully!";
+            return RedirectToAction("EditClientPartInformation", new { id = project.ID_Project });
+
+
+        }
+
 
         // En CTZ_ProjectsController.cs
 
@@ -3744,7 +5068,8 @@ namespace Portal_2_0.Controllers
         }
 
 
-        public ActionResult DownloadFile(int fileId)
+        [HttpGet]
+        public ActionResult DownloadFile(int fileId, bool inline = false)
         {
             using (var db = new Portal_2_0Entities())
             {
@@ -3752,12 +5077,29 @@ namespace Portal_2_0.Controllers
 
                 if (file == null)
                 {
-                    return HttpNotFound("Archivo no encontrado.");
+                    return HttpNotFound("File not found.");
                 }
 
-                return File(file.Data, file.MineType, file.Name);
+                // 1. Sanitizar el nombre del archivo para evitar errores en el header
+                var fileName = file.Name ?? "document";
+
+                // 2. Configurar el Content-Disposition
+                // "inline" = Se abre en el navegador (si es PDF/Imagen)
+                // "attachment" = Fuerza la descarga
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    FileName = fileName,
+                    Inline = inline
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                // 3. Retornar el archivo SIN pasar el nombre como 3er parámetro
+                // (porque ya lo definimos manualmente en el header arriba)
+                return File(file.Data, file.MineType);
             }
         }
+
         [NonAction]
         public string GetBodyOnHoldNotification(CTZ_Projects quote, string departmentName, DateTime holdDate)
         {
@@ -5158,7 +6500,7 @@ namespace Portal_2_0.Controllers
                 if (enableMathDebug)
                 {
                     traceLog.Add("=== SOLICITUD RECIBIDA (BLANKING): GetMaterialCapacityScenariosGraphs ===");
-                    traceLog.Add($"[PARAMS] ProjectId: {projectId}" );
+                    traceLog.Add($"[PARAMS] ProjectId: {projectId}");
                     traceLog.Add($"[PARAMS] Flags: OnlyBD: {OnlyBDMaterials} | SnapShot: {isSnapShot} | VerID: {versionId}");
                 }
 
@@ -5180,7 +6522,7 @@ namespace Portal_2_0.Controllers
                 if (!OnlyBDMaterials)
                 { //si onlyBDmaterials no esta activo
 
-                    traceLog.Add(">> Cálculo de OEE para num parte actual. "+ partNumber);
+                    traceLog.Add(">> Cálculo de OEE para num parte actual. " + partNumber);
 
                     var oeeResult = GetOeeToUse(oee, blkID, db, traceLog);
                     //var oeeResult = GetOeeToUse(oee, blkID, db);

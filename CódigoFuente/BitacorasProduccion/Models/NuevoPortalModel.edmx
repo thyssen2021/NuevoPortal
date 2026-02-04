@@ -1057,6 +1057,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.budget_cantidad_bud
           <Property Name="Initial_Weight" Type="float" />
           <Property Name="Max_Production_Factor" Type="float" />
           <Property Name="Max_Production_Effective" Type="float" />
+          <Property Name="IHS_Country" Type="nvarchar" MaxLength="10" />
+          <Property Name="IHS_Country_2" Type="nvarchar" MaxLength="10" />
+          <Property Name="IHS_Country_3" Type="nvarchar" MaxLength="10" />
         </EntityType>
         <EntityType Name="CTZ_Project_Materials_History">
           <Key>
@@ -1256,6 +1259,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.budget_cantidad_bud
           <Property Name="Initial_Weight" Type="float" />
           <Property Name="Max_Production_Factor" Type="float" />
           <Property Name="Max_Production_Effective" Type="float" />
+          <Property Name="IHS_Country" Type="nvarchar" MaxLength="10" />
+          <Property Name="IHS_Country_2" Type="nvarchar" MaxLength="10" />
+          <Property Name="IHS_Country_3" Type="nvarchar" MaxLength="10" />
         </EntityType>
         <EntityType Name="CTZ_Project_Status">
           <Key>
@@ -24782,6 +24788,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <Property Name="Initial_Weight" Type="Double" />
           <Property Name="Max_Production_Factor" Type="Double" />
           <Property Name="Max_Production_Effective" Type="Double" />
+          <Property Name="IHS_Country" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_Country_2" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_Country_3" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="CTZ_Arrival_Warehouses" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Arrival_Warehouses" FromRole="CTZ_Project_Materials" ToRole="CTZ_Arrival_Warehouses" />
           <NavigationProperty Name="CTZ_Coil_Position" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Coil_Position" FromRole="CTZ_Project_Materials" ToRole="CTZ_Coil_Position" />
           <NavigationProperty Name="CTZ_Coil_Position1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Coil_Position1" FromRole="CTZ_Project_Materials" ToRole="CTZ_Coil_Position" />
@@ -25021,6 +25030,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <Property Name="Initial_Weight" Type="Double" />
           <Property Name="Max_Production_Factor" Type="Double" />
           <Property Name="Max_Production_Effective" Type="Double" />
+          <Property Name="IHS_Country" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_Country_2" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_Country_3" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="CTZ_Arrival_Warehouses" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Arrival_Warehouses" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Arrival_Warehouses" />
           <NavigationProperty Name="CTZ_Coil_Position" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Coil_Position" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Coil_Position" />
           <NavigationProperty Name="CTZ_Coil_Position1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Coil_Position1" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Coil_Position" />
@@ -30525,6 +30537,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <EntitySetMapping Name="CTZ_Project_Materials">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Materials">
               <MappingFragment StoreEntitySet="CTZ_Project_Materials">
+                <ScalarProperty Name="IHS_Country_3" ColumnName="IHS_Country_3" />
+                <ScalarProperty Name="IHS_Country_2" ColumnName="IHS_Country_2" />
+                <ScalarProperty Name="IHS_Country" ColumnName="IHS_Country" />
                 <ScalarProperty Name="Max_Production_Effective" ColumnName="Max_Production_Effective" />
                 <ScalarProperty Name="Max_Production_Factor" ColumnName="Max_Production_Factor" />
                 <ScalarProperty Name="Initial_Weight" ColumnName="Initial_Weight" />
@@ -30724,6 +30739,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <EntitySetMapping Name="CTZ_Project_Materials_History">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Materials_History">
               <MappingFragment StoreEntitySet="CTZ_Project_Materials_History">
+                <ScalarProperty Name="IHS_Country_3" ColumnName="IHS_Country_3" />
+                <ScalarProperty Name="IHS_Country_2" ColumnName="IHS_Country_2" />
+                <ScalarProperty Name="IHS_Country" ColumnName="IHS_Country" />
                 <ScalarProperty Name="Max_Production_Effective" ColumnName="Max_Production_Effective" />
                 <ScalarProperty Name="Max_Production_Factor" ColumnName="Max_Production_Factor" />
                 <ScalarProperty Name="Initial_Weight" ColumnName="Initial_Weight" />

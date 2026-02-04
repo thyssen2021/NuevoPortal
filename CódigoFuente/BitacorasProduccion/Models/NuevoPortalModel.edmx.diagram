@@ -707,8 +707,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_empleados" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_empleados1" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_Versions_CTZ_Projects" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials" Width="1.5" PointX="52" PointY="87.875" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="49" PointY="93.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials" Width="1.5" PointX="49" PointY="93.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="52" PointY="87.625" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Arrival_Warehouses" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Arrival_Warehouses" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Coil_Position" />

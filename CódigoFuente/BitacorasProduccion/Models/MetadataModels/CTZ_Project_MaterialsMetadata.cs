@@ -1244,8 +1244,5 @@ namespace Portal_2_0.Models
             sb.Append("|");
             return sb.ToString();
         }
-
-
-
     }
 }

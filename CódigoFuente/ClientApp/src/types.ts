@@ -1,0 +1,259 @@
+// src/types.ts
+// 1. Definimos una interfaz auxiliar para los items de los dropdowns
+export interface DropdownItem {
+    value?: string | number; // Opción minúscula
+    text?: string;
+    Value?: string | number; // Opción Mayúscula (C#)
+    Text?: string;
+}
+
+// 2. Definimos la estructura del objeto 'lists'
+export interface AppLists {
+    ihsCountries: DropdownItem[];
+    materialTypes: DropdownItem[];
+    interplantPlants: DropdownItem[];
+    qualityList: DropdownItem[];
+    millList: DropdownItem[];
+    shapes: DropdownItem[];
+    [key: string]: any; // Esto permite flexibilidad para otras listas futuras
+}
+
+export interface Material {
+    // Identificadores
+    ID_Material: number;
+    ID_Project?: number;
+
+    // Campos principales (Tal cual vienen en tu JSON)
+
+    Vehicle?: string;
+    Vehicle_2?: string;
+    Vehicle_3?: string;
+    IHS_Country?: string;
+    IHS_Country_2?: string;
+    IHS_Country_3?: string;
+
+    // Fechas (Vienen como string ISO desde C#)
+    SOP_SP?: string;
+    EOP_SP?: string;
+    Real_SOP?: string;
+    Real_EOP?: string;
+
+    Max_Production_SP?: number;       // El valor sumado de los JSON de producción
+    Max_Production_Factor?: number;   // Tu Adj. Factor % (el que quieres con 100 por defecto)
+    Max_Production_Effective?: number; // El resultado final de Max * Factor
+    IsRunningChange?: boolean;
+    IsCarryOver?: boolean;
+    // Otros campos que vi en tu JSON
+    Program_SP?: string;
+
+    ID_Route?: number;
+    Part_Number: string;
+    Part_Name: string;
+    Ship_To?: string;
+    ID_Interplant_Plant?: number
+
+    ID_Arrival_Transport_Type?: number;
+    Arrival_Transport_Type_Other?: string;
+    ID_Arrival_Packaging_Type?: number;
+    ID_Arrival_Protective_Material?: number;
+    Arrival_Protective_Material_Other?: string;
+    Is_By_Container?: boolean;
+    Is_Stackable?: boolean; // Checkbox de apilable    
+    Stackable_Levels?: number; // Cantidad de niveles (Numérico)
+    ID_Arrival_Warehouse?: number;
+    PassesThroughSouthWarehouse?: boolean;
+    Arrival_Comments?: string;
+
+    //archivo arrival
+    ID_File_ArrivalAdditional?: number;
+    FileName_ArrivalAdditional?: string; // Para mostrar el nombre si ya existe
+    file_ArrivalAdditional?: File | null; // Propiedad temporal para guardar el binario (File) en memoria antes de subir
+
+    Quality?: string;
+    ID_Material_type?: number;
+    Mill?: string;
+    MaterialSpecification?: string;
+    /*------------ */
+    Surface?: string;
+    Tensile_Strenght?: number;
+
+    Thickness?: number;
+    ThicknessToleranceNegative?: number;
+    ThicknessTolerancePositive?: number;
+
+    Width?: number;
+    WidthToleranceNegative?: number;
+    WidthTolerancePositive?: number;
+
+    MasterCoilWeight?: number;
+    InnerCoilDiameterArrival?: number;
+    OuterCoilDiameterArrival?: number;
+
+    // 👇 NUEVO ARCHIVO
+    ID_File_CoilDataAdditional?: number;
+    FileName_CoilDataAdditional?: string; // Para mostrar nombre al editar
+    coilDataAdditionalFile?: File | null; // Para subir el binario
+
+    /* -------------- */
+    Multipliers?: number;
+    Width_Mults?: number;
+    Width_Mults_Tol_Neg?: number;
+    Width_Mults_Tol_Pos?: number;
+    // Weight of Final Mults
+    WeightOfFinalMults?: number; // Este es el "Optimal" según tu Legacy
+    WeightOfFinalMults_Min?: number;
+    WeightOfFinalMults_Max?: number;
+    // Slitter Data Additional File
+    ID_File_SlitterDataAdditional?: number;      // El ID guardado en BD
+    FileName_SlitterDataAdditional?: string;     // El nombre para mostrar en el enlace de descarga
+    slitterDataAdditionalFile?: File | null;     // El archivo físico al subir
+
+    ID_Shape?: number;
+    Blanks_Per_Stroke?: number; // legacy: Blanks_Per_Stroke
+    Parts_Per_Vehicle?: number; // legacy: Parts_Per_Vehicle
+    // Blank Data - Plates Width (Width_Plates)
+    Width_Plates?: number;
+    Width_Plates_Tol_Neg?: number;
+    Width_Plates_Tol_Pos?: number;
+    // Blank Data - Pitch
+    Pitch?: number;
+    PitchToleranceNegative?: number;
+    PitchTolerancePositive?: number;
+    // Blank Data - Flatness
+    Flatness?: number;
+    FlatnessToleranceNegative?: number;
+    FlatnessTolerancePositive?: number;
+    // Blank Data - Angle A
+    Angle_A?: number;
+    AngleAToleranceNegative?: number;
+    AngleATolerancePositive?: number;
+    // Blank Data - Angle B
+    Angle_B?: number;
+    AngleBToleranceNegative?: number;
+    AngleBTolerancePositive?: number;
+    // Blank Data - Major Base
+    MajorBase?: number;
+    MajorBaseToleranceNegative?: number;
+    MajorBaseTolerancePositive?: number;
+    // Blank Data - Minor Base
+    MinorBase?: number;
+    MinorBaseToleranceNegative?: number;
+    MinorBaseTolerancePositive?: number;
+    Theoretical_Gross_Weight?: number;
+    Gross_Weight?: number;
+    ClientNetWeight?: number;
+    // Campos Calculados (Resultados de updateCalculatedWeightFields) 
+    TurnOver?: boolean; // Checkbox
+    TurnOverSide?: string; // Select (Left/Right)
+
+    IsWeldedBlank?: boolean;
+    RequiresDieManufacturing?: boolean;
+    NumberOfPlates?: number;    
+    // JSON serializado que viene de la BD (Legacy)
+    WeldedPlatesJson?: string;     
+    // Array helper para el frontend (no es columna directa de BD, se mapea)
+    _weldedPlates?: WeldedPlate[];
+
+    // 1. CAD Drawings (Shape 18)
+    ID_File_CAD_Drawing?: number;
+    CADFileName?: string;         // Para mostrar "archivo.dwg"
+    archivo?: File | null;        // ⚠️ Nombre exacto del input legacy
+
+    // 2. Technical Sheet
+    ID_File_TechnicalSheet?: number;
+    TechnicalSheetFileName?: string;
+    technicalSheetFile?: File | null; // ⚠️ Nombre exacto del input legacy
+
+    // 3. Additional File
+    ID_File_Additional?: number;
+    AdditionalFileName?: string;
+    AdditionalFile?: File | null;     // ⚠️ Nombre exacto del input legacy
+
+    // Volúmenes Generales (posiblemente ya existan)
+    Annual_Volume?: number;
+    Volume_Per_year?: number; // M Tons/Year
+
+    // Blanking Specific Volumes (NUEVOS)
+    Blanking_Annual_Volume?: number;
+    Blanking_Volume_Per_year?: number; // M Tons/Year
+    Blanking_InitialWeightPerPart?: number; // Calculado
+    InitialWeightPerPart?: number;          // Calculado
+    Blanking_ProcessTons?: number;          // Calculado
+    Blanking_ShippingTons?: number;         // Calculado
+
+    Shearing_Pieces_Per_Stroke?: number;
+    Shearing_Pieces_Per_Car?: number;
+
+    Shearing_Width?: number;
+    Shearing_Width_Tol_Neg?: number;
+    Shearing_Width_Tol_Pos?: number;
+    // Shearing Data
+    Shearing_Pitch?: number;
+    Shearing_Pitch_Tol_Neg?: number;
+    Shearing_Pitch_Tol_Pos?: number;
+
+    Shearing_Weight?: number;
+    Shearing_Weight_Tol_Neg?: number;
+    Shearing_Weight_Tol_Pos?: number;
+    // ... puedes agregar más según necesites
+}
+
+export interface ProjectData {
+    ID_Project: number;
+    ID_Plant: number;
+    ConcatQuoteID: string;
+    InterplantProcess: boolean;
+    ID_Status: number;
+
+    Creted_Date?: string;
+    OEM_Otro?: string;
+    Cliente_Otro?: string;
+
+    // --- OBJETOS ANIDADOS (Aquí están los Friendly Names) ---
+    CTZ_Project_Status?: {
+        ID_Status: number;
+        Description: string;
+        ConcatStatus: string;
+    };
+
+    CTZ_Clients?: {
+        ID_Cliente: number;
+        Client_Name: string;
+        ConcatSAPName: string; // Ej: "(989) GESTAMP PUEBLA"
+    };
+
+    CTZ_Material_Owner?: {
+        ID_Owner: number;
+        Description: string; // Ej: "Propiedad tkMM"
+    };
+
+    empleados?: { // Para "Created By"
+        id: number;
+        ConcatNombre: string; // Ej: "ALFREDO XOCHITEMOL CRUZ"
+    };
+
+    // ¡IMPORTANTE! Este nombre debe ser exacto al JSON:
+    CTZ_Project_Materials: Material[];
+
+}
+
+export interface WeldedPlate {
+    PlateNumber: number;
+    Thickness: number;
+}
+
+export interface AppContext {
+    project: ProjectData;
+    user: { name: string; id: number };
+    permissions: {
+        canEditSales: boolean;
+        canEditEngineering: boolean;
+        canEditDataManagement: boolean;
+        isDetailsMode: boolean;
+    };
+    urls: {
+        saveUrl: string;
+        backUrl: string;
+    };
+    lists: AppLists;
+}

@@ -484,6 +484,7 @@
     <Compile Include="Models\AuxiliarModels\Enums.cs" />
     <Compile Include="Models\AuxiliarModels\Helpers.cs" />
     <Compile Include="Models\AuxiliarModels\SAPRFC.cs" />
+    <Compile Include="Models\AuxiliarModels\SmartOptimizerResolver.cs" />
     <Compile Include="Models\AuxiliarModels\ViewModels.cs" />
     <Compile Include="Models\BaseController.cs" />
     <Compile Include="Models\biblioteca_digital.cs">
@@ -5401,6 +5402,10 @@
     <Content Include="Scripts\popper-utils.min.js" />
     <Content Include="Scripts\popper.js" />
     <Content Include="Scripts\popper.min.js" />
+    <Content Include="Scripts\ReactDist\assets\main.css" />
+    <Content Include="Scripts\ReactDist\assets\main.js" />
+    <Content Include="Scripts\ReactDist\assets\react.svg" />
+    <Content Include="Scripts\ReactDist\vite.svg" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\site.js" />
@@ -6106,7 +6111,7 @@
     <Content Include="Views\CTZ_Projects\Edit.cshtml" />
     <Content Include="Views\CTZ_Projects\Index.cshtml" />
     <Content Include="Views\CTZ_Projects\EditProject.cshtml" />
-    <Content Include="Views\CTZ_Projects\EditClientPartInformation.cshtml" />
+    <Content Include="Views\CTZ_Projects\_EditClientPartInformation_LEGACY.cshtml" />
     <Content Include="Views\Shared\_CTZ_ProjectInfo.cshtml" />
     <Content Include="Views\CTZ_Projects\ProjectStatus.cshtml" />
     <Content Include="Views\CTZ_Catalogs\Index.cshtml" />
@@ -6134,6 +6139,7 @@
     <Content Include="Views\CTZ_Catalogs\ManageShiftsByPlant.cshtml" />
     <Content Include="Views\SapPoc\Index.cshtml" />
     <Content Include="Views\SapPoc\MaterialDetails.cshtml" />
+    <Content Include="Views\CTZ_Projects\EditClientPartInformation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
