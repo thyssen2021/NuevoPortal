@@ -14,7 +14,13 @@
 @section estilos
 {
     @* Cargamos el CSS de React manualmente aquí *@
-    <link rel="stylesheet" href="@Url.Content("~/Scripts/ReactDist/assets/main.css")" />
+    @{
+        var cssPathStyle = Server.MapPath("~/Scripts/ReactDist/assets/main.css");
+        var cssVersionStyle = System.IO.File.Exists(cssPathStyle)
+            ? System.IO.File.GetLastWriteTime(cssPathStyle).Ticks.ToString()
+            : DateTime.Now.Ticks.ToString();
+    }
+    <link rel="stylesheet" href="@Url.Content("~/Scripts/ReactDist/assets/main.css")?v=@cssVersionStyle" />
     <style>
         #client-part-information-root {
             min-height: 500px;
@@ -88,8 +94,26 @@
 
         // 2. FUNCIÓN DE CARGA SEGURA
         // Esta función espera a que el entorno Legacy (jQuery) esté listo antes de soltar a React.
-        (function() {
-            var reactScriptUrl = "@Url.Content("~/Scripts/ReactDist/assets/main.js")";
+        (function () {
+
+            @* TRUCO DE CACHE BUSTING:
+               Obtenemos la fecha de última escritura del archivo físico en el servidor.
+               Convertimos esa fecha a Ticks para usarla como versión.
+            *@
+            @{
+                var jsPath = Server.MapPath("~/Scripts/ReactDist/assets/main.js");
+                var cssPath = Server.MapPath("~/Scripts/ReactDist/assets/main.css");
+
+                var jsVersion = System.IO.File.Exists(jsPath)
+                    ? System.IO.File.GetLastWriteTime(jsPath).Ticks.ToString()
+                    : DateTime.Now.Ticks.ToString();
+
+                var cssVersion = System.IO.File.Exists(cssPath)
+                    ? System.IO.File.GetLastWriteTime(cssPath).Ticks.ToString()
+                    : DateTime.Now.Ticks.ToString();
+            }
+
+            var reactScriptUrl = "@Url.Content("~/Scripts/ReactDist/assets/main.js")?v=@jsVersion";
             var maxRetries = 50; // 5 segundos max
             var attempts = 0;
 
