@@ -156,3 +156,10 @@ _[Ss]cripts
 # Esta es la regla clave que resuelve tu problema para TODAS las carpetas .vs
 **/.vs/
 .vs/
+
+######################
+# TEMPORAL - IGNORAR REACT
+######################
+# Ignora la carpeta en cualquier nivel (raiz o dentro de CódigoFuente)
+**/CódigoFuente/ClientApp/
+
