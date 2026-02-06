@@ -645,6 +645,13 @@
         <EntityTypeShape EntityType="Portal_2_0Model.OT_Cargas" Width="1.5" PointX="29.375" PointY="3.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.OT_Datos" Width="1.5" PointX="31.625" PointY="1.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_Datos_OT_Cargas" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PLC_Data" Width="1.5" PointX="5.25" PointY="214.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PLC_EventosErrores" Width="1.5" PointX="23.375" PointY="23.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PLC_Historical_Values" Width="1.5" PointX="9.75" PointY="215.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PLC_Tags" Width="1.5" PointX="7.5" PointY="214.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PLC_Tags_PLC_Data" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PM_PLCs_Lines" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PLC_Historical_Values_PLC_Tags" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

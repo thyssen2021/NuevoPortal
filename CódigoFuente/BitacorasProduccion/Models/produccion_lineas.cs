@@ -21,6 +21,7 @@ namespace Portal_2_0.Models
             this.OT_zona_falla = new HashSet<OT_zona_falla>();
             this.produccion_operadores = new HashSet<produccion_operadores>();
             this.produccion_registros = new HashSet<produccion_registros>();
+            this.PLC_Data = new HashSet<PLC_Data>();
         }
     
         public int id { get; set; }
@@ -38,5 +39,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<produccion_operadores> produccion_operadores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_registros> produccion_registros { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PLC_Data> PLC_Data { get; set; }
     }
 }

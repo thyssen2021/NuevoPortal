@@ -432,7 +432,17 @@
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "produccion_reporte" ? "current-page" : null )"><a href="@Url.Action("Index", "ProduccionResultado")">Reporte de Producci&oacute;n</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "reporte_pesadas" ? "current-page" : null )"><a href="@Url.Action( "Index", "ReportePesadas")">Reporte Pesadas</a></li>
+
+                                                    <!-- Enlace al monitor en vivo  -->
+                                                    <li class="@(ViewBag.SegundoNivel == "monitor_plc" ? "current-page" : null )">
+                                                        <a href="@Url.Action("Index", "PlcMonitor")">
+                                                            Monitor en Vivo
+                                                        </a>
+                                                    </li>
+
                                                 }
+
+
                                                 @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
                                                 {
                                                     <li class="link @(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "active" : null )">

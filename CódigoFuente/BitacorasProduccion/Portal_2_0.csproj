@@ -435,6 +435,7 @@
     <Compile Include="Controllers\PFA_Type_shipmentController.cs" />
     <Compile Include="Controllers\PFA_VolumeController.cs" />
     <Compile Include="Controllers\PlantasController.cs" />
+    <Compile Include="Controllers\PlcMonitorController.cs" />
     <Compile Include="Controllers\PM_departamentosController.cs" />
     <Compile Include="Controllers\PM_poliza_manual_modeloController.cs" />
     <Compile Include="Controllers\PM_tipo_polizaController.cs" />
@@ -509,6 +510,7 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Auxiliares\HangfireAuthorizationFilter.cs" />
+    <Compile Include="Models\Auxiliares\PlcMonitoHub.cs" />
     <Compile Include="Models\Auxiliares\RfcConnectionService.cs" />
     <Compile Include="Models\Auxiliares\SAPCharacteristics.cs" />
     <Compile Include="Models\Auxiliares\SapDataViewModels.cs" />
@@ -1210,6 +1212,18 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\plantas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLC_Data.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLC_EventosErrores.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLC_Historical_Values.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLC_Tags.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\PM_conceptos.cs">
@@ -6176,6 +6190,8 @@
     <Content Include="Views\SCDM_solicitud\ReporteVencimientos.cshtml" />
     <Content Include="Views\BG_Forecast_cat_fiscal_years\Index.cshtml" />
     <Content Include="Views\OT_Cargas\Index.cshtml" />
+    <Content Include="Views\PlcMonitor\Index.cshtml" />
+    <Content Include="Views\PlcMonitor\SeleccionPlc.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

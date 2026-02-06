@@ -309,5 +309,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
         public virtual DbSet<OT_Cargas> OT_Cargas { get; set; }
         public virtual DbSet<OT_Datos> OT_Datos { get; set; }
+        public virtual DbSet<PLC_Data> PLC_Data { get; set; }
+        public virtual DbSet<PLC_EventosErrores> PLC_EventosErrores { get; set; }
+        public virtual DbSet<PLC_Historical_Values> PLC_Historical_Values { get; set; }
+        public virtual DbSet<PLC_Tags> PLC_Tags { get; set; }
     }
 }

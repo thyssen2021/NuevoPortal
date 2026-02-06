@@ -1,0 +1,174 @@
+﻿@model IEnumerable<Portal_2_0.Models.PLC_Tags>
+@{
+    // No usamos un Modelo complejo por ahora, todo es dinámico vía JS
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Recuperamos el ID del PLC que envió el controlador
+    var plcId = ViewBag.PlcId;
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos {
+    <style>
+        /* Estilos para las tarjetas de datos */
+        .plc-card {
+            background: #fff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid #009ff5; /* Azul Thyssen */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .plc-card:hover { transform: translateY(-3px); }
+
+        .plc-label {
+            font-size: 12px;
+            color: #73879C;
+            text-transform: uppercase;
+            font-weight: bold;
+            display: block;
+        }
+
+        .plc-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2A3F54;
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* Animación cuando el valor cambia */
+        .value-updated {
+            animation: highlight 1s;
+        }
+
+        @("@keyframes") highlight {
+            0% { background-color: #ffff99; }
+            100% { background-color: transparent; }
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title <small>Conexión en tiempo real</small></h2>
+                        <div class="nav navbar-right panel_toolbox">
+                            <span id="connectionStatus" class="badge badge-warning">Conectando...</span>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <div class="x_content">
+
+                        <div class="row" id="dashboard-container">
+
+                            @* 2. GENERACIÓN DINÁMICA DE TARJETAS *@
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var tag in Model)
+                                {
+                                    // Generamos un color aleatorio o fijo para el borde izquierdo
+                                    // O podrías basarlo en el tipo de variable (Bool=Verde, Int=Azul)
+                                    string borderColor = "#009ff5";
+                                    if (tag.VarType != null && (tag.VarType.Contains("Bool") || tag.VarType.Contains("Bit")))
+                                    {
+                                        borderColor = "#1ABB9C"; // Verde para booleanos
+                                    }
+
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="plc-card" style="border-left-color: @borderColor;">
+
+                                            <span class="plc-label">@tag.FriendlyName</span>
+
+                                            <span class="plc-value" id="tag-@tag.FriendlyName">--</span>
+
+                                            <small class="text-muted" style="font-size:10px">
+                                                DB@(tag.DB).DBX@(tag.StartByteAdr) (@tag.VarType)
+                                            </small>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="col-md-12">
+                                    <div class="alert alert-warning">
+                                        No hay tags configurados o activos para este PLC en la base de datos.
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // 1. Obtener referencia al Hub (camelCase)
+            var monitorHub = $.connection.plcMonitorHub;
+            var plcIdGroup = "@plcId"; // ID del PLC que viene del Controller
+
+            // 2. Definir la función que el Servidor (Windows Service) va a llamar
+            monitorHub.client.receivePlcUpdate = function (data) {
+                // 'data' es un objeto JSON: { "Temperatura": 45.2, "Presion": 100 }
+
+                // Recorremos las llaves del objeto recibido
+                $.each(data, function (tagName, value) {
+
+                    // Buscamos si existe un elemento HTML con id="tag-NombreDelTag"
+                    var elementId = "#tag-" + tagName;
+                    var $el = $(elementId);
+
+                    if ($el.length) {
+                        // Actualizamos el texto
+                        $el.text(value);
+
+                        // Efecto visual de parpadeo suave
+                        $el.parent().addClass("value-updated");
+                        setTimeout(function() {
+                            $el.parent().removeClass("value-updated");
+                        }, 500);
+                    } else {
+                        console.log("Tag recibido pero no mostrado en HTML: " + tagName);
+                    }
+                });
+            };
+
+            // 3. Iniciar la conexión
+            $.connection.hub.start()
+                .done(function () {
+                    $('#connectionStatus').text("En Línea").removeClass("badge-warning").addClass("badge-success");
+
+                    // 4. Una vez conectados, nos unimos al grupo específico de este PLC
+                    monitorHub.server.joinPlcGroup(plcIdGroup);
+                    console.log("Conectado a SignalR. Unido al grupo PLC: " + plcIdGroup);
+                })
+                .fail(function (error) {
+                    $('#connectionStatus').text("Error Conexión").removeClass("badge-warning").addClass("badge-danger");
+                    console.error("No se pudo conectar a SignalR: " + error);
+                });
+
+            // Manejo de desconexión al salir de la página (limpieza)
+            $(window).unload(function() {
+                monitorHub.server.leavePlcGroup(plcIdGroup);
+                $.connection.hub.stop();
+            });
+        });
+    </script>
+}

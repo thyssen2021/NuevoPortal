@@ -571,7 +571,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'pruebas_desarrollo.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -2154,6 +2154,59 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="tkapsite" Type="varchar" MaxLength="80" />
           <Property Name="aplica_solicitud_scdm" Type="bit" />
         </EntityType>
+        <EntityType Name="PLC_Data">
+          <Key>
+            <PropertyRef Name="ID_PLC" />
+          </Key>
+          <Property Name="ID_PLC" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_Line" Type="int" Nullable="false" />
+          <Property Name="FriendlyName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Slot" Type="int" Nullable="false" />
+          <Property Name="IpAddress" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="CpuType" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="Rack" Type="int" Nullable="false" />
+          <Property Name="Active" Type="bit" Nullable="false" />
+          <Property Name="CreatedDate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="PLC_EventosErrores">
+          <Key>
+            <PropertyRef Name="IdEvento" />
+          </Key>
+          <Property Name="IdEvento" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FechaEvento" Type="date" Nullable="false" />
+          <Property Name="FechaRegistro" Type="datetime" Nullable="false" />
+          <Property Name="ID_PLC" Type="int" />
+          <Property Name="ID_Tag" Type="int" />
+          <Property Name="FriendlyName_PLC" Type="varchar" MaxLength="100" />
+          <Property Name="FriendlyName_Tag" Type="varchar" MaxLength="100" />
+          <Property Name="Problema" Type="varchar" MaxLength="100" />
+          <Property Name="Descripcion" Type="varchar" MaxLength="255" />
+          <Property Name="Active" Type="bit" />
+        </EntityType>
+        <EntityType Name="PLC_Historical_Values">
+          <Key>
+            <PropertyRef Name="ID_Historical_Value" />
+          </Key>
+          <Property Name="ID_Historical_Value" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_Tag" Type="int" Nullable="false" />
+          <Property Name="Timestamp" Type="datetime" Nullable="false" />
+          <Property Name="Valor" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="FechaExpiracion" Type="datetime2" Precision="7" />
+        </EntityType>
+        <EntityType Name="PLC_Tags">
+          <Key>
+            <PropertyRef Name="ID_Tag" />
+          </Key>
+          <Property Name="ID_Tag" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_PLC" Type="int" Nullable="false" />
+          <Property Name="FriendlyName" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="VarType" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="DB" Type="int" />
+          <Property Name="StartByteAdr" Type="int" />
+          <Property Name="Count" Type="int" />
+          <Property Name="Active" Type="bit" Nullable="false" />
+          <Property Name="CreatedDate" Type="datetime" />
+        </EntityType>
         <EntityType Name="PM_conceptos">
           <Key>
             <PropertyRef Name="id" />
@@ -3694,7 +3747,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'pruebas_desarrollo.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_datos_base_reporte_pesadas">
           <Key>
             <PropertyRef Name="id" />
@@ -3722,7 +3775,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_datos_base_reporte_pesad
           <Property Name="peso_real_pieza_bruto" Type="float" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'pruebas_desarrollo.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -3816,7 +3869,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no 
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_ideas_mejora' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'pruebas_desarrollo.dbo.view_ideas_mejora' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_ideas_mejora">
           <Key>
             <PropertyRef Name="id" />
@@ -3868,7 +3921,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_ideas_mejora' no tiene d
           <Property Name="proponente_5_nombre" Type="nvarchar" MaxLength="1025" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'pruebas_desarrollo.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_clientes_por_solictud">
           <Key>
             <PropertyRef Name="id" />
@@ -3879,7 +3932,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_clientes_por_solict
           <Property Name="nombre_cliente" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'pruebas_desarrollo.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_materiales_x_solicitud">
           <Key>
             <PropertyRef Name="id" />
@@ -3900,7 +3953,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_materiales_x_solici
           <Property Name="fecha_solicitud" Type="datetime" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'pruebas_desarrollo.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -3984,7 +4037,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'pruebas_desarrollo.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -4068,7 +4121,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="Comentario" Type="varchar" MaxLength="200" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_forecast' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'pruebas_desarrollo.dbo.view_valores_forecast' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_forecast">
           <Key>
             <PropertyRef Name="id_budget_rel_fy_centro" />
@@ -4152,7 +4205,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_forecast' no tie
           <Property Name="Comentario" Type="varchar" MaxLength="200" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'pruebas_desarrollo.dbo.Vw_Materiales_Vencimiento' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="Vw_Materiales_Vencimiento">
           <Key>
             <PropertyRef Name="Material" />
@@ -6828,6 +6881,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_PLC_Historical_Values_PLC_Tags">
+          <End Role="PLC_Tags" Type="Self.PLC_Tags" Multiplicity="1" />
+          <End Role="PLC_Historical_Values" Type="Self.PLC_Historical_Values" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLC_Tags">
+              <PropertyRef Name="ID_Tag" />
+            </Principal>
+            <Dependent Role="PLC_Historical_Values">
+              <PropertyRef Name="ID_Tag" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PLC_Tags_PLC_Data">
+          <End Role="PLC_Data" Type="Self.PLC_Data" Multiplicity="1" />
+          <End Role="PLC_Tags" Type="Self.PLC_Tags" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLC_Data">
+              <PropertyRef Name="ID_PLC" />
+            </Principal>
+            <Dependent Role="PLC_Tags">
+              <PropertyRef Name="ID_PLC" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PM_conceptos_id_poliza">
           <End Role="poliza_manual" Type="Self.poliza_manual" Multiplicity="1" />
           <End Role="PM_conceptos" Type="Self.PM_conceptos" Multiplicity="*" />
@@ -6873,6 +6950,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             </Principal>
             <Dependent Role="PM_departamentos">
               <PropertyRef Name="id_empleado_jefe" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PM_PLCs_Lines">
+          <End Role="produccion_lineas" Type="Self.produccion_lineas" Multiplicity="1" />
+          <End Role="PLC_Data" Type="Self.PLC_Data" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_lineas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PLC_Data">
+              <PropertyRef Name="ID_Line" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -7032,7 +7121,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_produccion_lineas_planta_clave">
+        <Association Name="FK_produccion_lineas_plantas">
           <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
           <End Role="produccion_lineas" Type="Self.produccion_lineas" Multiplicity="*" />
           <ReferentialConstraint>
@@ -8600,6 +8689,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <EntitySet Name="PFA_Type_shipment" EntityType="Self.PFA_Type_shipment" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA_Volume" EntityType="Self.PFA_Volume" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="plantas" EntityType="Self.plantas" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLC_Data" EntityType="Self.PLC_Data" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLC_EventosErrores" EntityType="Self.PLC_EventosErrores" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLC_Historical_Values" EntityType="Self.PLC_Historical_Values" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLC_Tags" EntityType="Self.PLC_Tags" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PM_conceptos" EntityType="Self.PM_conceptos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PM_conceptos_modelo" EntityType="Self.PM_conceptos_modelo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PM_departamentos" EntityType="Self.PM_departamentos" Schema="dbo" store:Type="Tables" />
@@ -10011,6 +10104,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             <End Role="PFA_Volume" EntitySet="PFA_Volume" />
             <End Role="PFA" EntitySet="PFA" />
           </AssociationSet>
+          <AssociationSet Name="FK_PLC_Historical_Values_PLC_Tags" Association="Self.FK_PLC_Historical_Values_PLC_Tags">
+            <End Role="PLC_Tags" EntitySet="PLC_Tags" />
+            <End Role="PLC_Historical_Values" EntitySet="PLC_Historical_Values" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PLC_Tags_PLC_Data" Association="Self.FK_PLC_Tags_PLC_Data">
+            <End Role="PLC_Data" EntitySet="PLC_Data" />
+            <End Role="PLC_Tags" EntitySet="PLC_Tags" />
+          </AssociationSet>
           <AssociationSet Name="FK_PM_conceptos_id_poliza" Association="Self.FK_PM_conceptos_id_poliza">
             <End Role="poliza_manual" EntitySet="poliza_manual" />
             <End Role="PM_conceptos" EntitySet="PM_conceptos" />
@@ -10026,6 +10127,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <AssociationSet Name="FK_PM_departamentos_empleado" Association="Self.FK_PM_departamentos_empleado">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="PM_departamentos" EntitySet="PM_departamentos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PM_PLCs_Lines" Association="Self.FK_PM_PLCs_Lines">
+            <End Role="produccion_lineas" EntitySet="produccion_lineas" />
+            <End Role="PLC_Data" EntitySet="PLC_Data" />
           </AssociationSet>
           <AssociationSet Name="FK_PM_usuarios_capturistas_departamento" Association="Self.FK_PM_usuarios_capturistas_departamento">
             <End Role="PM_departamentos" EntitySet="PM_departamentos" />
@@ -10079,7 +10184,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             <End Role="produccion_registros" EntitySet="produccion_registros" />
             <End Role="produccion_datos_entrada" EntitySet="produccion_datos_entrada" />
           </AssociationSet>
-          <AssociationSet Name="FK_produccion_lineas_planta_clave" Association="Self.FK_produccion_lineas_planta_clave">
+          <AssociationSet Name="FK_produccion_lineas_plantas" Association="Self.FK_produccion_lineas_plantas">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="produccion_lineas" EntitySet="produccion_lineas" />
           </AssociationSet>
@@ -12333,6 +12438,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <NavigationProperty Name="plantas" Relationship="Self.FK_produccion_lineas_planta_clave" FromRole="produccion_lineas" ToRole="plantas" />
           <NavigationProperty Name="produccion_operadores" Relationship="Self.FK_produccion_operadores_id_linea" FromRole="produccion_lineas" ToRole="produccion_operadores" />
           <NavigationProperty Name="produccion_registros" Relationship="Self.FK_produccion_registros_linea" FromRole="produccion_lineas" ToRole="produccion_registros" />
+          <NavigationProperty Name="PLC_Data" Relationship="Portal_2_0Model.FK_PM_PLCs_Lines" FromRole="produccion_lineas" ToRole="PLC_Data" />
         </EntityType>
         <EntityType Name="produccion_lotes">
           <Key>
@@ -18275,6 +18381,22 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             <End Role="OT_Cargas" EntitySet="OT_Cargas" />
             <End Role="OT_Datos" EntitySet="OT_Datos" />
           </AssociationSet>
+          <EntitySet Name="PLC_Data" EntityType="Portal_2_0Model.PLC_Data" />
+          <EntitySet Name="PLC_EventosErrores" EntityType="Portal_2_0Model.PLC_EventosErrores" />
+          <EntitySet Name="PLC_Historical_Values" EntityType="Portal_2_0Model.PLC_Historical_Values" />
+          <EntitySet Name="PLC_Tags" EntityType="Portal_2_0Model.PLC_Tags" />
+          <AssociationSet Name="FK_PLC_Tags_PLC_Data" Association="Portal_2_0Model.FK_PLC_Tags_PLC_Data">
+            <End Role="PLC_Data" EntitySet="PLC_Data" />
+            <End Role="PLC_Tags" EntitySet="PLC_Tags" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PM_PLCs_Lines" Association="Portal_2_0Model.FK_PM_PLCs_Lines">
+            <End Role="produccion_lineas" EntitySet="produccion_lineas" />
+            <End Role="PLC_Data" EntitySet="PLC_Data" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PLC_Historical_Values_PLC_Tags" Association="Portal_2_0Model.FK_PLC_Historical_Values_PLC_Tags">
+            <End Role="PLC_Tags" EntitySet="PLC_Tags" />
+            <End Role="PLC_Historical_Values" EntitySet="PLC_Historical_Values" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -21338,6 +21460,100 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             </Principal>
             <Dependent Role="OT_Datos">
               <PropertyRef Name="ID_CargaOT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="PLC_Data">
+          <Key>
+            <PropertyRef Name="ID_PLC" />
+          </Key>
+          <Property Name="ID_PLC" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Line" Type="Int32" Nullable="false" />
+          <Property Name="FriendlyName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Slot" Type="Int32" Nullable="false" />
+          <Property Name="IpAddress" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CpuType" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Rack" Type="Int32" Nullable="false" />
+          <Property Name="Active" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="PLC_Tags" Relationship="Portal_2_0Model.FK_PLC_Tags_PLC_Data" FromRole="PLC_Data" ToRole="PLC_Tags" />
+          <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_PM_PLCs_Lines" FromRole="PLC_Data" ToRole="produccion_lineas" />
+        </EntityType>
+        <EntityType Name="PLC_EventosErrores">
+          <Key>
+            <PropertyRef Name="IdEvento" />
+          </Key>
+          <Property Name="IdEvento" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FechaEvento" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="FechaRegistro" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ID_PLC" Type="Int32" />
+          <Property Name="ID_Tag" Type="Int32" />
+          <Property Name="FriendlyName_PLC" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="FriendlyName_Tag" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Problema" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Descripcion" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Active" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="PLC_Historical_Values">
+          <Key>
+            <PropertyRef Name="ID_Historical_Value" />
+          </Key>
+          <Property Name="ID_Historical_Value" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Tag" Type="Int32" Nullable="false" />
+          <Property Name="Timestamp" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Valor" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="FechaExpiracion" Type="DateTime" Precision="7" />
+          <NavigationProperty Name="PLC_Tags" Relationship="Portal_2_0Model.FK_PLC_Historical_Values_PLC_Tags" FromRole="PLC_Historical_Values" ToRole="PLC_Tags" />
+        </EntityType>
+        <EntityType Name="PLC_Tags">
+          <Key>
+            <PropertyRef Name="ID_Tag" />
+          </Key>
+          <Property Name="ID_Tag" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_PLC" Type="Int32" Nullable="false" />
+          <Property Name="FriendlyName" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="VarType" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DB" Type="Int32" />
+          <Property Name="StartByteAdr" Type="Int32" />
+          <Property Name="Count" Type="Int32" />
+          <Property Name="Active" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="PLC_Data" Relationship="Portal_2_0Model.FK_PLC_Tags_PLC_Data" FromRole="PLC_Tags" ToRole="PLC_Data" />
+          <NavigationProperty Name="PLC_Historical_Values" Relationship="Portal_2_0Model.FK_PLC_Historical_Values_PLC_Tags" FromRole="PLC_Tags" ToRole="PLC_Historical_Values" />
+        </EntityType>
+        <Association Name="FK_PLC_Tags_PLC_Data">
+          <End Type="Portal_2_0Model.PLC_Data" Role="PLC_Data" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PLC_Tags" Role="PLC_Tags" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLC_Data">
+              <PropertyRef Name="ID_PLC" />
+            </Principal>
+            <Dependent Role="PLC_Tags">
+              <PropertyRef Name="ID_PLC" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PM_PLCs_Lines">
+          <End Type="Portal_2_0Model.produccion_lineas" Role="produccion_lineas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PLC_Data" Role="PLC_Data" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_lineas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PLC_Data">
+              <PropertyRef Name="ID_Line" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PLC_Historical_Values_PLC_Tags">
+          <End Type="Portal_2_0Model.PLC_Tags" Role="PLC_Tags" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PLC_Historical_Values" Role="PLC_Historical_Values" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLC_Tags">
+              <PropertyRef Name="ID_Tag" />
+            </Principal>
+            <Dependent Role="PLC_Historical_Values">
+              <PropertyRef Name="ID_Tag" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -25720,6 +25936,63 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
                 <ScalarProperty Name="Posicion" ColumnName="Posicion" />
                 <ScalarProperty Name="ID_CargaOT" ColumnName="ID_CargaOT" />
                 <ScalarProperty Name="ID_DatoOT" ColumnName="ID_DatoOT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLC_Data">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PLC_Data">
+              <MappingFragment StoreEntitySet="PLC_Data">
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="Rack" ColumnName="Rack" />
+                <ScalarProperty Name="CpuType" ColumnName="CpuType" />
+                <ScalarProperty Name="IpAddress" ColumnName="IpAddress" />
+                <ScalarProperty Name="Slot" ColumnName="Slot" />
+                <ScalarProperty Name="FriendlyName" ColumnName="FriendlyName" />
+                <ScalarProperty Name="ID_Line" ColumnName="ID_Line" />
+                <ScalarProperty Name="ID_PLC" ColumnName="ID_PLC" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLC_EventosErrores">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PLC_EventosErrores">
+              <MappingFragment StoreEntitySet="PLC_EventosErrores">
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="Problema" ColumnName="Problema" />
+                <ScalarProperty Name="FriendlyName_Tag" ColumnName="FriendlyName_Tag" />
+                <ScalarProperty Name="FriendlyName_PLC" ColumnName="FriendlyName_PLC" />
+                <ScalarProperty Name="ID_Tag" ColumnName="ID_Tag" />
+                <ScalarProperty Name="ID_PLC" ColumnName="ID_PLC" />
+                <ScalarProperty Name="FechaRegistro" ColumnName="FechaRegistro" />
+                <ScalarProperty Name="FechaEvento" ColumnName="FechaEvento" />
+                <ScalarProperty Name="IdEvento" ColumnName="IdEvento" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLC_Historical_Values">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PLC_Historical_Values">
+              <MappingFragment StoreEntitySet="PLC_Historical_Values">
+                <ScalarProperty Name="FechaExpiracion" ColumnName="FechaExpiracion" />
+                <ScalarProperty Name="Valor" ColumnName="Valor" />
+                <ScalarProperty Name="Timestamp" ColumnName="Timestamp" />
+                <ScalarProperty Name="ID_Tag" ColumnName="ID_Tag" />
+                <ScalarProperty Name="ID_Historical_Value" ColumnName="ID_Historical_Value" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLC_Tags">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PLC_Tags">
+              <MappingFragment StoreEntitySet="PLC_Tags">
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="Count" ColumnName="Count" />
+                <ScalarProperty Name="StartByteAdr" ColumnName="StartByteAdr" />
+                <ScalarProperty Name="DB" ColumnName="DB" />
+                <ScalarProperty Name="VarType" ColumnName="VarType" />
+                <ScalarProperty Name="FriendlyName" ColumnName="FriendlyName" />
+                <ScalarProperty Name="ID_PLC" ColumnName="ID_PLC" />
+                <ScalarProperty Name="ID_Tag" ColumnName="ID_Tag" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
