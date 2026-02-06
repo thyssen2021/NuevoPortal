@@ -15,7 +15,12 @@ export interface AppLists {
     qualityList: DropdownItem[];
     millList: DropdownItem[];
     shapes: DropdownItem[];
-    [key: string]: any; // Esto permite flexibilidad para otras listas futuras
+    rackTypeList: DropdownItem[];
+    labelList: DropdownItem[];
+    additionalList: DropdownItem[]; 
+    strapTypeList: DropdownItem[];
+    freightTypeList: DropdownItem[];
+    [key: string]: any; // Esto permite flexibilidad para otras listas futuras    
 }
 
 export interface Material {
@@ -195,6 +200,132 @@ export interface Material {
     Shearing_Weight?: number;
     Shearing_Weight_Tol_Neg?: number;
     Shearing_Weight_Tol_Pos?: number;
+
+    ID_InterplantDelivery_Coil_Position?: number;
+    InterplantPackagingStandard?: string; // 'OWN' | 'CM'
+    InterplantRequiresRackManufacturing?: boolean;
+    InterplantPiecesPerPackage?: number;
+    InterplantStacksPerPackage?: number;
+    // Interplant Delivery Packaging
+    InterplantPackageWeight?: number; // Calculado    
+    // Archivo
+    ID_File_InterplantPackaging?: number;
+    InterplantPackagingFileName?: string; // Para mostrar nombre al descargar
+    interplant_packaging_archivo?: File | null; // Binario
+    InterplantRackTypeIds?: number[]; // Guardará un array de números: [1, 3, 5]
+    IsInterplantReturnableRack?: boolean;
+    InterplantReturnableUses?: number;
+    // Checkbox Group (Array de IDs)
+    InterplantLabelTypeIds?: number[];     
+    // Campo de texto condicional
+    InterplantLabelOtherDescription?: string;
+
+    // Interplant Additionals (Checkbox Group + Other)
+    InterplantAdditionalIds?: number[]; 
+    InterplantAdditionalsOtherDescription?: string;
+
+    // Interplant Standard Packaging / Straps (Checkbox Group + Observations)
+    InterplantStrapTypeIds?: number[];
+    InterplantStrapTypeObservations?: string;
+    InterplantSpecialRequirement?: string;
+    InterplantSpecialPackaging?: string;
+
+
+    ID_Interplant_FreightType?: number;
+    // Interplant Outbound Freight
+    ID_InterplantDelivery_Transport_Type?: number;
+    InterplantDelivery_Transport_Type_Other?: string;
+    InterplantLoadPerTransport?: number;
+    InterplantDeliveryConditions?: string;
+
+    // Interplant Scrap Reconciliation
+    InterplantScrapReconciliation?: boolean;
+    InterplantScrapReconciliationPercent_Min?: number;
+    InterplantScrapReconciliationPercent?: number; // Optimal
+    InterplantScrapReconciliationPercent_Max?: number;
+    InterplantClientScrapReconciliationPercent?: number;
+
+    // Interplant Head/Tail Reconciliation
+    InterplantHeadTailReconciliation?: boolean;
+    InterplantHeadTailReconciliationPercent_Min?: number;
+    InterplantHeadTailReconciliationPercent?: number; // Optimal
+    InterplantHeadTailReconciliationPercent_Max?: number;
+    InterplantClientHeadTailReconciliationPercent?: number;
+
+    // Interplant Outbound Freight File
+    ID_File_InterplantOutboundFreight?: number;      // ID en BD
+    FileName_InterplantOutboundFreight?: string;     // Nombre para mostrar (hidratado desde CTZ_Files3)
+    interplantOutboundFreightAdditionalFile?: File | null; // Binario para subida (nombre exacto del legacy)
+
+    // Final Delivery Packaging
+    ID_Delivery_Coil_Position?: number;
+    PackagingStandard?: string; // 'OWN' | 'CM'
+    RequiresRackManufacturing?: boolean;
+    PiecesPerPackage?: number;
+    StacksPerPackage?: number;
+    PackageWeight?: number; // Calculado
+    // 1. Packaging Drawing (CTZ_Files1)
+    ID_File_Packaging?: number;
+    FileName_Packaging?: string;     // Hidratar esto en MaterialForm
+    packaging_archivo?: File | null; // Nombre exacto del input legacy
+    // 2. Delivery Packaging Additional (CTZ_Files11)
+    ID_File_DeliveryPackagingAdditional?: number;
+    FileName_DeliveryPackagingAdditional?: string; // Hidratar esto en MaterialForm
+    deliveryPackagingAdditionalFile?: File | null; // Nombre exacto del input legacy
+    // Final Delivery - Rack Types
+    SelectedRackTypeIds?: number[]; // Stores [1, 5, 2]
+    // Final Delivery - Labels
+    SelectedLabelIds?: number[];    // Stores [1, 3]
+    LabelOtherDescription?: string; // Text for "Other" label (ID 3)
+    // Final Delivery - Returnable Rack Logic
+    IsReturnableRack?: boolean;
+    ReturnableUses?: number;
+    // Final Delivery - Additionals
+    SelectedAdditionalIds?: number[];
+    AdditionalsOtherDescription?: string; // Text for "Other" additional (ID 6)
+    // Final Delivery - Standard Packaging (Straps)
+    SelectedStrapTypeIds?: number[];
+    StrapTypeObservations?: string;       // Always visible observation    
+    // Final Delivery - Special Requirements
+    SpecialRequirement?: string;
+    SpecialPackaging?: string;
+
+    // Final Outbound Freight & Conditions
+    ID_FreightType?: number;
+    ID_Delivery_Transport_Type?: number;
+    Delivery_Transport_Type_Other?: string;
+    LoadPerTransport?: number;
+    DeliveryConditions?: string;
+
+    // Scrap Reconciliation (Final)
+    ScrapReconciliation?: boolean;
+    ScrapReconciliationPercent_Min?: number;
+    ScrapReconciliationPercent?: number; // Optimal
+    ScrapReconciliationPercent_Max?: number;
+    ClientScrapReconciliationPercent?: number;
+
+    // Head/Tail Reconciliation (Final)
+    HeadTailReconciliation?: boolean;
+    HeadTailReconciliationPercent_Min?: number;
+    HeadTailReconciliationPercent?: number; // Optimal
+    HeadTailReconciliationPercent_Max?: number;
+    ClientHeadTailReconciliationPercent?: number;
+
+    // Archivo
+    ID_File_OutboundFreightAdditional?: number;
+    FileName_OutboundFreightAdditional?: string;
+    outboundFreightAdditionalFile?: File | null;
+
+    // Technical Feasibility
+    ID_Theoretical_Blanking_Line?: number;
+    Theoretical_Blanking_Line_Name?: string; // Para mostrar el nombre en el input de solo lectura
+    Theoretical_Strokes?: number;
+    Theoretical_Effective_Strokes?: number;
+    
+    // Campo auxiliar necesario para el cálculo (OEE)
+    // Asumo que existe o se traerá de algún lado (ej. de la línea seleccionada)
+    OEE?: number;
+
     // ... puedes agregar más según necesites
 }
 

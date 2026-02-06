@@ -5,6 +5,7 @@ import type { Material, WeldedPlate } from '../types';
 import type { FieldConfig } from '../types/form-schema';
 import { materialFields } from '../config/material-fields';
 import ToleranceReference from './ToleranceReference';
+import IncotermsReference from './IncotermsReference';
 import DynamicField from './DynamicField';
 import { toast, Slide } from 'react-toastify';
 
@@ -180,6 +181,133 @@ const modernStyles = `
       width: 100% !important;
   }
 
+  /* --- ESTILOS PRO CHECKBOX GROUP --- */
+    .checkbox-group-frame {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 5px;
+        
+        /* El borde y fondo que crean la "caja" */
+        border: 1px solid #e9ecef;
+        background-color: #f8f9fa; /* Fondo gris muy sutil para diferenciar del blanco general */
+        border-radius: 8px;
+        padding: 15px; /* Espacio interno para que respiren las opciones */
+        
+        /* Transición suave por si quieres efectos hover en el grupo completo */
+        transition: border-color 0.2s ease;
+    }
+    
+    .checkbox-group-frame:hover {
+        border-color: #dbe0e6; /* Se oscurece un poco el borde al pasar el mouse */
+    }
+  .checkbox-group-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 5px;
+  }
+      
+  /* El contenedor de cada opción individual (El "Chip") */
+    .pro-checkbox-option {
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        padding: 8px 14px; /* Un poco más compacto dentro del marco */
+        background-color: #fff; /* Blanco puro para resaltar sobre el fondo gris del marco */
+        border: 1px solid #dee2e6; 
+        border-radius: 6px; 
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03); /* Sombra muy sutil */
+        user-select: none;
+        min-width: 130px; 
+        flex-grow: 1; /* Para que llenen espacios uniformemente si quieres, o quítalo */
+        max-width: 48%; /* Para forzar 2 columnas en espacios pequeños, opcional */
+    }
+
+ /* Estado Hover de la opción */
+.pro-checkbox-option:hover:not(.disabled) {
+    border-color: #b3e0ff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 159, 245, 0.15);
+    z-index: 1; /* Para que la sombra se vea por encima de otros */
+}
+
+/* Estado CHECKED */
+.pro-checkbox-option.checked {
+    background-color: #fff; /* Mantenemos blanco o usamos un azul muy suave */
+    border-color: #009ff5;
+    box-shadow: 0 0 0 1px #009ff5 inset; /* Borde interior extra para más peso visual */
+}
+
+/* Icono y Texto (Igual que antes, ajustado tamaños) */
+.pro-checkbox-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid #dee2e6;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.pro-checkbox-option.checked .pro-checkbox-icon {
+    background-color: #009ff5;
+    border-color: #009ff5;
+}
+
+.pro-checkbox-option.checked .pro-checkbox-icon i {
+    color: #fff;
+    font-size: 10px;
+    transform: scale(1);
+}
+
+.pro-checkbox-icon i {
+    transform: scale(0);
+    transition: transform 0.2s;
+}
+
+.pro-checkbox-label {
+    font-size: 0.85rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+.pro-checkbox-option.checked .pro-checkbox-label {
+    color: #009ff5;
+    font-weight: 700;
+}
+
+.pro-checkbox-option.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+    /* ESTILO PARA LA PESTAÑA ESPECIAL (Technical Feasibility) */
+ .modern-nav .nav-link.special-tab {
+     border-left: 6px solid #28a745; /* Verde éxito */
+     background-color: #f0fff4;
+     color: #155724;
+ }
+ 
+ .modern-nav .nav-link.special-tab.active {
+     background-color: #28a745;
+     color: white;
+     border-color: #28a745;
+     box-shadow: 0 8px 20px rgba(40, 167, 69, 0.25);
+ }
+ 
+ .modern-nav .nav-link.special-tab:hover:not(.active) {
+     background-color: #dcffe4;
+     border-color: #28a745;
+ }
+
 
 `;
 
@@ -206,7 +334,8 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSaving, setIsSaving] = useState(false);
     const [warnings, setWarnings] = useState<Record<string, string>>({});
-    const [showToleranceModal, setShowToleranceModal] = useState(false); // 👈 2. NUEVO ESTADO
+    const [showToleranceModal, setShowToleranceModal] = useState(false);
+    const [showIncotermsModal, setShowIncotermsModal] = useState(false);
 
     // Estado Metadata
     const [vehicleMetadata, setVehicleMetadata] = useState<Record<string, {
@@ -283,12 +412,20 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 Real_EOP: formatMonth(selectedMaterial.Real_EOP),
                 Surface: computedSurface,
                 //AQUI van los files
-                FileName_ArrivalAdditional: raw.CTZ_Files4?.Name,
-                FileName_CoilDataAdditional: raw.CTZ_Files5?.Name,
-                FileName_SlitterDataAdditional: raw.CTZ_Files6?.Name,
                 CADFileName: raw.CTZ_Files?.Name,
-                TechnicalSheetFileName: raw.CTZ_Files1?.Name,
-                AdditionalFileName: raw.CTZ_Files2?.Name,
+                FileName_Packaging: raw.CTZ_Files1?.Name,
+                InterplantPackagingFileName: (selectedMaterial as any).CTZ_Files2?.Name, // Ajusta CTZ_FilesX al correcto
+                FileName_InterplantOutboundFreight: raw.CTZ_Files3?.Name,
+                TechnicalSheetFileName: raw.CTZ_Files4?.Name,
+                AdditionalFileName: raw.CTZ_Files5?.Name, //En blank data
+                FileName_ArrivalAdditional: raw.CTZ_Files6?.Name,
+                FileName_CoilDataAdditional: raw.CTZ_Files7?.Name,
+                SlitterDataAdditionalFile: raw.CTZ_Files8?.Name,
+                /** PEndiente de Volumen **/
+                FileName_OutboundFreightAdditional: raw.CTZ_Files10?.Name,
+                FileName_DeliveryPackagingAdditional: raw.CTZ_Files11?.Name, // O raw.CTZ_Files9
+
+
                 ['_projectPlantId']: projectPlantId,
                 ['_projectInterplantActive']: interplantProcess,
                 ['_projectStatusId']: projectStatusId
@@ -648,18 +785,195 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
     ]);
 
 
+    // -------------------------------------------------------------
+    // EFECTO: CÁLCULO DE INTERPLANT PACKAGE WEIGHT
+    // -------------------------------------------------------------
+    useEffect(() => {
+        // 1. Obtener valores
+        const pieces = parseFloat((formData as any)['InterplantPiecesPerPackage']) || 0;
+        const stacks = parseFloat((formData as any)['InterplantStacksPerPackage']) || 0;
+
+        const clientNetWeight = parseFloat((formData as any)['ClientNetWeight']) || 0;
+        const grossWeight = parseFloat((formData as any)['Gross_Weight']) || 0;
+
+        // Lógica de fallback: Si no hay neto, usa bruto
+        const weightToUse = (clientNetWeight > 0) ? clientNetWeight : grossWeight;
+
+        let calculatedWeight = 0;
+
+        // 2. Calcular solo si todo es positivo
+        if (pieces > 0 && stacks > 0 && weightToUse > 0) {
+            calculatedWeight = parseFloat((pieces * stacks * weightToUse).toFixed(3));
+        }
+
+        // 3. Actualizar estado si cambió
+        if ((formData as any)['InterplantPackageWeight'] !== calculatedWeight) {
+            // Si el resultado es 0, preferimos dejarlo vacío o undefined para que el input se limpie
+            // en lugar de mostrar "0.000" si faltan datos.
+            const finalVal = calculatedWeight > 0 ? calculatedWeight : undefined;
+
+            setFormData(prev => ({
+                ...prev,
+                InterplantPackageWeight: finalVal
+            }));
+        }
+
+    }, [
+        (formData as any)['InterplantPiecesPerPackage'],
+        (formData as any)['InterplantStacksPerPackage'],
+        (formData as any)['ClientNetWeight'],
+        (formData as any)['Gross_Weight']
+    ]);
+
+    // -------------------------------------------------------------
+    // EFECTO: CÁLCULO DE FINAL PACKAGE WEIGHT
+    // -------------------------------------------------------------
+    useEffect(() => {
+        // 1. Obtener valores
+        const pieces = parseFloat((formData as any)['PiecesPerPackage']) || 0;
+        const stacks = parseFloat((formData as any)['StacksPerPackage']) || 0;
+
+        const clientNetWeight = parseFloat((formData as any)['ClientNetWeight']) || 0;
+        const grossWeight = parseFloat((formData as any)['Gross_Weight']) || 0;
+
+        // Lógica de fallback: Si no hay neto, usa bruto
+        const weightToUse = (clientNetWeight > 0) ? clientNetWeight : grossWeight;
+
+        let calculatedWeight = 0;
+
+        // 2. Calcular solo si todo es positivo
+        if (pieces > 0 && stacks > 0 && weightToUse > 0) {
+            calculatedWeight = parseFloat((pieces * stacks * weightToUse).toFixed(3));
+        }
+
+        // 3. Actualizar estado si cambió
+        if ((formData as any)['PackageWeight'] !== calculatedWeight) {
+            const finalVal = calculatedWeight > 0 ? calculatedWeight : undefined;
+
+            setFormData(prev => ({
+                ...prev,
+                PackageWeight: finalVal
+            }));
+        }
+
+    }, [
+        (formData as any)['PiecesPerPackage'],
+        (formData as any)['StacksPerPackage'],
+        (formData as any)['ClientNetWeight'],
+        (formData as any)['Gross_Weight']
+    ]);
+
+    // -------------------------------------------------------------
+    // EFECTO: CÁLCULO DE THEORETICAL STROKES (AJAX)
+    // -------------------------------------------------------------
+    useEffect(() => {
+        // Datos necesarios para el cálculo
+        const productionLineId = (formData as any)['ID_Theoretical_Blanking_Line'];
+        const pitch = parseFloat((formData as any)['Pitch']);
+        const rotation = 0; // Hardcodeado a 0 por ahora según tu legacy
+
+        // Validación básica antes de llamar
+        if (!productionLineId || isNaN(pitch)) {
+            // Si faltan datos, limpiamos y salimos
+            setFormData(prev => ({
+                ...prev,
+                Theoretical_Strokes: undefined,
+                Theoretical_Effective_Strokes: undefined
+            }));
+            return;
+        }
+
+        // Definimos una función asíncrona interna para el fetch
+        const fetchStrokes = async () => {
+            try {
+                // Construimos la URL con parámetros query string
+                const queryParams = new URLSearchParams({
+                    productionLineId: productionLineId.toString(),
+                    pitch: pitch.toString(),
+                    rotation: rotation.toString()
+                });
+
+                const response = await fetch(`${urls.getTheoreticalStrokes}?${queryParams}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const strokes = parseFloat(data.theoreticalStrokes);
+                    const finalStrokes = parseFloat(strokes.toFixed(2));
+
+                    // Actualizamos el estado con los Strokes y disparamos el cálculo de efectivos
+                    setFormData(prev => {
+                        // Cálculo local de efectivos (OEE * Strokes)
+                        // Asumimos que OEE viene en formData o lo tienes en una constante.
+                        // Si OEE está en el objeto de la línea, deberías haberlo guardado al seleccionar la línea.
+                        // Usaremos 0.85 (85%) como ejemplo si no existe campo OEE, ajusta según tu lógica.
+                        const oeeVal = (prev as any)['OEE'] || 85;
+                        const oeeFactor = oeeVal / 100;
+
+                        let effective = 0;
+                        if (finalStrokes > 0 && oeeFactor > 0) {
+                            effective = Math.round(finalStrokes * oeeFactor);
+                        }
+
+                        // Evitamos update si no hay cambios
+                        if ((prev as any)['Theoretical_Strokes'] === finalStrokes &&
+                            (prev as any)['Theoretical_Effective_Strokes'] === effective) {
+                            return prev;
+                        }
+
+                        return {
+                            ...prev,
+                            Theoretical_Strokes: finalStrokes,
+                            Theoretical_Effective_Strokes: effective
+                        };
+                    });
+                } else {
+                    console.warn("Server warning:", data.message);
+                    // toast.warning(data.message); // Opcional
+                }
+            } catch (error) {
+                console.error("Error fetching theoretical strokes:", error);
+            }
+        };
+
+        // Debounce simple: esperamos 500ms después de que deje de escribir Pitch para llamar
+        const timeoutId = setTimeout(() => {
+            fetchStrokes();
+        }, 500);
+
+        return () => clearTimeout(timeoutId);
+
+    }, [
+        (formData as any)['ID_Theoretical_Blanking_Line'],
+        (formData as any)['Pitch'],
+        (formData as any)['OEE'] // Dependencia del OEE si es dinámico
+    ]);
+
     // 1. NUEVA FUNCIÓN: Determina si el campo aplica lógicamente (ignorando la pestaña actual)
     const isFieldActive = (field: FieldConfig, contextData: any) => {
-        // NO revisamos field.section aquí. Solo dependencias de datos.
         if (field.visibleWhen) {
             const dependencyName = field.visibleWhen.field;
             const dependencyValue = (contextData as any)[dependencyName];
 
             if (field.visibleWhen.is) {
-                if (!field.visibleWhen.is.includes(dependencyValue)) return false;
+                // LÓGICA MEJORADA:
+
+                // 1. Si la dependencia es un Array (Checkbox Group)
+                if (Array.isArray(dependencyValue)) {
+                    // Verificamos si ALGUNO de los valores requeridos está en el array seleccionado
+                    // Ej: dependencyValue = [1, 3], required = [3] -> true
+                    const hasIntersection = field.visibleWhen.is.some(reqVal => dependencyValue.includes(reqVal));
+                    if (!hasIntersection) return false;
+                }
+                // 2. Si es un valor simple (Select, Radio)
+                else {
+                    if (!field.visibleWhen.is.includes(dependencyValue)) return false;
+                }
             }
+
             if (field.visibleWhen.hasValue) {
                 if (dependencyValue === null || dependencyValue === undefined || dependencyValue === "") return false;
+                // Si es array, verificar que no esté vacío
+                if (Array.isArray(dependencyValue) && dependencyValue.length === 0) return false;
             }
         }
         return true;
@@ -1055,6 +1369,87 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
             }
         }
 
+        // M) Interplant Scrap Percentages (Min <= Optimal <= Max)
+        // Solo validamos si los campos existen y tienen valor
+        if (['InterplantScrapReconciliationPercent', 'InterplantScrapReconciliationPercent_Min', 'InterplantScrapReconciliationPercent_Max'].includes(name)) {
+            const min = parseFloat(allData['InterplantScrapReconciliationPercent_Min']);
+            const opt = parseFloat(allData['InterplantScrapReconciliationPercent']);
+            const max = parseFloat(allData['InterplantScrapReconciliationPercent_Max']);
+
+            if (name === 'InterplantScrapReconciliationPercent_Min' && !isNaN(min)) {
+                if (!isNaN(opt) && min > opt) result.error = "Min cannot be greater than Optimal.";
+                if (!isNaN(max) && min > max) result.error = "Min cannot be greater than Max.";
+            }
+            if (name === 'InterplantScrapReconciliationPercent' && !isNaN(opt)) {
+                if (!isNaN(min) && opt < min) result.error = "Optimal cannot be less than Min.";
+                if (!isNaN(max) && opt > max) result.error = "Optimal cannot be greater than Max.";
+            }
+            if (name === 'InterplantScrapReconciliationPercent_Max' && !isNaN(max)) {
+                if (!isNaN(opt) && max < opt) result.error = "Max cannot be less than Optimal.";
+                if (!isNaN(min) && max < min) result.error = "Max cannot be less than Min.";
+            }
+        }
+
+        // N) Interplant Head/Tail Percentages (Min <= Optimal <= Max)
+        if (['InterplantHeadTailReconciliationPercent', 'InterplantHeadTailReconciliationPercent_Min', 'InterplantHeadTailReconciliationPercent_Max'].includes(name)) {
+            const min = parseFloat(allData['InterplantHeadTailReconciliationPercent_Min']);
+            const opt = parseFloat(allData['InterplantHeadTailReconciliationPercent']);
+            const max = parseFloat(allData['InterplantHeadTailReconciliationPercent_Max']);
+
+            if (name === 'InterplantHeadTailReconciliationPercent_Min' && !isNaN(min)) {
+                if (!isNaN(opt) && min > opt) result.error = "Min cannot be greater than Optimal.";
+                if (!isNaN(max) && min > max) result.error = "Min cannot be greater than Max.";
+            }
+            if (name === 'InterplantHeadTailReconciliationPercent' && !isNaN(opt)) {
+                if (!isNaN(min) && opt < min) result.error = "Optimal cannot be less than Min.";
+                if (!isNaN(max) && opt > max) result.error = "Optimal cannot be greater than Max.";
+            }
+            if (name === 'InterplantHeadTailReconciliationPercent_Max' && !isNaN(max)) {
+                if (!isNaN(opt) && max < opt) result.error = "Max cannot be less than Optimal.";
+                if (!isNaN(min) && max < min) result.error = "Max cannot be less than Min.";
+            }
+        }
+
+        // O) Final Scrap Percentages (Min <= Optimal <= Max)
+        if (['ScrapReconciliationPercent', 'ScrapReconciliationPercent_Min', 'ScrapReconciliationPercent_Max'].includes(name)) {
+            const min = parseFloat(allData['ScrapReconciliationPercent_Min']);
+            const opt = parseFloat(allData['ScrapReconciliationPercent']);
+            const max = parseFloat(allData['ScrapReconciliationPercent_Max']);
+
+            if (name === 'ScrapReconciliationPercent_Min' && !isNaN(min)) {
+                if (!isNaN(opt) && min > opt) result.error = "Min cannot be greater than Optimal.";
+                if (!isNaN(max) && min > max) result.error = "Min cannot be greater than Max.";
+            }
+            if (name === 'ScrapReconciliationPercent' && !isNaN(opt)) {
+                if (!isNaN(min) && opt < min) result.error = "Optimal cannot be less than Min.";
+                if (!isNaN(max) && opt > max) result.error = "Optimal cannot be greater than Max.";
+            }
+            if (name === 'ScrapReconciliationPercent_Max' && !isNaN(max)) {
+                if (!isNaN(opt) && max < opt) result.error = "Max cannot be less than Optimal.";
+                if (!isNaN(min) && max < min) result.error = "Max cannot be less than Min.";
+            }
+        }
+
+        // P) Final Head/Tail Percentages (Min <= Optimal <= Max)
+        if (['HeadTailReconciliationPercent', 'HeadTailReconciliationPercent_Min', 'HeadTailReconciliationPercent_Max'].includes(name)) {
+            const min = parseFloat(allData['HeadTailReconciliationPercent_Min']);
+            const opt = parseFloat(allData['HeadTailReconciliationPercent']);
+            const max = parseFloat(allData['HeadTailReconciliationPercent_Max']);
+
+            if (name === 'HeadTailReconciliationPercent_Min' && !isNaN(min)) {
+                if (!isNaN(opt) && min > opt) result.error = "Min cannot be greater than Optimal.";
+                if (!isNaN(max) && min > max) result.error = "Min cannot be greater than Max.";
+            }
+            if (name === 'HeadTailReconciliationPercent' && !isNaN(opt)) {
+                if (!isNaN(min) && opt < min) result.error = "Optimal cannot be less than Min.";
+                if (!isNaN(max) && opt > max) result.error = "Optimal cannot be greater than Max.";
+            }
+            if (name === 'HeadTailReconciliationPercent_Max' && !isNaN(max)) {
+                if (!isNaN(opt) && max < opt) result.error = "Max cannot be less than Optimal.";
+                if (!isNaN(min) && max < min) result.error = "Max cannot be less than Min.";
+            }
+        }
+
         return result;
     };
 
@@ -1140,7 +1535,149 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
 
         // Si desmarca IsWeldedBlank, limpiamos NumberOfPlates visualmente 
         if (name === 'IsWeldedBlank' && value === false) {
-            // Opcional: (nextData as any).NumberOfPlates = null;
+            (nextData as any).NumberOfPlates = null;
+        }
+
+        // -------------------------------------------------------------
+        // LÓGICA INTERPLANT PACKAGING STANDARD
+        // -------------------------------------------------------------
+        if (name === 'InterplantPackagingStandard') {
+            // Si el valor NO es 'OWN', limpiamos y desmarcamos el checkbox de Rack
+            if (value !== 'OWN') {
+                (nextData as any)['InterplantRequiresRackManufacturing'] = false;
+
+                // Nota: Tu legacy también limpiaba 'DieManufacturing' aquí. 
+                // Si agregas ese campo en el futuro, límpialo aquí también:
+                (nextData as any)['InterplantRequiresDieManufacturing'] = false;
+            }
+        }
+
+        // LIMPIEZA DE LABEL OTHER
+        if (name === 'InterplantLabelTypeIds') {
+            // value es un array de números, ej: [1, 5]
+            const selectedIds = value as number[];
+
+            // Si el ID 3 (Other) NO está en la selección, limpiamos la descripción
+            if (!selectedIds.includes(3)) {
+                (nextData as any)['InterplantLabelOtherDescription'] = null;
+            }
+        }
+
+        // LIMPIEZA 1: Si cambio los Racks y ya no hay ninguno retornable
+        if (name === 'InterplantRackTypeIds') {
+            const selectedIds = value as number[];
+            const returnableIds = [2, 3, 4]; // Mismos IDs de config
+
+            // Si NO hay intersección (ningún rack retornable seleccionado)
+            if (!selectedIds.some(id => returnableIds.includes(id))) {
+                (nextData as any)['IsInterplantReturnableRack'] = false;
+                (nextData as any)['InterplantReturnableUses'] = null;
+            }
+        }
+
+        // LIMPIEZA 2: Si desmarco "Is Returnable", borro "Uses"
+        if (name === 'IsInterplantReturnableRack' && value === false) {
+            (nextData as any)['InterplantReturnableUses'] = null;
+        }
+
+        if (name === 'InterplantAdditionalIds') {
+            const selectedIds = value as number[];
+
+            // Si el ID 6 (Other) NO está, limpiamos descripción
+            if (!selectedIds.includes(6)) {
+                (nextData as any)['InterplantAdditionalsOtherDescription'] = null;
+            }
+        }
+
+        // LIMPIEZA DE TRANSPORT OTHER (INTERPLANT)
+        if (name === 'ID_InterplantDelivery_Transport_Type') {
+            // Si el valor NO es 5 (Other), limpiamos el campo de texto
+            // Convertimos a string para comparación segura ("5" vs 5)
+            if (String(value) !== '5') {
+                (nextData as any)['InterplantDelivery_Transport_Type_Other'] = null;
+            }
+        }
+
+        // LIMPIEZA SCRAP RECONCILIATION
+        if (name === 'InterplantScrapReconciliation' && value === false) {
+            (nextData as any)['InterplantScrapReconciliationPercent_Min'] = null;
+            (nextData as any)['InterplantScrapReconciliationPercent'] = null;
+            (nextData as any)['InterplantScrapReconciliationPercent_Max'] = null;
+            (nextData as any)['InterplantClientScrapReconciliationPercent'] = null;
+        }
+
+        // LIMPIEZA HEAD/TAIL RECONCILIATION
+        if (name === 'InterplantHeadTailReconciliation' && value === false) {
+            (nextData as any)['InterplantHeadTailReconciliationPercent_Min'] = null;
+            (nextData as any)['InterplantHeadTailReconciliationPercent'] = null;
+            (nextData as any)['InterplantHeadTailReconciliationPercent_Max'] = null;
+            (nextData as any)['InterplantClientHeadTailReconciliationPercent'] = null;
+        }
+
+        // LIMPIEZA FINAL DELIVERY STANDARD
+        if (name === 'PackagingStandard') {
+            if (value !== 'OWN') {
+                (nextData as any)['RequiresRackManufacturing'] = false;
+
+                // Si agregas 'RequiresDieManufacturing' en el futuro, límpialo aquí también
+                // (nextData as any)['RequiresDieManufacturing'] = false;
+            }
+        }
+
+        // --- FINAL DELIVERY CLEANUP ---
+        // 1. Labels: Clear "Other" description
+        if (name === 'SelectedLabelIds') {
+            const selectedIds = value as number[];
+            if (!selectedIds.includes(3)) { // ID 3 = Other
+                (nextData as any)['LabelOtherDescription'] = null;
+            }
+        }
+
+        // 2. Racks: Clear Returnable logic if no returnable rack selected
+        if (name === 'SelectedRackTypeIds') {
+            const selectedIds = value as number[];
+            const returnableIds = [2, 3, 4]; // Adjust IDs as per DB
+
+            if (!selectedIds.some(id => returnableIds.includes(id))) {
+                (nextData as any)['IsReturnableRack'] = false;
+                (nextData as any)['ReturnableUses'] = null;
+            }
+        }
+
+        // 3. Returnable Checkbox: Clear Uses if unchecked
+        if (name === 'IsReturnableRack' && value === false) {
+            (nextData as any)['ReturnableUses'] = null;
+        }
+
+        // 4. Additionals: Clear "Other" description
+        if (name === 'SelectedAdditionalIds') {
+            const selectedIds = value as number[];
+            if (!selectedIds.includes(6)) { // ID 6 = Other
+                (nextData as any)['AdditionalsOtherDescription'] = null;
+            }
+        }
+
+        // LIMPIEZA FINAL TRANSPORT OTHER
+        if (name === 'ID_Delivery_Transport_Type') {
+            if (String(value) !== '5') {
+                (nextData as any)['Delivery_Transport_Type_Other'] = null;
+            }
+        }
+
+        // LIMPIEZA FINAL SCRAP RECONCILIATION
+        if (name === 'ScrapReconciliation' && value === false) {
+            (nextData as any)['ScrapReconciliationPercent_Min'] = null;
+            (nextData as any)['ScrapReconciliationPercent'] = null;
+            (nextData as any)['ScrapReconciliationPercent_Max'] = null;
+            (nextData as any)['ClientScrapReconciliationPercent'] = null;
+        }
+
+        // LIMPIEZA FINAL HEAD/TAIL RECONCILIATION
+        if (name === 'HeadTailReconciliation' && value === false) {
+            (nextData as any)['HeadTailReconciliationPercent_Min'] = null;
+            (nextData as any)['HeadTailReconciliationPercent'] = null;
+            (nextData as any)['HeadTailReconciliationPercent_Max'] = null;
+            (nextData as any)['ClientHeadTailReconciliationPercent'] = null;
         }
 
         // Si el valor es un objeto File (Binario), lo guardamos en su propiedad específica
@@ -1408,6 +1945,7 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
 
                             // 2. DETERMINAMOS EL ICONO
                             let iconClass = "fa-cube"; // Default (sirve para datos genéricos)
+                            let linkClass = ""; // Clase adicional para el link
 
                             // --- LÓGICA DE ICONOS ---
                             if (sectionName.includes("Vehicle")) {
@@ -1439,13 +1977,15 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                             }
                             else if (sectionName.includes("Final")) {
                                 iconClass = "fa-flag-checkered"; // Bandera de meta (Fin del proceso)
+                            } else if (sectionName === "Technical Feasibility") {
+                                iconClass = "fa-clipboard-check"; // Icono de reporte/resultado
+                                linkClass = "special-tab";        // 👈 Clase CSS nueva
                             }
 
                             return (
                                 <a
                                     key={sectionName}
-                                    className={`nav-link ${activeTab === sectionName ? 'active' : ''}`}
-                                    onClick={(e) => { e.preventDefault(); setActiveTab(sectionName); }}
+                                    className={`nav-link ${activeTab === sectionName ? 'active' : ''} ${linkClass}`} onClick={(e) => { e.preventDefault(); setActiveTab(sectionName); }}
                                     href="#"
                                     role="tab"
                                     style={{ cursor: 'pointer' }}
@@ -1472,20 +2012,19 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 <div className="col-lg-10 col-md-9">
                     <div className="form-card">
 
-                        {/* ENCABEZADO DENTRO DE LA TARJETA */}
                         <div className="form-header" style={{
                             display: 'flex',
                             justifyContent: 'space-between',
-                            alignItems: 'flex-start',
-                            borderBottom: '1px solid #e9ecef', /* Línea gris suave de base */
+                            alignItems: 'center', // Alineación vertical centrada
+                            borderBottom: '1px solid #e9ecef',
                             paddingBottom: '20px',
                             marginBottom: '25px',
                             position: 'relative'
                         }}>
-                            {/* Agregamos la barra de color thyssen abajo mediante un div absoluto para asegurar que se vea */}
+                            {/* Barra decorativa inferior */}
                             <div style={{
                                 position: 'absolute',
-                                bottom: '-1px', // Para tapar el borde gris
+                                bottom: '-1px',
                                 left: 0,
                                 width: '100%',
                                 height: '3px',
@@ -1493,59 +2032,65 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                                 borderRadius: '2px'
                             }}></div>
 
-                            {/* PARTE IZQUIERDA: TÍTULO Y DESCRIPCIÓN */}
+                            {/* PARTE IZQUIERDA: TÍTULO */}
                             <div className="header-text-group">
-                                {/* TÍTULO PRINCIPAL CON COLOR THYSSEN (#0093d0) */}
                                 <h4 style={{
                                     margin: 0,
-                                    color: '#009ff5', /* 👈 AQUÍ ESTÁ EL CAMBIO DE COLOR */
+                                    color: '#009ff5',
                                     fontWeight: '700',
                                     letterSpacing: '-0.5px',
                                     display: 'flex',
                                     alignItems: 'center'
                                 }}>
-                                    {/* ICONO SIMPLIFICADO Y ROBUSTO */}
-                                    <i
-                                        className="fa fa-pen-to-square" /* Regresamos al clásico que suele no fallar */
-                                        style={{
-                                            marginRight: '10px',
-                                            fontSize: '20px', /* Tamaño grande para asegurar visibilidad */
-                                            color: '#009ff5'
-                                        }}
-                                    ></i>
-
+                                    <i className="fa fa-pen-to-square" style={{ marginRight: '10px', fontSize: '20px', color: '#009ff5' }}></i>
                                     {selectedMaterial.ID_Material === 0 ? 'Adding New Material' : 'Editing Material'}
                                 </h4>
-
-                                {/* Texto descriptivo debajo */}
-                                <p className="text-muted mb-0" style={{ fontSize: '0.9rem', marginTop: '5px', marginLeft: '0px' }}>
+                                <p className="text-muted mb-0" style={{ fontSize: '0.9rem', marginTop: '5px' }}>
                                     Please review the information below. <span className="text-danger">*</span> indicates mandatory fields.
                                 </p>
                             </div>
 
-                            {/* PARTE DERECHA DEL ENCABEZADO */}
-                            <button className="btn-modern-cancel" onClick={onCancel} title="Discard all changes">
-                                <i className="fa fa-times-circle" style={{ fontSize: '16px' }}></i>
-                                <span>Discard Changes</span>
-                            </button>
+                            {/* PARTE DERECHA: BOTONES DE ACCIÓN Y AYUDA */}
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+
+                                {/* BOTÓN TOLERANCIAS (Solo en Coil/Blank Data) */}
+                                {(activeTab === 'Coil Data' || activeTab === 'Blank Data') && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-sm btn-outline-info shadow-sm"
+                                        onClick={() => setShowToleranceModal(true)}
+                                        style={{ borderRadius: '50px', fontWeight: 600, padding: '6px 15px' }}
+                                    >
+                                        <i className="fa fa-table mr-2"></i> Show Tolerance Tables
+                                    </button>
+                                )}
+
+                                {/* BOTÓN INCOTERMS (Solo en Freight) */}
+                                {(activeTab === 'Interplant Outbound Freight & Conditions' ||
+                                    activeTab === 'Final Outbound Freight & Conditions') && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-sm btn-info shadow-sm"
+                                            onClick={() => setShowIncotermsModal(true)}
+                                            style={{ borderRadius: '50px', fontWeight: 600, color: 'white', padding: '6px 15px' }}
+                                        >
+                                            <i className="fa fa-info-circle mr-2"></i> Incoterms Help
+                                        </button>
+                                    )}
+
+                                {/* BOTÓN CANCELAR */}
+                                <button className="btn-modern-cancel" onClick={onCancel} title="Discard all changes">
+                                    <i className="fa fa-times-circle" style={{ fontSize: '16px' }}></i>
+                                    <span>Discard Changes</span>
+                                </button>
+                            </div>
 
                         </div>
 
                         {/* ÁREA DE FORMULARIO SCROLLABLE */}
                         <div className="form-body">
                             <div className="row">
-                                {(activeTab === 'Coil Data' || activeTab === 'Blank Data') && (
-                                    <div className="col-12 mb-3 text-right">
-                                        <button
-                                            type="button"
-                                            className="btn btn-sm btn-outline-info shadow-sm"
-                                            onClick={() => setShowToleranceModal(true)}
-                                            style={{ borderRadius: '20px', fontWeight: 600 }}
-                                        >
-                                            <i className="fa fa-table mr-2"></i> Show Tolerance Tables
-                                        </button>
-                                    </div>
-                                )}
+
                                 {safeFields.map((fieldConfig, index) => {
 
                                     // -----------------------------------------------------------------------
@@ -1707,8 +2252,8 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                                     const isWeldedParent = fieldConfig.name === 'NumberOfPlates';
                                     // 👇 CORRECCIÓN: Agregamos "&& visible" al final
                                     // Esto asegura que solo se muestren si la pestaña actual es la correcta.
-                                    const showWeldedChildren = isWeldedParent 
-                                        && (formData as any).IsWeldedBlank 
+                                    const showWeldedChildren = isWeldedParent
+                                        && (formData as any).IsWeldedBlank
                                         && (formData as any)._weldedPlates?.length > 0
                                         && visible;
                                     // 👇 AQUÍ ESTÁ EL ARREGLO: Usamos un Fragment (<>) o un div contenedor estable
@@ -1810,6 +2355,10 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
             <ToleranceReference
                 show={showToleranceModal}
                 onClose={() => setShowToleranceModal(false)}
+            />
+            <IncotermsReference
+                show={showIncotermsModal}
+                onClose={() => setShowIncotermsModal(false)}
             />
         </div>
     );

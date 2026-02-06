@@ -914,10 +914,8 @@ export const materialFields: FieldConfig[] = [
     type: 'file',
     section: 'Coil Data',
     className: 'col-md-4', // Ancho Legacy para archivo
-
     // Nombre del parámetro que espera tu controlador C#
     uploadFieldName: 'coilDataAdditionalFile',
-
     validation: {
       required: false,
       accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
@@ -1111,7 +1109,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-6', // Un poco más ancho que col-md-4 para ver mejor el nombre
 
     // Nombre del parámetro en el controlador C#
-    uploadFieldName: 'slitterDataAdditionalFile',
+    uploadFieldName: 'SlitterDataAdditionalFile',
 
     validation: {
       required: false,
@@ -1765,7 +1763,7 @@ export const materialFields: FieldConfig[] = [
       maxSizeInMB: 20
     }
   },
-// 1. Blanking Annual Volume
+  // 1. Blanking Annual Volume
   {
     name: 'Blanking_Annual_Volume',
     label: 'Blanking Annual Volume',
@@ -1775,9 +1773,9 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Volume',
     decimals: 0, // Entero
     validation: {
-        required: false, // Legacy dice opcional (a menos que cambies lógica)
-        min: 0,
-        customMessage: "Must be a positive whole number."
+      required: false, // Legacy dice opcional (a menos que cambies lógica)
+      min: 0,
+      customMessage: "Must be a positive whole number."
     }
   },
 
@@ -1791,8 +1789,8 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'M Tons/Year',
     decimals: 3, // step="any"
     validation: {
-        required: false,
-        min: 0
+      required: false,
+      min: 0
     }
   },
 
@@ -1853,8 +1851,8 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Pieces / Stroke',
     decimals: 2, // step="any"
     validation: {
-        required: false,
-        min: 0
+      required: false,
+      min: 0
     }
   },
 
@@ -1868,13 +1866,13 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Pieces / Car',
     decimals: 2,
     validation: {
-        required: false,
-        min: 0
+      required: false,
+      min: 0
     }
   },
 
   // --- GRUPO MATRIZ: Shearing Width ---
-  
+
   // A) Campo Principal (Value)
   {
     name: 'Shearing_Width',
@@ -1886,8 +1884,8 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Width',
     decimals: 2,
     validation: {
-        required: false,
-        min: 0
+      required: false,
+      min: 0
     }
   },
 
@@ -1901,8 +1899,8 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Tol (-)',
     decimals: 2,
     validation: {
-        required: false,
-        max: 0 // Debe ser negativo o 0
+      required: false,
+      max: 0 // Debe ser negativo o 0
     }
   },
 
@@ -1916,8 +1914,8 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Tol (+)',
     decimals: 2,
     validation: {
-        required: false,
-        min: 0
+      required: false,
+      min: 0
     }
   },
   // A) Campo Principal (Value)
@@ -1931,8 +1929,8 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Pitch',
     decimals: 2,
     validation: {
-        required: false,
-        min: 0
+      required: false,
+      min: 0
     }
   },
 
@@ -1946,8 +1944,8 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Tol (-)',
     decimals: 2,
     validation: {
-        required: false,
-        max: 0 // Debe ser negativo o 0
+      required: false,
+      max: 0 // Debe ser negativo o 0
     }
   },
 
@@ -1961,13 +1959,13 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Tol (+)',
     decimals: 2,
     validation: {
-        required: false,
-        min: 0
+      required: false,
+      min: 0
     }
   },
 
   // --- GRUPO MATRIZ: Shearing Weight ---
-  
+
   // A) Campo Principal (Value)
   {
     name: 'Shearing_Weight',
@@ -1975,12 +1973,12 @@ export const materialFields: FieldConfig[] = [
     rowTitle: 'Shearing Weight', // 👈 Título Azul Lateral
     type: 'number',
     section: 'Shearing Data',
-    className: 'col-md-12', 
+    className: 'col-md-12',
     placeholder: 'Weight',
     decimals: 2,
     validation: {
-        required: false,
-        min: 0
+      required: false,
+      min: 0
     }
   },
 
@@ -1994,8 +1992,8 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Tol (-)',
     decimals: 2,
     validation: {
-        required: false,
-        max: 0 
+      required: false,
+      max: 0
     }
   },
 
@@ -2009,9 +2007,1010 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Tol (+)',
     decimals: 2,
     validation: {
-        required: false,
-        min: 0
+      required: false,
+      min: 0
+    }
+  },
+  // 1. Interplant Coil Position (Reusa la lista existente)
+  {
+    name: 'ID_InterplantDelivery_Coil_Position',
+    label: 'Interplant Coil Position',
+    type: 'select',
+    section: 'Interplant Delivery Packaging', // Nueva pestaña
+    className: 'col-md-3',
+    optionsKey: 'coilPositions', // 👈 REUTILIZADO
+    placeholder: 'Select an option',
+    validation: {
+      required: false
     }
   },
 
+  // 2. Packaging Standard (Dropdown estático)
+  {
+    name: 'InterplantPackagingStandard',
+    label: 'Packaging Standard',
+    type: 'select',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-4',
+    // Opciones hardcodeadas según tu HTML Legacy
+    options: [
+      { value: 'OWN', label: 'Developed by tkMM' },
+      { value: 'CM', label: 'Provided by Client' }
+    ],
+    placeholder: 'Select an option',
+    validation: {
+      required: false
+    }
+  },
+
+  // 3. Requires Rack Manufacturing (Checkbox Condicional)
+  {
+    name: 'InterplantRequiresRackManufacturing',
+    label: 'Requires Rack Manufacturing?',
+    type: 'checkbox',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-3',
+    // VISIBILIDAD: Solo si Standard es 'OWN'
+    visibleWhen: {
+      field: 'InterplantPackagingStandard',
+      is: ['OWN']
+    },
+    validation: {
+      required: false
+    }
+  },
+
+  // 4. Pieces Per Package
+  {
+    name: 'InterplantPiecesPerPackage',
+    label: 'Pieces Per Package',
+    type: 'number',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-3',
+    placeholder: 'Qty',
+    decimals: 0, // Entero
+    validation: {
+      required: false,
+      min: 0,
+      customMessage: "Must be a non-negative whole number."
+    }
+  },
+  // 5. Stacks Per Package
+  {
+    name: 'InterplantStacksPerPackage',
+    label: 'Stacks Per Package',
+    type: 'number',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-3',
+    placeholder: 'Qty',
+    decimals: 0, // Entero
+    validation: {
+      required: false,
+      min: 0,
+      customMessage: "Must be a non-negative whole number."
+    }
+  },
+  // 6. Package Weight (Calculado)
+  {
+    name: 'InterplantPackageWeight',
+    label: 'Package Weight [kg]',
+    type: 'number',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-3',
+    placeholder: 'Calculated',
+    decimals: 3,
+    disabled: true // ReadOnly
+  },
+  // 7. Interplant Packaging File
+  {
+    name: 'ID_File_InterplantPackaging',
+    label: 'Packaging File',
+    type: 'file',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-4',
+
+    // Nombre del parámetro que espera tu controlador C#
+    uploadFieldName: 'interplant_packaging_archivo',
+
+    validation: {
+      required: false,
+      accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
+      maxSizeInMB: 20
+    }
+  },
+  // 4. Interplant Rack Types (Grupo de Checkboxes)
+  {
+    name: 'InterplantRackTypeIds', // Array de IDs en el modelo
+    label: 'Interplant Rack Types',
+    type: 'checkbox-group',        // 👈 El nuevo tipo
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-12',         // Ancho según tu legacy
+
+    // Nombre de la lista en 'lists' (debe coincidir con ViewBag.RackTypeList)
+    optionsKey: 'rackTypeList',
+
+    validation: {
+      required: false
+    },
+
+    // VISIBILIDAD: Igual que el checkbox "Requires Rack Manufacturing"
+    // Solo visible si el Standard es 'OWN'
+    //visibleWhen: {
+    //    field: 'InterplantPackagingStandard',
+    //    is: ['OWN']
+    //}
+  },
+  // 8. Is Returnable Rack? (Depende de los Racks seleccionados)
+  {
+    name: 'IsInterplantReturnableRack',
+    label: 'Is Returnable Rack?',
+    type: 'checkbox',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-3',
+    visibleWhen: {
+      field: 'InterplantRackTypeIds',
+      is: [2, 3, 4]
+    },
+    validation: {
+      required: false
+    }
+  },
+
+  // 9. Returnable Uses (Depende del checkbox anterior)
+  {
+    name: 'InterplantReturnableUses',
+    label: 'Returnable Uses',
+    type: 'number',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-3',
+    placeholder: 'e.g., 5',
+    decimals: 0, // Entero
+
+    // Visible solo si el checkbox anterior está marcado
+    visibleWhen: {
+      field: 'IsInterplantReturnableRack',
+      is: [true]
+    },
+
+    validation: {
+      required: true, // Si es visible, es requerido (legacy logic)
+      min: 1,
+      customMessage: "Must be a positive whole number."
+    }
+  },
+  // 1. Interplant Labels (Grupo)
+  {
+    name: 'InterplantLabelTypeIds',
+    label: 'Interplant Labels',
+    type: 'checkbox-group', // Usará el estilo Pro que creamos
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-12',
+    optionsKey: 'labelList',
+    validation: {
+      required: false
+    }
+  },
+  // 2. Specify Other Label (Visible solo si se selecciona ID 3)
+  {
+    name: 'InterplantLabelOtherDescription',
+    label: 'Specify "Other" Label',
+    type: 'text', // O 'textarea' si prefieres
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-6',
+    placeholder: 'Description...',
+
+    // VISIBILIDAD: Depende del campo anterior
+    visibleWhen: {
+      field: 'InterplantLabelTypeIds',
+      is: [3] // 3 es el ID de "Other" en tu BD
+    },
+
+    validation: {
+      required: true, // Si es visible, es requerido
+      maxLength: 120
+    }
+  },
+  // 1. Checkbox Group
+  {
+    name: 'InterplantAdditionalIds',
+    label: 'Interplant Additionals',
+    type: 'checkbox-group',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-12',
+    optionsKey: 'additionalList',
+    validation: { required: false }
+  },
+  // 2. Specify Other (Solo si ID 6 está seleccionado)
+  {
+    name: 'InterplantAdditionalsOtherDescription',
+    label: 'Specify "Other" Additional',
+    type: 'text', // Legacy usa textarea row=1
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-6',
+    placeholder: 'Description...',
+
+    // VISIBILIDAD: Depende del campo anterior (ID 6)
+    visibleWhen: {
+      field: 'InterplantAdditionalIds',
+      is: [6] // 6 es el ID de "Other" en tu BD
+    },
+
+    validation: {
+      required: true, // Si es visible, es requerido
+      maxLength: 120
+    }
+  },
+  // --- GRUPO: Interplant Standard Packaging (Straps) ---
+  // 3. Checkbox Group
+  {
+    name: 'InterplantStrapTypeIds',
+    label: 'Interplant Standard Packaging',
+    type: 'checkbox-group',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-12',
+    optionsKey: 'strapTypeList',
+    validation: { required: false }
+  },
+  // 4. Observations (SIEMPRE VISIBLE)
+  {
+    name: 'InterplantStrapTypeObservations',
+    label: 'Strap Type Observations', // Etiqueta visual
+    type: 'textarea',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-12',
+    placeholder: 'Strap type observations...',
+    // Sin 'visibleWhen' -> Se muestra siempre en esta pestaña
+    validation: {
+      required: false, // Opcional
+      maxLength: 120
+    }
+  },
+  // 1. Special Requirement
+  {
+    name: 'InterplantSpecialRequirement',
+    label: 'Interplant Special Requirement',
+    type: 'textarea', // 👈 Usamos el tipo textarea
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-6', // 👈 Mitad del ancho
+    placeholder: 'Enter requirements...',
+    validation: {
+        required: false,
+        maxLength: 350 // Regla del legacy
+    }
+  },
+  // 2. Special Packaging
+  {
+    name: 'InterplantSpecialPackaging',
+    label: 'Interplant Special Packaging',
+    type: 'textarea',
+    section: 'Interplant Delivery Packaging',
+    className: 'col-md-6', // 👈 La otra mitad
+    placeholder: 'Enter packaging details...',
+    validation: {
+        required: false,
+        maxLength: 350 // Regla del legacy
+    }
+  },
+  {
+    name: 'ID_Interplant_FreightType',
+    label: 'Incoterm Type',
+    type: 'select',
+    section: 'Interplant Outbound Freight & Conditions', // Nueva Pestaña
+    className: 'col-md-3',
+    optionsKey: 'freightTypeList', // Debe coincidir con el controller
+    placeholder: 'Select an option',
+    validation: {
+        required: false
+    }
+  },
+  // 2. Transport Type (Reutiliza la lista de transporte general)
+  {
+    name: 'ID_InterplantDelivery_Transport_Type',
+    label: 'Transport Type',
+    type: 'select',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    optionsKey: 'transportTypes', // 👈 REUTILIZADO
+    placeholder: 'Select transport...',
+    validation: {
+        required: false
+    }
+  },
+  // 3. Specify Other Transport (Condicional)
+  {
+    name: 'InterplantDelivery_Transport_Type_Other',
+    label: 'Specify Other Transport',
+    type: 'text',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Specify transport...',
+    
+    // VISIBILIDAD: Solo si TransportType es 5 (Other)
+    visibleWhen: {
+        field: 'ID_InterplantDelivery_Transport_Type',
+        is: [5] // 5 es el ID de "Other" en tu BD
+    },
+    
+    validation: {
+        required: true, // Requerido si es visible
+        maxLength: 50
+    }
+  },
+  // 4. Load Per Transport
+  {
+    name: 'InterplantLoadPerTransport',
+    label: 'Load Per Transport',
+    type: 'number',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Load',
+    decimals: 2, // step="any"
+    validation: {
+        required: false,
+        min: 0,
+        customMessage: "Must be a positive number."
+    }
+  },
+  // 5. Delivery Conditions (Textarea grande)
+  {
+    name: 'InterplantDeliveryConditions',
+    label: 'Delivery Conditions',
+    type: 'textarea', // 👈 Tipo Textarea
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-12', // 👈 Ajustado a 12 para que use toda la fila (o 9 si prefieres mantener legacy layout exacto)
+    placeholder: 'Describe interplant delivery conditions...',
+    validation: {
+        required: false,
+        maxLength: 350
+    }
+  },
+  // 1. Checkbox Padre
+  {
+    name: 'InterplantScrapReconciliation',
+    label: 'Interplant Scrap Reconciliation',
+    type: 'checkbox',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-12', // Ocupa toda la fila para separar visualmente
+    validation: { required: false }
+  },
+
+  // 2. Fila de Porcentajes (Matriz de 4 columnas)
+  // Nota: Para matrices de 4 columnas, usaremos un truco visual o definiremos col-md-3 en cada uno.
+  // Pero DynamicField está diseñado para matrices de 3 (Value, Tol-, Tol+).
+  // COMO TÚ QUIERES 4 INPUTS EN FILA, lo mejor es definirlos como campos normales 'col-md-3'
+  // y usar visibleWhen. Se verán alineados perfectamente si van seguidos.
+
+  {
+    name: 'InterplantScrapReconciliationPercent_Min',
+    label: 'Scrap Min %',
+    type: 'number',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Min %',
+    decimals: 2,
+    visibleWhen: { field: 'InterplantScrapReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  {
+    name: 'InterplantScrapReconciliationPercent', // Optimal
+    label: 'Scrap Optimal %',
+    type: 'number',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Optimal %',
+    decimals: 2,
+    visibleWhen: { field: 'InterplantScrapReconciliation', is: [true] },
+    validation: { 
+        required: true, // Requerido si el padre está activo (legacy logic)
+        min: 0, 
+        max: 100 
+    }
+  },
+  {
+    name: 'InterplantScrapReconciliationPercent_Max',
+    label: 'Scrap Max %',
+    type: 'number',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Max %',
+    decimals: 2,
+    visibleWhen: { field: 'InterplantScrapReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  {
+    name: 'InterplantClientScrapReconciliationPercent',
+    label: 'Client Scrap %',
+    type: 'number',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Client %',
+    decimals: 2,
+    visibleWhen: { field: 'InterplantScrapReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+
+
+  // --- GRUPO 2: Interplant Head/Tail Reconciliation ---
+
+  // 1. Checkbox Padre
+  {
+    name: 'InterplantHeadTailReconciliation',
+    label: 'Interplant Head/Tail Reconciliation',
+    type: 'checkbox',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-12',
+    validation: { required: false }
+  },
+
+  // 2. Fila de Porcentajes (4 inputs)
+  {
+    name: 'InterplantHeadTailReconciliationPercent_Min',
+    label: 'H/T Min %',
+    type: 'number',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Min %',
+    decimals: 2,
+    visibleWhen: { field: 'InterplantHeadTailReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  {
+    name: 'InterplantHeadTailReconciliationPercent', // Optimal
+    label: 'H/T Optimal %',
+    type: 'number',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Optimal %',
+    decimals: 2,
+    visibleWhen: { field: 'InterplantHeadTailReconciliation', is: [true] },
+    validation: { 
+        required: true, // Requerido si el padre está activo
+        min: 0, 
+        max: 100 
+    }
+  },
+  {
+    name: 'InterplantHeadTailReconciliationPercent_Max',
+    label: 'H/T Max %',
+    type: 'number',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Max %',
+    decimals: 2,
+    visibleWhen: { field: 'InterplantHeadTailReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  {
+    name: 'InterplantClientHeadTailReconciliationPercent',
+    label: 'Client H/T %',
+    type: 'number',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Client %',
+    decimals: 2,
+    visibleWhen: { field: 'InterplantHeadTailReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  // 6. Interplant Outbound Freight File
+  {
+    name: 'ID_File_InterplantOutboundFreight',
+    label: 'Outbound Freight Additional File',
+    type: 'file',
+    section: 'Interplant Outbound Freight & Conditions',
+    className: 'col-md-4',
+    
+    // ⚠️ CRÍTICO: Debe coincidir con el nombre del parámetro en tu Controller C# legacy
+    uploadFieldName: 'interplantOutboundFreightAdditionalFile',     
+    validation: {
+        required: false,
+        accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
+        maxSizeInMB: 20
+    }
+  },
+  // 1. Delivery Coil Position (Reusa la lista existente)
+  {
+    name: 'ID_Delivery_Coil_Position',
+    label: 'Delivery Coil Position',
+    type: 'select',
+    section: 'Final Delivery Packaging', // Nueva pestaña
+    className: 'col-md-3',
+    optionsKey: 'coilPositions', // 👈 REUTILIZADO
+    placeholder: 'Select an option',
+    validation: {
+        required: false
+    }
+  },
+  // 2. Packaging Standard
+  {
+    name: 'PackagingStandard',
+    label: 'Packaging Standard',
+    type: 'select',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-4',
+    // Opciones hardcodeadas según legacy
+    options: [
+        { value: 'OWN', label: 'Developed by tkMM' },
+        { value: 'CM', label: 'Provided by Client' }
+    ],
+    placeholder: 'Select an option',
+    validation: {
+        required: false // Puedes cambiar a true si quieres replicar validatePackagingStandard
+    }
+  },
+  // 3. Requires Rack Manufacturing (Condicional)
+  {
+    name: 'RequiresRackManufacturing',
+    label: 'Requires Rack Manufacturing?',
+    type: 'checkbox',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-3',
+    // VISIBILIDAD: Solo si Standard es 'OWN'
+    visibleWhen: {
+        field: 'PackagingStandard',
+        is: ['OWN']
+    },
+    validation: { required: false }
+  },
+  // 4. Pieces Per Package
+  {
+    name: 'PiecesPerPackage',
+    label: 'Pieces Per Package',
+    type: 'number',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-3',
+    placeholder: 'Qty',
+    decimals: 0,
+    validation: {
+        required: false,
+        min: 0,
+        customMessage: "Must be a non-negative whole number."
+    }
+  },
+  // 5. Stacks Per Package
+  {
+    name: 'StacksPerPackage',
+    label: 'Stacks Per Package',
+    type: 'number',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-3',
+    placeholder: 'Qty',
+    decimals: 0,
+    validation: {
+        required: false,
+        min: 0,
+        customMessage: "Must be a non-negative whole number."
+    }
+  },
+  // 6. Package Weight (Calculado)
+  {
+    name: 'PackageWeight',
+    label: 'Package Weight [kg]',
+    type: 'number',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-3',
+    placeholder: 'Calculated',
+    decimals: 3,
+    disabled: true // ReadOnly
+  },
+  // 7. Packaging Drawing / Standard
+  {
+    name: 'ID_File_Packaging', // ID en BD
+    label: 'Packaging Drawing / Standard',
+    type: 'file',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-6', // Legacy usa col-md-8
+    
+    // Nombre del parámetro que espera el Controller C#
+    uploadFieldName: 'packaging_archivo', 
+    
+    validation: {
+        required: false,
+        accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
+        maxSizeInMB: 10
+    }
+  },
+  // 8. Delivery Packaging Additional File
+  {
+    name: 'ID_File_DeliveryPackagingAdditional', // ID en BD
+    label: 'Packaging Additional File',
+    type: 'file',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-6', // Legacy usa col-md-4
+    
+    // Nombre del parámetro que espera el Controller C#
+    uploadFieldName: 'deliveryPackagingAdditionalFile', 
+    
+    validation: {
+        required: false,
+        accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
+        maxSizeInMB: 10 // Asumiendo 10MB igual que el otro
+    }
+  },
+  // 9. Rack Types (Checkbox Group)
+  {
+    name: 'SelectedRackTypeIds',
+    label: 'Rack Types',
+    type: 'checkbox-group',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-12',
+    optionsKey: 'rackTypeList', // Reuses the list from Interplant/Arrival
+    validation: { required: false }
+  },
+// --- RETURNABLE RACK LOGIC (Depends on Rack Types) ---  
+  // 12. Is Returnable Rack?
+  {
+    name: 'IsReturnableRack',
+    label: 'Is Returnable Rack?',
+    type: 'checkbox',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-3', // Small width    
+    // VISIBILITY: Only if special racks [2, 3, 4] are selected
+    visibleWhen: {
+        field: 'SelectedRackTypeIds',
+        is: [2, 3, 4] // Adjust IDs based on your DB (Wood, etc.)
+    },
+    validation: { required: false }
+  },
+  // 13. Returnable Uses
+  {
+    name: 'ReturnableUses',
+    label: 'Returnable Uses',
+    type: 'number',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-3',
+    placeholder: 'e.g., 5',
+    decimals: 0,    
+    // VISIBILITY: Only if IsReturnableRack is checked
+    visibleWhen: {
+        field: 'IsReturnableRack',
+        is: [true]
+    },
+    validation: {
+        required: true,
+        min: 1,
+        customMessage: "Must be a positive whole number."
+    }
+  },
+  // 10. Labels (Checkbox Group)
+  {
+    name: 'SelectedLabelIds',
+    label: 'Labels',
+    type: 'checkbox-group',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-12',
+    optionsKey: 'labelList', // Reuses label list
+    validation: { required: false }
+  },
+
+  // 11. Specify "Other" Label (Only if ID 3 is selected in Labels)
+  {
+    name: 'LabelOtherDescription',
+    label: 'Specify "Other" Label',
+    type: 'text', // Legacy uses textarea row=1
+    section: 'Final Delivery Packaging',
+    className: 'col-md-12',
+    placeholder: 'Description...',
+    
+    // VISIBILITY: Depends on SelectedLabelIds containing 3
+    visibleWhen: {
+        field: 'SelectedLabelIds',
+        is: [3]
+    },
+    
+    validation: {
+        required: true,
+        maxLength: 120
+    }
+  },  
+  // --- GRUPO: Additionals ---
+  // 14. Additionals (Checkbox Group)
+  {
+    name: 'SelectedAdditionalIds',
+    label: 'Additionals',
+    type: 'checkbox-group',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-12',
+    optionsKey: 'additionalList',
+    validation: { required: false }
+  },
+  // 15. Specify "Other" Additional (Only if ID 6 is selected)
+  {
+    name: 'AdditionalsOtherDescription',
+    label: 'Specify "Other" Additional',
+    type: 'text',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-12',
+    placeholder: 'Description...',    
+    visibleWhen: {
+        field: 'SelectedAdditionalIds',
+        is: [6] // ID 6 is "Other"
+    },    
+    validation: {
+        required: true,
+        maxLength: 120
+    }
+  },
+  // --- GRUPO: Standard Packaging (Straps) ---
+  // 16. Standard Packaging / Straps (Checkbox Group)
+  {
+    name: 'SelectedStrapTypeIds',
+    label: 'Standard Packaging',
+    type: 'checkbox-group',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-12',
+    optionsKey: 'strapTypeList',
+    validation: { required: false }
+  },
+  // 17. Strap Type Observations (Always Visible)
+  {
+    name: 'StrapTypeObservations',
+    label: 'Standard Packaging Observations',
+    type: 'textarea',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-12',
+    placeholder: 'Strap type observations...',
+    validation: {
+        required: false,
+        maxLength: 120
+    }
+  },
+  // --- SPECIAL TEXTAREAS ---
+  // 18. Special Requirement
+  {
+    name: 'SpecialRequirement',
+    label: 'Special Requirement',
+    type: 'textarea',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-6',
+    placeholder: 'Enter requirements...',
+    validation: {
+        required: false,
+        maxLength: 350
+    }
+  },
+  // 19. Special Packaging
+  {
+    name: 'SpecialPackaging',
+    label: 'Special Packaging',
+    type: 'textarea',
+    section: 'Final Delivery Packaging',
+    className: 'col-md-6',
+    placeholder: 'Enter packaging details...',
+    validation: {
+        required: false,
+        maxLength: 350
+    }
+  },
+  // --- SECCIÓN: Final Outbound Freight & Conditions ---
+  // 1. Freight Type
+  {
+    name: 'ID_FreightType',
+    label: 'Freight Type',
+    type: 'select',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    optionsKey: 'freightTypeList',
+    validation: { required: false }
+  },
+  // 2. Transport Type
+  {
+    name: 'ID_Delivery_Transport_Type',
+    label: 'Transport Type',
+    type: 'select',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    optionsKey: 'transportTypes', // Reutilizado
+    placeholder: 'Select transport...',
+    validation: { required: false }
+  },
+  // 3. Specify Other Transport (Condicional)
+  {
+    name: 'Delivery_Transport_Type_Other',
+    label: 'Specify Other Transport',
+    type: 'text',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Specify transport...',
+    // VISIBILIDAD: Solo si TransportType es 5 (Other)
+    visibleWhen: {
+        field: 'ID_Delivery_Transport_Type',
+        is: [5]
+    },
+    validation: {
+        required: true,
+        maxLength: 50
+    }
+  },
+  // 4. Load Per Transport
+  {
+    name: 'LoadPerTransport',
+    label: 'Load Per Transport',
+    type: 'number',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Load',
+    decimals: 2,
+    validation: {
+        required: false,
+        min: 0,
+        customMessage: "Must be a positive number."
+    }
+  },
+  // 5. Delivery Conditions (Textarea)
+  {
+    name: 'DeliveryConditions',
+    label: 'Delivery Conditions',
+    type: 'textarea',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-12',
+    placeholder: 'Describe delivery conditions...',
+    validation: {
+        required: false,
+        maxLength: 350
+    }
+  },
+
+  // --- GRUPO: Scrap Reconciliation ---
+  // 6. Checkbox Padre
+  {
+    name: 'ScrapReconciliation',
+    label: 'Scrap Reconciliation',
+    type: 'checkbox',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-12',
+    validation: { required: false }
+  },
+
+  // 7. Porcentajes Scrap (4 inputs)
+  {
+    name: 'ScrapReconciliationPercent_Min',
+    label: 'Scrap Min %',
+    type: 'number',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Min %',
+    decimals: 2,
+    visibleWhen: { field: 'ScrapReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  {
+    name: 'ScrapReconciliationPercent', // Optimal
+    label: 'Scrap Optimal %',
+    type: 'number',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Optimal %',
+    decimals: 2,
+    visibleWhen: { field: 'ScrapReconciliation', is: [true] },
+    validation: { required: true, min: 0, max: 100 }
+  },
+  {
+    name: 'ScrapReconciliationPercent_Max',
+    label: 'Scrap Max %',
+    type: 'number',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Max %',
+    decimals: 2,
+    visibleWhen: { field: 'ScrapReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  {
+    name: 'ClientScrapReconciliationPercent',
+    label: 'Client Scrap %',
+    type: 'number',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Client %',
+    decimals: 2,
+    visibleWhen: { field: 'ScrapReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  // --- GRUPO: Head/Tail Reconciliation ---
+  // 8. Checkbox Padre
+  {
+    name: 'HeadTailReconciliation',
+    label: 'Head/Tail Reconciliation',
+    type: 'checkbox',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-12',
+    validation: { required: false }
+  },
+
+  // 9. Porcentajes H/T (4 inputs)
+  {
+    name: 'HeadTailReconciliationPercent_Min',
+    label: 'H/T Min %',
+    type: 'number',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Min %',
+    decimals: 2,
+    visibleWhen: { field: 'HeadTailReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  {
+    name: 'HeadTailReconciliationPercent', // Optimal
+    label: 'H/T Optimal %',
+    type: 'number',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Optimal %',
+    decimals: 2,
+    visibleWhen: { field: 'HeadTailReconciliation', is: [true] },
+    validation: { required: true, min: 0, max: 100 }
+  },
+  {
+    name: 'HeadTailReconciliationPercent_Max',
+    label: 'H/T Max %',
+    type: 'number',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Max %',
+    decimals: 2,
+    visibleWhen: { field: 'HeadTailReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  {
+    name: 'ClientHeadTailReconciliationPercent',
+    label: 'Client H/T %',
+    type: 'number',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-3',
+    placeholder: 'Client %',
+    decimals: 2,
+    visibleWhen: { field: 'HeadTailReconciliation', is: [true] },
+    validation: { required: false, min: 0, max: 100 }
+  },
+  // 10. Outbound Freight Additional File
+  {
+    name: 'ID_File_OutboundFreightAdditional',
+    label: 'Outbound Freight Additional File',
+    type: 'file',
+    section: 'Final Outbound Freight & Conditions',
+    className: 'col-md-4',
+    
+    // Nombre del parámetro en el Controller C#
+    uploadFieldName: 'outboundFreightAdditionalFile', 
+    
+    validation: {
+        required: false,
+        accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
+        maxSizeInMB: 20
+    }
+  },
+  // 1. Theoretical Blanking Line (Readonly)
+  {
+    name: 'ID_Theoretical_Blanking_Line', // Este guarda el ID oculto si es necesario
+    label: 'Theoretical Blanking Line',
+    type: 'text', // Usamos text para mostrar el nombre
+    section: 'Technical Feasibility',
+    className: 'col-md-3',
+    disabled: true, // Readonly
+    placeholder: 'Theoretical Blanking Line',
+    // Usaremos un campo virtual en el form para mostrar el nombre si viene separado del ID
+    // O si el backend manda el nombre en este campo, perfecto.
+  },
+  // 2. Theoretical Strokes (Calculado AJAX)
+  {
+    name: 'Theoretical_Strokes',
+    label: 'Theoretical Strokes',
+    type: 'number',
+    section: 'Technical Feasibility',
+    className: 'col-md-3',
+    disabled: true, // Readonly
+    placeholder: 'Theoretical Strokes',
+    decimals: 2
+  },
+  // 3. Effective Strokes (Calculado Local)
+  {
+    name: 'Theoretical_Effective_Strokes',
+    label: 'Theoretical Effective Strokes',
+    type: 'number',
+    section: 'Technical Feasibility',
+    className: 'col-md-3',
+    disabled: true, // Readonly
+    placeholder: 'Strokes * OEE',
+    decimals: 0 // Entero
+  }
 ];

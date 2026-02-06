@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // 👈 Importar useEffect
 
 interface Props {
     show: boolean;
@@ -76,6 +76,24 @@ const STEEL_DATA = {
 export default function ToleranceReference({ show, onClose }: Props) {
     const [activeTab, setActiveTab] = useState('width');
 
+    // -------------------------------------------------------------------
+    // 1. BLOQUEO DE SCROLL DEL BODY 👈 NUEVO
+    // -------------------------------------------------------------------
+    useEffect(() => {
+        if (show) {
+            // Al abrir, quitamos el scroll de la página de fondo
+            document.body.style.overflow = 'hidden';
+        } else {
+            // Al cerrar (o si no se muestra), restauramos el scroll
+            document.body.style.overflow = 'unset';
+        }
+
+        // Cleanup: Si el componente se desmonta, aseguramos restaurar el scroll
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [show]);
+
     if (!show) return null;
 
     // Estilos inline para el modal (para no depender de jQuery/Bootstrap JS)
@@ -132,8 +150,8 @@ export default function ToleranceReference({ show, onClose }: Props) {
     };
 
     return (
-        <div className="modal fade show" style={modalStyle} tabIndex={-1} role="dialog">
-            <div className="modal-dialog modal-lg" role="document" style={{ maxWidth: '900px' }}>
+        <div className="modal fade show" style={modalStyle} tabIndex={-1} role="dialog" onClick={onClose}>
+            <div className="modal-dialog modal-lg" role="document" style={{ maxWidth: '900px' }} onClick={(e) => e.stopPropagation()}>
                 <div className="modal-content shadow-lg" style={{ border: 'none', borderRadius: '12px' }}>
                     
                     {/* Header Azul Moderno */}

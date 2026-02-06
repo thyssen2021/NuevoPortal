@@ -43,7 +43,7 @@ export default function DynamicField({ config, value, onChange, lists, error, wa
                 // A. Caso Nuevo: config.options es un string (ej: 'shapes') -> Buscar en lists
                 if (typeof config.options === 'string') {
                     rawList = lists[config.options] || [];
-                } 
+                }
                 // B. Caso Array Directo: config.options es ya un array -> Usarlo directo
                 else if (Array.isArray(config.options)) {
                     rawList = config.options;
@@ -71,7 +71,7 @@ export default function DynamicField({ config, value, onChange, lists, error, wa
                         value={value}
                         // SearchableSelect devuelve el valor limpio, lo pasamos directo
                         onChange={(val) => handleChange(val)}
-                        options={formattedOptions} 
+                        options={formattedOptions}
                         disabled={config.disabled}
                         placeholder={config.placeholder}
                         error={error}
@@ -83,8 +83,8 @@ export default function DynamicField({ config, value, onChange, lists, error, wa
                 // 1. Si trae 'step' explícito ("any"), úsalo.
                 // 2. Si trae 'decimals', calcula 1 / 10^decimals.
                 // 3. Si no trae nada, default a "1" (Enteros).
-                let stepValue = "1"; 
-                
+                let stepValue = "1";
+
                 if (config.step) {
                     stepValue = config.step;
                 } else if (config.decimals !== undefined) {
@@ -265,7 +265,7 @@ export default function DynamicField({ config, value, onChange, lists, error, wa
             case 'creatable-select':
                 // Obtenemos la lista de opciones desde props
                 const optionsList = config.optionsKey ? lists[config.optionsKey] : [];
-                
+
                 return (
                     <CreatableSelect
                         value={value}
@@ -275,6 +275,57 @@ export default function DynamicField({ config, value, onChange, lists, error, wa
                         disabled={config.disabled}
                         error={error}
                     />
+                );
+            case 'checkbox-group':
+                const groupOptions = config.optionsKey ? lists[config.optionsKey] : [];
+                const selectedIds: number[] = Array.isArray(value) ? value : [];
+
+                const handleCheck = (id: number, isChecked: boolean) => {
+                    let newIds = [...selectedIds];
+                    if (isChecked) {
+                        newIds.push(id);
+                    } else {
+                        newIds = newIds.filter(x => x !== id);
+                    }
+                    onChange(config.name, newIds);
+                };
+
+                return (
+                    // 👇 CAMBIO AQUÍ: Usamos la clase del marco
+                    <div className="checkbox-group-frame">
+                        {groupOptions && groupOptions.length > 0 ? (
+                            groupOptions.map((opt: any) => {
+                                const optId = typeof opt.Value === 'string' ? parseInt(opt.Value) : opt.Value;
+                                const isChecked = selectedIds.includes(optId);
+                                const isDisabled = config.disabled;
+
+                                return (
+                                    <label 
+                                        key={optId} 
+                                        className={`pro-checkbox-option ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}`}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={isChecked}
+                                            disabled={isDisabled}
+                                            onChange={(e) => handleCheck(optId, e.target.checked)}
+                                            style={{ display: 'none' }} 
+                                        />
+                                        
+                                        <div className="pro-checkbox-icon">
+                                            <i className="fa fa-check"></i>
+                                        </div>
+
+                                        <span className="pro-checkbox-label">
+                                            {opt.Text}
+                                        </span>
+                                    </label>
+                                );
+                            })
+                        ) : (
+                            <span className="text-muted small w-100 text-center">No options available</span>
+                        )}
+                    </div>
                 );
             case 'text':
             default:

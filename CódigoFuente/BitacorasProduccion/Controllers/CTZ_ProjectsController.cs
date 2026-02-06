@@ -1854,7 +1854,73 @@ namespace Portal_2_0.Controllers
                    })
                    .ToList();
 
+                // 1. Labels: Obtener y ordenar
+                var labelEntities = db.CTZ_Packaging_LabelType
+                    .Where(l => l.IsActive)
+                    .OrderBy(l => l.LabelTypeName)
+                    .ToList();
 
+                // 2. Mover "Other" (ID 3) al final
+                var otherLabel = labelEntities.FirstOrDefault(l => l.ID_LabelType == 3);
+                if (otherLabel != null)
+                {
+                    labelEntities.Remove(otherLabel);
+                    labelEntities.Add(otherLabel);
+                }
+
+                // 3. Proyectar
+                var labelList = labelEntities.Select(l => new
+                {
+                    Value = l.ID_LabelType,
+                    Text = l.LabelTypeName
+                }).ToList();
+
+                // --- A) Interplant Additionals ---
+                // 1. Obtener y ordenar
+                var additionalEntities = db.CTZ_Packaging_Additionals
+                    .Where(a => a.IsActive)
+                    .OrderBy(a => a.AdditionalName)
+                    .ToList();
+
+                // 2. Mover "Other" (ID 6) al final
+                var otherAdd = additionalEntities.FirstOrDefault(a => a.ID_Additional == 6);
+                if (otherAdd != null)
+                {
+                    additionalEntities.Remove(otherAdd);
+                    additionalEntities.Add(otherAdd);
+                }
+
+                // 3. Proyectar
+                var additionalList = additionalEntities.Select(a => new
+                {
+                    Value = a.ID_Additional,
+                    Text = a.AdditionalName
+                }).ToList();
+
+
+                // --- B) Interplant Standard Packaging (Straps) ---
+                var strapEntities = db.CTZ_Packaging_StrapType
+                    .Where(s => s.IsActive)
+                    .OrderBy(s => s.StrapTypeName)
+                    .ToList();
+
+                // (Opcional: Si Straps tiene un "Other", muévelo aquí. Si no, déjalo así)
+
+                var strapTypeList = strapEntities.Select(s => new
+                {
+                    Value = s.ID_StrapType,
+                    Text = s.StrapTypeName
+                }).ToList();
+
+                var freightList = db.CTZ_FreightTypes
+                .Where(f => f.Active)
+                .OrderBy(f => f.Description) // Orden alfabético
+                .Select(f => new
+                {
+                    Value = f.ID_FreightType,
+                    Text = f.Description
+                })
+                .ToList();
 
                 // 3. Empaquetar todas las listas en un objeto
                 var listsPayload = new
@@ -1872,6 +1938,11 @@ namespace Portal_2_0.Controllers
                     qualityList = qualityList,
                     millList = millList,
                     shapes = shapeList,
+                    rackTypeList = arrivalRackList,
+                    labelList = labelList,
+                    additionalList = additionalList, 
+                    strapTypeList = strapTypeList,
+                    freightTypeList = freightList,
                 };
 
                 // 4. Serializar las listas (Es seguro usar settings por defecto aquí)
@@ -1994,7 +2065,8 @@ namespace Portal_2_0.Controllers
                     deleteUrl = Url.Action("DeleteMaterial", "CTZ_Projects"),
                     backUrl = Url.Action("Index", "CTZ_Projects"),
                     getVehiclesUrl = Url.Action("GetIHSByCountry", "CTZ_Projects"),
-                    getIHSDetailsUrl = Url.Action("GetIHSDetails", "CTZ_Projects")
+                    getIHSDetailsUrl = Url.Action("GetIHSDetails", "CTZ_Projects"),
+                    getTheoreticalStrokes = Url.Action("GetTheoreticalStrokes", "CTZ_Projects"), 
                 };
 
                 // Serializamos para pasarlo a la vista

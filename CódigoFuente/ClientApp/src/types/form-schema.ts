@@ -1,7 +1,7 @@
 // src/types/form-schema.ts
 
 export type FieldType = 'text' | 'number' | 'select' | 'boolean' | 'date' | 'textarea' | 'file' | 'vehicle-selector' | 'checkbox'
-  | 'month' | 'file' | 'creatable-select';
+  | 'month' | 'file' | 'creatable-select' | 'checkbox-group';
 
 export interface ValidationRules {
   required?: boolean;
