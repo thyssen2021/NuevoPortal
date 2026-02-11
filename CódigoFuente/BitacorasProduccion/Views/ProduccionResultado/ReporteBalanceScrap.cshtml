@@ -1,0 +1,298 @@
+﻿@* Plantilla base para nuevas vistas *@
+@{
+    ViewBag.Title = "Balance de Materiales (Scrap)";
+    ViewBag.PrimerNivel = "bitacoras_produccion";
+    ViewBag.SegundoNivel = "reporte_scrap";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap.min.css" />
+
+    <style>
+        /* ==============================================================
+           ESTILOS PREMIUM DATATABLES - TEMA CORPORATIVO (#009ff5)
+           ============================================================== */
+        .report-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        table.dataTable {
+            border-collapse: collapse !important;
+            width: 100% !important;
+        }
+
+            table.dataTable thead th {
+                background-color: #009ff5;
+                color: #ffffff;
+                font-weight: 500;
+                text-transform: uppercase;
+                font-size: 12px;
+                letter-spacing: 0.5px;
+                border: none;
+                padding: 12px 15px;
+                white-space: nowrap;
+            }
+
+            table.dataTable tbody td {
+                padding: 12px 15px;
+                vertical-align: middle;
+                border-bottom: 1px solid #edf2f9;
+                color: #495057;
+                font-size: 13px;
+            }
+
+            table.dataTable tbody tr:hover {
+                background-color: #f4f8fd !important;
+                transition: background-color 0.2s ease;
+            }
+
+        .btn-export-excel {
+            background-color: #009ff5;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 159, 245, 0.3);
+        }
+
+            .btn-export-excel:hover {
+                background-color: #007cc0;
+                color: #fff;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0, 159, 245, 0.4);
+            }
+
+        .pagination > .active > a,
+        .pagination > .active > a:focus,
+        .pagination > .active > a:hover,
+        .pagination > .active > span,
+        .pagination > .active > span:focus,
+        .pagination > .active > span:hover {
+            background-color: #009ff5 !important;
+            border-color: #009ff5 !important;
+        }
+
+        .dataTables_filter input {
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            padding: 5px 15px;
+            outline: none;
+        }
+
+            .dataTables_filter input:focus {
+                border-color: #009ff5;
+                box-shadow: 0 0 5px rgba(0, 159, 245, 0.3);
+            }
+
+        .dt-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-chart-line text-thyssen-color"></i> @ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <div class="report-container">
+                            <div class="dt-top-bar">
+                                <div>
+                                    <button type="button" id="btnExportarExcel" class="btn-export-excel">
+                                        <i class="fa fa-file-excel"></i> Descargar Excel
+                                    </button>
+                                    <button type="button" id="btnLimpiarFiltros" class="btn btn-warning" style="margin-left: 10px; margin-bottom: 0;">
+                                        <i class="fa fa-eraser"></i> Limpiar Filtros
+                                    </button>
+                                </div>
+                                <div id="custom-search-container"></div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table id="tablaReporteScrap" class="table table-striped dt-responsive nowrap" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Orden Prod.</th>
+                                            <th>Planta</th>
+                                            <th>Número Parte</th>
+                                            <th>Business Model</th>
+                                            <th>Tipo Metal</th>
+                                            <th>Rollos Usados</th>
+                                            <th>Tons Usadas</th>
+                                            <th>Total KG Usados</th>
+                                            <th>Peso Platina (KG)</th>
+                                            <th>Platinas Prod.</th>
+                                            <th>Platinas Vend.</th>
+                                            <th>Dif. Inv. Teórica</th>
+                                            <th>Merma Almacén</th>
+                                            <th>Scrap OffFall (KG)</th>
+                                            <th>Scrap P&C (KG)</th>
+                                            <th>Scrap Merma (KG)</th>
+                                            <th>Scrap (Off-all)%</th>
+                                            <th>Scrap (P&C)%</th>
+                                            <th>Scrap (Merma)%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            var tabla = $('#tablaReporteScrap').DataTable({
+                "processing": true,
+                "serverSide": true,
+                // Quitamos el searchDelay nativo
+                "ajax": {
+                    "url": "@Url.Action("GetReporteScrapData", "ProduccionResultado")",
+                    "type": "POST"
+                },
+                "pageLength": 50,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                },
+                "order": [],
+                "columns": [
+                    { "data": "Orden_Produccion", "name": "Orden_Produccion" },
+                    { "data": "Planta", "name": "Planta" },
+                    { "data": "Numero_Parte", "name": "Numero_Parte" },
+                    { "data": "Business_Model", "name": "Business_Model", "defaultContent": "-" },
+                    { "data": "Tipo_Metal", "name": "Tipo_Metal", "defaultContent": "-" },
+                    { "data": "Rollos_Usados", "name": "Rollos_Usados", render: $.fn.dataTable.render.number(',', '.', 0, '') },
+                    { "data": "Tons_Usadas", "name": "Tons_Usadas", render: $.fn.dataTable.render.number(',', '.', 3, '') },
+                    { "data": "Total_Kg_Used", "name": "Total_Kg_Used", render: $.fn.dataTable.render.number(',', '.', 3, '') },
+                    { "data": "Peso_Platina_KG", "name": "Peso_Platina_KG", render: $.fn.dataTable.render.number(',', '.', 3, '') },
+                    { "data": "Platinas_Producidas", "name": "Platinas_Producidas", render: $.fn.dataTable.render.number(',', '.', 0, '') },
+                    { "data": "Platinas_Vendidas", "name": "Platinas_Vendidas", render: $.fn.dataTable.render.number(',', '.', 0, '') },
+                    { "data": "Diferencia_Inventario_Teorica", "name": "Diferencia_Inventario_Teorica", render: $.fn.dataTable.render.number(',', '.', 0, '') },
+                    { "data": "Merma_Almacen", "name": "Merma_Almacen", render: $.fn.dataTable.render.number(',', '.', 0, '') },
+                    { "data": "Scrap_OffFall_KG", "name": "Scrap_OffFall_KG", render: $.fn.dataTable.render.number(',', '.', 2, '') },
+                    { "data": "Scrap_PC_KG", "name": "Scrap_PC_KG", render: $.fn.dataTable.render.number(',', '.', 2, '') },
+                    { "data": "Scrap_Merma_KG", "name": "Scrap_Merma_KG", render: $.fn.dataTable.render.number(',', '.', 2, '') },
+                    { "data": "Porcentaje_Scrap_OffFall", "name": "Porcentaje_Scrap_OffFall", render: $.fn.dataTable.render.number(',', '.', 2, '', ' %') },
+                    { "data": "Porcentaje_Scrap_PC", "name": "Porcentaje_Scrap_PC", render: $.fn.dataTable.render.number(',', '.', 2, '', ' %') },
+                    { "data": "Porcentaje_Scrap_Merma", "name": "Porcentaje_Scrap_Merma", render: $.fn.dataTable.render.number(',', '.', 2, '', ' %') }
+                ],
+                "initComplete": function() {
+                    // 1. Movemos el buscador al contenedor custom
+                    var $filter = $("#tablaReporteScrap_filter");
+                    $filter.detach().appendTo('#custom-search-container');
+
+                    // 2. ENFOQUE INFALIBLE DE DEBOUNCE
+                    var searchInput = $filter.find('input');
+
+                    // Desvinculamos el evento por defecto de DataTables
+                    searchInput.unbind();
+
+                    // Variable para el temporizador
+                    var delayTimer;
+
+                    // Asignamos nuestro propio evento
+                    searchInput.on('keyup', function(e) {
+                        var valorFiltro = this.value;
+
+                        // Limpiamos el temporizador anterior si el usuario sigue tecleando
+                        clearTimeout(delayTimer);
+
+                        // Iniciamos un nuevo temporizador
+                        delayTimer = setTimeout(function() {
+                            // Cuando pasan 800ms sin teclear, le decimos a DataTables que busque
+                            tabla.search(valorFiltro).draw();
+                        }, 600); // <-- Puedes ajustar los milisegundos aquí (800ms)
+                    });
+                }
+            });
+
+            // Código del botón de Excel...
+            $('#btnExportarExcel').on('click', function () {
+                var currentSearch = tabla.search();
+
+                var form = $('<form>', {
+                    'method': 'POST',
+                    'action': '@Url.Action("ExportarBalanceScrapExcel", "ProduccionResultado")'
+                });
+
+                var hiddenInput = $('<input>', {
+                    'type': 'hidden',
+                    'name': 'searchTerm',
+                    'value': currentSearch
+                });
+
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                if(token) {
+                    form.append($('<input>', { 'type': 'hidden', 'name': '__RequestVerificationToken', 'value': token }));
+                }
+
+                form.append(hiddenInput);
+                $('body').append(form);
+
+                var $btn = $(this);
+                var originalText = $btn.html();
+                $btn.html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+                $btn.prop('disabled', true);
+
+                form.submit();
+                form.remove();
+
+                setTimeout(function() {
+                    $btn.html(originalText);
+                    $btn.prop('disabled', false);
+                }, 3000);
+            });
+
+            // 3. Evento para Limpiar Filtros y Ordenamiento
+            $('#btnLimpiarFiltros').on('click', function () {
+                // Opción 1: La forma "Profesional" (Recomendada)
+                // Limpia el valor de la caja de búsqueda física
+                $('#custom-search-container input').val('');
+
+                // Le dice a DataTables que quite el texto de búsqueda,
+                // regrese el orden a la columna 0 (Orden Producción) de forma descendente,
+                // y vuelva a dibujar la tabla.
+                tabla.search('')
+                    .order([0, 'desc'])
+                    .draw();
+
+                /* // Opción 2: La forma "Práctica" (Recargar página)
+                // Si en algún momento prefieres el método de recargar la página, 
+                // solo borra el código de arriba y descomenta esta línea:
+                // window.location.reload(); 
+                */
+            });
+
+        });
+    </script>
+}

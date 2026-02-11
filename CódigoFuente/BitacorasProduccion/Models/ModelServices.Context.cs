@@ -32,5 +32,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<MaterialPlants> MaterialPlants { get; set; }
         public virtual DbSet<BomItems> BomItems { get; set; }
         public virtual DbSet<Materials> Materials { get; set; }
+        public virtual DbSet<vw_ReporteBalanceMateriales> vw_ReporteBalanceMateriales { get; set; }
     }
 }

@@ -12,6 +12,7 @@
         <EntityTypeShape EntityType="Portal_2_0_ServicesModel.MaterialPlants" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0_ServicesModel.BomItems" Width="1.5" PointX="0.75" PointY="4.75" />
         <EntityTypeShape EntityType="Portal_2_0_ServicesModel.Materials" Width="1.5" PointX="7.375" PointY="3.75" />
+        <EntityTypeShape EntityType="Portal_2_0_ServicesModel.vw_ReporteBalanceMateriales" Width="1.5" PointX="3.375" PointY="7.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

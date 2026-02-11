@@ -1577,6 +1577,9 @@
     <Compile Include="Models\Vw_Materiales_Vencimiento.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\vw_ReporteBalanceMateriales.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -6176,6 +6179,7 @@
     <Content Include="Views\SCDM_solicitud\ReporteVencimientos.cshtml" />
     <Content Include="Views\BG_Forecast_cat_fiscal_years\Index.cshtml" />
     <Content Include="Views\OT_Cargas\Index.cshtml" />
+    <Content Include="Views\ProduccionResultado\ReporteBalanceScrap.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

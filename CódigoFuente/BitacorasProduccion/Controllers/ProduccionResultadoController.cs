@@ -8,7 +8,9 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Portal_2_0.Models;
+using SpreadsheetLight;
 
 namespace Portal_2_0.Controllers
 {
@@ -266,7 +268,7 @@ namespace Portal_2_0.Controllers
                 //Agregamos la lista a nuestro SelectList
                 SelectList listNumParte = new SelectList(lst, "Value", "Text");
 
-               
+
 
                 List<SelectListItem> lstP = new List<SelectListItem>();
                 foreach (var item in listaPlatina1)
@@ -392,6 +394,266 @@ namespace Portal_2_0.Controllers
             return query.OrderBy(x => x.id).ToList();
         }
 
+        #region REPORTE SCRAP
+
+        // ==============================================================================================
+        // INICIO: MÓDULO REPORTE DE BALANCE DE MATERIALES (SCRAP)
+        // ==============================================================================================
+
+        // 1. Método para cargar la vista base (El esqueleto de la pantalla)
+        [HttpGet]
+        [System.Web.Mvc.AllowAnonymous]
+        public ActionResult ReporteBalanceScrap()
+        {
+            // Usamos el rol de reportes de producción
+            //if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE) || TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS) || TieneRol(TipoRoles.ADMIN))
+            //{
+                return View();
+            //}
+            //else
+            //{
+            //    return View("../Home/ErrorPermisos");
+            //}
+        }
+
+        // 2. Método AJAX para alimentar el DataTables (Server-Side Processing)
+        // 2. Método AJAX para alimentar el DataTables (Server-Side Processing)
+        [HttpPost]
+        public ActionResult GetReporteScrapData()
+        {
+            try
+            {
+                // Parámetros propios de DataTables para paginación y búsqueda
+                var draw = Request.Form.GetValues("draw")?.FirstOrDefault();
+                var start = Request.Form.GetValues("start")?.FirstOrDefault();
+                var length = Request.Form.GetValues("length")?.FirstOrDefault();
+                var searchValue = Request.Form.GetValues("search[value]")?.FirstOrDefault();
+
+                // Parámetros propios de DataTables para ORDENAMIENTO
+                var sortColumnIndex = Request.Form.GetValues("order[0][column]")?.FirstOrDefault();
+                var sortDirection = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); // Viene como "asc" o "desc"
+
+                int pageSize = length != null ? Convert.ToInt32(length) : 0;
+                int skip = start != null ? Convert.ToInt32(start) : 0;
+                int recordsTotal = 0;
+
+                using (var db_sap = new Portal_2_0_ServicesEntities())
+                {
+                    var query = db_sap.vw_ReporteBalanceMateriales.AsQueryable();
+
+                    // 1. Aplicar Filtro global (Buscador general)
+                    if (!string.IsNullOrEmpty(searchValue))
+                    {
+                        searchValue = searchValue.ToLower();
+                        query = query.Where(x =>
+                            x.Numero_Parte.ToLower().Contains(searchValue) ||
+                            (x.Business_Model != null && x.Business_Model.ToLower().Contains(searchValue)) ||
+                            (x.Tipo_Metal != null && x.Tipo_Metal.ToLower().Contains(searchValue)) ||
+                            x.Orden_Produccion.ToString().Contains(searchValue) ||
+                            x.Planta.ToString().Contains(searchValue)
+                        );
+                    }
+
+                    recordsTotal = query.Count();
+
+                    // 2. Lógica de ORDENAMIENTO DINÁMICO
+                    if (!string.IsNullOrEmpty(sortColumnIndex) && !string.IsNullOrEmpty(sortDirection))
+                    {
+                        bool isDesc = sortDirection == "desc";
+
+                        // Hacemos match del índice de la columna en DataTables con la propiedad en EF
+                        switch (sortColumnIndex)
+                        {
+                            case "0": query = isDesc ? query.OrderByDescending(x => x.Orden_Produccion) : query.OrderBy(x => x.Orden_Produccion); break;
+                            case "1": query = isDesc ? query.OrderByDescending(x => x.Planta) : query.OrderBy(x => x.Planta); break;
+                            case "2": query = isDesc ? query.OrderByDescending(x => x.Numero_Parte) : query.OrderBy(x => x.Numero_Parte); break;
+                            case "3": query = isDesc ? query.OrderByDescending(x => x.Business_Model) : query.OrderBy(x => x.Business_Model); break;
+                            case "4": query = isDesc ? query.OrderByDescending(x => x.Tipo_Metal) : query.OrderBy(x => x.Tipo_Metal); break;
+                            case "5": query = isDesc ? query.OrderByDescending(x => x.Rollos_Usados) : query.OrderBy(x => x.Rollos_Usados); break;
+                            case "6": query = isDesc ? query.OrderByDescending(x => x.Tons_Usadas) : query.OrderBy(x => x.Tons_Usadas); break;
+                            case "7": query = isDesc ? query.OrderByDescending(x => x.Total_Kg_Used) : query.OrderBy(x => x.Total_Kg_Used); break;
+                            case "8": query = isDesc ? query.OrderByDescending(x => x.Peso_Platina_KG) : query.OrderBy(x => x.Peso_Platina_KG); break;
+                            case "9": query = isDesc ? query.OrderByDescending(x => x.Platinas_Producidas) : query.OrderBy(x => x.Platinas_Producidas); break;
+                            case "10": query = isDesc ? query.OrderByDescending(x => x.Platinas_Vendidas) : query.OrderBy(x => x.Platinas_Vendidas); break;
+                            case "11": query = isDesc ? query.OrderByDescending(x => x.Diferencia_Inventario_Teorica) : query.OrderBy(x => x.Diferencia_Inventario_Teorica); break;
+                            case "12": query = isDesc ? query.OrderByDescending(x => x.Merma_Almacen) : query.OrderBy(x => x.Merma_Almacen); break;
+                            case "13": query = isDesc ? query.OrderByDescending(x => x.Scrap_OffFall_KG) : query.OrderBy(x => x.Scrap_OffFall_KG); break;
+                            case "14": query = isDesc ? query.OrderByDescending(x => x.Scrap_PC_KG) : query.OrderBy(x => x.Scrap_PC_KG); break;
+                            case "15": query = isDesc ? query.OrderByDescending(x => x.Scrap_Merma_KG) : query.OrderBy(x => x.Scrap_Merma_KG); break;
+                            // TUS NUEVAS COLUMNAS DE PORCENTAJE
+                            case "16": query = isDesc ? query.OrderByDescending(x => x.Porcentaje_Scrap_OffFall) : query.OrderBy(x => x.Porcentaje_Scrap_OffFall); break;
+                            case "17": query = isDesc ? query.OrderByDescending(x => x.Porcentaje_Scrap_PC) : query.OrderBy(x => x.Porcentaje_Scrap_PC); break;
+                            case "18": query = isDesc ? query.OrderByDescending(x => x.Porcentaje_Scrap_Merma) : query.OrderBy(x => x.Porcentaje_Scrap_Merma); break;
+
+                            default: query = query.OrderByDescending(x => x.Orden_Produccion); break;
+                        }
+                    }
+                    else
+                    {
+                        // Orden por defecto si no ha hecho clic en nada
+                        query = query.OrderByDescending(x => x.Orden_Produccion);
+                    }
+
+                    // 3. Paginación final (Después de filtrar y después de ordenar)
+                    var data = query.Skip(skip).Take(pageSize).ToList();
+
+                    return Json(new
+                    {
+                        draw = draw,
+                        recordsFiltered = recordsTotal,
+                        recordsTotal = recordsTotal,
+                        data = data
+                    }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                EscribeExcepcion(ex, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                return Json(new { error = "Ocurrió un error al procesar los datos: " + ex.Message });
+            }
+        }
+
+        // 3. Método para Exportar TODO a Excel ultra rápido con SpreadsheetLight
+        [HttpPost]
+        public ActionResult ExportarBalanceScrapExcel(string searchTerm)
+        {
+            try
+            {
+                using (var db_sap = new Portal_2_0_ServicesEntities())
+                {
+                    // 1. AsNoTracking(): LA REGLA DE ORO PARA PERFORMANCE EN LECTURAS MASIVAS
+                    var query = db_sap.vw_ReporteBalanceMateriales.AsNoTracking().AsQueryable();
+
+                    if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        searchTerm = searchTerm.ToLower();
+                        query = query.Where(x =>
+                            x.Numero_Parte.ToLower().Contains(searchTerm) ||
+                            (x.Business_Model != null && x.Business_Model.ToLower().Contains(searchTerm)) ||
+                            (x.Tipo_Metal != null && x.Tipo_Metal.ToLower().Contains(searchTerm)) ||
+                            x.Orden_Produccion.ToString().Contains(searchTerm) ||
+                            x.Planta.ToString().Contains(searchTerm)
+                        );
+                    }
+
+                    // 2. Proyección Ligera: Jalamos solo lo necesario para la RAM
+                    var datosExportar = query
+                        .OrderByDescending(x => x.Orden_Produccion)
+                        .Select(item => new
+                        {
+                            item.Orden_Produccion,
+                            item.Planta,
+                            item.Numero_Parte,
+                            item.Business_Model,
+                            item.Tipo_Metal,
+                            item.Rollos_Usados,
+                            item.Tons_Usadas,
+                            item.Total_Kg_Used, // (Asegúrate de que este campo exista en tu vista/EDMX)
+                            item.Peso_Platina_KG,
+                            item.Platinas_Producidas,
+                            item.Platinas_Vendidas,
+                            item.Diferencia_Inventario_Teorica,
+                            item.Merma_Almacen,
+                            item.Scrap_OffFall_KG,
+                            item.Scrap_PC_KG,
+                            item.Scrap_Merma_KG,
+                            item.Porcentaje_Scrap_OffFall,
+                            item.Porcentaje_Scrap_PC,
+                            item.Porcentaje_Scrap_Merma
+                        })
+                        .ToList();
+
+                    SLDocument oSLDocument = new SLDocument();
+                    System.Data.DataTable dt = new System.Data.DataTable();
+
+                    // Pre-asignar capacidad a la DataTable para que no pierda tiempo redimensionando internamente
+                    dt.MinimumCapacity = datosExportar.Count;
+
+                    dt.Columns.Add("Orden Producción", typeof(string));
+                    dt.Columns.Add("Planta", typeof(string));
+                    dt.Columns.Add("Número Parte", typeof(string));
+                    dt.Columns.Add("Business Model", typeof(string));
+                    dt.Columns.Add("Tipo Metal", typeof(string));
+                    dt.Columns.Add("Rollos Usados", typeof(double));
+                    dt.Columns.Add("Tons Usadas", typeof(double));
+                    dt.Columns.Add("Total KG Usados", typeof(double));
+                    dt.Columns.Add("Peso Platina (KG)", typeof(double));
+                    dt.Columns.Add("Platinas Producidas", typeof(double));
+                    dt.Columns.Add("Platinas Vendidas", typeof(double));
+                    dt.Columns.Add("Dif. Inventario Teórica", typeof(double));
+                    dt.Columns.Add("Merma Almacén", typeof(double));
+                    dt.Columns.Add("Scrap OffFall (KG)", typeof(double));
+                    dt.Columns.Add("Scrap P&C (KG)", typeof(double));
+                    dt.Columns.Add("Scrap Merma (KG)", typeof(double));
+                    dt.Columns.Add("Scrap (Off-all)%", typeof(double));
+                    dt.Columns.Add("Scrap (P&C)%", typeof(double));
+                    dt.Columns.Add("Scrap (Merma)%", typeof(double));
+
+                    // 3. Llenado ultra rápido sin Convert.ToDouble (Usando casteos nativos de nullable)
+                    foreach (var item in datosExportar)
+                    {
+                        dt.Rows.Add(
+                            item.Orden_Produccion?.ToString(),
+                            item.Planta?.ToString(),
+                            item.Numero_Parte,
+                            item.Business_Model ?? "",
+                            item.Tipo_Metal ?? "",
+                            item.Rollos_Usados ?? 0,
+                            item.Tons_Usadas.HasValue ? Math.Round(item.Tons_Usadas.Value, 3) : 0,
+                            item.Total_Kg_Used.HasValue ? Math.Round(item.Total_Kg_Used.Value, 3) : 0,
+                            item.Peso_Platina_KG.HasValue ? Math.Round(item.Peso_Platina_KG.Value, 3) : 0,
+                            item.Platinas_Producidas ?? 0,
+                            item.Platinas_Vendidas ?? 0,
+                            item.Diferencia_Inventario_Teorica ?? 0,
+                            item.Merma_Almacen ?? 0,
+                            item.Scrap_OffFall_KG.HasValue ? Math.Round(item.Scrap_OffFall_KG.Value, 2) : 0,
+                            item.Scrap_PC_KG.HasValue ? Math.Round(item.Scrap_PC_KG.Value, 2) : 0,
+                            item.Scrap_Merma_KG.HasValue ? Math.Round(item.Scrap_Merma_KG.Value, 2) : 0,
+                            item.Porcentaje_Scrap_OffFall.HasValue ? Math.Round(item.Porcentaje_Scrap_OffFall.Value, 2) : 0,
+                            item.Porcentaje_Scrap_PC.HasValue ? Math.Round(item.Porcentaje_Scrap_PC.Value, 2) : 0,
+                            item.Porcentaje_Scrap_Merma.HasValue ? Math.Round(item.Porcentaje_Scrap_Merma.Value, 2) : 0
+                        );
+                    }
+
+                    oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Balance Materiales");
+                    oSLDocument.ImportDataTable(1, 1, dt, true);
+
+                    // ==========================================
+                    // ESTILOS
+                    // ==========================================
+                    SLStyle styleHeader = oSLDocument.CreateStyle();
+                    styleHeader.Font.FontName = "Calibri";
+                    styleHeader.Font.FontSize = 11;
+                    styleHeader.Font.FontColor = System.Drawing.Color.White;
+                    styleHeader.Font.Bold = true;
+                    styleHeader.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+                    styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#009ff5"), System.Drawing.ColorTranslator.FromHtml("#009ff5"));
+
+                    oSLDocument.SetRowStyle(1, styleHeader);
+                    oSLDocument.FreezePanes(1, 0);
+                    oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+                    oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+                    using (System.IO.MemoryStream stream = new System.IO.MemoryStream())
+                    {
+                        oSLDocument.SaveAs(stream);
+                        byte[] array = stream.ToArray();
+                        return File(array, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Balance_Materiales_{DateTime.Now.ToString("yyyyMMdd_HHmm")}.xlsx");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                EscribeExcepcion(ex, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                TempData["Mensaje"] = new MensajesSweetAlert("Error al generar el Excel: " + ex.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("ReporteBalanceScrap");
+            }
+        }
+        // ==============================================================================================
+        // FIN: MÓDULO REPORTE DE BALANCE DE MATERIALES (SCRAP)
+        // ==============================================================================================
+
+        #endregion
 
 
         protected override void Dispose(bool disposing)
