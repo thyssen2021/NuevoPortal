@@ -195,7 +195,8 @@
         }
 
         #archivo, #packaging_archivo, #AdditionalFile, #technicalSheetFile, #arrivalAdditionalFile,
-        #coilDataAdditionalFile, #slitterDataAdditionalFile, #volumeAdditionalFile, #outboundFreightAdditionalFile, #deliveryPackagingAdditionalFile {
+        #coilDataAdditionalFile, #slitterDataAdditionalFile, #volumeAdditionalFile, #outboundFreightAdditionalFile, #deliveryPackagingAdditionalFile, #interplant_packaging_archivo,
+        #interplantOutboundFreightAdditionalFile {
             display: block;
             width: 100%;
             padding: 10px 12px;
@@ -212,7 +213,7 @@
                 background-color: #eaeaea;
             }
 
-        #downloadFile, #downloadPackagingFile, #downloadFileTechnicalSheetFile, #downloadFileAdditional, #downloadArrivalAdditionalFile,
+        #downloadFile, #downloadPackagingFile, #downloadFileTechnicalSheetFile, #downloadFileAdditional, #downloadArrivalAdditionalFile, #downloadInterplantPackagingFile, #downloadInterplantOutboundFreightFile,
         #downloadCoilDataAdditionalFile, #downloadSlitterDataAdditionalFile, #downloadVolumeAdditionalFile, #downloadOutboundFreightAdditionalFile, #downloadDeliveryPackagingAdditionalFile {
             display: inline-block;
             background-color: #28a745;
@@ -441,6 +442,48 @@
             font-style: italic;
             margin-top: 5px;
         }
+
+        /* --- MEJORA DE CONTRASTE TOASTR WARNING --- */
+        #toast-container > .toast-warning {
+            background-color: #ffc107 !important; /* Amarillo intenso estándar de Bootstrap */
+            color: #212529 !important; /* Texto gris muy oscuro para alto contraste */
+            opacity: 1 !important; /* Sin transparencia para mejor lectura */
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+            /* Ajustar el color del botón de cerrar en el warning */
+            #toast-container > .toast-warning .toast-close-button {
+                color: #212529 !important;
+            }
+
+        /* --- ANIMACIÓN DE ERROR (SHAKE) --- */
+        @@keyframes shakeInput {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .input-error-focus {
+            animation: shakeInput 0.4s ease-in-out; /* Ejecuta la animación */
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.6); /* Resplandor rojo */
+            border-color: red !important;
+        }
     </style>
 }
 
@@ -627,28 +670,28 @@
                                                     <input type="hidden" name="materials[@i].LabelOtherDescription" value="@material.LabelOtherDescription" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_TechnicalSheet))" value="@material.ID_File_TechnicalSheet" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsTechnicalSheetFile))" value="@material.IsTechnicalSheetFile" />
-                                                    <input type="hidden" name="materials[@i].TechnicalSheetFileName" value="@(material.CTZ_Files2?.Name ?? string.Empty)" />
+                                                    <input type="hidden" name="materials[@i].TechnicalSheetFileName" value="@(material.CTZ_Files4?.Name ?? string.Empty)" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_Additional))" value="@material.ID_File_Additional" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsAdditionalFile))" value="@material.IsAdditionalFile" />
-                                                    <input type="hidden" name="materials[@i].AdditionalFileName" value="@(material.CTZ_Files3?.Name ?? string.Empty)" />
+                                                    <input type="hidden" name="materials[@i].AdditionalFileName" value="@(material.CTZ_Files5?.Name ?? string.Empty)" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_ArrivalAdditional))" value="@material.ID_File_ArrivalAdditional" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsArrivalAdditionalFile))" value="@material.IsArrivalAdditionalFile" />
-                                                    <input type="hidden" name="materials[@i].ArrivalAdditionalFileName" value="@(material.CTZ_Files4?.Name ?? string.Empty)" />
+                                                    <input type="hidden" name="materials[@i].ArrivalAdditionalFileName" value="@(material.CTZ_Files6?.Name ?? string.Empty)" />
                                                     <input type="hidden" name="materials[@i].ID_File_CoilDataAdditional" value="@material.ID_File_CoilDataAdditional" />
                                                     <input type="hidden" name="materials[@i].IsCoilDataAdditionalFile" value="@material.IsCoilDataAdditionalFile" />
-                                                    <input type="hidden" name="materials[@i].CoilDataAdditionalFileName" value="@(material.CTZ_Files5?.Name ?? string.Empty)" />
+                                                    <input type="hidden" name="materials[@i].CoilDataAdditionalFileName" value="@(material.CTZ_Files7?.Name ?? string.Empty)" />
                                                     <input type="hidden" name="materials[@i].ID_File_SlitterDataAdditional" value="@material.ID_File_SlitterDataAdditional" />
                                                     <input type="hidden" name="materials[@i].IsSlitterDataAdditionalFile" value="@material.IsSlitterDataAdditionalFile" />
-                                                    <input type="hidden" name="materials[@i].SlitterDataAdditionalFileName" value="@(material.CTZ_Files6?.Name ?? string.Empty)" />
+                                                    <input type="hidden" name="materials[@i].SlitterDataAdditionalFileName" value="@(material.CTZ_Files8?.Name ?? string.Empty)" />
                                                     <input type="hidden" name="materials[@i].ID_File_VolumeAdditional" value="@material.ID_File_VolumeAdditional" />
                                                     <input type="hidden" name="materials[@i].IsVolumeAdditionalFile" value="@material.IsVolumeAdditionalFile" />
-                                                    <input type="hidden" name="materials[@i].VolumeAdditionalFileName" value="@(material.CTZ_Files7?.Name ?? string.Empty)" />
+                                                    <input type="hidden" name="materials[@i].VolumeAdditionalFileName" value="@(material.CTZ_Files9?.Name ?? string.Empty)" />
                                                     <input type="hidden" name="materials[@i].ID_File_OutboundFreightAdditional" value="@material.ID_File_OutboundFreightAdditional" />
                                                     <input type="hidden" name="materials[@i].IsOutboundFreightAdditionalFile" value="@material.IsOutboundFreightAdditionalFile" />
-                                                    <input type="hidden" name="materials[@i].OutboundFreightAdditionalFileName" value="@(material.CTZ_Files8?.Name ?? string.Empty)" />
+                                                    <input type="hidden" name="materials[@i].OutboundFreightAdditionalFileName" value="@(material.CTZ_Files10?.Name ?? string.Empty)" />
                                                     <input type="hidden" name="materials[@i].ID_File_DeliveryPackagingAdditional" value="@material.ID_File_DeliveryPackagingAdditional" />
                                                     <input type="hidden" name="materials[@i].IsDeliveryPackagingAdditionalFile" value="@material.IsDeliveryPackagingAdditionalFile" />
-                                                    <input type="hidden" name="materials[@i].DeliveryPackagingAdditionalFileName" value="@(material.CTZ_Files9?.Name ?? string.Empty)" />
+                                                    <input type="hidden" name="materials[@i].DeliveryPackagingAdditionalFileName" value="@(material.CTZ_Files11?.Name ?? string.Empty)" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))" value="@material.Shearing_Width" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))" value="@material.Shearing_Width_Tol_Pos" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))" value="@material.Shearing_Width_Tol_Neg" />
@@ -752,6 +795,60 @@
                                                             <input type="hidden" name="materials[@i].SelectedInterplantRackTypeIds" value="@id" />
                                                         }
                                                     }
+                                                    @if (material.SelectedInterplantLabelIds != null)
+                                                    {
+                                                        foreach (var id in material.SelectedInterplantLabelIds)
+                                                        {
+                                                            <input type="hidden" name="materials[@i].SelectedInterplantLabelIds" value="@id" />
+                                                        }
+                                                    }
+                                                    @if (material.SelectedInterplantAdditionalIds != null)
+                                                    {
+                                                        foreach (var id in material.SelectedInterplantAdditionalIds)
+                                                        {
+                                                            <input type="hidden" name="materials[@i].SelectedInterplantAdditionalIds" value="@id" />
+                                                        }
+                                                    }
+
+                                                    @if (material.SelectedInterplantStrapTypeIds != null)
+                                                    {
+                                                        foreach (var id in material.SelectedInterplantStrapTypeIds)
+                                                        {
+                                                            <input type="hidden" name="materials[@i].SelectedInterplantStrapTypeIds" value="@id" />
+                                                        }
+                                                    }
+                                                    <input type="hidden" name="materials[@i].InterplantLabelOtherDescription" value="@material.InterplantLabelOtherDescription" />
+                                                    <input type="hidden" name="materials[@i].InterplantAdditionalsOtherDescription" value="@material.InterplantAdditionalsOtherDescription" />
+                                                    <input type="hidden" name="materials[@i].InterplantStrapTypeObservations" value="@material.InterplantStrapTypeObservations" />
+
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantSpecialRequirement))" value="@material.InterplantSpecialRequirement" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantSpecialPackaging))" value="@material.InterplantSpecialPackaging" />
+
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_InterplantPackaging))" value="@material.ID_File_InterplantPackaging" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsInterplantPackagingFile))" value="@(material.IsInterplantPackagingFile ? "true" : "false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackagingFileName))" value="@(material.CTZ_Files2?.Name ?? string.Empty)" />
+
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsInterplantReturnableRack))" value="@(material.IsInterplantReturnableRack.HasValue && material.IsInterplantReturnableRack.Value ? "true" : "false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantReturnableUses))" value="@material.InterplantReturnableUses" />
+
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_FreightType))" value="@material.ID_Interplant_FreightType" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDeliveryConditions))" value="@material.InterplantDeliveryConditions" />
+
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliation))" value="@(material.InterplantScrapReconciliation.HasValue && material.InterplantScrapReconciliation.Value ? "true" : "false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent_Min))" value="@material.InterplantScrapReconciliationPercent_Min" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent))" value="@material.InterplantScrapReconciliationPercent" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent_Max))" value="@material.InterplantScrapReconciliationPercent_Max" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantClientScrapReconciliationPercent))" value="@material.InterplantClientScrapReconciliationPercent" />
+
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliation))" value="@(material.InterplantHeadTailReconciliation.HasValue && material.InterplantHeadTailReconciliation.Value ? "true" : "false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent_Min))" value="@material.InterplantHeadTailReconciliationPercent_Min" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent))" value="@material.InterplantHeadTailReconciliationPercent" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent_Max))" value="@material.InterplantHeadTailReconciliationPercent_Max" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantClientHeadTailReconciliationPercent))" value="@material.InterplantClientHeadTailReconciliationPercent" />
+
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_InterplantOutboundFreight))" value="@material.ID_File_InterplantOutboundFreight" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsInterplantOutboundFreightFile))" value="@(material.IsInterplantOutboundFreightFile ? "true" : "false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantOutboundFreightFileName))" value="@(material.CTZ_Files3?.Name ?? string.Empty)" />
                                                 </td>
                                                 <td nowrap>@Html.DisplayFor(model => material.Vehicle)</td>
                                                 <td nowrap>@material.Vehicle_version</td>
@@ -799,7 +896,7 @@
                             <!-- SECCIÓN DE INPUTS: material-form -->
                             <div class="material-form">
                                 <!-- TITLE FOR THE MATERIAL FORM -->
-                                <div class="material-form-title">Part Number Information</div>
+                                <div class="material-form-title">General Part Data</div>
 
                                 <input type="hidden" id="materialIndex" value="" />
                                 <input type="hidden" id="materialId" value="" />
@@ -824,7 +921,10 @@
                                 <input type="hidden" id="ID_File_DeliveryPackagingAdditional" value="" />
                                 <input type="hidden" id="DeliveryPackagingAdditionalFileName" value="" />
                                 <input type="hidden" id="weldedPlatesJson" value="" />
-
+                                <input type="hidden" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_InterplantPackaging))" value="" />
+                                <input type="hidden" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackagingFileName))" value="" />
+                                <input type="hidden" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_InterplantOutboundFreight))" value="" />
+                                <input type="hidden" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantOutboundFreightFileName))" value="" />
                                 <!-- VEHICLE INFORMATION -->
                                 <fieldset class="mb-3" disabled="@isDetailsMode">
                                     <legend>Vehicle Information</legend>
@@ -969,11 +1069,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                </fieldset>
-
-                                <!-- PRODUCTION & SHIPPING DATES -->
-                                <fieldset class="mb-3">
-                                    <legend>Production & Route</legend>
                                     <div class="row">
                                         <div class="col-md-1">
                                             <label>
@@ -1014,9 +1109,8 @@
                                                    class="form-control"
                                                    placeholder="yyyy‑MM"
                                                    @(canEditSales ? "" : "readonly") autocomplete="off" />
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error"
-                                                  class="error-message"
-                                                  style="color: red; display: none;"></span>
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error" class="error-message" style="color: red; display: none;"></span>
+                                            <span id="Real_SOPWarning" class="field-warning-text" style="display: none;"></span>
                                         </div>
 
                                         <div class="col-md-1">
@@ -1034,31 +1128,24 @@
                                                    class="form-control"
                                                    placeholder="yyyy‑MM"
                                                    @(canEditSales ? "" : "readonly") autocomplete="off" />
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))Error"
-                                                  class="error-message"
-                                                  style="color: red; display: none;"></span>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ship_To)</label>
-                                            <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))" class="form-control" placeholder="Ship To" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))Error" class="error-message" style="color: red; display: none;"></span>
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))Error" class="error-message" style="color: red; display: none;"></span>
+                                            <span id="Real_EOPWarning" class="field-warning-text" style="display: none;"></span>
                                         </div>
 
-                                        <div class="col-md-4">
-                                            <label>Part Name</label>
-                                            <input type="text" id="partName" class="form-control" placeholder="Part Name" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                            <span id="partNameError" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label>Part Number</label>
-                                            <input type="text" id="partNumber" class="form-control" placeholder="Part Number" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                            <span id="partNumberError" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
                                         <div class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)</label>
                                             <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)" readonly />
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
+                                    </div>
+
+
+                                </fieldset>
+
+                                <!-- PRODUCTION & SHIPPING DATES -->
+                                <fieldset class="mb-3">
+                                    <legend>Production & Route</legend>
+                                    <div class="row">
                                         <div class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Route)</label>
                                             @if (canEditSales) //enabled
@@ -1071,6 +1158,23 @@
                                             }
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
+                                        <div class="col-md-4">
+                                            <label>Part Number</label>
+                                            <input type="text" id="partNumber" class="form-control" placeholder="Part Number" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="partNumberError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Part Name</label>
+                                            <input type="text" id="partName" class="form-control" placeholder="Part Name" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="partNameError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ship_To)</label>
+                                            <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))" class="form-control" placeholder="Ship To" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_Plant))_container" class="col-md-2" style="display: none;">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Interplant_Plant)</label>
                                             @if (canEditSales)
@@ -1088,7 +1192,7 @@
 
                                 <!-- ARRIVAL PACKAGING -->
                                 <fieldset class="mb-3">
-                                    <legend>Arrival Packaging</legend>
+                                    <legend>Arrival Conditions</legend>
 
                                     <div class="row">
                                         <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Coil_Position))_container">
@@ -1265,39 +1369,99 @@
                                             <small id="tensil-limit-display" class="form-text text-muted limit-display"></small>
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
+                                    </div>
 
-                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))_container" class="col-md-2">
-                                            @Html.LabelFor(model => model.CTZ_Project_Materials.First().Thickness)
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))" class="form-control" placeholder="Thickness" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                            <small id="thickness-limit-display" class="form-text text-muted limit-display"></small>
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error" class="error-message" style="color: red; display: none;"></span>
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <label style="color:#009ff5; font-weight:bold; border-bottom: 1px solid #eee; width:100%; display:block; padding-bottom:5px;">
+                                                Dimensions & Tolerances
+                                            </label>
+                                            <div class="table-responsive">
+                                                <table class="table table-borderless table-sm">
+                                                    <thead style="text-align: center; color: #555;">
+                                                        <tr>
+                                                            <th style="width: 15%;">Dimension</th>
+                                                            <th style="width: 28%;">Value [mm]</th>
+                                                            <th style="width: 28%;">Lower Tolerance (-)</th>
+                                                            <th style="width: 28%;">Upper Tolerance (+)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="align-middle font-weight-bold text-right pr-4" style="color:#009ff5;">Thickness</td>
+                                                            <td>
+                                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))_container">
+                                                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))" class="form-control" placeholder="Value" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                                    <small id="thickness-limit-display" class="form-text text-muted limit-display"></small>
+                                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error" class="error-message" style="color: red; display: none;"></span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))_container">
+                                                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))" class="form-control" placeholder="Tol (-)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))_container">
+                                                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))" class="form-control" placeholder="Tol (+)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td class="align-middle font-weight-bold text-right pr-4" style="color:#009ff5;">Width</td>
+                                                            <td>
+                                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))_container">
+                                                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))" class="form-control" placeholder="Value" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                                    <small id="width-limit-display" class="form-text text-muted limit-display"></small>
+                                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error" class="error-message" style="color: red; display: none;"></span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))_container">
+                                                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))" class="form-control" placeholder="Tol (-)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))_container">
+                                                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))" class="form-control" placeholder="Tol (+)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td class="align-middle font-weight-bold text-right pr-4" style="color:#009ff5;">Pitch</td>
+                                                            <td>
+                                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))_container">
+                                                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))" class="form-control" placeholder="Value" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                                    <small id="pitch-limit-display" class="form-text text-muted limit-display"></small>
+                                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error" class="error-message" style="color: red; display: none;"></span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))_container">
+                                                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))" class="form-control" placeholder="Tol (-)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))_container">
+                                                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))" class="form-control" placeholder="Tol (+)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))_container" class="col-md-2">
-                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessToleranceNegative)</label>
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
-                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))_container" class="col-md-2">
-                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessTolerancePositive)</label>
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
-                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))_container" class="col-md-2">
-                                            @Html.LabelFor(model => model.CTZ_Project_Materials.First().Width)
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))" class="form-control" placeholder="Width" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                            <small id="width-limit-display" class="form-text text-muted limit-display"></small>
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
-                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))_container" class="col-md-2">
-                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthToleranceNegative)</label>
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
-                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))_container" class="col-md-2">
-                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthTolerancePositive)</label>
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
+                                    </div>
+
+                                    <div class="row">
 
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))_container" class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MasterCoilWeight)</label>
@@ -1906,10 +2070,324 @@
                                     </div>
                                 </fieldset>
 
+                                @if (ViewBag.RequiresInterplant) // Solo mostrar si el proyecto es Interplanta
+                                {
+                                    <fieldset class="mb-3" id="interplantDeliveryFieldset">
+                                        <legend>
+                                            Interplant Delivery Packaging
+                                        </legend>
+
+                                        <div class="row">
+
+                                            <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Coil_Position))_container">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Coil_Position))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_InterplantDelivery_Coil_Position)</label>
+                                                @* Usamos el ViewBag.CoilPositionList existente *@
+                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Coil_Position), (SelectList)ViewBag.CoilPositionList, "Select an option", new { @class = "form-control select2" })
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Coil_Position))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                            <div class="col-md-3 form-group" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Transport_Type))_container">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Transport_Type))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_InterplantDelivery_Transport_Type)</label>
+                                                @* Usamos el ViewBag.ArrivalTransportTypeList existente *@
+                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Transport_Type), (SelectList)ViewBag.ArrivalTransportTypeList, "Select an option", new { @class = "form-control select2" })
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Transport_Type))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                            <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))_container" style="display: none;">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantDelivery_Transport_Type_Other)</label>
+                                                <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))" class="form-control" placeholder="Specify transport..." maxlength="50" autocomplete="off" />
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackagingStandard))_container" class="form-group">
+                                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantPackagingStandard)</label>
+                                                    <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackagingStandard))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackagingStandard))" class="form-control select2">
+                                                        <option value="">Select an option</option>
+                                                        <option value="OWN">Developed by tkMM</option>
+                                                        <option value="CM">Provided by Client</option>
+                                                    </select>
+                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackagingStandard))Error" class="error-message" style="color: red; display: none;"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3 d-flex align-items-center" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresRackManufacturing))_container" style="display: none;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresRackManufacturing))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresRackManufacturing))" value="true" @(!canEditSales ? "disabled" : "")>
+                                                    <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresRackManufacturing))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantRequiresRackManufacturing)</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 d-flex align-items-center" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresDieManufacturing))_container" style="display: none;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresDieManufacturing))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresDieManufacturing))" value="true" @(!canEditSales ? "disabled" : "")>
+                                                    <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresDieManufacturing))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantRequiresDieManufacturing)</label>
+                                                </div>
+                                            </div>
+                                            <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))_container" class="col-md-3">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantPiecesPerPackage)</label>
+                                                <input type="number"
+                                                       id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))"
+                                                       name="materials[0].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))" @* Note: Name attribute might need dynamic index if edited directly in the form, but often relies on hidden fields. Using index 0 as placeholder. *@
+                                                       class="form-control" placeholder="Qty" min="0" @(canEditSales ? "" : "readonly") autocomplete="off" />
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+
+                                            <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))_container" class="col-md-3">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantStacksPerPackage)</label>
+                                                <input type="number"
+                                                       id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))"
+                                                       name="materials[0].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))" @* Placeholder name *@
+                                                       class="form-control" placeholder="Qty" min="0" @(canEditSales ? "" : "readonly") autocomplete="off" />
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+
+                                            <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))_container" class="col-md-3">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantPackageWeight)</label>
+                                                <input type="number" step="any"
+                                                       id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))" @* ID matches label 'for' *@
+                                                       name="materials[0].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))" @* Placeholder name *@
+                                                       class="form-control" placeholder="Package Weight" readonly />
+                                                <small class="form-text text-muted"><i>Note: Weight does not include the rack or packaging materials.</i></small>
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                            <div id="file_container_interplant_packaging_archivo" class="col-md-4">
+                                                <label for="interplant_packaging_archivo">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_File_InterplantPackaging)</label>
+                                                <div class="col-md-12">
+                                                    <input type="file" id="interplant_packaging_archivo" name="interplant_packaging_archivo" accept=".dwg,.dxf,.dwt,.pdf,.rar,.zip" @(!canEditSales ? "disabled" : string.Empty)>
+                                                    <button type="button" class="btn btn-danger btn-sm" id="interplant_packaging_archivoCancelButton" style="display: none;" @(!canEditSales ? "disabled" : string.Empty)>Cancel</button>
+                                                </div>
+                                                <span id="interplant_packaging_archivoError" class="error-message col-md-12" style="color: red; display: none;"></span>
+                                            </div>
+                                            <div id="fileActions_containerInterplantPackagingFile" class="col-md-4" style="display: none;">
+                                                <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_File_InterplantPackaging)</label>
+                                                <div class="col-md-12">
+                                                    <a id="downloadInterplantPackagingFile" href="#" class="truncate-filename">Download File</a>
+                                                    <button type="button" class="btn btn-success btn-sm" id="changeFileInterplantPackagingFile" @(!canEditSales ? "disabled" : string.Empty)>Change</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row packaging-row" style="margin-top: 15px;">
+                                            <div id="interplant-rack-types-group_container" class="col-md-6 checkbox-group-container">
+                                                <label>Interplant Rack Types</label>
+                                                <div class="group-content-wrapper">
+                                                    <div id="interplant-rack-types-container" class="checkbox-options-wrapper">
+                                                        @* Iterate through the SAME ViewBag as the normal Rack Types *@
+                                                        @foreach (var rackType in (SelectList)ViewBag.RackTypeList)
+                                                        {
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input interplant-rack-type-checkbox" type="checkbox"
+                                                                       id="interplant-rack-type-@rackType.Value" value="@rackType.Value"
+                                                                       @(!canEditSales ? "disabled" : "")> @* Apply disabled based on permission *@
+                                                                    <label class="form-check-label" for="interplant-rack-type-@rackType.Value">@rackType.Text</label>
+                                                                </div>
+                                                            }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="interplant-labels-group_container" class="col-md-6 checkbox-group-container">
+                                                <label>Interplant Labels</label>
+                                                <div class="group-content-wrapper">
+                                                    <div id="interplant-labels-container" class="checkbox-options-wrapper">
+                                                        @foreach (var item in (SelectList)ViewBag.LabelList)
+                                                        {
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" type="checkbox" id="interplant-label-@item.Value" value="@item.Value">
+                                                                <label class="form-check-label" for="interplant-label-@item.Value">@item.Text</label>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div id="InterplantLabelOtherDescription_container" class="other-description-wrapper" style="display: none;">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantLabelOtherDescription))" class="observation-label">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantLabelOtherDescription)</label>
+                                                        <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantLabelOtherDescription))" class="form-control form-control-sm" rows="1" @(!canEditSales ? "readonly" : "")></textarea>
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantLabelOtherDescription))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsInterplantReturnableRack))_container">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsInterplantReturnableRack))" @(canEditSales ? "" : "disabled")>
+                                                    <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsInterplantReturnableRack))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().IsInterplantReturnableRack)</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantReturnableUses))_container" style="display: none;">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantReturnableUses))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantReturnableUses)</label>
+                                                <input type="number" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantReturnableUses))" class="form-control" placeholder="e.g., 5" min="0" @(canEditSales ? "" : "readonly") />
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantReturnableUses))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="row packaging-row" style="margin-top: 15px;">
+                                            <div id="interplant-additionals-group_container" class="col-md-6 checkbox-group-container">
+                                                <label>Interplant Additionals</label>
+                                                <div class="group-content-wrapper">
+                                                    <div id="interplant-additionals-container" class="checkbox-options-wrapper">
+                                                        @foreach (var item in (SelectList)ViewBag.AdditionalList)
+                                                        {
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" type="checkbox" id="interplant-additional-@item.Value" value="@item.Value">
+                                                                <label class="form-check-label" for="interplant-additional-@item.Value">@item.Text</label>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantAdditionalsOtherDescription))_container" class="other-description-wrapper" style="display: none;">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantAdditionalsOtherDescription))" class="observation-label">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantAdditionalsOtherDescription)</label>
+                                                        <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantAdditionalsOtherDescription))" class="form-control form-control-sm" rows="1" @(!canEditSales ? "readonly" : "")></textarea>
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantAdditionalsOtherDescription))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="interplant-straps-group_container" class="col-md-6 checkbox-group-container">
+                                                <label>Interplant Standard Packaging</label>
+                                                <div class="group-content-wrapper">
+                                                    <div id="interplant-straps-container" class="checkbox-options-wrapper">
+                                                        @foreach (var item in (SelectList)ViewBag.StrapTypeList)
+                                                        {
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" type="checkbox" id="interplant-strap-@item.Value" value="@item.Value">
+                                                                <label class="form-check-label" for="interplant-strap-@item.Value">@item.Text</label>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="other-description-wrapper">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStrapTypeObservations))" class="observation-label">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantStrapTypeObservations)</label>
+                                                        <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStrapTypeObservations))" class="form-control form-control-sm" rows="1" placeholder="Strap type observations..." @(!canEditSales ? "readonly" : "")></textarea>
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStrapTypeObservations))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div class="row" style="margin-top:15px;">
+                                            <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantSpecialRequirement))_container" class="col-md-6">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantSpecialRequirement))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantSpecialRequirement)</label>
+                                                <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantSpecialRequirement))" class="form-control" rows="3" @(!canEditSales ? "readonly" : "")></textarea>
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantSpecialRequirement))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                            <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantSpecialPackaging))_container" class="col-md-6">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantSpecialPackaging))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantSpecialPackaging)</label>
+                                                <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantSpecialPackaging))" class="form-control" rows="3" @(!canEditSales ? "readonly" : "")></textarea>
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantSpecialPackaging))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+
+                                    <fieldset class="mb-3">
+                                        <legend>
+                                            Interplant Outbound Freight & Conditions
+                                        </legend>
+
+                                        <div class="row">
+                                            <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_FreightType))_container">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_FreightType))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Interplant_FreightType)</label>
+                                                @if (canEditSales)
+                                                {
+                                                    @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_FreightType), (SelectList)ViewBag.FreightTypeList, "Select an option", new { @class = "form-control select2" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_FreightType), (SelectList)ViewBag.FreightTypeList, "Select an option", new { @class = "form-control select2", disabled = "disabled" })
+                                                }
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_FreightType))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                            <div class="col-md-9" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDeliveryConditions))_container">
+                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDeliveryConditions))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantDeliveryConditions)</label>
+                                                <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDeliveryConditions))" class="form-control" rows="1" placeholder="Describe interplant delivery conditions..." @(!canEditSales ? "readonly" : "")></textarea>
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDeliveryConditions))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-3 d-flex align-items-center" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliation))_container">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliation))" @(canEditSales ? "" : "disabled")>
+                                                    <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliation))">
+                                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantScrapReconciliation)
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-9" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent))_container" style="display: none;">
+                                                <div class="row">
+                                                    <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent_Min))_container" class="col-md-3">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent_Min))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantScrapReconciliationPercent_Min)</label>
+                                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent_Min))" class="form-control" placeholder="Min %" min="0" max="100" autocomplete="off" @(!canEditSales ? "readonly" : "") />
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent_Min))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                    <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent))_container" class="col-md-3">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantScrapReconciliationPercent)</label>
+                                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent))" class="form-control" placeholder="Optimal %" min="0" max="100" autocomplete="off" @(!canEditSales ? "readonly" : "") />
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                    <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent_Max))_container" class="col-md-3">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent_Max))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantScrapReconciliationPercent_Max)</label>
+                                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent_Max))" class="form-control" placeholder="Max %" min="0" max="100" autocomplete="off" @(!canEditSales ? "readonly" : "") />
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantScrapReconciliationPercent_Max))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                    <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantClientScrapReconciliationPercent))_container" class="col-md-3">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantClientScrapReconciliationPercent))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantClientScrapReconciliationPercent)</label>
+                                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantClientScrapReconciliationPercent))" class="form-control" placeholder="Client %" min="0" max="100" autocomplete="off" @(!canEditSales ? "readonly" : "") />
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantClientScrapReconciliationPercent))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 d-flex align-items-center" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliation))_container">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliation))" @(canEditSales ? "" : "disabled")>
+                                                    <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliation))">
+                                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantHeadTailReconciliation)
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-9" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent))_container" style="display: none;">
+                                                <div class="row">
+                                                    <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent_Min))_container" class="col-md-3">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent_Min))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantHeadTailReconciliationPercent_Min)</label>
+                                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent_Min))" class="form-control" placeholder="Min %" min="0" max="100" autocomplete="off" @(!canEditSales ? "readonly" : "") />
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent_Min))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                    <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent))_container" class="col-md-3">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantHeadTailReconciliationPercent)</label>
+                                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent))" class="form-control" placeholder="Optimal %" min="0" max="100" autocomplete="off" @(!canEditSales ? "readonly" : "") />
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                    <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent_Max))_container" class="col-md-3">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent_Max))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantHeadTailReconciliationPercent_Max)</label>
+                                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent_Max))" class="form-control" placeholder="Max %" min="0" max="100" autocomplete="off" @(!canEditSales ? "readonly" : "") />
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantHeadTailReconciliationPercent_Max))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                    <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantClientHeadTailReconciliationPercent))_container" class="col-md-3">
+                                                        <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantClientHeadTailReconciliationPercent))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantClientHeadTailReconciliationPercent)</label>
+                                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantClientHeadTailReconciliationPercent))" class="form-control" placeholder="Client %" min="0" max="100" autocomplete="off" @(!canEditSales ? "readonly" : "") />
+                                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantClientHeadTailReconciliationPercent))Error" class="error-message" style="color: red; display: none;"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div id="file_container_interplantOutboundFreightAdditionalFile" class="col-md-4">
+                                                <label for="interplantOutboundFreightAdditionalFile">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_File_InterplantOutboundFreight)</label>
+                                                <div class="col-md-12">
+                                                    <input type="file" id="interplantOutboundFreightAdditionalFile" name="interplantOutboundFreightAdditionalFile" accept=".dwg,.dxf,.dwt,.pdf,.rar,.zip" @(!canEditSales ? "disabled" : string.Empty)>
+                                                    <button type="button" class="btn btn-danger btn-sm" id="interplantOutboundFreightAdditionalFileCancelButton" style="display: none;" @(!canEditSales ? "disabled" : string.Empty)>Cancel</button>
+                                                </div>
+                                                <span id="interplantOutboundFreightAdditionalFileError" class="error-message col-md-12" style="color: red; display: none;"></span>
+                                            </div>
+                                            <div id="fileActions_containerInterplantOutboundFreightFile" class="col-md-4" style="display: none;">
+                                                <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_File_InterplantOutboundFreight)</label>
+                                                <div class="col-md-12">
+                                                    <a id="downloadInterplantOutboundFreightFile" href="#" class="truncate-filename">Download File</a>
+                                                    <button type="button" class="btn btn-success btn-sm" id="changeFileInterplantOutboundFreightFile" @(!canEditSales ? "disabled" : string.Empty)>Change</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                }
 
                                 <!-- Delivery Packaging -->
                                 <fieldset class="mb-3">
-                                    <legend>Delivery Packaging</legend>
+                                    <legend>Final Delivery Packaging</legend>
 
                                     <div class="row">
                                         <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))_container">
@@ -2133,7 +2611,7 @@
 
                                 <!-- Outbound Freight & Conditions -->
                                 <fieldset class="mb-3">
-                                    <legend>Outbound Freight & Conditions</legend>
+                                    <legend>Final Outbound Freight & Conditions</legend>
 
                                     <div class="row">
                                         <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))_container">
@@ -2243,281 +2721,6 @@
                                     </div>
                                 </fieldset>
 
-                                @if (ViewBag.RequiresInterplant) // Solo mostrar si el proyecto es Interplanta
-                                {
-                                    <fieldset class="mb-3" id="interplantDeliveryFieldset">
-                                        <legend>
-                                            Interplant Delivery Packaging
-                                        </legend>
-
-                                        <div class="row">
-
-                                            <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Coil_Position))_container">
-                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Coil_Position))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_InterplantDelivery_Coil_Position)</label>
-                                                @* Usamos el ViewBag.CoilPositionList existente *@
-                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Coil_Position), (SelectList)ViewBag.CoilPositionList, "Select an option", new { @class = "form-control select2" })
-                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Coil_Position))Error" class="error-message" style="color: red; display: none;"></span>
-                                            </div>
-                                            <div class="col-md-3 form-group" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Transport_Type))_container">
-                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Transport_Type))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_InterplantDelivery_Transport_Type)</label>
-                                                @* Usamos el ViewBag.ArrivalTransportTypeList existente *@
-                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Transport_Type), (SelectList)ViewBag.ArrivalTransportTypeList, "Select an option", new { @class = "form-control select2" })
-                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Transport_Type))Error" class="error-message" style="color: red; display: none;"></span>
-                                            </div>
-                                            <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))_container" style="display: none;">
-                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantDelivery_Transport_Type_Other)</label>
-                                                <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))" class="form-control" placeholder="Specify transport..." maxlength="50" autocomplete="off" />
-                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))Error" class="error-message" style="color: red; display: none;"></span>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackagingStandard))_container" class="form-group">
-                                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantPackagingStandard)</label>
-                                                    <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackagingStandard))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackagingStandard))" class="form-control select2">
-                                                        <option value="">Select an option</option>
-                                                        <option value="OWN">Developed by tkMM</option>
-                                                        <option value="CM">Provided by Client</option>
-                                                    </select>
-                                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackagingStandard))Error" class="error-message" style="color: red; display: none;"></span>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-3 d-flex align-items-center" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresRackManufacturing))_container" style="display: none;">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresRackManufacturing))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresRackManufacturing))" value="true" @(!canEditSales ? "disabled" : "")>
-                                                    <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresRackManufacturing))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantRequiresRackManufacturing)</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 d-flex align-items-center" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresDieManufacturing))_container" style="display: none;">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresDieManufacturing))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresDieManufacturing))" value="true" @(!canEditSales ? "disabled" : "")>
-                                                    <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantRequiresDieManufacturing))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantRequiresDieManufacturing)</label>
-                                                </div>
-                                            </div>
-                                            <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))_container" class="col-md-3">
-                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantPiecesPerPackage)</label>
-                                                <input type="number"
-                                                       id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))"
-                                                       name="materials[0].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))" @* Note: Name attribute might need dynamic index if edited directly in the form, but often relies on hidden fields. Using index 0 as placeholder. *@
-                                                       class="form-control" placeholder="Qty" min="0" @(canEditSales ? "" : "readonly") autocomplete="off" />
-                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))Error" class="error-message" style="color: red; display: none;"></span>
-                                            </div>
-
-                                            <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))_container" class="col-md-3">
-                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantStacksPerPackage)</label>
-                                                <input type="number"
-                                                       id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))"
-                                                       name="materials[0].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))" @* Placeholder name *@
-                                                       class="form-control" placeholder="Qty" min="0" @(canEditSales ? "" : "readonly") autocomplete="off" />
-                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))Error" class="error-message" style="color: red; display: none;"></span>
-                                            </div>
-
-                                            <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))_container" class="col-md-3">
-                                                <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InterplantPackageWeight)</label>
-                                                <input type="number" step="any"
-                                                       id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))" @* ID matches label 'for' *@
-                                                       name="materials[0].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))" @* Placeholder name *@
-                                                       class="form-control" placeholder="Package Weight" readonly />
-                                                <small class="form-text text-muted"><i>Note: Weight does not include the rack or packaging materials.</i></small>
-                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))Error" class="error-message" style="color: red; display: none;"></span>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <div id="interplant-packaging-file-div_container" class="form-group">
-                                                    <div id="interplant_packaging_file_container">
-                                                        <label>Interplant Packaging Drawing / Standard</label>
-                                                        <input type="file" id="interplant_packaging_archivo" name="interplant_packaging_archivo" accept=".dwg,.dxf,.dwt,.pdf,.rar,.zip">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row packaging-row" style="margin-top: 15px;">
-                                            <div id="interplant-rack-types-group_container" class="col-md-6 checkbox-group-container">
-                                                <label>Interplant Rack Types</label>
-                                                <div class="group-content-wrapper">
-                                                    <div id="interplant-rack-types-container" class="checkbox-options-wrapper">
-                                                        @* Iterate through the SAME ViewBag as the normal Rack Types *@
-                                                        @foreach (var rackType in (SelectList)ViewBag.RackTypeList)
-                                                        {
-                                                            <div class="form-check form-check-inline">
-                                                                <input class="form-check-input interplant-rack-type-checkbox" type="checkbox"
-                                                                       id="interplant-rack-type-@rackType.Value" value="@rackType.Value"
-                                                                       @(!canEditSales ? "disabled" : "")> @* Apply disabled based on permission *@
-                                                                    <label class="form-check-label" for="interplant-rack-type-@rackType.Value">@rackType.Text</label>
-                                                                </div>
-                                                            }
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div id="interplant-labels-group_container" class="col-md-6 checkbox-group-container">
-                                                <label>Interplant Labels</label>
-                                                <div class="group-content-wrapper">
-                                                    <div id="interplant-labels-container" class="checkbox-options-wrapper">
-                                                        @foreach (var item in (SelectList)ViewBag.LabelList)
-                                                        {
-                                                            <div class="form-check form-check-inline">
-                                                                <input class="form-check-input" type="checkbox" id="interplant-label-@item.Value" value="@item.Value">
-                                                                <label class="form-check-label" for="interplant-label-@item.Value">@item.Text</label>
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                    <div id="InterplantLabelOtherDescription_container" class="other-description-wrapper" style="display: none;">
-                                                        <label for="InterplantLabelOtherDescription" class="observation-label">Specify "Other" Label</label>
-                                                        <textarea id="InterplantLabelOtherDescription" class="form-control form-control-sm" rows="1"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-2" id="InterplantIsReturnableRack_container">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="InterplantIsReturnableRack">
-                                                    <label class="form-check-label" for="InterplantIsReturnableRack">Returnable Rack</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3" id="InterplantReturnableUses_container" style="display: none;">
-                                                <label for="InterplantReturnableUses">Number of Uses</label>
-                                                <input type="number" id="InterplantReturnableUses" class="form-control" placeholder="e.g., 5" min="0" />
-                                            </div>
-                                        </div>
-
-                                        <div class="row packaging-row" style="margin-top: 15px;">
-                                            <div id="interplant-additionals-group_container" class="col-md-6 checkbox-group-container">
-                                                <label>Interplant Additionals</label>
-                                                <div class="group-content-wrapper">
-                                                    <div id="interplant-additionals-container" class="checkbox-options-wrapper">
-                                                        @foreach (var item in (SelectList)ViewBag.AdditionalList)
-                                                        {
-                                                            <div class="form-check form-check-inline">
-                                                                <input class="form-check-input" type="checkbox" id="interplant-additional-@item.Value" value="@item.Value">
-                                                                <label class="form-check-label" for="interplant-additional-@item.Value">@item.Text</label>
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                    <div id="InterplantAdditionalsOtherDescription_container" class="other-description-wrapper" style="display: none;">
-                                                        <label for="InterplantAdditionalsOtherDescription" class="observation-label">Specify "Other" Additional</label>
-                                                        <textarea id="InterplantAdditionalsOtherDescription" class="form-control form-control-sm" rows="1"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div id="interplant-straps-group_container" class="col-md-6 checkbox-group-container">
-                                                <label>Interplant Standard Packaging</label>
-                                                <div class="group-content-wrapper">
-                                                    <div id="interplant-straps-container" class="checkbox-options-wrapper">
-                                                        @foreach (var item in (SelectList)ViewBag.StrapTypeList)
-                                                        {
-                                                            <div class="form-check form-check-inline">
-                                                                <input class="form-check-input" type="checkbox" id="interplant-strap-@item.Value" value="@item.Value">
-                                                                <label class="form-check-label" for="interplant-strap-@item.Value">@item.Text</label>
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                    <div class="other-description-wrapper">
-                                                        <label for="InterplantStrapTypeObservations" class="observation-label">Observations</label>
-                                                        <textarea id="InterplantStrapTypeObservations" class="form-control form-control-sm" rows="1" placeholder="Strap type observations..."></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr />
-                                        <div class="row" style="margin-top:15px;">
-                                            <div id="InterplantSpecialRequirement_container" class="col-md-6">
-                                                <label>Interplant Special Requirement</label>
-                                                <textarea id="InterplantSpecialRequirement" class="form-control" rows="3"></textarea>
-                                            </div>
-                                            <div id="InterplantSpecialPackaging_container" class="col-md-6">
-                                                <label>Interplant Special Packaging</label>
-                                                <textarea id="InterplantSpecialPackaging" class="form-control" rows="3"></textarea>
-                                            </div>
-                                        </div>
-                                    </fieldset>
-                                }
-                                <fieldset class="mb-3">
-                                    <legend>
-                                        Interplant Outbound Freight & Conditions
-                                    </legend>
-
-                                    <div class="row">
-                                        <div class="col-md-3" id="ID_InterplantFreightType_container">
-                                            <label for="ID_InterplantFreightType">Interplant Freight Type</label>
-                                            @Html.DropDownList("ID_InterplantFreightType", (SelectList)ViewBag.FreightTypeList, "Select an option", new { @class = "form-control select2" })
-                                        </div>
-                                        <div class="col-md-9" id="InterplantDeliveryConditions_container">
-                                            <label for="InterplantDeliveryConditions">Interplant Delivery Conditions</label>
-                                            <textarea id="InterplantDeliveryConditions" class="form-control" rows="1" placeholder="Describe interplant delivery conditions..."></textarea>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-2 d-flex align-items-center">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="InterplantScrapReconciliation">
-                                                <label class="form-check-label" for="InterplantScrapReconciliation">
-                                                    Scrap Reconciliation
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-9" id="InterplantScrapReconciliationPercent_container" style="display: none;">
-                                            <div class="row">
-                                                <div id="InterplantScrapReconciliationPercent_Min_container" class="col-md-3">
-                                                    <label for="InterplantScrapReconciliationPercent_Min">Min %</label>
-                                                    <input type="number" step="any" id="InterplantScrapReconciliationPercent_Min" class="form-control" placeholder="Min %" min="0" max="100" autocomplete="off" />
-                                                </div>
-                                                <div id="InterplantScrapReconciliationPercent_Optimal_container" class="col-md-3">
-                                                    <label for="InterplantScrapReconciliationPercent">Optimal %</label>
-                                                    <input type="number" step="any" id="InterplantScrapReconciliationPercent" class="form-control" placeholder="Optimal %" min="0" max="100" autocomplete="off" />
-                                                </div>
-                                                <div id="InterplantScrapReconciliationPercent_Max_container" class="col-md-3">
-                                                    <label for="InterplantScrapReconciliationPercent_Max">Max %</label>
-                                                    <input type="number" step="any" id="InterplantScrapReconciliationPercent_Max" class="form-control" placeholder="Max %" min="0" max="100" autocomplete="off" />
-                                                </div>
-                                                <div id="InterplantClientScrapReconciliationPercent_container" class="col-md-3">
-                                                    <label for="InterplantClientScrapReconciliationPercent">Client %</label>
-                                                    <input type="number" step="any" id="InterplantClientScrapReconciliationPercent" class="form-control" placeholder="Client %" min="0" max="100" autocomplete="off" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-2 d-flex align-items-center">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="InterplantHeadTailReconciliation">
-                                                <label class="form-check-label" for="InterplantHeadTailReconciliation">
-                                                    Head/Tail Reconciliation
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-9" id="InterplantHeadTailReconciliationPercent_container" style="display: none;">
-                                            <div class="row">
-                                                <div id="InterplantHeadTailReconciliationPercent_Min_container" class="col-md-3">
-                                                    <label for="InterplantHeadTailReconciliationPercent_Min">Min %</label>
-                                                    <input type="number" step="any" id="InterplantHeadTailReconciliationPercent_Min" class="form-control" placeholder="Min %" min="0" max="100" autocomplete="off" />
-                                                </div>
-                                                <div id="InterplantHeadTailReconciliationPercent_Optimal_container" class="col-md-3">
-                                                    <label for="InterplantHeadTailReconciliationPercent">Optimal %</label>
-                                                    <input type="number" step="any" id="InterplantHeadTailReconciliationPercent" class="form-control" placeholder="Optimal %" min="0" max="100" autocomplete="off" />
-                                                </div>
-                                                <div id="InterplantHeadTailReconciliationPercent_Max_container" class="col-md-3">
-                                                    <label for="InterplantHeadTailReconciliationPercent_Max">Max %</label>
-                                                    <input type="number" step="any" id="InterplantHeadTailReconciliationPercent_Max" class="form-control" placeholder="Max %" min="0" max="100" autocomplete="off" />
-                                                </div>
-                                                <div id="InterplantClientHeadTailReconciliationPercent_container" class="col-md-3">
-                                                    <label for="InterplantClientHeadTailReconciliationPercent">Client %</label>
-                                                    <input type="number" step="any" id="InterplantClientHeadTailReconciliationPercent" class="form-control" placeholder="Client %" min="0" max="100" autocomplete="off" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div id="file_container_interplantOutboundFreightAdditionalFile" class="col-md-4">
-                                            <label for="interplantOutboundFreightAdditionalFile">Interplant Additional File</label>
-                                            <div class="col-md-12">
-                                                <input type="file" id="interplantOutboundFreightAdditionalFile" name="interplantOutboundFreightAdditionalFile" accept=".dwg,.dxf,.dwt,.pdf,.rar,.zip">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </fieldset>
-
 
                                 <br />
                                 <button type="button" class="btn btn-success btn-xs btn-add-material" style="display:@(!canEditSales?"none":string.Empty)"><i class="fa-solid fa-plus"></i> Add Material</button>
@@ -2538,6 +2741,10 @@
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</label>
                                         <input type="text" id="Theoretical_Strokes" class="form-control" placeholder="Theoretical Strokes" readonly />
                                     </div>
+                                    <div class="col-md-3">
+                                        <label>Theoretical Effective Strokes</label>
+                                        <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
@@ -2555,6 +2762,10 @@
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_Strokes)</label>
                                         <input type="text" id="Real_Strokes" class="form-control" placeholder="Real Strokes" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Real Effective Strokes</label>
+                                        <input type="text" id="Real_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
                                     </div>
 
                                 </div>
@@ -2790,17 +3001,10 @@
                 TonsPerShift: "#TonsPerShift",
                 DM_status: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DM_status))",
                 DM_status_comment: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DM_status_comment))",
-                // ... (Agrega TODOS tus selectores de @@nameof aquí)
-                // Tolerancias
-
-                // ... etc.
-                // Packaging
-                PackagingStandard: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
+                 PackagingStandard: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                 RequiresRackManufacturing: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))",
                 RequiresDieManufacturing: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))",
-                // ... etc.
-                // Interplant (los nuevos)
-                ID_Interplant_Plant: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_Plant))",
+                 ID_Interplant_Plant: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Interplant_Plant))",
                 ID_InterplantDelivery_Coil_Position: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Coil_Position))",
                 ID_InterplantDelivery_Transport_Type: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_InterplantDelivery_Transport_Type))",
                 InterplantDelivery_Transport_Type_Other: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantDelivery_Transport_Type_Other))",
@@ -2849,6 +3053,8 @@
                 InterplantPiecesPerPackage : "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPiecesPerPackage))",
                 InterplantStacksPerPackage : "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantStacksPerPackage))",
                 InterplantPackageWeight : "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InterplantPackageWeight))",
+                Multipliers : "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))",
+                MasterCoilWeight : "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))",
 
             },
             displayNames: {
@@ -2933,13 +3139,13 @@
 
     <script>
 
-        
 
-    $(document).ready(function () {
 
-    
-      
-    });
+        $(document).ready(function () {
+
+
+
+        });
 
     </script>
 }

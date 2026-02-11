@@ -7,6 +7,11 @@
     const config = window.pageConfig;
     const requiresInterplant = config.project.requiresInterplant;
     const idProject = config.project.id;
+    const canEditSales = config.permissions.canEditSales;
+    const blankingRouteIds = window.blankingRouteIds;
+    const slittingRouteIds = window.slittingRouteIds;
+    // Indica si estamos en un proceso de validación masiva (Save)
+    window.isBatchValidating = false;
 
     // 2. Definimos los manejadores de eventos UI
     function handleHeadTailReconciliationChange() {
@@ -207,8 +212,10 @@
                     var strokes = parseFloat(response.theoreticalStrokes);
                     var formattedStrokes = (strokes % 1 === 0) ? strokes : strokes.toFixed(2);
                     $("#Theoretical_Strokes").val(formattedStrokes);
+                    updateEffectiveStrokes();
                 } else {
                     $("#Theoretical_Strokes").val("");
+                    updateEffectiveStrokes();
                     toastr.warning("Warning: " + response.message);
                 }
             },
@@ -277,10 +284,42 @@
     const debouncedUpdateCapacityGraphs = debounce(function () {
         UpdateCapacityGraphs();
         //llama al metodo para actualizar el ht de capacidad.
+        //UpdateCapacityHansontable();
+    }, 500); // 300 ms de espera
+
+    const debouncedUpdateCapacityHansontable = debounce(function () {
         UpdateCapacityHansontable();
-    }, 300); // 300 ms de espera
+    }, 500); // 300 ms de espera (puedes ajustar este valor si lo deseas)
 
     function UpdateCapacityGraphs(OnlyBDMaterials = false) {
+        // Si estamos validando el formulario masivamente, no calculamos gráficas.
+        if (window.isBatchValidating) {
+            console.log("UpdateCapacityGraphs: Bloqueado por validación masiva.");
+            return;
+        }
+
+        // ---  LÓGICA DE VISIBILIDAD ---
+        // Si OnlyBDMaterials es true (carga inicial), confiamos en el servidor o escaneamos la tabla.
+        // Pero para actualizaciones en tiempo real, usamos nuestra nueva función.
+        if (!OnlyBDMaterials) {
+            const activeRoutes = getEffectiveProjectRoutes();
+
+            // Verificamos si AL MENOS UNA de las rutas activas es de Blanking
+            // Usamos la constante global 'blankingRouteIds' definida en page.constants.js
+            const hasBlankingRoute = activeRoutes.some(r => blankingRouteIds.includes(r));
+
+            if (!hasBlankingRoute) {
+                console.log("UpdateCapacityGraphs: No se detectaron rutas de Blanking activas. Ocultando gráficas.");
+                $("#chartsContainer").slideUp();
+                // También ocultamos la leyenda de turnos
+                $("#chartsNote, #shiftLegend").hide();
+                return; // <--- DETENER EJECUCIÓN AQUÍ
+            } else {
+                // Si hay rutas, mostramos el contenedor (el contenido se cargará vía AJAX)
+                $("#chartsContainer").slideDown();
+            }
+        }
+
         console.log('entra UpdateCapacityGraphs');
 
         // Obtiene el valor de la línea teórica
@@ -303,8 +342,13 @@
         var idealCycleTimePerTool = parseFloat($("#Ideal_Cycle_Time_Per_Tool").val()) || null;
         var blanksPerStroke = parseFloat($("#Blanks_Per_Stroke").val()) || null;
         var oee = parseFloat($("#OEE").val()) || null;
-        var realSOP = $("#Real_SOP").val();
-        var realEOP = $("#Real_EOP").val();
+        var rawSOP = $("#Real_SOP").val().trim();
+        var rawEOP = $("#Real_EOP").val().trim();
+        // Regex simple para YYYY-MM
+        var dateRegex = /^\d{4}-\d{2}$/;
+
+        var realSOP = dateRegex.test(rawSOP) ? rawSOP : null;
+        var realEOP = dateRegex.test(rawEOP) ? rawEOP : null;
         var annualVol = parseInt($("#Annual_Volume").val()) || null;
 
         // Campos de fallback para idealCycleTimePerTool
@@ -370,6 +414,7 @@
                 realSOP: realSOP,
                 realEOP: realEOP,
                 annualVol: annualVol,
+                partNumber: $("#partNumber").val() || null,
                 OnlyBDMaterials: OnlyBDMaterials
             },
             success: function (response) {
@@ -396,14 +441,25 @@
                     });
 
                     // 3) Relleno el campo de texto "Status DM" para el material seleccionado
+                    // 3) Relleno el campo de texto "Status DM" para el material seleccionado
                     var selMatId = $("#materialId").val();
-                    var dm = response.dmStatuses[selMatId];
+
+                    // <<<<< INICIO DE MODIFICACIÓN >>>>>
+                    // Si selMatId es "" (un material nuevo), el controlador usa el ID 0 como clave.
+                    var keyToSearch = (selMatId === "") ? "0" : selMatId;
+
+                    var dm = response.dmStatuses[keyToSearch];
+                    // <<<<< FIN DE MODIFICACIÓN >>>>>
+
                     if (dm !== undefined) {
                         // este es tu input de texto
                         $("#DM_status").val(dm);
                     }
 
-                    var dmc = response.dmStatusComments[selMatId];
+                    // <<<<< INICIO DE MODIFICACIÓN >>>>>
+                    var dmc = response.dmStatusComments[keyToSearch];
+                    // <<<<< FIN DE MODIFICACIÓN >>>>>
+
                     if (dmc !== undefined) {
                         // este es tu input de texto
                         $("#DM_status_comment").html(dmc);
@@ -518,7 +574,7 @@
                 });
             });
             // Ordenar los datasets según el orden deseado
-            var desiredOrder = ["POH", "Casi Casi", "Carry Over", "Quotes"];
+            var desiredOrder = ["Spare Parts", "POH", "Casi Casi", "Carry Over", "Quotes"];
             var datasets = Object.values(statusMap).sort(function (a, b) {
                 var indexA = desiredOrder.indexOf(a.label);
                 var indexB = desiredOrder.indexOf(b.label);
@@ -553,14 +609,22 @@
                 data: {
                     labels: labels,
                     datasets: datasets.map(function (ds) {
+
+                        // --- MODIFICACIÓN 2: ESTILO TRANSPARENTE PARA SPARE PARTS ---
+                        const isSpareParts = ds.label === "Spare Parts";
+
                         return {
                             label: ds.label,
                             data: ds.data,
-                            backgroundColor: ds.backgroundColor,
+                            // Si es Spare Parts, fondo transparente. Si no, su color normal.
+                            backgroundColor: isSpareParts ? 'transparent' : ds.backgroundColor,
+                            // El borde mantiene el color original para que se vea la línea "flotante"
                             borderColor: ds.backgroundColor,
-                            fill: true,
+                            // Hacemos la línea un poco más gruesa si es Spare Parts para que destaque
+                            borderWidth: isSpareParts ? 2 : 1,
+                            fill: true, // Mantenemos fill:true para que ocupe espacio en el stack
                             stack: 'CapacityStack',
-                            tension: 0,  // Líneas rectas
+                            tension: 0,
                             pointRadius: 0
                         };
                     })
@@ -1220,20 +1284,53 @@
     }
 
     function updateFileUIGeneric(fileIdText, fileNameText, fileContainerText, fileActionContainer, downloadContainer) {
+
+        // --- INICIO DE DEPURACIÓN ---
+        console.groupCollapsed(`--- DEPURANDO: ${fileIdText} ---`);
+        console.log(`Parámetros recibidos:
+        ID Field (Hidden): ${fileIdText}
+        Name Field (Hidden): ${fileNameText}
+        File Container (Input): ${fileContainerText}
+        Action Container (Download): ${fileActionContainer}`);
+        // --- FIN DE DEPURACIÓN ---
+
         let fileId = $("#" + fileIdText).val();
         let fileName = $("#" + fileNameText).val();
 
-        if (fileId && fileName) {
+        // --- INICIO DE DEPURACIÓN ---
+        console.log(`Valor de ID_File (${fileIdText}): "${fileId}"`);
+        console.log(`Valor de FileName (${fileNameText}): "${fileName}"`);
+
+        const hasFile = fileId && fileName && fileId.trim() !== "" && fileName.trim() !== "";
+        console.log(`Condición de existencia (fileId && fileName): ${hasFile}`);
+        // --- FIN DE DEPURACIÓN ---
+
+        if (hasFile) {
+            // --- CASO 1: Archivo existe en BD (se muestra el enlace) ---
             $("#" + fileContainerText).hide();
             $("#" + fileActionContainer).show();
+
+            // Configuramos el enlace de descarga
             $("#" + downloadContainer)
                 .attr("href", "/CTZ_Projects/DownloadFile?fileId=" + fileId)
-                .attr("title", fileName) // <-- AÑADE ESTA LÍNEA
+                .attr("title", fileName)
                 .html('<i class="fa-solid fa-download"></i> ' + fileName);
+
+            // --- INICIO DE DEPURACIÓN ---
+            console.log(`✅ Resultado: Mostrando enlace de descarga en #${fileActionContainer}.`);
+            // --- FIN DE DEPURACIÓN ---
+
         } else {
+            // --- CASO 2: Archivo NO existe (se muestra el input de carga) ---
             $("#" + fileContainerText).show();
             $("#" + fileActionContainer).hide();
+
+            // --- INICIO DE DEPURACIÓN ---
+            console.log(`❌ Resultado: Mostrando input de archivo en #${fileContainerText}.`);
+            // --- FIN DE DEPURACIÓN ---
         }
+
+        console.groupEnd(); // Cierra el grupo de depuración
     }
 
     function updateRealStrokes() {
@@ -1266,8 +1363,10 @@
                     var strokes = parseFloat(response.theoreticalStrokes);
                     var formattedStrokes = (strokes % 1 === 0) ? strokes : strokes.toFixed(2);
                     $("#Real_Strokes").val(formattedStrokes);
+                    updateEffectiveStrokes();
                 } else {
                     $("#Real_Strokes").val("");
+                    updateEffectiveStrokes();
                     toastr.error("Error: " + response);
                 }
             },
@@ -1548,11 +1647,24 @@
     }
 
     function UpdateCapacityHansontable(OnlyBDMaterials = false) {
-        //si no tiene el permiso se sale
-        //if (!canEditDataManagement) {
-        //    console.warn("UpdateCapacityHansontable: Acceso denegado, no puede editar DM. Faltan permisos.");
-        //    return;
-        //}
+        if (window.isBatchValidating) {
+            console.log("UpdateCapacityHansontable: Bloqueado por validación masiva.");
+            return;
+        }
+
+        // --- LÓGICA DE VISIBILIDAD ---
+        if (!OnlyBDMaterials) {
+            const activeRoutes = getEffectiveProjectRoutes();
+            // La tabla de capacidad se usa principalmente para Blanking
+            const hasBlankingRoute = activeRoutes.some(r => blankingRouteIds.includes(r));
+
+            if (!hasBlankingRoute) {
+                console.log("UpdateCapacityHansontable: Sin rutas Blanking. Limpiando tabla.");
+                $("#capacityTableContainer").html(""); // Limpiar contenido
+                // Opcional: Ocultar contenedor padre si deseas
+                return;
+            }
+        }
 
         console.log('entra UpdateCapacityHansontable');
 
@@ -1643,16 +1755,21 @@
                 realSOP: realSOP,
                 realEOP: realEOP,
                 annualVol: annualVol,
+                partNumber: $("#partNumber").val() || null, 
                 OnlyBDMaterials: OnlyBDMaterials
             },
             success: function (response) {
                 var container = document.getElementById("capacityTableContainer");
                 container.innerHTML = ""; // Limpiar contenedor
                 if (response.success) {
+
+
                     // 1. Actualizamos el input status_dm con el valor calculado en el servidor
                     if (OnlyBDMaterials == false) {
-                        $("#status_dm").val(response.status_dm);
+                        $("#status_dm").val(response.status_dm);              
                     }
+
+                    //$("#DM_status_comment").html(response.status_dm_comment);
                     // 2. Convertir la data (array de objetos) a una matriz para Handsontable
                     var arrayData = convertToHandsontableMatrix(response.data);
                     // arrayData.rows es una matriz donde:
@@ -1697,46 +1814,47 @@
                                 // Render base de texto
                                 Handsontable.renderers.TextRenderer.apply(this, arguments);
 
-                                // Obtenemos los datos de la fila (en formato array)
-                                var rowData = instance.getSourceDataAtRow(row);
-                                // La primera columna (índice 0) es el LineId (oculto)
-                                //var isSelectedLine = (rowData[0] == productionLineId);
+                                // Obtenemos el nombre de la columna (header) para saber qué estamos renderizando
+                                var colHeader = instance.getColHeader(col);
 
-                                // Para la columna 1 (nombre de la línea), si es la línea consultada se resalta
-                                if (col === 1) {
-                                    //if (isSelectedLine) {
-                                    //td.style.backgroundColor = "#c1fcac"; // Verde claro para la fila seleccionada
-                                    //}
+                                // Columna 1: Nombre de la línea
+                                if (colHeader === "Line") {
+                                    // Estilos base si deseas
                                 }
-                                // Columna 2: PartNumbers (NUEVO)
-                                else if (col === 2) {
-                                    td.style.whiteSpace = 'normal'; // Permite el ajuste de línea
-                                    //if (isSelectedLine) {
-                                    //td.style.backgroundColor = "#e0f7de"; // Un verde más suave para esta celda
-                                    //}
+                                // Columna 2: PartNumbers
+                                else if (colHeader === "PartNumbers") {
+                                    td.style.whiteSpace = 'normal';
                                 }
-                                else {
-                                    // Para las demás columnas, se asume que contienen valores numéricos (decimales)
-                                    if (typeof value === "number") {
-                                        var percentage = value * 100;
-                                        td.innerHTML = percentage.toFixed(2) + "%";
+                                // NUEVO: Columna de ESTATUS
+                                else if (colHeader === "Status") {
+                                    td.style.fontWeight = 'bold';
+                                    td.style.textAlign = 'center';
 
-                                        // Aplicar colores según el valor (sin importar la fila seleccionada)
-                                        if (percentage < 95) {
-                                            //if (isSelectedLine)
-                                            //td.style.backgroundColor = "#c1fcac";  // Menor a 95%
-                                        } else if (percentage < 98) {
-                                            td.style.backgroundColor = "#ffd53b"; // Entre 95% y 98%
-                                        } else {
-                                            td.style.backgroundColor = "#ff7c4f";    // 98% o mayor
-                                        }
-                                        // Si además es la fila consultada, se puede optar por fusionar el estilo;
-                                        // por ejemplo, si quieres que tenga un tinte extra, podrías modificar el color.
-                                        // Aquí se deja el color calculado.
-                                    } else {
-                                        td.innerHTML = value;
+                                    if (value === "REJECTED") {
+                                        td.style.color = "#dc3545"; // Rojo
+                                        td.style.backgroundColor = "#ffe6e6"; // Fondo rojo claro opcional
+                                    } else if (value === "ON REVIEWED") {
+                                        td.style.color = "#ffc107"; // Amarillo oscuro / Naranja
+                                        // td.style.backgroundColor = "#fff3cd"; 
+                                    } else if (value === "APPROVED") {
+                                        td.style.color = "#28a745"; // Verde
+                                        // td.style.backgroundColor = "#d4edda";
                                     }
                                 }
+                                // Columnas de Años Fiscales (Contienen números)
+                                else if (typeof value === "number") {
+                                    var percentage = value * 100;
+                                    td.innerHTML = percentage.toFixed(2) + "%";
+
+                                    if (percentage < 95) {
+                                        // td.style.backgroundColor = "#c1fcac"; // Verde claro (opcional)
+                                    } else if (percentage < 98) {
+                                        td.style.backgroundColor = "#ffd53b"; // Entre 95% y 98%
+                                    } else {
+                                        td.style.backgroundColor = "#ff7c4f"; // 98% o mayor
+                                    }
+                                }
+
                                 return td;
                             };
 
@@ -1904,7 +2022,7 @@
 
             materialTypeSelect.html('<option>Loading compatible materials...</option>').prop('disabled', true).trigger('change.select2');
 
-            $.getJSON('@Url.Action("GetAvailableMaterialTypesForSlitter", "CTZ_Projects")', { plantId: plantId, slitterLineId: slitterLineId })
+            $.getJSON(config.urls.getMaterialTypesForSlitter, { plantId: plantId, slitterLineId: slitterLineId })
                 .done(function (response) {
                     if (response.success) {
                         materialTypeSelect.empty().append('<option value="">Select Material Type</option>');
@@ -2094,95 +2212,102 @@
         debouncedUpdateSlitterChart();
     }
 
-    // Función central para obtener y aplicar todas las reglas de validación
     function fetchAndApplyValidationRanges() {
-        // 1. Guardamos el estado ACTUAL de los rangos antes de hacer nada.
+        // 1. Guardar estado previo
         const previousRangesJSON = JSON.stringify(window.engineeringRanges);
         const previousMaxMults = window.maxMultsAllowed;
-
 
         const selectedRouteId = parseInt($("#ID_Route").val(), 10);
         const materialTypeId = $("#ID_Material_type").val();
         const realLineId = $("#ID_Real_Blanking_Line").val();
         const theoreticalLineId = $("#ID_Theoretical_Blanking_Line").val();
         const slitterLineId = $("#ID_Slitting_Line").val();
+
         const thicknessValue = parseFloat($("#Thickness").val()) || null;
         const tensileValue = parseFloat($("#Tensile_Strenght").val()) || null;
 
+        const errorDiv = $('#slittingRuleError');
 
+        // Aseguramos acceso a la variable global o usamos fallback
+        const slittingRouteIdsLocal = (typeof slittingRouteIds !== 'undefined') ? slittingRouteIds : [8, 9, 10];
+        const isSlittingRoute = slittingRouteIdsLocal.includes(selectedRouteId);
+
+        // 2. Si falta el tipo de material, no podemos consultar reglas al servidor.
         if (!materialTypeId) {
             window.engineeringRanges = null;
             window.maxMultsAllowed = null;
+            errorDiv.slideUp();
             updateLimitsDisplay();
             return;
         }
 
         let ajaxData = {
             materialTypeId: materialTypeId,
-            thickness: thicknessValue,       // <--- NUEVO
-            tensile: tensileValue            // <--- NUEVO
+            thickness: thicknessValue,
+            tensile: tensileValue
         };
 
         let isCallNeeded = false;
 
-        // 3. Determinar qué IDs de línea enviar al backend
-        if (blankingRouteIds.includes(selectedRouteId)) {
+        // Configurar IDs para Blanking si aplica
+        if (typeof blankingRouteIds !== 'undefined' && blankingRouteIds.includes(selectedRouteId)) {
             ajaxData.primaryLineId = realLineId || theoreticalLineId;
             isCallNeeded = !!ajaxData.primaryLineId;
         }
 
-        if (slittingRouteIds.includes(selectedRouteId)) {
+        // Configurar IDs para Slitting
+        if (isSlittingRoute) {
             ajaxData.slitterLineId = slitterLineId;
-            // Si no hay una línea primaria (ej. ruta solo SLT), la línea de slitter también es la primaria.
             if (!ajaxData.primaryLineId) {
                 ajaxData.primaryLineId = slitterLineId;
             }
-            isCallNeeded = !!ajaxData.primaryLineId;
+            // Para Slitter SIEMPRE intentamos validar para obtener la tabla de reglas,
+            // incluso si faltan dimensiones.
+            isCallNeeded = true;
         }
 
         if (!isCallNeeded) {
             window.engineeringRanges = null;
             window.maxMultsAllowed = null;
+            errorDiv.slideUp();
             updateLimitsDisplay();
             return;
         }
 
-
-        $.getJSON(config.urls.GetEngineeringDimensions, ajaxData)
+        $.getJSON(config.urls.getEngineeringDimensions, ajaxData)
             .done(function (response) {
                 if (response.success) {
                     const newRangesJSON = JSON.stringify(response.validationRanges);
                     const newMaxMults = response.maxMultsAllowed;
 
                     window.engineeringRanges = response.validationRanges;
-                    window.maxMultsAllowed = newMaxMults; // Guardar el nuevo máximo permitido
+                    window.maxMultsAllowed = newMaxMults;
 
-                    // 5. Mostrar notificaciones solo si los datos cambiaron
                     if (newRangesJSON !== previousRangesJSON) {
-                        toastr.info("Validation limits for dimensions have been updated.");
+                        toastr.info("Validation limits updated.");
                     }
 
-                    // --- INICIO DE LA MODIFICACIÓN ---
-                    const errorDiv = $('#slittingRuleError');
-                    const isSlittingRoute = slittingRouteIds.includes(selectedRouteId);
-
-                    // Solo mostramos/ocultamos la advertencia si la ruta es de slitting
+                    // --- LÓGICA DE VISIBILIDAD CON DEPURACIÓN ---
                     if (isSlittingRoute) {
+                        console.log(`[Slitter Validation] MaxMults recibido: ${newMaxMults}`);
+
+                        // Si el servidor nos devuelve un Máximo de Mults válido (> 0),
+                        // significa que la combinación (Thickness + Tensile) es CORRECTA.
                         if (newMaxMults !== null && newMaxMults > 0) {
-                            // Regla válida encontrada: OCULTAR advertencia
+                            console.log("[Slitter Validation] Regla encontrada. OCULTANDO tabla de error.");
                             errorDiv.slideUp();
-                            if (newMaxMults !== previousMaxMults) { // Notificar solo si el valor cambió
-                                toastr.info(`Maximum allowed strips updated to: ${newMaxMults}`);
-                            }
-                        } else {
-                            // No se encontró regla: MOSTRAR advertencia
+                        }
+                        // Si nos devuelve 0 o null (porque faltan datos O porque están fuera de rango),
+                        // MOSTRAMOS la tabla para guiar al usuario.
+                        else {
+                            console.log("[Slitter Validation] Regla NO encontrada (0 o null). MOSTRANDO tabla de error.");
                             errorDiv.slideDown();
                         }
                     } else {
-                        // Si NO es una ruta de slitting, SIEMPRE ocultar la advertencia.
+                        // No es ruta de Slitter
                         errorDiv.slideUp();
                     }
-                    // --- FIN DE LA MODIFICACIÓN ---
+                    // ---------------------------------------
 
                 } else {
                     window.engineeringRanges = null;
@@ -2192,16 +2317,11 @@
             })
             .fail(function () {
                 window.engineeringRanges = null;
-                // Solo mostramos error si realmente se perdieron los rangos.
-                if (previousRangesJSON !== 'null') {
-                    toastr.error("Could not load validation limits.");
-                }
             })
             .always(function () {
                 updateLimitsDisplay();
                 validateMultipliers();
-
-                // Re-validamos los campos principales afectados por los rangos
+                // Revalidar campos dependientes
                 validateTensileStrength();
                 validateThickness();
                 validateWidth();
@@ -2330,6 +2450,9 @@
             return;
         }
 
+        // Si canEditSales es true, es un string vacío ""; si es false, es "readonly".
+        const readOnlyAttribute = canEditSales ? "" : "readonly";
+
         let inputsHtml = '<div class="row">';
         const colWidth = Math.max(Math.floor(12 / numberOfPlates), 2);
 
@@ -2343,8 +2466,7 @@
                         <label for="${inputId}">Thickness Plate ${i}</label>
                         <input type="number" id="${inputId}" class="form-control welded-thickness-input"
                                placeholder="mm" min="0" step="any"
-                               value="${previousValue}" @(canEditSales ? "" : "readonly") />
-                        <span id="${inputId}Error" class="error-message" style="color: red; display: none;"></span>
+                               value="${previousValue}" ${readOnlyAttribute} /> <span id="${inputId}Error" class="error-message" style="color: red; display: none;"></span>
                     </div>
                 `;
         }
@@ -2363,20 +2485,34 @@
         let keysArray = Array.from(allKeys);
 
         // 2) Definir el orden deseado:
-        //    a) "LineId" en primer lugar, si existe.
-        //    b) "Line" en segundo lugar, si existe.
-        //    c) Las claves que comiencen con "FY" (ordenadas alfabéticamente).
-        //    d) Cualquier otra clave (opcional, en orden ascendente).
+        //    a) "LineId" (oculta)
+        //    b) "Line" (nombre)
+        //    c) "PartNumbers"
+        //    d) Columnas "FY" (años fiscales)
+        //    e) "Status" (Al final)
+
         const lineIdKey = keysArray.includes("LineId") ? ["LineId"] : [];
         const lineKey = keysArray.includes("Line") ? ["Line"] : [];
-        const partNumbersKey = keysArray.includes("PartNumbers") ? ["PartNumbers"] : []; // <-- AÑADIR ESTA LÍNEA
+        const partNumbersKey = keysArray.includes("PartNumbers") ? ["PartNumbers"] : [];
+
         const fyKeys = keysArray.filter(k => k.startsWith("FY"));
         fyKeys.sort(); // Ordena las claves de FY alfabéticamente.
-        const remainingKeys = keysArray.filter(k => k !== "LineId" && k !== "Line" && k !== "PartNumbers" && !k.startsWith("FY"));
-        remainingKeys.sort(); // Opcional.
 
-        // 3) Construir el arreglo final de claves en el orden deseado.
-        let sortedKeys = [].concat(lineIdKey, lineKey, partNumbersKey, fyKeys, remainingKeys);
+        // Extraemos explícitamente "Status"
+        const statusKey = keysArray.includes("Status") ? ["Status"] : [];
+
+        // Filtramos las claves restantes, excluyendo las que ya procesamos
+        const remainingKeys = keysArray.filter(k =>
+            k !== "LineId" &&
+            k !== "Line" &&
+            k !== "PartNumbers" &&
+            k !== "Status" &&
+            !k.startsWith("FY")
+        );
+        remainingKeys.sort();
+
+        // 3) Construir el arreglo final de claves en el orden exacto
+        let sortedKeys = [].concat(lineIdKey, lineKey, partNumbersKey, fyKeys, remainingKeys, statusKey);
 
         // 4) Construir la cabecera (headers) y las filas (rows)
         let headers = sortedKeys;
@@ -2492,43 +2628,85 @@
     /**
      * Orquesta la sincronización del país y el vehículo usando llamadas SÍNCRONAS.
      */
+    /**
+     * Orquesta la sincronización del país y el vehículo usando llamadas SÍNCRONAS.
+     * Con mensajes de depuración detallados.
+     */
     function syncSingleVehicleAndCountry(vehicleCode, countrySelector, vehicleSelector) {
+        // Agrupamos los logs para no ensuciar la consola
+        console.groupCollapsed("🛠️ DEBUG: syncSingleVehicleAndCountry");
+        console.log(`1. Parámetros -> VehicleCode: "${vehicleCode}", CountrySel: "${countrySelector}", VehicleSel: "${vehicleSelector}"`);
+
         const $countryDropdown = $(countrySelector);
         const $vehicleDropdown = $(vehicleSelector);
 
         // Si no hay código de vehículo, reseteamos los dropdowns y terminamos.
         if (!vehicleCode) {
-            $countryDropdown.val("MEX").trigger('change.select2'); // Opcional: poner un país por defecto
+            console.warn("⚠️ No hay código de vehículo. Reseteando a defaults (MEX).");
+
+            // Usamos la bandera para evitar disparar recargas innecesarias aquí también
+            $countryDropdown.data('in-sync', true);
+            $countryDropdown.val("MEX").trigger('change.select2');
+            $countryDropdown.data('in-sync', false);
+
             loadVehiclesForDropdown("MEX", vehicleSelector);
+            console.groupEnd(); // Fin del grupo de logs
             return;
         }
 
+        // Extraemos el mnemónico base por si necesitamos búsqueda difusa
         const mnemonic = vehicleCode.split('_')[0];
+        console.log(`2. Mnemónico extraído: "${mnemonic}"`);
+
         let country = "MEX"; // País por defecto
 
-        // 1. PRIMERA LLAMADA SÍNCRONA: Obtener el país para este vehículo.
-        // Es síncrona (async: false) para asegurar que tenemos el país antes de continuar.
+        // 1. PRIMERA LLAMADA SÍNCRONA: Obtener el país correcto desde la BD.
+        console.log("📡 Paso 3: Llamando a GetCountryForIHS (Síncrono)...");
+
         $.ajax({
-            url: config.urls.GetCountryForIHS,
+            url: config.urls.getCountryForIHS,
             data: { ihsCode: vehicleCode },
-            async: false,
+            async: false, // IMPORTANTE: Esperar respuesta
             success: function (response) {
+                console.log("   ✅ Respuesta del servidor (País):", response);
                 if (response.success) {
                     country = response.country;
+                    console.log(`   🎯 País determinado por BD: "${country}"`);
+                } else {
+                    console.warn("   ⚠️ No se encontró país en BD. Usando default:", country);
                 }
+            },
+            error: function (xhr, status, error) {
+                console.error("   ❌ Error AJAX obteniendo país:", error);
             }
         });
 
         // 2. SEGUNDA LLAMADA SÍNCRONA: Obtener la lista de vehículos para ese país.
-        // También es síncrona para asegurar que la lista esté cargada antes de intentar seleccionar un valor.
+        console.log(`📡 Paso 4: Llamando a getIHSByCountry para el país "${country}" (Síncrono)...`);
+
         $.ajax({
             url: config.urls.getIHSByCountry,
             data: { country: country },
-            async: false,
+            async: false, // IMPORTANTE: Esperar respuesta
             success: function (vehicleData) {
-                // 3. POBLAR Y SELECCIONAR: Ahora que todo está cargado, podemos asignar valores.
+                console.log(`   ✅ Vehículos encontrados: ${vehicleData ? vehicleData.length : 0}`);
+
+                // --- INICIO CORRECCIÓN DE BUG ---
+                console.log("🔒 Paso 5: Bloqueando evento 'change' (data-in-sync = true)");
+                // 1. Activamos la bandera para bloquear el evento en page.main.js
+                $countryDropdown.data('in-sync', true);
+
+                // 2. Asignamos el país correcto (USA, BRA, etc.)
+                console.log(`   -> Asignando valor "${country}" al dropdown de país.`);
                 $countryDropdown.val(country).trigger('change.select2');
 
+                // 3. Desactivamos la bandera inmediatamente
+                $countryDropdown.data('in-sync', false);
+                console.log("🔓 Desbloqueando evento 'change' (data-in-sync = false)");
+                // --- FIN CORRECCIÓN ---
+
+                // 4. Poblamos el dropdown de vehículos manualmente
+                console.log("📝 Paso 6: Poblando opciones del dropdown de vehículos...");
                 let newOptions = '<option value="">Select a Vehicle</option>';
                 $.each(vehicleData, (i, item) => {
                     newOptions += `<option value="${item.Value}" data-sop="${item.SOP}" data-eop="${item.EOP}"
@@ -2537,12 +2715,30 @@
                 });
                 $vehicleDropdown.html(newOptions);
 
-                // Buscamos el código exacto en la nueva lista y lo seleccionamos.
+                // 5. Buscamos y seleccionamos el vehículo
+                console.log(`🔍 Paso 7: Buscando vehículo que inicie con "${mnemonic}"...`);
                 const matchingVehicle = vehicleData.find(v => v.Value.startsWith(mnemonic + '_'));
+
+                if (matchingVehicle) {
+                    console.log(`   ✅ Coincidencia encontrada: "${matchingVehicle.Value}"`);
+                } else {
+                    console.warn(`   ⚠️ No hubo coincidencia exacta. Usando código original "${vehicleCode}" como fallback.`);
+                }
+
                 const finalVehicleCode = matchingVehicle ? matchingVehicle.Value : vehicleCode;
+
+                console.log(`🎯 Paso 8: Seleccionando vehículo final: "${finalVehicleCode}"`);
                 $vehicleDropdown.val(finalVehicleCode).trigger('change.select2');
+
+                // Respetamos los permisos de edición
+                $vehicleDropdown.prop('disabled', !canEditSales).trigger('change.select2');
+            },
+            error: function (xhr, status, error) {
+                console.error("   ❌ Error AJAX obteniendo vehículos:", error);
             }
         });
+
+        console.groupEnd(); // Cierra el grupo en la consola
     }
 
     /**
@@ -2551,20 +2747,70 @@
     function loadVehiclesForDropdown(country, targetVehicleSelector) {
         const $vehicleDropdown = $(targetVehicleSelector);
 
-        // Mostramos un mensaje de "cargando" mientras se obtienen los datos.
+        // 1. Deshabilitamos y mostramos el mensaje de "cargando"
         $vehicleDropdown.prop('disabled', true).html('<option>Loading vehicles...</option>').trigger('change.select2');
 
-        $.getJSON(config.urls.GetIHSByCountry, { country: country }, function (data) {
-            let newOptions = '<option value="">Select a Vehicle</option>';
-            $.each(data, (i, item) => {
-                newOptions += `<option value="${item.Value}" data-sop="${item.SOP}" data-eop="${item.EOP}"
+        // 2. Ejecutamos la llamada AJAX y encadenamos los handlers de promesa.
+        $.ajax({
+            url: config.urls.getIHSByCountry,
+            type: 'GET',
+            data: { country: country },
+            dataType: 'json',
+            success: function (data) {
+                // Éxito: poblamos el dropdown
+                let newOptions = '<option value="">Select a Vehicle</option>';
+                $.each(data, (i, item) => {
+                    newOptions += `<option value="${item.Value}" data-sop="${item.SOP}" data-eop="${item.EOP}"
                                        data-program="${item.Program}" data-maxproduction="${item.MaxProduction}"
                                        data-productionjson='${item.ProductionDataJson}'>${item.Text}</option>`;
-            });
-
-            // Habilitamos y poblamos el dropdown de vehículo con los nuevos datos.
-            $vehicleDropdown.html(newOptions).prop('disabled', !canEditSales).trigger('change.select2');
+                });
+                $vehicleDropdown.html(newOptions);
+            },
+            error: function (xhr, status, error) {
+                // Error: Notificamos y reseteamos el dropdown
+                console.error("Error en loadVehiclesForDropdown:", status, error);
+                toastr.error("Error loading vehicles for the selected country.", "AJAX Error");
+                $vehicleDropdown.html('<option value="">Error loading data</option>');
+            }
+        })
+        // Usamos .always() encadenado para garantizar que la re-habilitación se ejecute SIEMPRE,
+        // sin importar si fue success o error.
+        .always(function () {
+            // 3. Siempre: Re-habilitamos el dropdown (respetando el permiso)
+            console.log('CanEditSales: ' + canEditSales)
+            $vehicleDropdown.prop('disabled', !canEditSales).trigger('change.select2');
         });
+
+    }
+
+    // Calcular Golpes Efectivos ---
+    // --- FUNCIÓN MODIFICADA: Calcular Golpes Efectivos (Enteros) ---
+    function updateEffectiveStrokes() {
+        // Obtenemos valores
+        const oeeVal = parseFloat($("#OEE").val()) || 0;
+        const theoStrokes = parseFloat($("#Theoretical_Strokes").val()) || 0;
+        const realStrokes = parseFloat($("#Real_Strokes").val()) || 0;
+
+        // Factor OEE (ej: 85% -> 0.85). Si es 0, el resultado será 0.
+        const oeeFactor = oeeVal / 100;
+
+        // Cálculo Theoretical Effective
+        if (theoStrokes > 0 && oeeFactor > 0) {
+            // CAMBIO: Usamos Math.round() para redondear al entero más cercano
+            let result = theoStrokes * oeeFactor;
+            $("#Theoretical_Effective_Strokes").val(Math.round(result));
+        } else {
+            $("#Theoretical_Effective_Strokes").val("");
+        }
+
+        // Cálculo Real Effective
+        if (realStrokes > 0 && oeeFactor > 0) {
+            // CAMBIO: Usamos Math.round() para redondear al entero más cercano
+            let result = realStrokes * oeeFactor;
+            $("#Real_Effective_Strokes").val(Math.round(result));
+        } else {
+            $("#Real_Effective_Strokes").val("");
+        }
     }
 
     // --- FUNCIONES AUXILIARES PARA IHS ---
@@ -2578,6 +2824,9 @@
         // Limpiar todos
         $('.rack-type-checkbox, .additional-checkbox, .label-checkbox, .strap-checkbox').prop('checked', false);
         $('#interplant-rack-types-container .interplant-rack-type-checkbox').prop('checked', false);
+        $('#interplant-labels-container .form-check-input').prop('checked', false); // <-- LÍNEA AÑADIDA
+        $('#interplant-additionals-container .form-check-input').prop('checked', false);
+        $('#interplant-straps-container .form-check-input').prop('checked', false);
 
         // 2. Poblar los campos del formulario
         hiddenInputs.each(function () {
@@ -2616,6 +2865,25 @@
                 }
                 return; // Continúa con el siguiente input oculto
             }
+            if (nameAttr.endsWith('.SelectedInterplantLabelIds')) {
+                if (val) {
+                    // Busca el checkbox con ese valor y lo marca
+                    $(`#interplant-label-${val}`).prop('checked', true);
+                }
+                return; // Continúa con el siguiente input oculto
+            }
+            if (nameAttr.endsWith('.SelectedInterplantAdditionalIds')) {
+                if (val) {
+                    $(`#interplant-additional-${val}`).prop('checked', true);
+                }
+                return; // Continúa con el siguiente input oculto
+            }
+            if (nameAttr.endsWith('.SelectedInterplantStrapTypeIds')) {
+                if (val) {
+                    $(`#interplant-strap-${val}`).prop('checked', true);
+                }
+                return; // Continúa con el siguiente input oculto
+            }
 
             for (let col of columnDefs) {
                 if (nameAttr.endsWith(`.${col.key}`)) {
@@ -2637,8 +2905,23 @@
                         $qualitySelect.val(val).trigger('change');
                     }
                     else {
-                        // Manejo normal para otros campos
-                        $(col.selector).val(val);
+                        // --- INICIO DE LA MODIFICACIÓN (Manejar N/A al cargar) ---
+                        // Comprobamos si la clave es uno de los campos de Coil Position
+                        if (col.key === 'ID_Coil_Position' ||
+                            col.key === 'ID_Delivery_Coil_Position' ||
+                            col.key === 'ID_InterplantDelivery_Coil_Position' ||
+                            col.key === 'ID_Arrival_Packaging_Type' || // <-- AÑADIDO
+                            col.key === 'ID_Arrival_Protective_Material') { // <-- AÑADIDO
+
+                            // Si el valor es nulo o vacío (vino como null de la BD),
+                            // lo forzamos a "0" para que seleccione "N/A".
+                            // Si tiene un valor (como 1, 2, etc.), usa ese valor.
+                            $(col.selector).val(val || "0");
+                        } else {
+                            // Manejo normal para todos los demás campos
+                            $(col.selector).val(val);
+                        }
+                        // --- FIN DE LA MODIFICACIÓN ---
                     }
                 }
             }
@@ -2708,7 +2991,8 @@
         updateFileUIGeneric('ID_File_VolumeAdditional', 'VolumeAdditionalFileName', 'file_container_volumeAdditionalFile', 'fileActions_containerVolumeAdditionalFile', 'downloadVolumeAdditionalFile');
         updateFileUIGeneric('ID_File_OutboundFreightAdditional', 'OutboundFreightAdditionalFileName', 'file_container_outboundFreightAdditionalFile', 'fileActions_containerOutboundFreightAdditionalFile', 'downloadOutboundFreightAdditionalFile');
         updateFileUIGeneric('ID_File_DeliveryPackagingAdditional', 'DeliveryPackagingAdditionalFileName', 'file_container_deliveryPackagingAdditionalFile', 'fileActions_containerDeliveryPackagingAdditionalFile', 'downloadDeliveryPackagingAdditionalFile');
-
+        updateFileUIGeneric('ID_File_InterplantPackaging', 'InterplantPackagingFileName', 'file_container_interplant_packaging_archivo', 'fileActions_containerInterplantPackagingFile', 'downloadInterplantPackagingFile');
+        updateFileUIGeneric('ID_File_InterplantOutboundFreight', 'InterplantOutboundFreightFileName', 'file_container_interplantOutboundFreightAdditionalFile', 'fileActions_containerInterplantOutboundFreightFile', 'downloadInterplantOutboundFreightFile');
 
         toggleTkmmPackagingFields(); // <-- Añadir esta llamada
         handleArrivalProtectiveMaterialChange();
@@ -2743,7 +3027,8 @@
         updateWeightCalculations();
         updatePackageWeight();
         updateInterplantPackageWeight();
-
+        updateEffectiveStrokes();
+        handleArrivalWarehouseChange();
 
         // Disparar los handlers para ajustar la UI de los campos dependientes
         $('#IsReturnableRack').trigger('change');
@@ -2755,6 +3040,24 @@
         $('#ID_InterplantDelivery_Transport_Type').trigger('change');
         $('#InterplantPackagingStandard').trigger('change');
 
+        $('#InterplantScrapReconciliation').trigger('change');
+        $('#InterplantHeadTailReconciliation').trigger('change');
+
+        // Dispara los eventos 'change' de los checkboxes "Other" (Final Delivery e Interplant)
+        // para asegurar que sus textareas se muestren u oculten correctamente al cargar.
+        $('#additional-6').trigger('change');
+        $('#label-3').trigger('change');
+        $('#interplant-additional-6').trigger('change');
+        $('#interplant-label-3').trigger('change');
+
+        updateInterplantReturnableFieldsVisibility();
+
+        // Disparar handlers para los nuevos campos de Interplant
+        $('#IsInterplantReturnableRack').trigger('change');
+        $('#InterplantScrapReconciliation').trigger('change');
+        $('#InterplantHeadTailReconciliation').trigger('change');
+
+     
         // Usamos 'false' porque estamos cargando datos al formulario para una posible edición (escenario what-if).
         debouncedUpdateSlitterChart();
 
@@ -2824,6 +3127,12 @@
 
         let hiddenInputs = "";
         for (let col of columnDefs) {
+            // Ignoramos los checkboxGroup en este bucle, porque
+            // tienen su propia lógica de bucle 'forEach' más abajo.
+            if (col.type === "checkboxGroup") {
+                continue; // Salta a la siguiente iteración
+            }
+
             let inputValue;
 
             if (col.type === "check") {
@@ -2856,6 +3165,28 @@
         if (materialData.SelectedLabelIds) { materialData.SelectedLabelIds.forEach(function (id) { hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedLabelIds" value="${id}" />`; }); }
         if (materialData.SelectedStrapTypeIds) { materialData.SelectedStrapTypeIds.forEach(function (id) { hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedStrapTypeIds" value="${id}" />`; }); }
 
+        // --- INICIO DE LA MODIFICACIÓN (Añadir bucles para Interplant) ---
+        if (materialData.SelectedInterplantRackTypeIds && materialData.SelectedInterplantRackTypeIds.length > 0) {
+            materialData.SelectedInterplantRackTypeIds.forEach(function (id) {
+                hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedInterplantRackTypeIds" value="${id}" />`;
+            });
+        }
+        if (materialData.SelectedInterplantLabelIds && materialData.SelectedInterplantLabelIds.length > 0) {
+            materialData.SelectedInterplantLabelIds.forEach(function (id) {
+                hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedInterplantLabelIds" value="${id}" />`;
+            });
+        }
+        if (materialData.SelectedInterplantAdditionalIds && materialData.SelectedInterplantAdditionalIds.length > 0) {
+            materialData.SelectedInterplantAdditionalIds.forEach(function (id) {
+                hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedInterplantAdditionalIds" value="${id}" />`;
+            });
+        }
+        if (materialData.SelectedInterplantStrapTypeIds && materialData.SelectedInterplantStrapTypeIds.length > 0) {
+            materialData.SelectedInterplantStrapTypeIds.forEach(function (id) {
+                hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedInterplantStrapTypeIds" value="${id}" />`;
+            });
+        }
+
         // Agregar bandera para identificar que este material es el que tendrá el archivo.
         // Si materialData["IsFile"] está definido, úsalo; en caso contrario, asigna "false".
         hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsFile" value="${materialData["IsFile"] || "false"}" />`;
@@ -2868,6 +3199,8 @@
         hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsVolumeAdditionalFile" value="${materialData["IsVolumeAdditionalFile"] || "false"}" />`;
         hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsOutboundFreightAdditionalFile" value="${materialData["IsOutboundFreightAdditionalFile"] || "false"}" />`;
         hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsDeliveryPackagingAdditionalFile" value="${materialData["IsDeliveryPackagingAdditionalFile"] || "false"}" />`;
+        hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsInterplantPackagingFile" value="${materialData["IsInterplantPackagingFile"] || "false"}" />`;
+        hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsInterplantOutboundFreightFile" value="${materialData["IsInterplantOutboundFreightFile"] || "false"}" />`;
 
         let tdActions = `
                             <td nowrap>
@@ -2956,6 +3289,13 @@
         $("#ID_File_OutboundFreightAdditional").val(""); $("#OutboundFreightAdditionalFileName").val("");
         $("#ID_File_DeliveryPackagingAdditional").val(""); $("#DeliveryPackagingAdditionalFileName").val("");
         $("#InterplantPackageWeight").val("");
+        $('#InterplantSpecialRequirement, #InterplantSpecialPackaging, #InterplantDeliveryConditions').val('');
+        $('#interplant_packaging_archivo, #interplantOutboundFreightAdditionalFile').val('');
+        $('#IsInterplantReturnableRack, #InterplantScrapReconciliation, #InterplantHeadTailReconciliation').prop('checked', false);
+        $('#InterplantReturnableUses').val('');
+        $('#ID_Interplant_FreightType').val('').trigger('change');
+        $('#InterplantScrapReconciliationPercent_container').find('input').val('');
+        $('#InterplantHeadTailReconciliationPercent_container').find('input').val('');
         // Limpiar también los errores asociados si existen
         $("#InterplantPackageWeightError").text("").hide();
         $("#InterplantPiecesPerPackageError").text("").hide(); // Limpia error pieces
@@ -2970,6 +3310,8 @@
         updateFileUIGeneric('ID_File_VolumeAdditional', 'VolumeAdditionalFileName', 'file_container_volumeAdditionalFile', 'fileActions_containerVolumeAdditionalFile', 'downloadVolumeAdditionalFile');
         updateFileUIGeneric('ID_File_OutboundFreightAdditional', 'OutboundFreightAdditionalFileName', 'file_container_outboundFreightAdditionalFile', 'fileActions_containerOutboundFreightAdditionalFile', 'downloadOutboundFreightAdditionalFile');
         updateFileUIGeneric('ID_File_DeliveryPackagingAdditional', 'DeliveryPackagingAdditionalFileName', 'file_container_deliveryPackagingAdditionalFile', 'fileActions_containerDeliveryPackagingAdditionalFile', 'downloadDeliveryPackagingAdditionalFile');
+        updateFileUIGeneric('ID_File_InterplantPackaging', 'InterplantPackagingFileName', 'file_container_interplant_packaging_archivo', 'fileActions_containerInterplantPackagingFile', 'downloadInterplantPackagingFile');
+        updateFileUIGeneric('ID_File_InterplantOutboundFreight', 'InterplantOutboundFreightFileName', 'file_container_interplantOutboundFreightAdditionalFile', 'fileActions_containerInterplantOutboundFreightFile', 'downloadInterplantOutboundFreightFile');
 
         toggleRunningChangeWarning();
 
@@ -2984,9 +3326,31 @@
         // 2. Limpiar TODOS los checkboxes con un solo selector
         $('.rack-type-checkbox, .additional-checkbox, .label-checkbox, .strap-checkbox').prop('checked', false);
         $('#interplant-rack-types-container .interplant-rack-type-checkbox').prop('checked', false);
+        $('#interplant-labels-container .form-check-input').prop('checked', false);
+        $('#interplant-labels-container .form-check-input').prop('checked', false);
+        $('#interplant-additionals-container .form-check-input').prop('checked', false);
+        $('#interplant-straps-container .form-check-input').prop('checked', false);
         // 3. Ocultar y limpiar los campos de "Other"
-        $('#AdditionalsOtherDescription_container, #LabelOtherDescription_container').hide();
-        $('#AdditionalsOtherDescription, #LabelOtherDescription').val('');
+        $('#AdditionalsOtherDescription_container, #LabelOtherDescription_container, #InterplantLabelOtherDescription_container').hide();
+        $('#AdditionalsOtherDescription, #LabelOtherDescription, #InterplantLabelOtherDescription').val('');
+        $('#InterplantAdditionalsOtherDescription_container, #InterplantStrapTypeObservations').closest('.other-description-wrapper').hide();
+        $('#InterplantAdditionalsOtherDescription, #InterplantStrapTypeObservations').val('');
+
+        $('#InterplantScrapReconciliation').prop('checked', false);
+        $('#InterplantHeadTailReconciliation').prop('checked', false);
+        // Limpiamos los inputs de %
+        $('#InterplantScrapReconciliationPercent_container').find('input').val('');
+        $('#InterplantHeadTailReconciliationPercent_container').find('input').val('');
+        // Disparamos los handlers para que oculten los contenedores
+        handleInterplantScrapReconciliationChange();
+        handleInterplantHeadTailReconciliationChange();
+
+        // Dispara los handlers para ocultar los contenedores
+        handleInterplantReturnableRackChange(); // Función nueva
+
+        // Limpia los file inputs genéricos
+        clearFileUIGeneric('ID_File_InterplantPackaging', 'interplant_packaging_archivo', 'file_container_interplant_packaging_archivo', 'fileActions_containerInterplantPackagingFile', 'interplant_packaging_archivoCancelButton');
+        clearFileUIGeneric('ID_File_InterplantOutboundFreight', 'interplantOutboundFreightAdditionalFile', 'file_container_interplantOutboundFreightAdditionalFile', 'fileActions_containerInterplantOutboundFreightFile', 'interplantOutboundFreightAdditionalFileCancelButton');
 
         $('#InitialWeightPerPart').val('');
         $('#ShippingTons').val('');
@@ -2995,6 +3359,12 @@
         $('#Initial_Weight').val('');
         $('#AnnualTonnage').val('');
 
+        if (canEditSales) {
+            $("#PassesThroughSouthWarehouse").prop('disabled', false);
+        }
+
+        $("#Theoretical_Effective_Strokes").val("");
+        $("#Real_Effective_Strokes").val("");
 
         // 4. Resetear el botón principal
         $('.btn-add-material').html('<i class="fa-solid fa-plus"></i> Add Material');
@@ -3006,6 +3376,161 @@
 
     }
 
+    function handleInterplantReturnableRackChange() {
+        const usesContainer = $('#InterplantReturnableUses_container');
+        if ($('#IsInterplantReturnableRack').is(':checked')) {
+            usesContainer.slideDown();
+        } else {
+            usesContainer.slideUp();
+            usesContainer.find('input').val('');
+            validateInterplantReturnableUses(); // Limpiar error
+        }
+    }
+
+    // Función genérica para limpiar un file input
+    function clearFileUIGeneric(idField, inputFileId, fileContainerId, actionsContainerId, cancelBtnId) {
+        $("#" + idField).val("");
+        $("#" + inputFileId).val("").prop("disabled", !canEditSales);
+        $("#" + fileContainerId).show();
+        $("#" + actionsContainerId).hide();
+        $("#" + cancelBtnId).hide();
+    }
+
+
+    // --- INICIO DE LA MODIFICACIÓN ---
+    function handleInterplantScrapReconciliationChange() {
+        const percentContainer = $('#InterplantScrapReconciliationPercent_container');
+        if ($('#InterplantScrapReconciliation').is(':checked')) {
+            percentContainer.slideDown();
+        } else {
+            percentContainer.slideUp();
+            // Opcional: Limpiamos los inputs si se desmarca
+            // percentContainer.find('input').val('');
+        }
+    }
+
+    function handleInterplantHeadTailReconciliationChange() {
+        const percentContainer = $('#InterplantHeadTailReconciliationPercent_container');
+        if ($('#InterplantHeadTailReconciliation').is(':checked')) {
+            percentContainer.slideDown();
+        } else {
+            percentContainer.slideUp();
+            // Opcional: Limpiamos los inputs si se desmarca
+            // percentContainer.find('input').val('');
+        }
+    }
+
+    function updateInterplantReturnableFieldsVisibility() {
+        console.log("%c--- updateInterplantReturnableFieldsVisibility [START] ---", "color: #009ff5; font-weight: bold;");
+
+        const $returnableContainer = $("#IsInterplantReturnableRack_container");
+        const $returnableCheckbox = $("#IsInterplantReturnableRack");
+
+        // 1. Obtenemos los IDs de los checkboxes de Interplant Rack Type que están marcados.
+        const selectedRackIds = $('.interplant-rack-type-checkbox:checked').map(function () {
+            return parseInt($(this).val(), 10);
+        }).get();
+
+        console.log("Interplant Rack IDs seleccionados:", selectedRackIds);
+        console.log("Racks que permiten 'Returnable':", window.showReturnableOptionFor); // Usamos la constante global [3, 2, 4]
+
+        // 2. Comprobamos si alguno de los seleccionados está en nuestra lista de permitidos.
+        // Usamos la constante global 'showReturnableOptionFor' definida en page.constants.js [cite: 4, 770]
+        const shouldShowReturnableOption = selectedRackIds.some(id => window.showReturnableOptionFor.includes(id));
+
+        console.log("¿Debería mostrarse 'Interplant Returnable'?", shouldShowReturnableOption);
+
+        // 3. Mostramos u ocultamos el campo "Returnable Rack"
+        if (shouldShowReturnableOption) {
+            console.log("Resultado: MOSTRANDO 'Interplant Returnable Rack'.");
+            $returnableContainer.slideDown();
+            // No habilitamos el check, eso lo hace la lógica de permisos
+        } else {
+            console.log("Resultado: OCULTANDO 'Interplant Returnable Rack' y reseteando.");
+            $returnableContainer.slideUp();
+            // Si lo ocultamos, forzamos que se desmarque y disparamos 'change'
+            // para que también se oculte el campo "Returnable Uses".
+            $returnableCheckbox.prop('checked', false).trigger('change');
+        }
+        console.log("%c--- updateInterplantReturnableFieldsVisibility [END] ---", "color: #dc3545;");
+    }
+
+    function handleArrivalWarehouseChange() {
+        const warehouseId = $("#ID_Arrival_Warehouse").val();
+        const passSouthCheckbox = $("#PassesThroughSouthWarehouse");
+
+        // Obtenemos el permiso desde la config global, ya que 'canEditSales' es local al IIFE
+        const canEdit = window.pageConfig.permissions.canEditSales;
+
+        // ID 2 = Almacén Sur
+        if (warehouseId == "2") {
+            // Si el almacén de llegada es Sur, desmarcamos y deshabilitamos
+            passSouthCheckbox.prop('checked', false);
+            passSouthCheckbox.prop('disabled', true);
+        } else {
+            // Si es otro almacén, habilitamos el check SOLO si el usuario tiene permisos
+            if (canEdit) {
+                passSouthCheckbox.prop('disabled', false);
+            }
+        }
+    }
+
+    // ---  Obtener rutas efectivas del proyecto ---
+    function getEffectiveProjectRoutes() {
+        // Usamos groupCollapsed para que no inunde la consola, puedes expandirlo haciendo clic
+        console.groupCollapsed("🔍 DEBUG: Calculando Rutas Efectivas");
+
+        let uniqueRoutes = new Set();
+
+        // 1. Obtener datos del formulario actual
+        const formRouteId = parseInt($("#ID_Route").val(), 10) || 0;
+        // Convertimos a String explícitamente para evitar errores de comparación (null vs "")
+        const editingIndex = String($("#materialIndex").val() || "");
+
+        console.log(`1. Estado del Formulario:`);
+        console.log(`   - Ruta Seleccionada (Dropdown): ${formRouteId}`);
+        console.log(`   - Índice en Edición (Hidden): "${editingIndex}" (vacío = nuevo)`);
+
+        // 2. Escanear la tabla
+        console.log(`2. Escaneando tabla (#materialsTable tbody tr)...`);
+
+        $("#materialsTable tbody tr").each(function () {
+            const row = $(this);
+            const rowIndex = String(row.data("index"));
+
+            // Buscamos el input hidden. Agregamos log si no lo encuentra.
+            const inputRoute = row.find("input[name$='.ID_Route']");
+            const savedRouteId = parseInt(inputRoute.val(), 10) || 0;
+
+            let statusMsg = "";
+
+            // LÓGICA DE EXCLUSIÓN
+            if (editingIndex !== "" && rowIndex === editingIndex) {
+                statusMsg = "❌ IGNORADA (En Edición)";
+            } else {
+                if (savedRouteId > 0) {
+                    uniqueRoutes.add(savedRouteId);
+                    statusMsg = "✅ AGREGADA";
+                } else {
+                    statusMsg = "⚠️ IGNORADA (ID 0 o inválido)";
+                }
+            }
+
+            console.log(`   -> Fila [${rowIndex}]: Ruta Guardada=${savedRouteId} | ${statusMsg}`);
+        });
+
+        // 3. Agregar la ruta del formulario actual
+        if (formRouteId > 0) {
+            uniqueRoutes.add(formRouteId);
+            console.log(`3. Agregando Ruta del Formulario: ${formRouteId}`);
+        }
+
+        const finalRoutes = Array.from(uniqueRoutes);
+        console.log("🏁 RUTAS FINALES CALCULADAS:", finalRoutes);
+        console.groupEnd(); // Fin del grupo de logs
+
+        return finalRoutes;
+    }
 
 
     //publicar las funciones
@@ -3076,5 +3601,16 @@
     window.buildRowHtml = buildRowHtml;
     window.clearMaterialForm = clearMaterialForm;
     window.requiresInterplant = requiresInterplant;
-
+    window.handleHeadTailReconciliationChange = handleHeadTailReconciliationChange;
+    window.handleScrapReconciliationChange = handleScrapReconciliationChange;
+    window.handleInterplantScrapReconciliationChange = handleInterplantScrapReconciliationChange;
+    window.handleInterplantHeadTailReconciliationChange = handleInterplantHeadTailReconciliationChange;
+    window.handleInterplantReturnableRackChange = handleInterplantReturnableRackChange;
+    window.clearFileUIGeneric = clearFileUIGeneric;
+    window.updateInterplantReturnableFieldsVisibility = updateInterplantReturnableFieldsVisibility;
+    window.debouncedUpdateCapacityHansontable = debouncedUpdateCapacityHansontable;
+    window.updateEffectiveStrokes = updateEffectiveStrokes; 
+    window.handleArrivalWarehouseChange = handleArrivalWarehouseChange;
+    window.getEffectiveProjectRoutes = getEffectiveProjectRoutes; 
+    //
 })();

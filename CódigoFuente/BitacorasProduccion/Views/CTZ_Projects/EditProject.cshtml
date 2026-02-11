@@ -31,7 +31,7 @@
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <style>
 
         .x_title h2 {
@@ -209,6 +209,36 @@
                         <!-- Recuadro informativo con datos generales del proyecto -->
                         @{ ViewBag.ShowEditButton = true; }
                         @Html.Partial("_CTZ_ProjectInfo", Model)
+
+                        <div class="row mb-3" id="validity-container">
+                            <div class="col-md-12">
+                                <div class="alert alert-info d-flex justify-content-between align-items-center shadow-sm"
+                                     id="validity-alert"
+                                     style="border-left: 5px solid #17a2b8; background-color: #e2e6ea; color: #383d41;">
+
+                                    <div>
+                                        <i class="fa-regular fa-calendar-check fa-lg mr-2"></i>
+                                        <strong>Quote Validity Status:</strong>
+                                        <span id="validity-text">Pending Verification...</span>
+                                        <small class="d-block text-muted mt-1" id="validity-subtext">
+                                            Policy: 15 days from creation.
+                                        </small>
+                                    </div>
+
+                                    <div class="d-flex align-items-center">
+                                        <button id="btnCheckValidity" onclick="verificarVigencia()" class="btn btn-sm btn-info shadow-sm mr-2">
+                                            <i class="fa-solid fa-calculator"></i> Check Validity Status
+                                        </button>
+
+                                        <button id="btnExtendValidity" onclick="extenderVigencia()" class="btn btn-sm btn-danger shadow-sm" style="display:none;">
+                                            <i class="fa-solid fa-clock-rotate-left"></i> Process Extension
+                                        </button>
+
+                                        <span id="status-badge" class="badge badge-secondary p-2 ml-2" style="font-size: 14px;">Unknown</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         @if (Model.IsSnapshot)
                         {
@@ -686,6 +716,13 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        };
+
         $(function () {
               // 1) inicializa
                 $('#rejectionReasonSelect').select2({
@@ -905,7 +942,77 @@
                 });
           });
         });
-    });
+
+
+        });
+
+        // 1. Simula la validación de reglas de negocio
+    function verificarVigencia() {
+        const btn = $('#btnCheckValidity');
+        const originalText = btn.html();
+
+        // Simular carga
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Verifying...');
+        $('#status-badge').text('Checking...');
+
+        setTimeout(() => {
+            // 2. Simular que detectó que expiró
+            const container = $('#validity-alert');
+            container.removeClass('alert-info').addClass('alert-danger');
+            container.css('background-color', '#f8d7da').css('color', '#721c24').css('border-left', '5px solid #dc3545');
+
+            $('#validity-text').html("<strong>QUOTE EXPIRED</strong> (16 days elapsed)");
+            $('#validity-subtext').html("Expired on: @DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy")");
+
+            $('#status-badge').removeClass('badge-secondary').addClass('badge-danger').text('Expired');
+
+            // Ocultar botón de check y mostrar el de extender
+            btn.hide();
+            $('#btnExtendValidity').fadeIn().addClass('animate__animated animate__pulse');
+
+            toastr.warning("Validation Result: Quote validity period has ended.");
+
+        }, 1200); // 1.2 segundos de "cálculo"
+    }
+
+    // 3. Simula la extensión (Solución)
+    function extenderVigencia() {
+        Swal.fire({
+            title: 'Process Validity Extension?',
+            text: "This will apply a 15-day extension policy to the current quote.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#009ff5',
+            confirmButtonText: 'Approve Extension',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return new Promise(resolve => setTimeout(resolve, 1500));
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const container = $('#validity-alert');
+
+                container.fadeOut(200, function() {
+                    // Estilo Verde / Éxito
+                    $(this).removeClass('alert-danger').addClass('alert-success');
+                    $(this).css('background-color', '#d4edda').css('color', '#155724').css('border-left', '5px solid #28a745');
+
+                    var newDate = new Date();
+                    newDate.setDate(newDate.getDate() + 15);
+
+                    $('#validity-text').html("Status: <strong>Active</strong>");
+                    $('#validity-subtext').html("Valid until: " + newDate.toLocaleDateString('en-GB'));
+
+                    $('#btnExtendValidity').hide();
+                    $('#status-badge').removeClass('badge-danger').addClass('badge-success').text('Active');
+
+                    $(this).fadeIn(400);
+                });
+
+                Swal.fire('Updated', 'Validity extended successfully.', 'success');
+            }
+        });
+    }
     </script>
 }
 

@@ -109,6 +109,19 @@ namespace Portal_2_0.Controllers
 
             try
             {
+                // Helper function to safely parse SAP dates
+                Func<string, DateTime?> parseSapDate = (sapDateStr) => {
+                    if (string.IsNullOrWhiteSpace(sapDateStr) || sapDateStr == "00000000")
+                    {
+                        return null;
+                    }
+                    if (DateTime.TryParseExact(sapDateStr, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime result))
+                    {
+                        return result;
+                    }
+                    return null; // Return null if parsing fails
+                };
+
                 // 1. Conexión a SAP
                 RfcConfigParameters connParams = new RfcConfigParameters();
                 connParams.Add(RfcConfigParameters.Name, ConfigurationManager.AppSettings["SapSystemName"]);
@@ -165,6 +178,9 @@ namespace Portal_2_0.Controllers
                         }
                     }
                 }
+
+                // Si el checkbox 'GetBatchChars' está marcado, pasamos 'X', si no, ' '
+                rfcFunction.SetValue("IV_GET_BATCH_CHARS", model.GetBatchChars ? "X" : " ");
 
                 // 4. Invocar la función
                 rfcFunction.Invoke(destination);
@@ -277,18 +293,7 @@ namespace Portal_2_0.Controllers
                             IRfcTable bomTable = plantRow.GetTable("BOM_DATA");
                             foreach (IRfcStructure bomRow in bomTable)
                             {
-                                // Helper function to safely parse SAP dates
-                                Func<string, DateTime?> parseSapDate = (sapDateStr) => {
-                                    if (string.IsNullOrWhiteSpace(sapDateStr) || sapDateStr == "00000000")
-                                    {
-                                        return null;
-                                    }
-                                    if (DateTime.TryParseExact(sapDateStr, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime result))
-                                    {
-                                        return result;
-                                    }
-                                    return null; // Return null if parsing fails
-                                };
+                               
 
                                 plantVM.BomItems.Add(new BomItemViewModel
                                 {
@@ -321,6 +326,38 @@ namespace Portal_2_0.Controllers
                                 Unit = charRow.GetString("UNIT")
                             });
                         }
+
+                        // ++ NUEVO BLOQUE: Leer tabla anidada de Lotes (BATCH_DATA) ++
+                        IRfcTable batchTable = materialRow.GetTable("BATCH_DATA");
+                        foreach (IRfcStructure batchRow in batchTable)
+                        {
+                            var batchVM = new BatchDataViewModel
+                            {
+                                Charg = batchRow.GetString("CHARG"),
+                                Werks = batchRow.GetString("WERKS"),
+                                // Usamos el mismo helper de parseo de fechas que en el BOM
+                                Ersda = parseSapDate(batchRow.GetString("ERSDA")),
+                                Vfdat = parseSapDate(batchRow.GetString("VFDAT"))
+                            };
+
+                            // --- Leer tabla anidada de Características del Lote (BATCH_CHARS) ---
+                            IRfcTable batchCharTable = batchRow.GetTable("BATCH_CHARS");
+                            foreach (IRfcStructure batchCharRow in batchCharTable)
+                            {
+                                batchVM.BatchChars.Add(new CharDataViewModel
+                                {
+                                    Charact = batchCharRow.GetString("CHARACT"),
+                                    Charact_Desc_En = batchCharRow.GetString("CHARACT_DESC_EN"),
+                                    Charact_Desc_Es = batchCharRow.GetString("CHARACT_DESC_ES"),
+                                    Value_Internal = batchCharRow.GetString("VALUE_INTERNAL"),
+                                    Value_Desc_En = batchCharRow.GetString("VALUE_DESC_EN"),
+                                    Value_Desc_Es = batchCharRow.GetString("VALUE_DESC_ES"),
+                                    Unit = batchCharRow.GetString("UNIT")
+                                });
+                            } // Fin del bucle de características de lote
+
+                            materialVM.Batches.Add(batchVM);
+                        } // Fin del bucle de Lotes
 
                         // --- INICIO: CALCULAR PESOS DESDE BOM (POR PLANTA - EXCLUYENDO -0.001) ---
                         foreach (var plantVM in materialVM.Plants)

@@ -3,6 +3,8 @@
     // Obtenemos las variables globales que necesitamos para las validaciones
     const config = window.pageConfig;
     const statusId = config.project.statusId;
+    const projectId = config.project.id;
+    const plantId = config.project.plantId;
 
     function validatePiecesPerPackage() {
         const input = $(config.fieldSelectors.PiecesPerPackage);
@@ -410,7 +412,7 @@
             input.css("border", "1px solid red");
             return false;
         }
-        return true;
+        return validateWeightMultsCombination();
     }
 
     function validateScrapReconciliationPercent_Min() {
@@ -909,7 +911,7 @@
         input.css("border", "");
 
         // Validar selección
-        if (!val || val === "") {
+        if (!val) {
             if (requiredStatus.includes(status)) {
                 errorEl
                     .text("Coil Position is required.")
@@ -1773,6 +1775,39 @@
         return true;
     }
 
+    function validateInterplantLabelOtherDescription() {
+        const input = $("#InterplantLabelOtherDescription");
+        const errorEl = $("#InterplantLabelOtherDescriptionError"); // Asumiendo que el span de error sigue este patrón
+        const container = $("#InterplantLabelOtherDescription_container");
+        const limit = 120; // O el límite que prefieras
+
+        // Si el contenedor no está visible, la validación pasa.
+        if (!container.is(":visible")) {
+            errorEl.text("").hide();
+            input.css("border", "");
+            return true;
+        }
+
+        // Si es visible, es obligatorio
+        const value = input.val().trim();
+        errorEl.text("").hide();
+        input.css("border", "");
+
+        if (!value) {
+            errorEl.text("Please specify the 'Other' Interplant Label.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        if (value.length > limit) {
+            errorEl.text(`Description cannot exceed ${limit} characters.`).show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        return true;
+    }
+
     function validateMaterialType() {
         const input = $("#ID_Material_type");
         const errorEl = $("#ID_Material_typeError");
@@ -2111,6 +2146,28 @@
             let validInterplantPlant = validateInterplant_Plant();
             let validInterplantPiecesPerPackage = validateInterplantPiecesPerPackage();
             let validInterplantStacksPerPackage = validateInterplantStacksPerPackage();
+            let validInterplantLabelOtherDescription = validateInterplantLabelOtherDescription();
+            let validInterplantAdditionalOther = validateInterplantAdditionalsOtherDescription();
+            let validInterplantStrapObs = validateInterplantStrapTypeObservations();
+            let validInterplantSpecialReq = validateInterplantSpecialRequirement();
+            let validInterplantSpecialPack = validateInterplantSpecialPackaging();
+            let validInterplantPackFile = validateInterplantPackagingFile();
+            let validInterplantReturnableRack = validateIsInterplantReturnableRack();
+            let validInterplantReturnableUses = validateInterplantReturnableUses();
+            let validInterplantFreightType = validateInterplantFreightType();
+            let validInterplantDeliveryCond = validateInterplantDeliveryConditions();
+            let validInterplantScrapRec = validateInterplantScrapReconciliation();
+            let validInterplantScrapMin = validateInterplantScrapReconciliationPercent_Min();
+            let validInterplantScrapOpt = validateInterplantScrapReconciliationPercent();
+            let validInterplantScrapMax = validateInterplantScrapReconciliationPercent_Max();
+            let validInterplantScrapClient = validateInterplantClientScrapReconciliationPercent();
+            let validInterplantHeadTailRec = validateInterplantHeadTailReconciliation();
+            let validInterplantHeadTailMin = validateInterplantHeadTailReconciliationPercent_Min();
+            let validInterplantHeadTailOpt = validateInterplantHeadTailReconciliationPercent();
+            let validInterplantHeadTailMax = validateInterplantHeadTailReconciliationPercent_Max();
+            let validInterplantHeadTailClient = validateInterplantClientHeadTailReconciliationPercent();
+            let validInterplantOutboundFile = validateInterplantOutboundFreightFile();
+            let validWeightMultsComb = validateWeightMultsCombination();
 
             return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
                 && validRealSOP && validRealEOP && validShipTo && validRoute && validTensile && validMaterialType
@@ -2138,7 +2195,13 @@
                 && validShearing_Weight && validShearing_Weight_Tol_Pos && validShearing_Weight_Tol_Neg && validShearing_Pieces_Per_Stroke
                 && validShearing_Pieces_Per_Car && validInterplantPlant && validateInterplantDeliveryCoilPosition() && validateInterplantDeliveryTransportType()
                 && validateInterplantDeliveryTransportTypeOther() && validateInterplantPackagingStandard() && validateInterplantRequiresRackManufacturing()
-                && validateInterplantRequiresDieManufacturing() && validInterplantPiecesPerPackage && validInterplantStacksPerPackage
+                && validateInterplantRequiresDieManufacturing() && validInterplantPiecesPerPackage && validInterplantStacksPerPackage && validInterplantLabelOtherDescription
+                && validInterplantAdditionalOther && validInterplantStrapObs && validInterplantSpecialReq && validInterplantSpecialPack && validInterplantPackFile
+                && validInterplantReturnableRack && validInterplantReturnableUses && validInterplantFreightType
+                && validInterplantDeliveryCond && validInterplantScrapRec && validInterplantScrapMin
+                && validInterplantScrapOpt && validInterplantScrapMax && validInterplantScrapClient
+                && validInterplantHeadTailRec && validInterplantHeadTailMin && validInterplantHeadTailOpt
+                && validInterplantHeadTailMax && validInterplantHeadTailClient && validInterplantOutboundFile && validWeightMultsComb
                 ;
         }
 
@@ -2301,23 +2364,15 @@
             case "IsReturnableRack":
                 return validateReturnableUses(); // Validar el hijo cuando el padre cambia
             case "ReturnableUses":
-                return validateReturnableUses();
-            case "ScrapReconciliation":
+                return validateReturnableUses(); case "ScrapReconciliation":
                 return validateScrapReconciliationPercent(); // Validar el hijo
-            case "ScrapReconciliationPercent":
-                return validateScrapReconciliationPercent();
-            case "ID_Delivery_Coil_Position":
-                return validateDeliveryCoilPosition();
-            case "ID_Delivery_Transport_Type":
-                return validateDeliveryTransportType();
-            case "Delivery_Transport_Type_Other":
-                return validateDeliveryTransportTypeOther();
-            case "ID_FreightType":
-                return validateFreightType();
-            case "ID_Arrival_Warehouse":
-                return validateArrivalWarehouse();
-            case "ClientNetWeight":
-                return validateClientNetWeight();
+            case "ScrapReconciliationPercent": return validateScrapReconciliationPercent();
+            case "ID_Delivery_Coil_Position": return validateDeliveryCoilPosition();
+            case "ID_Delivery_Transport_Type": return validateDeliveryTransportType();
+            case "Delivery_Transport_Type_Other": return validateDeliveryTransportTypeOther();
+            case "ID_FreightType": return validateFreightType();
+            case "ID_Arrival_Warehouse": return validateArrivalWarehouse();
+            case "ClientNetWeight": return validateClientNetWeight();
             case "isRunningChange": return validateIsRunningChange();
             case "IsWeldedBlank": return validateNumberOfPlates() && validateWeldedThicknesses();
             case "numberOfPlates": return validateNumberOfPlates() && validateWeldedThicknesses();
@@ -2348,36 +2403,132 @@
             case "Shearing_Pieces_Per_Stroke": return validateShearing_Pieces_Per_Stroke();
             case "Shearing_Pieces_Per_Car": return validateShearing_Pieces_Per_Car();
             case "ID_Interplant_Plant": return validateInterplant_Plant();
-            case "ID_InterplantDelivery_Coil_Position":
-                return validateInterplantDeliveryCoilPosition();
-            case "ID_InterplantDelivery_Transport_Type":
-                return validateInterplantDeliveryTransportType();
-            case "InterplantDelivery_Transport_Type_Other":
-                return validateInterplantDeliveryTransportTypeOther();
-            case "InterplantPackagingStandard":
-                return validateInterplantPackagingStandard();
-            case "InterplantRequiresRackManufacturing":
-                return validateInterplantRequiresRackManufacturing();
-            case "InterplantRequiresDieManufacturing":
-                return validateInterplantRequiresDieManufacturing();
+            case "ID_InterplantDelivery_Coil_Position": return validateInterplantDeliveryCoilPosition();
+            case "ID_InterplantDelivery_Transport_Type": return validateInterplantDeliveryTransportType();
+            case "InterplantDelivery_Transport_Type_Other": return validateInterplantDeliveryTransportTypeOther();
+            case "InterplantPackagingStandard": return validateInterplantPackagingStandard();
+            case "InterplantRequiresRackManufacturing": return validateInterplantRequiresRackManufacturing();
+            case "InterplantRequiresDieManufacturing": return validateInterplantRequiresDieManufacturing();
+            case "InterplantLabelOtherDescription": return validateInterplantLabelOtherDescription();
+            case "InterplantAdditionalsOtherDescription": return validateInterplantAdditionalsOtherDescription();
+            case "InterplantStrapTypeObservations": return validateInterplantStrapTypeObservations();
+            case "InterplantSpecialRequirement": return validateInterplantSpecialRequirement();
+            case "InterplantSpecialPackaging": return validateInterplantSpecialPackaging();
+            case "interplant_packaging_archivo": return validateInterplantPackagingFile();
+            case "IsInterplantReturnableRack": return validateIsInterplantReturnableRack();
+            case "InterplantReturnableUses": return validateInterplantReturnableUses();
+            case "ID_Interplant_FreightType": return validateInterplantFreightType();
+            case "InterplantDeliveryConditions": return validateInterplantDeliveryConditions();
+            case "InterplantScrapReconciliation": return validateInterplantScrapReconciliation();
+            case "InterplantScrapReconciliationPercent_Min": return validateInterplantScrapReconciliationPercent_Min();
+            case "InterplantScrapReconciliationPercent": return validateInterplantScrapReconciliationPercent();
+            case "InterplantScrapReconciliationPercent_Max": return validateInterplantScrapReconciliationPercent_Max();
+            case "InterplantClientScrapReconciliationPercent": return validateInterplantClientScrapReconciliationPercent();
+            case "InterplantHeadTailReconciliation": return validateInterplantHeadTailReconciliation();
+            case "InterplantHeadTailReconciliationPercent_Min": return validateInterplantHeadTailReconciliationPercent_Min();
+            case "InterplantHeadTailReconciliationPercent": return validateInterplantHeadTailReconciliationPercent();
+            case "InterplantHeadTailReconciliationPercent_Max": return validateInterplantHeadTailReconciliationPercent_Max();
+            case "InterplantClientHeadTailReconciliationPercent": return validateInterplantClientHeadTailReconciliationPercent();
+            case "interplantOutboundFreightAdditionalFile": return validateInterplantOutboundFreightFile();
             default:
                 return true;
         }
     }
 
+    // --- INICIO DE LA MODIFICACIÓN ---
+    function validateInterplantAdditionalsOtherDescription() {
+        const input = $("#InterplantAdditionalsOtherDescription");
+        const errorEl = $("#InterplantAdditionalsOtherDescriptionError"); // Asumiendo que el span de error sigue este patrón
+        const container = $("#InterplantAdditionalsOtherDescription_container");
+        const limit = 120; // O el límite que prefieras
+
+        // Si el contenedor no está visible, la validación pasa.
+        if (!container.is(":visible")) {
+            errorEl.text("").hide();
+            input.css("border", "");
+            return true;
+        }
+
+        // Si es visible, es obligatorio
+        const value = input.val().trim();
+        errorEl.text("").hide();
+        input.css("border", "");
+
+        if (!value) {
+            errorEl.text("Please specify the 'Other' Interplant Additional.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        if (value.length > limit) {
+            errorEl.text(`Description cannot exceed ${limit} characters.`).show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateInterplantStrapTypeObservations() {
+        const input = $("#InterplantStrapTypeObservations");
+        const errorEl = $("#InterplantStrapTypeObservationsError"); // Asumiendo que el span de error sigue este patrón
+        const container = $("#InterplantStrapTypeObservations").closest('.other-description-wrapper'); // Contenedor
+        const limit = 120; // O el límite que prefieras
+
+        // Si el contenedor no está visible, la validación pasa.
+        if (!container.is(":visible")) {
+            errorEl.text("").hide();
+            input.css("border", "");
+            return true;
+        }
+
+        const value = input.val().trim();
+        errorEl.text("").hide();
+        input.css("border", "");
+
+        // Este campo es opcional, solo validamos la longitud si hay algo escrito
+        if (value.length > limit) {
+            errorEl.text(`Observations cannot exceed ${limit} characters.`).show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+
+        return true;
+    }
     function updateSlitterCapacityChart(OnlyBDMaterials = false, projectId) {
+        // 1. Check de rendimiento: Si estamos validando masivamente (Guardar), abortar.
+        if (window.isBatchValidating) return;
+
+        // 2. Lógica de Visibilidad Universal
+        // Verificamos si hay alguna ruta de Slitter activa en el proyecto (sea en BD o en el form actual).
+        const activeRoutes = getEffectiveProjectRoutes();
+        const hasSlittingRoute = activeRoutes.some(r => slittingRouteIds.includes(r));
+
+        if (!hasSlittingRoute) {
+            // Si es carga inicial (OnlyBDMaterials=true), usamos un log normal para no saturar
+            if (!OnlyBDMaterials) {
+                console.log("updateSlitterCapacityChart: No se detectaron rutas de Slitter activas. Ocultando gráfica.");
+            }
+            $("#slitterChartContainer").slideUp();
+            return; // <--- DETENER EJECUCIÓN AQUÍ: No llamamos al servidor
+        } else {
+            $("#slitterChartContainer").slideDown();
+        }
+
         // Limpiamos la consola para tener una salida limpia en cada ejecución de "what-if"
         if (!OnlyBDMaterials) {
             //console.clear();
             console.log("%c--- What-If Slitter Calculation [START] ---", "color: #009ff5; font-weight: bold;");
         }
 
+        const projectIdAjax = config.project.id;
+
         const container = $("#slitterChartContainer");
         container.html("<p style='color:gray;'>Loading Slitter Capacity <i class='fa-solid fa-spinner fa-spin-pulse'></i></p>").slideDown();
 
         let ajaxData = {
             __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(), // AÑADIDO: Token de seguridad
-            projectId: projectId, // <-- AÑADIDO
+            projectId: projectIdAjax, // <-- AÑADIDO
             plantId: config.project.plantId,
             applyDateFilter: true,
             OnlyBDMaterials: OnlyBDMaterials
@@ -2396,6 +2547,13 @@
                 const row = $(this);
                 const materialIdInRow = parseInt(row.data("material-id"), 10);
 
+                let valRealSOP = row.find("input[name$='.Real_SOP']").val() || "";
+                let valRealEOP = row.find("input[name$='.Real_EOP']").val() || "";
+                let valSopSP = row.find("input[name$='.SOP_SP']").val() || "";
+                let valEopSP = row.find("input[name$='.EOP_SP']").val() || "";
+
+                const dateRegex = /^\d{4}-\d{2}$/;
+
                 let material = {
                     ID_Material: materialIdInRow,
                     Vehicle: row.find("input[name$='.Vehicle']").val(),
@@ -2405,10 +2563,10 @@
                     ID_Route: parseInt(row.find("input[name$='.ID_Route']").val()) || null,
                     Initial_Weight: 0,
                     IsEdited: false,
-                    Real_SOP: row.find("input[name$='.Real_SOP']").val() || null,
-                    Real_EOP: row.find("input[name$='.Real_EOP']").val() || null,
-                    SOP_SP: row.find("input[name$='.SOP_SP']").val() || null,
-                    EOP_SP: row.find("input[name$='.EOP_SP']").val() || null
+                    Real_SOP: dateRegex.test(valRealSOP) ? valRealSOP : null,
+                    Real_EOP: dateRegex.test(valRealEOP) ? valRealEOP : null,
+                    SOP_SP: dateRegex.test(valSopSP) ? valSopSP : null,
+                    EOP_SP: dateRegex.test(valEopSP) ? valEopSP : null
                 };
 
                 // Calcular Initial_Weight basado en los datos de la fila
@@ -2435,6 +2593,12 @@
                 whatIfMaterials.push(material);
             });
 
+            var formSOP = $("#Real_SOP").val() || "";
+            var formEOP = $("#Real_EOP").val() || "";
+            var formSopSP = $("#SOP_SP").val() || "";
+            var formEopSP = $("#EOP_SP").val() || "";
+            const dateRegex = /^\d{4}-\d{2}$/;
+
             const formData = {
                 ID_Material: materialIdBeingEdited,
                 Vehicle: $("#Vehicle").val(),
@@ -2444,10 +2608,10 @@
                 ID_Route: parseInt($("#ID_Route").val()) || null,
                 Initial_Weight: parseFloat($("#Initial_Weight").val()) || 0,
                 IsEdited: true,
-                Real_SOP: $("#Real_SOP").val() || null,
-                Real_EOP: $("#Real_EOP").val() || null,
-                SOP_SP: $("#SOP_SP").val() || null,
-                EOP_SP: $("#EOP_SP").val() || null
+                Real_SOP: dateRegex.test(formSOP) ? formSOP : null,
+                Real_EOP: dateRegex.test(formEOP) ? formEOP : null,
+                SOP_SP: dateRegex.test(formSopSP) ? formSopSP : null,
+                EOP_SP: dateRegex.test(formEopSP) ? formEopSP : null
             };
 
             if (materialIdBeingEdited !== 0) {
@@ -2477,6 +2641,7 @@
                 if (response.success && response.data && response.data.length > 0) {
                     generateCharts(response.data, {}, "#slitterChartContainer");
                 } else {
+                    // Si el servidor responde éxito pero sin datos, ocultamos
                     container.html("<p style='color:red;'>Could not load Slitter capacity data.</p>");
                     if (response.message) toastr.error(response.message);
                 }
@@ -2492,51 +2657,44 @@
 
 
     function validateRealSOP() {
-
         const input = $("#Real_SOP");
         const errorEl = $("#Real_SOPError");
+        const warningEl = $("#Real_SOPWarning"); // Nuevo selector para advertencia
 
-
-        // Si el input tiene el atributo readonly o disabled, se omite la validación
+        // Si readonly/disabled, limpiamos todo y salimos
         if (input.prop("readonly") || input.prop("disabled")) {
+            errorEl.text("").hide();
+            warningEl.text("").hide();
             return true;
         }
 
-        // Limpiar cualquier mensaje de error y estilo previo.
+        // 1. Limpiar estados previos
         errorEl.text("").hide();
+        warningEl.text("").hide();
         input.css("border", "");
 
         let realSOPStr = input.val().trim();
 
-        // Validación 1: Campo requerido.
+        // --- ERRORES BLOQUEANTES (Rojo) ---
         if (!realSOPStr) {
             errorEl.text("Real SOP is required.").show();
             input.css("border", "1px solid red");
             return false;
         }
 
-        let realSOPDate = parseYearMonth(realSOPStr);
+        // Usamos window.parseYearMonth ya que se define en page.main.js y se exporta a window
+        let realSOPDate = window.parseYearMonth(realSOPStr);
 
-        // Validar si el formato de fecha es correcto.
         if (!realSOPDate) {
             errorEl.text("Invalid date format. Use yyyy-mm.").show();
             input.css("border", "1px solid red");
             return false;
         }
-        // Validación 2: No puede ser de un año anterior al actual.
-        const currentYear = new Date().getFullYear();
-        if (realSOPDate.getFullYear() < currentYear) {
-            // Se muestra un toast de advertencia en lugar de un error.
-            toastr.warning(`Warning: Real SOP is in a year before the current year (${currentYear}).`, "Date Warning");
 
-            // IMPORTANTE: Ya no se retorna 'false', por lo que la validación continúa.
-        }
-        // --- INICIO DE LA NUEVA LÓGICA ---
-
-        // Validación 3: Debe ser anterior al Real EOP, si este existe.
+        // Validar contra Real EOP (Lógica Bloqueante)
         let realEOPStr = $("#Real_EOP").val().trim();
         if (realEOPStr) {
-            let realEOPDate = parseYearMonth(realEOPStr);
+            let realEOPDate = window.parseYearMonth(realEOPStr);
             if (realEOPDate && realSOPDate >= realEOPDate) {
                 errorEl.text("Real SOP must be before Real EOP.").show();
                 input.css("border", "1px solid red");
@@ -2544,46 +2702,76 @@
             }
         }
 
-        // --- FIN DE LA NUEVA LÓGICA ---
+        // --- ADVERTENCIAS (Naranja - No bloquean el guardado) ---
+        let warningMsg = "";
+        const currentYear = new Date().getFullYear();
 
-        // Validación 4 (Advertencia): Comparar con el SOP planeado si está disponible.
+        // Advertencia 1: Año anterior al actual
+        if (realSOPDate.getFullYear() < currentYear) {
+            warningMsg = `Year is before current year (${currentYear}).`;
+        }
+
+        // Advertencia 2: Anterior al Planned SOP
         let sopSPStr = $("#SOP_SP").val().trim();
         if (sopSPStr) {
-            let sopSPDate = parseYearMonth(sopSPStr);
+            let sopSPDate = window.parseYearMonth(sopSPStr);
             if (sopSPDate && realSOPDate < sopSPDate) {
-                toastr.warning("Warning: Real SOP is before the planned SOP.");
+                // Concatenamos si ya existe un mensaje o lo ponemos nuevo
+                warningMsg = warningMsg
+                    ? warningMsg + " Also before Planned SOP."
+                    : "Date is before Planned SOP.";
             }
         }
 
+        // Si hay mensaje de advertencia, lo mostramos
+        if (warningMsg) {
+            warningEl.text(warningMsg).show();
+        }
 
         return true;
     }
 
     function validateRealEOP() {
         const input = $("#Real_EOP");
+        const errorEl = $("#Real_EOPError");
+        const warningEl = $("#Real_EOPWarning"); // Nuevo selector
 
-        // Si el input tiene el atributo readonly o disabled, se omite la validación
         if (input.prop("readonly") || input.prop("disabled")) {
+            errorEl.text("").hide();
+            warningEl.text("").hide();
             return true;
         }
 
-        let realEOPStr = $("#Real_EOP").val().trim();
-        $("#Real_EOPError").text("").hide();
-        $("#Real_EOP").css("border", "");
+        let realEOPStr = input.val().trim();
 
+        // 1. Limpiar estados previos
+        errorEl.text("").hide();
+        warningEl.text("").hide();
+        input.css("border", "");
+
+        // --- ERRORES BLOQUEANTES ---
         if (!realEOPStr) {
-            $("#Real_EOPError").text("Real EOP is required.").show();
-            $("#Real_EOP").css("border", "1px solid red");
+            errorEl.text("Real EOP is required.").show();
+            input.css("border", "1px solid red");
             return false;
         }
 
-        // Obtener el valor de EOP_SP
-        let eopSPStr = $("#EOP_SP").val().trim();
-        let realEOPDate = parseYearMonth(realEOPStr);
-        let eopSPDate = parseYearMonth(eopSPStr);
+        // Validar formato de fecha (para evitar errores en parseo)
+        let realEOPDate = window.parseYearMonth(realEOPStr);
+        if (!realEOPDate) {
+            errorEl.text("Invalid date format. Use yyyy-mm.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
 
-        if (realEOPDate && eopSPDate && realEOPDate > eopSPDate) {
-            toastr.warning("Real EOP is later than the planned EOP.");
+        // --- ADVERTENCIAS (Naranja) ---
+        // Advertencia: Posterior al Planned EOP
+        let eopSPStr = $("#EOP_SP").val().trim();
+        if (eopSPStr) {
+            let eopSPDate = window.parseYearMonth(eopSPStr);
+            if (realEOPDate && eopSPDate && realEOPDate > eopSPDate) {
+                warningEl.text("Date is later than Planned EOP.").show();
+            }
         }
 
         return true;
@@ -3180,11 +3368,10 @@
     }
 
     function validateWeightOfFinalMults() {
-        const input = $("#WeightOfFinalMults");
-        const errorEl = $("#WeightOfFinalMultsError");
+        const input = $("#WeightOfFinalMults"); // Selector directo
+        const errorEl = $("#WeightOfFinalMultsError"); // Selector directo
         const status = statusId;
 
-        // 1) Estatus que hacen el campo obligatorio
         let requiredStatus = [
             config.statusIDs.Quotes,
             config.statusIDs.CarryOver,
@@ -3192,41 +3379,41 @@
             config.statusIDs.POH
         ];
 
-        // 2) Si readonly/disabled, omito validación
         if (input.prop("readonly") || input.prop("disabled")) {
             return true;
         }
 
-        // 3) Leer y limpiar
         let raw = input.val() ? input.val().trim() : "";
-        errorEl.text("").hide();
-        input.css("border", "");
 
-        // 4) Vacío → si es obligatorio, error; si no, OK
+        // Limpiar error solo si NO es el de combinación
+        if (!errorEl.text().startsWith("Total weight of mults")) {
+            errorEl.text("").hide();
+            input.css("border", "");
+        }
+
         if (!raw) {
             if (requiredStatus.includes(status)) {
-                errorEl
-                    .text(config.displayNames.WeightOfFinalMults + " is required.")
-                    .show();
+                errorEl.text(config.displayNames.WeightOfFinalMults + " is required.").show();
                 input.css("border", "1px solid red");
                 return false;
             }
-            return true;
+            // Validar combinación para limpiar errores previos si el campo se vacía
+            return validateWeightMultsCombination();
         }
 
-        // 5) Validar número ≥ 0
         let val = parseFloat(raw);
         if (isNaN(val) || val < 0) {
-            errorEl
-                .text(isNaN(val)
-                    ? "The value must be a number."
-                    : "The value must be greater than or equal to 0.")
-                .show();
+            errorEl.text(isNaN(val) ? "The value must be a number." : "The value must be greater than or equal to 0.").show();
             input.css("border", "1px solid red");
             return false;
         }
 
-        return true;
+        // Validar contra Min/Max y Master Coil
+        let validMin = validateWeightOfFinalMults_Min();
+        let validMax = validateWeightOfFinalMults_Max();
+        let validComb = validateWeightMultsCombination(); // <--- ASEGURAR ESTA LLAMADA
+
+        return validMin && validMax && validComb;
     }
 
     function validateMultipliers() {
@@ -3247,7 +3434,7 @@
             return true;
         }
 
-        // Limpiar errores previos que no sean de la validación de combinación
+        // Limpiar errores previos que no sean de la validación de combinación de ANCHO
         if (!errorEl.text().startsWith("Total width of mults")) {
             errorEl.text("").hide();
             input.css("border", "");
@@ -3257,14 +3444,16 @@
 
         if (!raw) {
             if (isExternalSlitter) {
-                return validateWidthMultsCombination(); // Revalida para limpiar errores
+                validateWeightMultsCombination(); // NUEVO: Validar peso para limpiar
+                return validateWidthMultsCombination(); // Revalidar ancho para limpiar
             }
             else if (requiredStatus.includes(status)) {
                 errorEl.text(config.displayNames.Multipliers + " is required.").show();
                 input.css("border", "1px solid red");
                 return false;
             }
-            return validateWidthMultsCombination(); // Revalida para limpiar errores
+            validateWeightMultsCombination(); // NUEVO: Validar peso para limpiar
+            return validateWidthMultsCombination(); // Revalidar ancho para limpiar
         }
 
         let val = parseFloat(raw);
@@ -3288,8 +3477,11 @@
             }
         }
 
-        // Si todas las validaciones de este campo pasan, se ejecuta la validación de combinación
-        return validateWidthMultsCombination();
+        // Validar ambas combinaciones
+        const isWidthValid = validateWidthMultsCombination();
+        const isWeightValid = validateWeightMultsCombination(); 
+
+        return isWidthValid && isWeightValid;
     }
 
     function validateMajorBase() {
@@ -3721,10 +3913,12 @@
                 input.css("border", "1px solid red");
                 return false;
             }
+            // Aunque esté vacío, llamar a validación combinada para limpiar posibles errores en el otro campo
+            validateWeightMultsCombination();
             return true;
         }
 
-        // Validación de valor numérico y no negativo (sin cambios)
+        // Validación de valor numérico y no negativo
         let val = parseFloat(raw);
         if (isNaN(val) || val < 0) {
             errorEl
@@ -3736,26 +3930,18 @@
             return false;
         }
 
-        // --- INICIO DE LA MODIFICACIÓN ---
-
-        // 1. Verificamos si los rangos de validación ya se cargaron desde el servidor.
+        // Validación de rangos de ingeniería
         if (window.engineeringRanges) {
-
-            // 2. Buscamos el criterio específico para MasterCoilWeight (ID_Criteria: 17)
             const criterio = window.engineeringRanges.find(r => r.ID_Criteria === 17);
-
-            // 3. Si encontramos el criterio y el valor no es válido...
             if (criterio && !validarContraCriterio(val, criterio)) {
-
-                // 4. Mostramos el mensaje de error con los límites correctos y marcamos el campo.
                 errorEl.text(describirLimites(criterio)).show();
                 input.css("border", "1px solid red");
-                return false; // La validación falla.
+                return false;
             }
         }
 
-        // --- FIN DE LA MODIFICACIÓN ---
-
+        // Al cambiar MasterCoil, revalidar si los mults caben en peso
+        validateWeightMultsCombination(); 
         return true;
     }
 
@@ -4211,12 +4397,16 @@
         // 1) Actualizaciones previas
         updateBlanksPerYear();
         let diffPercentage = updateAnnualVolumeStyle();
-        clearTimeout(volumeTimeout);
-        volumeTimeout = setTimeout(function () {
-            if (typeof diffPercentage !== "undefined") {
-                showVolumeDifferenceToast(diffPercentage);
-            }
-        }, 900);
+
+        // Usamos la bandera global window.isBatchValidating definida en page.uiHandlers.js
+        if (!window.isBatchValidating) {
+            clearTimeout(volumeTimeout);
+            volumeTimeout = setTimeout(function () {
+                if (typeof diffPercentage !== "undefined") {
+                    showVolumeDifferenceToast(diffPercentage);
+                }
+            }, 900);
+        }
 
         const input = $("#Annual_Volume");
         const errorEl = $("#Annual_VolumeError");
@@ -4800,6 +4990,322 @@
     }
 
 
+    // Valida InterplantSpecialRequirement (opcional, límite 350)
+    function validateInterplantSpecialRequirement() {
+        const input = $("#InterplantSpecialRequirement");
+        const errorEl = $("#InterplantSpecialRequirementError");
+        if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+        errorEl.text("").hide(); input.css("border", "");
+        if (input.val().length > 350) {
+            errorEl.text("Cannot exceed 350 characters.").show(); input.css("border", "1px solid red"); return false;
+        }
+        return true;
+    }
+
+    // Valida InterplantSpecialPackaging (opcional, límite 350)
+    function validateInterplantSpecialPackaging() {
+        const input = $("#InterplantSpecialPackaging");
+        const errorEl = $("#InterplantSpecialPackagingError");
+        if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+        errorEl.text("").hide(); input.css("border", "");
+        if (input.val().length > 350) {
+            errorEl.text("Cannot exceed 350 characters.").show(); input.css("border", "1px solid red"); return false;
+        }
+        return true;
+    }
+
+    // Valida InterplantPackagingFile (opcional, valida extensión y tamaño)
+    function validateInterplantPackagingFile() {
+        const input = $("#interplant_packaging_archivo");
+        const errorEl = $("#interplant_packaging_archivoError");
+        if (!input.is(":visible")) return true; // No visible, no se valida
+        errorEl.text("").hide(); input.css("border", "");
+        if (input[0].files.length === 0) return true; // Opcional
+        const file = input[0].files[0];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        const allowedExtensions = [".dwg", ".dxf", ".dwt", ".pdf", ".zip", ".rar"];
+        if (file.size > maxSize) {
+            errorEl.text("File size must be 10MB or less.").show(); input.css("border", "1px solid red"); return false;
+        }
+        const fileName = file.name.toLowerCase();
+        if (!allowedExtensions.some(ext => fileName.endsWith(ext))) {
+            errorEl.text("Only DWG, DXF, DWT, PDF, ZIP and RAR files are allowed.").show(); input.css("border", "1px solid red"); return false;
+        }
+        return true;
+    }
+
+    // Valida IsInterplantReturnableRack (depende de los checkboxes de rack)
+    function validateIsInterplantReturnableRack() {
+        // Llama a la función de validación del hijo (ReturnableUses)
+        return validateInterplantReturnableUses();
+    }
+
+    // Valida InterplantReturnableUses
+    function validateInterplantReturnableUses() {
+        const input = $("#InterplantReturnableUses");
+        const errorEl = $("#InterplantReturnableUsesError");
+        if (!input.closest('div').is(":visible")) {
+            errorEl.text("").hide(); input.css("border", ""); return true;
+        }
+        // Lógica de obligatoriedad (ej. si rack de madera está chequeado)
+        // const isWoodRack = $("#interplant-rack-type-2").is(":checked") || $("#interplant-rack-type-4").is(":checked");
+        // if (isWoodRack && !input.val()) {
+        //     errorEl.text("Number of uses is required for wood racks.").show(); input.css("border", "1px solid red"); return false;
+        // }
+
+        let raw = input.val() ? input.val().trim() : "";
+        if (raw) {
+            let val = parseInt(raw, 10);
+            if (isNaN(val) || val <= 0 || raw.includes('.')) {
+                errorEl.text("Must be a positive whole number.").show(); input.css("border", "1px solid red"); return false;
+            }
+        }
+        errorEl.text("").hide(); input.css("border", "");
+        return true;
+    }
+
+    // Valida ID_Interplant_FreightType (opcional)
+    function validateInterplantFreightType() {
+        const input = $("#ID_Interplant_FreightType");
+        const errorEl = $("#ID_Interplant_FreightTypeError");
+        if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
+            errorEl.text("").hide(); input.next(".select2-container").find(".select2-selection").css("border", ""); return true;
+        }
+        // Puedes añadir lógica de obligatoriedad si es necesario
+        errorEl.text("").hide(); input.next(".select2-container").find(".select2-selection").css("border", "");
+        return true;
+    }
+
+    // Valida InterplantDeliveryConditions (opcional, límite 350)
+    function validateInterplantDeliveryConditions() {
+        const input = $("#InterplantDeliveryConditions");
+        const errorEl = $("#InterplantDeliveryConditionsError");
+        if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+        errorEl.text("").hide(); input.css("border", "");
+        if (input.val().length > 350) {
+            errorEl.text("Cannot exceed 350 characters.").show(); input.css("border", "1px solid red"); return false;
+        }
+        return true;
+    }
+
+    // Valida InterplantScrapReconciliation (depende del checkbox)
+    function validateInterplantScrapReconciliation() {
+        // Dispara la validación de los campos hijos
+        validateInterplantScrapReconciliationPercent_Min();
+        validateInterplantScrapReconciliationPercent();
+        validateInterplantScrapReconciliationPercent_Max();
+        validateInterplantClientScrapReconciliationPercent();
+        return true; // El checkbox en sí siempre es válido
+    }
+
+    // Valida InterplantScrapReconciliationPercent_Min (rango 0-100, Min <= Optimal <= Max)
+    function validateInterplantScrapReconciliationPercent_Min() {
+        const input = $("#InterplantScrapReconciliationPercent_Min");
+        const errorEl = $("#InterplantScrapReconciliationPercent_MinError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true; // Opcional
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        // Lógica de rangos
+        let optVal = parseFloat($("#InterplantScrapReconciliationPercent").val());
+        let maxVal = parseFloat($("#InterplantScrapReconciliationPercent_Max").val());
+        if (!isNaN(optVal) && val > optVal) { errorEl.text("Min <= Optimal").show(); input.css("border", "1px solid red"); return false; }
+        if (!isNaN(maxVal) && val > maxVal) { errorEl.text("Min <= Max").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    // Valida InterplantScrapReconciliationPercent (rango 0-100, obligatorio si el check está activo)
+    function validateInterplantScrapReconciliationPercent() {
+        const input = $("#InterplantScrapReconciliationPercent");
+        const errorEl = $("#InterplantScrapReconciliationPercentError");
+        const container = $("#InterplantScrapReconciliationPercent_container");
+        if (!container.is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw && $("#InterplantScrapReconciliation").is(":checked")) {
+            errorEl.text("Optimal % is required.").show(); input.css("border", "1px solid red"); return false;
+        }
+        if (raw) {
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        }
+        return true;
+    }
+
+    // ... (Crea funciones similares para _Max y Client)
+    function validateInterplantScrapReconciliationPercent_Max() {
+        const input = $("#InterplantScrapReconciliationPercent_Max");
+        const errorEl = $("#InterplantScrapReconciliationPercent_MaxError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true;
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        let optVal = parseFloat($("#InterplantScrapReconciliationPercent").val());
+        let minVal = parseFloat($("#InterplantScrapReconciliationPercent_Min").val());
+        if (!isNaN(optVal) && val < optVal) { errorEl.text("Max >= Optimal").show(); input.css("border", "1px solid red"); return false; }
+        if (!isNaN(minVal) && val < minVal) { errorEl.text("Max >= Min").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    function validateInterplantClientScrapReconciliationPercent() {
+        const input = $("#InterplantClientScrapReconciliationPercent");
+        const errorEl = $("#InterplantClientScrapReconciliationPercentError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true;
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    // Valida InterplantHeadTailReconciliation (depende del checkbox)
+    function validateInterplantHeadTailReconciliation() {
+        // Dispara la validación de los campos hijos
+        validateInterplantHeadTailReconciliationPercent_Min();
+        validateInterplantHeadTailReconciliationPercent();
+        validateInterplantHeadTailReconciliationPercent_Max();
+        validateInterplantClientHeadTailReconciliationPercent();
+        return true;
+    }
+
+    // ... (Crea 4 funciones de validación para Head/Tail, idénticas a las de Scrap) ...
+    function validateInterplantHeadTailReconciliationPercent_Min() {
+        const input = $("#InterplantHeadTailReconciliationPercent_Min");
+        const errorEl = $("#InterplantHeadTailReconciliationPercent_MinError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true;
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        let optVal = parseFloat($("#InterplantHeadTailReconciliationPercent").val());
+        let maxVal = parseFloat($("#InterplantHeadTailReconciliationPercent_Max").val());
+        if (!isNaN(optVal) && val > optVal) { errorEl.text("Min <= Optimal").show(); input.css("border", "1px solid red"); return false; }
+        if (!isNaN(maxVal) && val > maxVal) { errorEl.text("Min <= Max").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    function validateInterplantHeadTailReconciliationPercent() {
+        const input = $("#InterplantHeadTailReconciliationPercent");
+        const errorEl = $("#InterplantHeadTailReconciliationPercentError");
+        const container = $("#InterplantHeadTailReconciliationPercent_container");
+        if (!container.is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw && $("#InterplantHeadTailReconciliation").is(":checked")) {
+            errorEl.text("Optimal % is required.").show(); input.css("border", "1px solid red"); return false;
+        }
+        if (raw) {
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        }
+        return true;
+    }
+
+    function validateInterplantHeadTailReconciliationPercent_Max() {
+        const input = $("#InterplantHeadTailReconciliationPercent_Max");
+        const errorEl = $("#InterplantHeadTailReconciliationPercent_MaxError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true;
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        let optVal = parseFloat($("#InterplantHeadTailReconciliationPercent").val());
+        let minVal = parseFloat($("#InterplantHeadTailReconciliationPercent_Min").val());
+        if (!isNaN(optVal) && val < optVal) { errorEl.text("Max >= Optimal").show(); input.css("border", "1px solid red"); return false; }
+        if (!isNaN(minVal) && val < minVal) { errorEl.text("Max >= Min").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    function validateInterplantClientHeadTailReconciliationPercent() {
+        const input = $("#InterplantClientHeadTailReconciliationPercent");
+        const errorEl = $("#InterplantClientHeadTailReconciliationPercentError");
+        if (!input.closest('.row').parent().is(":visible")) { errorEl.text("").hide(); input.css("border", ""); return true; }
+        let raw = input.val() ? input.val().trim() : "";
+        errorEl.text("").hide(); input.css("border", "");
+        if (!raw) return true;
+        let val = parseFloat(raw);
+        if (isNaN(val) || val < 0 || val > 100) { errorEl.text("Must be 0-100.").show(); input.css("border", "1px solid red"); return false; }
+        return true;
+    }
+
+    // Valida InterplantOutboundFreightFile (opcional, valida extensión y tamaño)
+    function validateInterplantOutboundFreightFile() {
+        const input = $("#interplantOutboundFreightAdditionalFile");
+        const errorEl = $("#interplantOutboundFreightAdditionalFileError");
+        if (!input.is(":visible")) return true;
+        errorEl.text("").hide(); input.css("border", "");
+        if (input[0].files.length === 0) return true; // Opcional
+        const file = input[0].files[0];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        const allowedExtensions = [".dwg", ".dxf", ".dwt", ".pdf", ".zip", ".rar"];
+        if (file.size > maxSize) {
+            errorEl.text("File size must be 10MB or less.").show(); input.css("border", "1px solid red"); return false;
+        }
+        const fileName = file.name.toLowerCase();
+        if (!allowedExtensions.some(ext => fileName.endsWith(ext))) {
+            errorEl.text("Only DWG, DXF, DWT, PDF, ZIP and RAR files are allowed.").show(); input.css("border", "1px solid red"); return false;
+        }
+        return true;
+    }
+
+    function validateWeightMultsCombination() {
+        // 1. Cambiamos el selector para usar el PESO MÁXIMO (#WeightOfFinalMults_Max)
+        const weightMultsMaxInput = $("#WeightOfFinalMults_Max");
+        const multipliersInput = $("#Multipliers");
+        const masterCoilInput = $("#MasterCoilWeight");
+
+        // 2. El error ahora se mostrará debajo del campo Máximo
+        const errorEl = $("#WeightOfFinalMults_MaxError");
+
+        // Validación de visibilidad
+        if (!weightMultsMaxInput.is(":visible") || weightMultsMaxInput.prop("disabled")) {
+            if (errorEl.text().startsWith("Total max weight")) {
+                errorEl.text("").hide();
+                weightMultsMaxInput.css("border", "");
+            }
+            return true;
+        }
+
+        // Obtener valores numéricos (usando el Máximo)
+        const weightPerMultMax = parseFloat(weightMultsMaxInput.val()) || 0;
+        const multipliers = parseFloat(multipliersInput.val()) || 0;
+        const masterCoilWeight = parseFloat(masterCoilInput.val()) || 0;
+
+        // Si falta algún dato, retornamos true (las reglas individuales validan requeridos)
+        if (weightPerMultMax === 0 || multipliers === 0 || masterCoilWeight === 0) {
+            if (errorEl.text().startsWith("Total max weight")) {
+                errorEl.text("").hide();
+                weightMultsMaxInput.css("border", "");
+            }
+            return true;
+        }
+
+        // Cálculo usando el Peso Máximo
+        const totalCalculatedWeight = weightPerMultMax * multipliers;
+
+        // Comparación y Nuevo Letrero
+        if (totalCalculatedWeight > masterCoilWeight) {
+            errorEl.text(`Total max weight of mults (${totalCalculatedWeight.toFixed(2)}kg) cannot exceed Master Coil Weight (${masterCoilWeight.toFixed(2)}kg).`).show();
+            weightMultsMaxInput.css("border", "1px solid red");
+            return false;
+        }
+
+        // Limpiar error si pasa
+        if (errorEl.text().startsWith("Total max weight")) {
+            errorEl.text("").hide();
+            weightMultsMaxInput.css("border", "");
+        }
+
+        return true;
+    }
+
     // --- Publicación (no se necesitan más cambio en el resto de los archivos)---        
     window.validatePiecesPerPackage = validatePiecesPerPackage;
     window.validatePartName = validatePartName;
@@ -4926,7 +5432,26 @@
     window.validateQuality = validateQuality;
     window.validateIdealCycleTimePerTool = validateIdealCycleTimePerTool;
     window.validateOEE = validateOEE;
-
-
-
+    window.validateInterplantLabelOtherDescription = validateInterplantLabelOtherDescription;
+    window.validateInterplantAdditionalsOtherDescription = validateInterplantAdditionalsOtherDescription;
+    window.validateInterplantStrapTypeObservations = validateInterplantStrapTypeObservations;
+    window.validateInterplantSpecialRequirement = validateInterplantSpecialRequirement;
+    window.validateInterplantSpecialPackaging = validateInterplantSpecialPackaging;
+    window.validateInterplantPackagingFile = validateInterplantPackagingFile;
+    window.validateIsInterplantReturnableRack = validateIsInterplantReturnableRack;
+    window.validateInterplantReturnableUses = validateInterplantReturnableUses;
+    window.validateInterplantFreightType = validateInterplantFreightType;
+    window.validateInterplantDeliveryConditions = validateInterplantDeliveryConditions;
+    window.validateInterplantScrapReconciliation = validateInterplantScrapReconciliation;
+    window.validateInterplantScrapReconciliationPercent_Min = validateInterplantScrapReconciliationPercent_Min;
+    window.validateInterplantScrapReconciliationPercent = validateInterplantScrapReconciliationPercent;
+    window.validateInterplantScrapReconciliationPercent_Max = validateInterplantScrapReconciliationPercent_Max;
+    window.validateInterplantClientScrapReconciliationPercent = validateInterplantClientScrapReconciliationPercent;
+    window.validateInterplantHeadTailReconciliation = validateInterplantHeadTailReconciliation;
+    window.validateInterplantHeadTailReconciliationPercent_Min = validateInterplantHeadTailReconciliationPercent_Min;
+    window.validateInterplantHeadTailReconciliationPercent = validateInterplantHeadTailReconciliationPercent;
+    window.validateInterplantHeadTailReconciliationPercent_Max = validateInterplantHeadTailReconciliationPercent_Max;
+    window.validateInterplantClientHeadTailReconciliationPercent = validateInterplantClientHeadTailReconciliationPercent;
+    window.validateInterplantOutboundFreightFile = validateInterplantOutboundFreightFile;
+    window.validateWeightMultsCombination = validateWeightMultsCombination; 
 })(); // <-- Fin de la IIFE

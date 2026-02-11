@@ -1629,15 +1629,8 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
 
             // Buscar el proyecto por id junto con sus materiales relacionados.
+            // PASO 1: Cargar el proyecto (padre) y sus relaciones DIRECTAS (1-a-1).
             var project = db.CTZ_Projects
-                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Route))
-                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files)) 
-                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files1)) 
-                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_RackTypes))
-                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_Additionals))
-                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_Labels))
-                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_StrapTypes))
-                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantRackTypes)) 
                 .Include(p => p.CTZ_Clients)
                 .Include(p => p.CTZ_OEMClients)
                 .Include(p => p.CTZ_Material_Owner)
@@ -1650,6 +1643,100 @@ namespace Portal_2_0.Controllers
                 return HttpNotFound();
             }
 
+            // PASO 2: Cargar la colección de materiales (hijos) y TODAS sus relaciones (nietos) 
+            // en una CONSULTA SEPARADA, filtrando por el ID del proyecto.
+            var materials = db.CTZ_Project_Materials
+                .Include(m => m.CTZ_Route)           
+                .Include(m => m.CTZ_Material_RackTypes)
+                .Include(m => m.CTZ_Material_Additionals)
+                .Include(m => m.CTZ_Material_Labels)
+                .Include(m => m.CTZ_Material_StrapTypes)
+                .Include(m => m.CTZ_Material_InterplantRackTypes)
+                .Include(m => m.CTZ_Material_InterplantLabelTypes) // <--- Faltaba este Include en tu código original
+                .Include(m => m.CTZ_Material_InterplantAdditionals)
+                .Include(m => m.CTZ_Material_InterplantStrapTypes)
+                .Include(m => m.CTZ_Material_WeldedPlates) // <--- Faltaba este Include en tu código original
+                .Where(m => m.ID_Project == id)
+                .ToList();
+
+            // PASO 3: Recolectar todos los IDs de archivos de los materiales cargados.
+            var allFileIds = new HashSet<int>();
+            foreach (var m in materials)
+            {
+                if (m.ID_File_CAD_Drawing.HasValue) allFileIds.Add(m.ID_File_CAD_Drawing.Value);
+                if (m.ID_File_Packaging.HasValue) allFileIds.Add(m.ID_File_Packaging.Value);
+                if (m.ID_File_InterplantPackaging.HasValue) allFileIds.Add(m.ID_File_InterplantPackaging.Value);
+                if (m.ID_File_InterplantOutboundFreight.HasValue) allFileIds.Add(m.ID_File_InterplantOutboundFreight.Value);
+                if (m.ID_File_TechnicalSheet.HasValue) allFileIds.Add(m.ID_File_TechnicalSheet.Value);
+                if (m.ID_File_Additional.HasValue) allFileIds.Add(m.ID_File_Additional.Value);
+                if (m.ID_File_ArrivalAdditional.HasValue) allFileIds.Add(m.ID_File_ArrivalAdditional.Value);
+                if (m.ID_File_CoilDataAdditional.HasValue) allFileIds.Add(m.ID_File_CoilDataAdditional.Value);
+                if (m.ID_File_SlitterDataAdditional.HasValue) allFileIds.Add(m.ID_File_SlitterDataAdditional.Value);
+                if (m.ID_File_VolumeAdditional.HasValue) allFileIds.Add(m.ID_File_VolumeAdditional.Value);
+                if (m.ID_File_OutboundFreightAdditional.HasValue) allFileIds.Add(m.ID_File_OutboundFreightAdditional.Value);
+                if (m.ID_File_DeliveryPackagingAdditional.HasValue) allFileIds.Add(m.ID_File_DeliveryPackagingAdditional.Value);
+            }
+
+            // PASO 4: Ejecutar UNA consulta para traer solo los METADATOS de los archivos.
+            // Usamos .Select() para proyectar a un nuevo objeto CTZ_Files
+            // Esto evita explícitamente cargar la columna 'Data'.
+            var fileMetadataCache = db.CTZ_Files
+                .Where(f => allFileIds.Contains(f.ID_File))
+                .Select(f => new
+                {
+                    f.ID_File,
+                    f.Name,
+                    f.MineType
+                })
+                .ToDictionary(
+                    f => f.ID_File,
+                    f => new CTZ_Files { ID_File = f.ID_File, Name = f.Name, MineType = f.MineType } // Creamos un objeto CTZ_Files desapegado
+                );
+
+            // PASO 5: "Coser" (Stitch) los metadatos de archivo a los materiales en memoria.
+            foreach (var m in materials)
+            {
+                if (m.ID_File_CAD_Drawing.HasValue && fileMetadataCache.ContainsKey(m.ID_File_CAD_Drawing.Value))
+                    m.CTZ_Files = fileMetadataCache[m.ID_File_CAD_Drawing.Value];
+
+                if (m.ID_File_Packaging.HasValue && fileMetadataCache.ContainsKey(m.ID_File_Packaging.Value))
+                    m.CTZ_Files1 = fileMetadataCache[m.ID_File_Packaging.Value];
+
+                if (m.ID_File_InterplantPackaging.HasValue && fileMetadataCache.ContainsKey(m.ID_File_InterplantPackaging.Value))
+                    m.CTZ_Files2 = fileMetadataCache[m.ID_File_InterplantPackaging.Value];
+
+                if (m.ID_File_InterplantOutboundFreight.HasValue && fileMetadataCache.ContainsKey(m.ID_File_InterplantOutboundFreight.Value))
+                    m.CTZ_Files3 = fileMetadataCache[m.ID_File_InterplantOutboundFreight.Value];
+
+                if (m.ID_File_TechnicalSheet.HasValue && fileMetadataCache.ContainsKey(m.ID_File_TechnicalSheet.Value))
+                    m.CTZ_Files4 = fileMetadataCache[m.ID_File_TechnicalSheet.Value];
+
+                if (m.ID_File_Additional.HasValue && fileMetadataCache.ContainsKey(m.ID_File_Additional.Value))
+                    m.CTZ_Files5 = fileMetadataCache[m.ID_File_Additional.Value];
+
+                if (m.ID_File_ArrivalAdditional.HasValue && fileMetadataCache.ContainsKey(m.ID_File_ArrivalAdditional.Value))
+                    m.CTZ_Files6 = fileMetadataCache[m.ID_File_ArrivalAdditional.Value];
+
+                if (m.ID_File_CoilDataAdditional.HasValue && fileMetadataCache.ContainsKey(m.ID_File_CoilDataAdditional.Value))
+                    m.CTZ_Files7 = fileMetadataCache[m.ID_File_CoilDataAdditional.Value];
+
+                if (m.ID_File_SlitterDataAdditional.HasValue && fileMetadataCache.ContainsKey(m.ID_File_SlitterDataAdditional.Value))
+                    m.CTZ_Files8 = fileMetadataCache[m.ID_File_SlitterDataAdditional.Value];
+
+                if (m.ID_File_VolumeAdditional.HasValue && fileMetadataCache.ContainsKey(m.ID_File_VolumeAdditional.Value))
+                    m.CTZ_Files9 = fileMetadataCache[m.ID_File_VolumeAdditional.Value];
+
+                if (m.ID_File_OutboundFreightAdditional.HasValue && fileMetadataCache.ContainsKey(m.ID_File_OutboundFreightAdditional.Value))
+                    m.CTZ_Files10 = fileMetadataCache[m.ID_File_OutboundFreightAdditional.Value];
+
+                if (m.ID_File_DeliveryPackagingAdditional.HasValue && fileMetadataCache.ContainsKey(m.ID_File_DeliveryPackagingAdditional.Value))
+                    m.CTZ_Files11 = fileMetadataCache[m.ID_File_DeliveryPackagingAdditional.Value];
+            }
+
+            // PASO 3: Asignar manualmente la colección cargada al proyecto.
+            // EF es lo suficientemente inteligente como para "conectar" las entidades.
+            project.CTZ_Project_Materials = materials;
+
             // Ahora que los datos están cargados, llenamos la lista de IDs para cada material.
             if (project.CTZ_Project_Materials != null)
             {
@@ -1661,6 +1748,10 @@ namespace Portal_2_0.Controllers
                     material.SelectedAdditionalIds = material.CTZ_Material_Additionals.Select(a => a.ID_Additional).ToList();
                     material.SelectedLabelIds = material.CTZ_Material_Labels.Select(l => l.ID_LabelType).ToList();
                     material.SelectedStrapTypeIds = material.CTZ_Material_StrapTypes.Select(st => st.ID_StrapType).ToList();
+                    material.SelectedInterplantRackTypeIds = material.CTZ_Material_InterplantRackTypes.Select(rt => rt.ID_RackType).ToList();
+                    material.SelectedInterplantLabelIds = material.CTZ_Material_InterplantLabelTypes.Select(l => l.ID_LabelType).ToList();
+                    material.SelectedInterplantAdditionalIds = material.CTZ_Material_InterplantAdditionals.Select(a => a.ID_Additional).ToList();
+                    material.SelectedInterplantStrapTypeIds = material.CTZ_Material_InterplantStrapTypes.Select(s => s.ID_StrapType).ToList();
 
                     if (material.IsWeldedBlank == true && material.CTZ_Material_WeldedPlates.Any())
                     {
@@ -1704,8 +1795,25 @@ namespace Portal_2_0.Controllers
             #endregion
 
             #region Combo Lists
-            // Cargar lista para "Coil Position"
-            ViewBag.CoilPositionList = new SelectList(db.CTZ_Coil_Position.Where(cp => cp.Active), "ID_Coil_Position", nameof(CTZ_Coil_Position.ConcatDescription));
+            // --- INICIO DE Coil position con N/A ---
+            // 1. Obtenemos la lista de la BD
+            var coilPositionList = db.CTZ_Coil_Position
+                .Where(cp => cp.Active)
+                .OrderBy(cp => cp.Description_EN)
+                .ToList()
+                .Select(cp => new SelectListItem
+                {
+                    Value = cp.ID_Coil_Position.ToString(),
+                    Text = cp.ConcatDescription
+                })
+                .ToList();
+
+            // 2. Insertamos la opción "N/A" al principio con el valor "0"
+            coilPositionList.Insert(0, new SelectListItem { Value = "0", Text = "N/A (Not Applicable)" });
+
+            // 3. Creamos el SelectList a partir de nuestra lista modificada
+            ViewBag.CoilPositionList = new SelectList(coilPositionList, "Value", "Text");
+            // --- FIN DE LA COIL POSITION ---
 
             // 1. Obtener la lista de tipos de transporte de la BD
             var transportTypes = db.CTZ_Transport_Types.Where(t => t.activo).ToList();
@@ -1925,8 +2033,8 @@ namespace Portal_2_0.Controllers
             // Cargar las reglas de Slitting activas para mostrarlas en la advertencia
             ViewBag.SlittingRules = db.CTZ_Slitting_Validation_Rules
              .Include(r => r.CTZ_Production_Lines) // Incluir el nombre de la línea
-             .Where(r => r.Is_Active && r.ID_Production_Line == 8) // Asegúrate de que slitterLineId esté disponible o ajusta el filtro
-             .OrderBy(r => r.CTZ_Production_Lines.Line_Name)
+            .Where(r => r.Is_Active && r.CTZ_Production_Lines.IsSlitter == true && r.CTZ_Production_Lines.ID_Plant == project.ID_Plant)
+            .OrderBy(r => r.CTZ_Production_Lines.Line_Name)
              .ThenBy(r => r.Thickness_Min)
              .ThenBy(r => r.Tensile_Min)
              .Select(r => new SlittingRuleViewModel // Usamos un ViewModel simple para pasar solo los datos necesarios
@@ -1967,7 +2075,8 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult EditClientPartInformation(CTZ_Projects project, List<CTZ_Project_Materials> materials, HttpPostedFileBase archivo, HttpPostedFileBase packaging_archivo,
             HttpPostedFileBase technicalSheetFile, HttpPostedFileBase AdditionalFile, HttpPostedFileBase arrivalAdditionalFile, HttpPostedFileBase coilDataAdditionalFile, HttpPostedFileBase slitterDataAdditionalFile, HttpPostedFileBase volumeAdditionalFile,
-            HttpPostedFileBase outboundFreightAdditionalFile, HttpPostedFileBase deliveryPackagingAdditionalFile
+            HttpPostedFileBase outboundFreightAdditionalFile, HttpPostedFileBase deliveryPackagingAdditionalFile, HttpPostedFileBase interplant_packaging_archivo,
+            HttpPostedFileBase interplantOutboundFreightAdditionalFile
             )
         {
             // Validar permisos
@@ -1977,6 +2086,35 @@ namespace Portal_2_0.Controllers
             // Valida el modelo antes de cualquier operación
             if (!ModelState.IsValid)
             {
+
+                string errorMessage = "Validation errors occurred. Please correct the following errors:\n";
+                // --- INICIO: Código de depuración para errores de validación ---
+                Debug.WriteLine("--- ERRORES DE VALIDACIÓN DE MODELSTATE ---");
+                foreach (var key in ModelState.Keys)
+                {
+                    var state = ModelState[key];
+                    if (state.Errors.Any())
+                    {
+                        Debug.WriteLine($"Campo: {key}");
+                        foreach (var error in state.Errors)
+                        {
+                            // Imprime el error específico
+                            Debug.WriteLine($"  - Error: {error.ErrorMessage}");
+
+                            errorMessage += $"- Campo: {key}, Error: {error.ErrorMessage}\n";
+                            // También puedes revisar si hubo una excepción en el binding
+                            if (error.Exception != null)
+                            {
+                                Debug.WriteLine($"    Excepción: {error.Exception.Message}");
+                            }
+                        }
+                    }
+                }
+
+                throw new Exception(errorMessage);
+
+                Debug.WriteLine("--- FIN DE ERRORES DE VALIDACIÓN ---");
+
                 var vehicles = db.CTZ_Temp_IHS
                 .AsEnumerable()  // Materializa la consulta para usar propiedades calculadas en memoria
                 .Select(x => new VehicleItem
@@ -2072,6 +2210,16 @@ namespace Portal_2_0.Controllers
                                   .ToList();
                 ViewBag.IHSCountries = new SelectList(allIhsCountries, "MEX");
 
+                // 1. Pasar la bandera del proceso interplantas a la vista.
+                ViewBag.RequiresInterplant = project.InterplantProcess;
+
+                // 2. Crear la lista para el nuevo dropdown, excluyendo la planta principal.
+                var interplantList = db.CTZ_plants
+                    .Where(p => p.Active && p.ID_Plant != project.ID_Plant)
+                    .ToList();
+                ViewBag.InterplantPlantList = new SelectList(interplantList, "ID_Plant", "Description");
+
+
                 // --- INICIO DE LA MODIFICACIÓN ---
                 // Cargar lista para "Rack Type"
                 ViewBag.RackTypeList = new SelectList(db.CTZ_Packaging_RackType.Where(r => r.IsActive), "ID_RackType", "RackTypeName");
@@ -2132,11 +2280,20 @@ namespace Portal_2_0.Controllers
                     int? newFileId_VolumeAdditional = saveFileToDb(volumeAdditionalFile);
                     int? newFileId_OutboundFreightAdditional = saveFileToDb(outboundFreightAdditionalFile);
                     int? newFileId_DeliveryPackagingAdditional = saveFileToDb(deliveryPackagingAdditionalFile);
+                    int? newFileId_InterplantPackaging = saveFileToDb(interplant_packaging_archivo);
+                    int? newFileId_InterplantOutboundFreight = saveFileToDb(interplantOutboundFreightAdditionalFile);
 
                     // Obtener el proyecto existente
                     var existingProject = db.CTZ_Projects
-             .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_WeldedPlates)) // Incluir las platinas soldadas
-             .FirstOrDefault(p => p.ID_Project == project.ID_Project);
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_WeldedPlates))
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantRackTypes))
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantLabelTypes))
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantAdditionals))
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_InterplantStrapTypes))
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_WeldedPlates)) // Incluir las platinas soldadas
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files10)) // InterplantPackaging
+                        .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files11))
+                        .FirstOrDefault(p => p.ID_Project == project.ID_Project);
 
                     if (existingProject == null)
                     {
@@ -2259,6 +2416,27 @@ namespace Portal_2_0.Controllers
                         }
                     }
 
+                    var oldInterplantPackagingFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_InterplantPackaging.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_InterplantPackaging.Value }).ToList();
+                    foreach (var oldLink in oldInterplantPackagingFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsInterplantPackagingFile == true || !newMaterial.ID_File_InterplantPackaging.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    var oldInterplantOutboundFreightFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_InterplantOutboundFreight.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_InterplantOutboundFreight.Value }).ToList();
+                    foreach (var oldLink in oldInterplantOutboundFreightFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsInterplantOutboundFreightFile == true || !newMaterial.ID_File_InterplantOutboundFreight.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+
                     // Eliminamos explícitamente los hijos (RackTypes) y luego los padres (Materials).
                     // Esto asegura que EF entienda el orden correcto de eliminación.
                     foreach (var mat in existingProject.CTZ_Project_Materials.ToList())
@@ -2267,6 +2445,10 @@ namespace Portal_2_0.Controllers
                         db.CTZ_Material_Labels.RemoveRange(mat.CTZ_Material_Labels);
                         db.CTZ_Material_Additionals.RemoveRange(mat.CTZ_Material_Additionals);
                         db.CTZ_Material_StrapTypes.RemoveRange(mat.CTZ_Material_StrapTypes);
+                        db.CTZ_Material_InterplantRackTypes.RemoveRange(mat.CTZ_Material_InterplantRackTypes);
+                        db.CTZ_Material_InterplantLabelTypes.RemoveRange(mat.CTZ_Material_InterplantLabelTypes);
+                        db.CTZ_Material_InterplantAdditionals.RemoveRange(mat.CTZ_Material_InterplantAdditionals);
+                        db.CTZ_Material_InterplantStrapTypes.RemoveRange(mat.CTZ_Material_InterplantStrapTypes);
                     }
                     db.CTZ_Project_Materials.RemoveRange(existingProject.CTZ_Project_Materials);
 
@@ -2315,9 +2497,11 @@ namespace Portal_2_0.Controllers
                             if (material.IsVolumeAdditionalFile == true && newFileId_VolumeAdditional.HasValue) material.ID_File_VolumeAdditional = newFileId_VolumeAdditional;
                             if (material.IsOutboundFreightAdditionalFile == true && newFileId_OutboundFreightAdditional.HasValue) material.ID_File_OutboundFreightAdditional = newFileId_OutboundFreightAdditional;
                             if (material.IsDeliveryPackagingAdditionalFile == true && newFileId_DeliveryPackagingAdditional.HasValue) material.ID_File_DeliveryPackagingAdditional = newFileId_DeliveryPackagingAdditional;
+                            if (material.IsInterplantPackagingFile == true && newFileId_InterplantPackaging.HasValue) material.ID_File_InterplantPackaging = newFileId_InterplantPackaging;
+                            if (material.IsInterplantOutboundFreightFile == true && newFileId_InterplantOutboundFreight.HasValue) material.ID_File_InterplantOutboundFreight = newFileId_InterplantOutboundFreight;
                             // Si el valor recibido es 0 (es decir, "N/A"), lo convertimos a null.
-                            if (material.ID_Arrival_Packaging_Type == 0){material.ID_Arrival_Packaging_Type = null;}
-                            if (material.ID_Arrival_Protective_Material == 0){material.ID_Arrival_Protective_Material = null;}
+                            if (material.ID_Arrival_Packaging_Type == 0) { material.ID_Arrival_Packaging_Type = null; }
+                            if (material.ID_Arrival_Protective_Material == 0) { material.ID_Arrival_Protective_Material = null; }
 
                             db.CTZ_Project_Materials.Add(material);
 
@@ -2379,13 +2563,37 @@ namespace Portal_2_0.Controllers
                             }
                             if (material.SelectedInterplantRackTypeIds != null && material.SelectedInterplantRackTypeIds.Any())
                             {
-                                foreach (var interplantRackTypeId in material.SelectedInterplantRackTypeIds)
+                                // Filtramos cualquier ID que sea 0 para evitar el error de FK.
+                                foreach (var interplantRackTypeId in material.SelectedInterplantRackTypeIds.Where(id => id > 0))
                                 {
                                     // Crea la entidad de enlace y EF la asociará al 'material'
                                     material.CTZ_Material_InterplantRackTypes.Add(new CTZ_Material_InterplantRackTypes { ID_RackType = interplantRackTypeId });
                                 }
                             }
+                            if (material.SelectedInterplantLabelIds != null && material.SelectedInterplantLabelIds.Any())
+                            {
+                                // Filtramos cualquier ID que sea 0 (N/A) si es que existiera
+                                foreach (var interplantLabelId in material.SelectedInterplantLabelIds.Where(id => id > 0))
+                                {
+                                    // Crea la entidad de enlace y EF la asociará al 'material'
+                                    material.CTZ_Material_InterplantLabelTypes.Add(new CTZ_Material_InterplantLabelTypes { ID_LabelType = interplantLabelId });
+                                }
+                            }
+                            if (material.SelectedInterplantAdditionalIds != null && material.SelectedInterplantAdditionalIds.Any())
+                            {
+                                foreach (var interplantAdditionalId in material.SelectedInterplantAdditionalIds.Where(id => id > 0))
+                                {
+                                    material.CTZ_Material_InterplantAdditionals.Add(new CTZ_Material_InterplantAdditionals { ID_Additional = interplantAdditionalId });
+                                }
+                            }
 
+                            if (material.SelectedInterplantStrapTypeIds != null && material.SelectedInterplantStrapTypeIds.Any())
+                            {
+                                foreach (var interplantStrapId in material.SelectedInterplantStrapTypeIds.Where(id => id > 0))
+                                {
+                                    material.CTZ_Material_InterplantStrapTypes.Add(new CTZ_Material_InterplantStrapTypes { ID_StrapType = interplantStrapId });
+                                }
+                            }
                             // Asignamos la colección al objeto material. EF entenderá la relación.
                             material.CTZ_Material_RackTypes = rackTypesToAdd;
                             material.CTZ_Material_Labels = labelsToAdd;
@@ -2411,7 +2619,9 @@ namespace Portal_2_0.Controllers
                             m.ID_File_SlitterDataAdditional == fileId ||
                             m.ID_File_VolumeAdditional == fileId ||
                             m.ID_File_OutboundFreightAdditional == fileId ||
-                            m.ID_File_DeliveryPackagingAdditional == fileId
+                            m.ID_File_DeliveryPackagingAdditional == fileId ||
+                            m.ID_File_InterplantPackaging == fileId ||
+                            m.ID_File_InterplantOutboundFreight == fileId
                         );
 
                         if (!isStillReferenced)
@@ -4486,7 +4696,7 @@ namespace Portal_2_0.Controllers
 
         [HttpGet]
         public ActionResult GetMaterialCapacityScenarios(int projectId, int? materialId, int? blkID, string vehicle, double? partsPerVehicle, double? idealCycleTimePerTool,
-                                                         double? blanksPerStroke, double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol, bool OnlyBDMaterials = false)
+                                                         double? blanksPerStroke, double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol, bool OnlyBDMaterials = false, string partNumber = null)
         {
             try
             {
@@ -4497,25 +4707,11 @@ namespace Portal_2_0.Controllers
                 if (project == null)
                     return Json(new { success = false, message = "Proyecto no encontrado." }, JsonRequestBehavior.AllowGet);
 
-                /*** Part number concatenado ***/
-
-                // Agrupamos los materiales por su línea (real o teórica) y concatenamos sus Part_Number
-                var partNumbersByLine = project.CTZ_Project_Materials
-                    .Where(m => (m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line) != null)
-                    .GroupBy(m => m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line)
-                    .ToDictionary(
-                        g => g.Key.Value, // La llave es el ID de la línea
-                                          // El valor es un string con los Part_Number unidos por ", "
-                        g => string.Join(", ", g.Select(m => m.Part_Number).Where(pn => !string.IsNullOrEmpty(pn)))
-                    );
-
-                /**/
 
                 // 2. Obtener el material seleccionado o tratar como nuevo si es null
                 CTZ_Project_Materials selectedMaterial = null;
                 if (!OnlyBDMaterials)
-                { //si onlyBDmaterials no esta activo
-
+                {
                     if (materialId.HasValue)
                     {
                         selectedMaterial = project.CTZ_Project_Materials.FirstOrDefault(m => m.ID_Material == materialId.Value);
@@ -4523,7 +4719,6 @@ namespace Portal_2_0.Controllers
 
                     if (selectedMaterial != null)
                     {
-                        // Actualiza el valor de la línea de producción al blkID
                         selectedMaterial.ID_Real_Blanking_Line = blkID;
                         selectedMaterial.Vehicle = vehicle ?? "";
                         selectedMaterial.Parts_Per_Vehicle = partsPerVehicle;
@@ -4533,14 +4728,12 @@ namespace Portal_2_0.Controllers
                         selectedMaterial.Real_SOP = realSOP;
                         selectedMaterial.Real_EOP = realEOP;
                         selectedMaterial.Annual_Volume = annualVol;
+                        selectedMaterial.Part_Number = partNumber;
                     }
                     else
                     {
-                        // Si no se encontró, se crea un nuevo material.
-                        // Se deben inicializar los campos mínimos requeridos; 
                         selectedMaterial = new CTZ_Project_Materials
                         {
-                            // Aquí asigna el id de proyecto y la línea nueva.
                             ID_Project = project.ID_Project,
                             ID_Real_Blanking_Line = blkID,
                             Vehicle = vehicle ?? "",
@@ -4550,63 +4743,14 @@ namespace Portal_2_0.Controllers
                             OEE = oee,
                             Real_SOP = realSOP,
                             Real_EOP = realEOP,
-                            Annual_Volume = annualVol
+                            Annual_Volume = annualVol,
+                            Part_Number = partNumber
                         };
-
-                        // Agregar el nuevo material a la colección del proyecto.
                         project.CTZ_Project_Materials.Add(selectedMaterial);
                     }
                 }
 
-                // 3. Obtiene la capacidad simulando el cambio de línea para el material seleccionado
-                var summarizeData = project.GetCapacityScenarios(project.CTZ_Project_Materials);
-                // (summarizeData es un Dictionary<int, Dictionary<int, double>>)
-
-                // 4. Convertir el diccionario en un array de objetos para el hansontable
-                var linesDict = db.CTZ_Production_Lines.ToDictionary(x => x.ID_Line, x => x.Description);
-                var fyDict = db.CTZ_Fiscal_Years.ToDictionary(x => x.ID_Fiscal_Year, x => x.Fiscal_Year_Name);
-
-                var allLineIds = summarizeData.Keys.OrderBy(x => x).ToList();
-                var allFYIds = summarizeData.Values
-                    .SelectMany(dict => dict.Keys)
-                    .Distinct()
-                    .OrderBy(x => x)
-                    .ToList();
-
-                var responseData = new List<Dictionary<string, object>>();
-
-                // Construir las filas (por línea)
-                foreach (var lineId in allLineIds)
-                {
-                    var row = new Dictionary<string, object>();
-
-                    string lineName = linesDict.ContainsKey(lineId)
-                        ? linesDict[lineId]
-                        : $"Line#{lineId}";
-                    row["Line"] = lineName;
-                    row["LineId"] = lineId;
-
-                    // V V V --- LÍNEA A AGREGAR --- V V V
-                    row["PartNumbers"] = partNumbersByLine.ContainsKey(lineId) ? partNumbersByLine[lineId] : "";
-                    // ^ ^ ^ --- FIN DE LA LÍNEA A AGREGAR --- ^ ^ ^
-
-                    foreach (var fyId in allFYIds)
-                    {
-                        string fyName = fyDict.ContainsKey(fyId)
-                            ? fyDict[fyId]
-                            : $"FY#{fyId}";
-                        double val = 0.0;
-                        if (summarizeData[lineId].ContainsKey(fyId))
-                        {
-                            val = summarizeData[lineId][fyId];
-                        }
-                        row[fyName] = Math.Round(val, 4);
-                    }
-                    responseData.Add(row);
-                }
-
-                // 5. Determinar el rango efectivo de producción
-                // Primero, tomar Real_SOP y Real_EOP; si no existen, usar SOP_SP/EOP_SP
+                // 3. [MOVIDO] Determinar el rango efectivo de producción ANTES de construir la tabla
                 DateTime effectiveSOP, effectiveEOP;
                 if (selectedMaterial != null && selectedMaterial.Real_SOP.HasValue && selectedMaterial.Real_EOP.HasValue)
                 {
@@ -4620,51 +4764,127 @@ namespace Portal_2_0.Controllers
                 }
                 else
                 {
-                    // Si ninguno existe, no se puede calcular el rango.
                     effectiveSOP = DateTime.MinValue;
                     effectiveEOP = DateTime.MaxValue;
                 }
 
-                // 6. Con el rango efectivo, determinar los FY que entran en el rango.
-                // Considerando que un FY va de octubre a septiembre, se consultan los FY de la BD que se traslapan.
+                // 4. [MOVIDO] Obtener los Nombres de FY que entran en el rango (para el resaltado y cálculo de estatus)
                 var fiscalYearsInRange = db.CTZ_Fiscal_Years
                     .Where(fy => !(fy.End_Date < effectiveSOP || fy.Start_Date > effectiveEOP))
                     .Select(fy => fy.Fiscal_Year_Name)
                     .ToList();
 
-                // 7. Determinar el status del material en base a los valores dentro del rango
-                // Se recorre cada FY dentro del rango (por ejemplo, del FY de la línea asignada, o se decide usar el primer registro de summarizeData)
-                // Aquí se asume que se evalúa el status para la línea real asignada al material.
-                double capacityOver98 = 0;
-                double capacityOver95 = 0;
-                // Por ejemplo, si el material tiene asignada una línea real, la usamos; si no, se recorre el primer grupo.
+                // 5. Agrupamos Part Numbers
+                var partNumbersByLine = project.CTZ_Project_Materials
+                    .Where(m => (m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line) != null)
+                    .GroupBy(m => m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line)
+                    .ToDictionary(
+                        g => g.Key.Value,
+                        g => string.Join(", ", g.Select(m => m.Part_Number).Where(pn => !string.IsNullOrEmpty(pn)))
+                    );
+
+                // 6. Obtiene la capacidad simulada
+                var summarizeData = project.GetCapacityScenarios(project.CTZ_Project_Materials);
+
+                // 7. Preparar diccionarios auxiliares
+                var linesDict = db.CTZ_Production_Lines.ToDictionary(x => x.ID_Line, x => x.Description);
+                var fyDict = db.CTZ_Fiscal_Years.ToDictionary(x => x.ID_Fiscal_Year, x => x.Fiscal_Year_Name);
+
+                var allLineIds = summarizeData.Keys.OrderBy(x => x).ToList();
+                var allFYIds = summarizeData.Values
+                    .SelectMany(dict => dict.Keys)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
+
+                var responseData = new List<Dictionary<string, object>>();
+
+                // Variables para el estatus general del material editado (para los inputs fuera de la tabla)
+                double globalWorstPct = 0;
+                string globalWorstFY = "";
                 int lineForStatus = blkID.HasValue ? blkID.Value : 0;
-                if (summarizeData.ContainsKey(lineForStatus))
+
+                // 8. Construir las filas de la tabla con la NUEVA COLUMNA DE ESTATUS
+                foreach (var lineId in allLineIds)
                 {
-                    foreach (var kvp in summarizeData[lineForStatus])
+                    var row = new Dictionary<string, object>();
+
+                    string lineName = linesDict.ContainsKey(lineId) ? linesDict[lineId] : $"Line#{lineId}";
+                    row["Line"] = lineName;
+                    row["LineId"] = lineId;
+                    row["PartNumbers"] = partNumbersByLine.ContainsKey(lineId) ? partNumbersByLine[lineId] : "";
+
+                    // Variables para calcular el estatus de ESTA LÍNEA en particular
+                    double currentLineWorstPct = 0;
+
+                    foreach (var fyId in allFYIds)
                     {
-                        // Obtener el nombre fiscal para comparar si está en el rango efectivo.
-                        string fyName = fyDict.ContainsKey(kvp.Key) ? fyDict[kvp.Key] : "";
+                        string fyName = fyDict.ContainsKey(fyId) ? fyDict[fyId] : $"FY#{fyId}";
+                        double val = 0.0;
+
+                        if (summarizeData[lineId].ContainsKey(fyId))
+                        {
+                            val = summarizeData[lineId][fyId];
+                        }
+
+                        // Agregamos el valor a la columna del año fiscal
+                        row[fyName] = Math.Round(val, 4);
+
+                        // --- CÁLCULO DE ESTATUS ---
+                        // Solo consideramos este valor si el año fiscal está dentro del rango del proyecto
                         if (fiscalYearsInRange.Contains(fyName))
                         {
-                            double cap = kvp.Value; // valor en decimal (ej. 0.95)
-                            if (cap >= 0.98) capacityOver98 = 1; // se marca que hay uno que supera 100%
-                            if (cap >= 0.95) capacityOver95 = 1;  // se marca que hay uno >=98%
+                            double capPercent = val * 100.0;
+                            if (capPercent > currentLineWorstPct)
+                            {
+                                currentLineWorstPct = capPercent;
+                            }
+
+                            // Lógica para el estatus global (inputs individuales fuera de la tabla)
+                            if (lineId == lineForStatus)
+                            {
+                                if (capPercent > globalWorstPct)
+                                {
+                                    globalWorstPct = capPercent;
+                                    globalWorstFY = fyName;
+                                }
+                            }
                         }
                     }
+
+                    // --- NUEVA LÓGICA: Definir el texto de la columna Status para esta fila ---
+                    string rowStatus;
+                    if (currentLineWorstPct >= 98.0)
+                        rowStatus = "REJECTED";
+                    else if (currentLineWorstPct >= 95.0)
+                        rowStatus = "ON REVIEWED"; // Nota: en tu código usas "ON REVIEWED", en inglés estándar sería "UNDER REVIEW"
+                    else
+                        rowStatus = "APPROVED";
+
+                    row["Status"] = rowStatus; // <--- AQUÍ SE AGREGA LA NUEVA COLUMNA
+
+                    responseData.Add(row);
                 }
+
+                // 9. Calcular el estatus global (para los campos de texto DM_Status)
                 string status_dm;
-                if (capacityOver98 > 0)
+                if (globalWorstPct >= 98.0)
                     status_dm = "REJECTED";
-                else if (capacityOver95 > 0)
+                else if (globalWorstPct >= 95.0)
                     status_dm = "ON REVIEWED";
                 else
                     status_dm = "APPROVED";
 
-                // 8. Devolver en el JSON además del array de datos, la metadata:
-                //    - status_dm: para actualizar el input status_dm
-                //    - highlightedFY: un array de encabezados (FY) que están en el rango de producción (para marcar de un color distinto)
-                return Json(new { success = true, data = responseData, status_dm = status_dm, highlightedFY = fiscalYearsInRange }, JsonRequestBehavior.AllowGet);
+                string status_dm_comment = $"{status_dm}: max value was {globalWorstPct:F2}% in {globalWorstFY}";
+
+                return Json(new
+                {
+                    success = true,
+                    data = responseData,
+                    status_dm = status_dm,
+                    status_dm_comment = status_dm_comment,
+                    highlightedFY = fiscalYearsInRange
+                }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -4673,10 +4893,9 @@ namespace Portal_2_0.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetMaterialCapacityScenariosGraphs(int projectId, int? materialId, int? blkID,
-                                                           string vehicle, double? partsPerVehicle,
-        double? idealCycleTimePerTool, double? blanksPerStroke,
-                                                           double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol, bool OnlyBDMaterials = false, bool isSnapShot = false, int? versionId = null)
+        public ActionResult GetMaterialCapacityScenariosGraphs(int projectId, int? materialId, int? blkID, string vehicle, double? partsPerVehicle,
+                    double? idealCycleTimePerTool, double? blanksPerStroke,double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol, 
+                    bool OnlyBDMaterials = false, bool isSnapShot = false, int? versionId = null, string partNumber = null)
         {
             try
             {
@@ -4721,6 +4940,7 @@ namespace Portal_2_0.Controllers
                         selectedMaterial.Real_SOP = realSOP;
                         selectedMaterial.Real_EOP = realEOP;
                         selectedMaterial.Annual_Volume = annualVol;
+                        selectedMaterial.Part_Number = partNumber;
                     }
                     else
                     {
@@ -4736,7 +4956,8 @@ namespace Portal_2_0.Controllers
                             OEE = oee,
                             Real_SOP = realSOP,
                             Real_EOP = realEOP,
-                            Annual_Volume = annualVol
+                            Annual_Volume = annualVol,
+                            Part_Number = partNumber
                         };
                         project.CTZ_Project_Materials.Add(selectedMaterial);
                     }
