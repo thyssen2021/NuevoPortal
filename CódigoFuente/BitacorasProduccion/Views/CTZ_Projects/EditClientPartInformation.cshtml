@@ -2728,84 +2728,120 @@
                             </div>
 
                             <!-- SECCIÓN DE INPUTS: material-form -->
-                            <div class="material-form">
-                                <!-- TITLE FOR THE MATERIAL FORM -->
-                                <div class="material-form-title">Technical Feasibility</div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <input type="hidden" id="ID_Theoretical_Blanking_Line" name="ID_Theoretical_Blanking_Line" />
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Theoretical_Blanking_Line)</label>
-                                        <input type="text" id="theoretical_blk_line" class="form-control" placeholder="Theoretical Blanking Line" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</label>
-                                        <input type="text" id="Theoretical_Strokes" class="form-control" placeholder="Theoretical Strokes" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label>Theoretical Effective Strokes</label>
-                                        <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</label>
-                                        @if (canEditEngineering)
-                                        {
-                                            @Html.DropDownList("ID_Real_Blanking_Line", (SelectList)ViewBag.LinesList, "Select Line", new { @class = "form-control select2" })
-                                        }
-                                        else
-                                        {
-                                            @Html.DropDownList("ID_Real_Blanking_Line", (SelectList)ViewBag.LinesList, "Select Line", new { @class = "form-control select2", disabled = "disabled" })
-                                        }
-                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))Error" class="error-message" style="color: red; display: none;"></span>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_Strokes)</label>
-                                        <input type="text" id="Real_Strokes" class="form-control" placeholder="Real Strokes" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label>Real Effective Strokes</label>
-                                        <input type="text" id="Real_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
-                                    </div>
-
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</label>
-                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)" min="0" autocomplete="off" @(canEditEngineering ? "" : "readonly") />
-                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))Error" class="error-message" style="color: red; display: none;"></span>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)</label>
-                                        <div style="position: relative; display: inline-block; width: 100%;">
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)" min="0" max="100" style="padding-right: 25px;text-align:right" autocomplete="off" @(canEditEngineering ? "" : "readonly") />
-                                            <span style="position: absolute; right: 10px; top: 44%; transform: translateY(-50%); pointer-events: none; color: #555; font-weight: bold;">%</span>
-
-                                        </div>
-                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))Error" class="error-message" style="color: red; display: none;"></span>
-                                        <small id="oeeCalculationNote" class="form-text text-muted" style="display:none; font-style: italic;"></small>
-
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div id="TonsPerShift_container" class="col-md-3">
-                                        <label>Tons per shift</label>
-                                        <input type="number" step="any" id="TonsPerShift" name="TonsPerShift" class="form-control" placeholder="Tons per shift" min="0" autocomplete="off" @(canEditEngineering ? "" : "readonly") />
-                                        <span id="TonsPerShiftError" class="error-message" style="color: red; display: none;"></span>
-                                    </div>
-
-                                    <div id="SlittingLine_container" class="col-md-3">
-                                        <label>Slitting Line</label>
-                                        <select id="ID_Slitting_Line" name="ID_Slitting_Line" class="form-control select2" @(!canEditEngineering ? "disabled" : "")>
-                                            <option value="">Select a slitting line</option>
-                                        </select>
-                                        <span id="ID_Slitting_LineError" class="error-message" style="color: red; display: none;"></span>
-                                    </div>
-                                </div>
-                                <br />
-                                <button type="button" class="btn btn-success btn btn-add-material" id="id-btn-save-engineering" style="display:none"><i class="fa-solid fa-save"></i> Save Changes</button>
+                    <div class="material-form">
+                        <!-- TITLE FOR THE MATERIAL FORM -->
+                        <div class="material-form-title">Technical Feasibility</div>
+                        <!-- Modulo agregado por Pani -->
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>Client</label>
+                                <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="" value= readonly />
                             </div>
+                            <div class="col-md-3">
+                                <label>Shape</label>
+                                <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label>PC/Stroke</label>
+                                <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label>OEE Client</label>
+                                <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
+                            </div>
+                        </div>
+                        <!-- Termina modulo agregado por Pani-->
+                        <div class="row">
+                            <div class="col-md-3">
+                                <input type="hidden" id="ID_Theoretical_Blanking_Line" name="ID_Theoretical_Blanking_Line" />
+                                <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Theoretical_Blanking_Line)</label>
+                                <input type="text" id="theoretical_blk_line" class="form-control" placeholder="Theoretical Blanking Line" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</label>
+                                <input type="text" id="Theoretical_Strokes" class="form-control" placeholder="Theoretical Strokes" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label>Theoretical Effective Strokes</label>
+                                <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label>Client</label>
+                                <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="" value=readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label>Shape</label>
+                                <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label>PC/Stroke</label>
+                                <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label>OEE Client</label>
+                                <input type="text" id="Theoretical_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</label>
+                                @if (canEditEngineering)
+                                {
+                                    @Html.DropDownList("ID_Real_Blanking_Line", (SelectList)ViewBag.LinesList, "Select Line", new { @class = "form-control select2" })
+                                }
+                                else
+                                {
+                                    @Html.DropDownList("ID_Real_Blanking_Line", (SelectList)ViewBag.LinesList, "Select Line", new { @class = "form-control select2", disabled = "disabled" })
+                                }
+                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))Error" class="error-message" style="color: red; display: none;"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_Strokes)</label>
+                                <input type="text" id="Real_Strokes" class="form-control" placeholder="Real Strokes" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label>Real Effective Strokes</label>
+                                <input type="text" id="Real_Effective_Strokes" class="form-control" placeholder="Strokes * OEE" readonly />
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</label>
+                                <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)" min="0" autocomplete="off" @(canEditEngineering ? "" : "readonly") />
+                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))Error" class="error-message" style="color: red; display: none;"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)</label>
+                                <div style="position: relative; display: inline-block; width: 100%;">
+                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)" min="0" max="100" style="padding-right: 25px;text-align:right" autocomplete="off" @(canEditEngineering ? "" : "readonly") />
+                                    <span style="position: absolute; right: 10px; top: 44%; transform: translateY(-50%); pointer-events: none; color: #555; font-weight: bold;">%</span>
+
+                                </div>
+                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))Error" class="error-message" style="color: red; display: none;"></span>
+                                <small id="oeeCalculationNote" class="form-text text-muted" style="display:none; font-style: italic;"></small>
+
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div id="TonsPerShift_container" class="col-md-3">
+                                <label>Tons per shift</label>
+                                <input type="number" step="any" id="TonsPerShift" name="TonsPerShift" class="form-control" placeholder="Tons per shift" min="0" autocomplete="off" @(canEditEngineering ? "" : "readonly") />
+                                <span id="TonsPerShiftError" class="error-message" style="color: red; display: none;"></span>
+                            </div>
+
+                            <div id="SlittingLine_container" class="col-md-3">
+                                <label>Slitting Line</label>
+                                <select id="ID_Slitting_Line" name="ID_Slitting_Line" class="form-control select2" @(!canEditEngineering ? "disabled" : "")>
+                                    <option value="">Select a slitting line</option>
+                                </select>
+                                <span id="ID_Slitting_LineError" class="error-message" style="color: red; display: none;"></span>
+                            </div>
+                        </div>
+                        <br />
+                        <button type="button" class="btn btn-success btn btn-add-material" id="id-btn-save-engineering" style="display:none"><i class="fa-solid fa-save"></i> Save Changes</button>
+                    </div>
 
                             <!-- SECCIÓN DE INPUTS: material-form -->
                             <div class="material-form">
