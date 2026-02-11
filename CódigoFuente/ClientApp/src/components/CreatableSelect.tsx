@@ -51,9 +51,13 @@ export default function CreatableSelect({ value, onChange, options, placeholder,
     }));
 
     // 2. Filtrar opciones
-    const filteredOptions = safeOptions.filter(o =>
-        o.label.toLowerCase().includes((value || '').toLowerCase())
-    );
+    const filteredOptions = safeOptions.filter(o => {
+        // Aseguramos que ambos lados de la comparación sean Strings válidos
+        const optionLabel = String(o.label || "").toLowerCase();
+        const searchTerm = String(value || "").toLowerCase();
+        
+        return optionLabel.includes(searchTerm);
+    });
 
     // 3. Cerrar al hacer clic fuera
     useEffect(() => {

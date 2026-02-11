@@ -1687,13 +1687,41 @@ namespace Portal_2_0.Controllers
                     .Select(c => new { Value = c, Text = c }) // Formato simple para React
                     .ToList();
 
-                // 2. Obtener lista de Tipos de Material (La necesitarás para la otra columna)
-                // (Adaptado de tu legacy para Saltillo vs Otras plantas)
-                var materialTypes = db.CTZ_Material_Type
-                     .Where(mt => mt.Active)
-                     .OrderBy(mt => mt.Material_Name)
-                     .Select(mt => new { Value = mt.ID_Material_Type, Text = mt.Material_Name })
-                     .ToList();
+                // 2. Obtener lista de Tipos de Material (Lógica Legacy Migrada)
+                // Usamos IEnumerable para que la variable sirva tanto para el if como para el else
+                System.Collections.IEnumerable materialTypes;
+
+                if (project.ID_Plant == 3) // ID 3 = Saltillo (Muestra TODOS)
+                {
+                    materialTypes = db.CTZ_Material_Type
+                        .AsNoTracking()
+                        .Where(mt => mt.Active)
+                        .OrderBy(mt => mt.Material_Name)
+                        .Select(mt => new { Value = mt.ID_Material_Type, Text = mt.Material_Name })
+                        .ToList();
+                }
+                else // Otras Plantas (Filtra por configuración de líneas)
+                {
+                    // A. Obtener IDs de líneas de producción activas de ESTA planta
+                    var plantLineIds = db.CTZ_Production_Lines
+                        .AsNoTracking()
+                        .Where(l => l.ID_Plant == project.ID_Plant && l.Active)
+                        .Select(l => l.ID_Line);
+
+                    // B. Obtener IDs de materiales permitidos en esas líneas (Tabla intermedia)
+                    var allowedMaterialIds = db.CTZ_Material_Type_Lines
+                        .AsNoTracking()
+                        .Where(mtl => plantLineIds.Contains(mtl.ID_Line))
+                        .Select(mtl => mtl.ID_Material_Type);
+
+                    // C. Consultar los materiales finales
+                    materialTypes = db.CTZ_Material_Type
+                        .AsNoTracking()
+                        .Where(mt => mt.Active && allowedMaterialIds.Contains(mt.ID_Material_Type))
+                        .OrderBy(mt => mt.Material_Name)
+                        .Select(mt => new { Value = mt.ID_Material_Type, Text = mt.Material_Name })
+                        .ToList();
+                }
 
                 var routeList = db.CTZ_Route
                  .Where(r => r.Active)
@@ -1922,6 +1950,57 @@ namespace Portal_2_0.Controllers
                 })
                 .ToList();
 
+                // Obtiene las lineas de producción
+                var LinesList = db.CTZ_Production_Lines.Where(x => x.Active && x.ID_Plant == project.ID_Plant).ToList()
+                .Select(s => new { Value = s.ID_Line, Text = s.Description })
+                .ToList();
+
+                // Reglas de Línea Teórica (Carga optimizada)
+                var theoreticalRules = db.CTZ_Theoretical_Line_Criteria
+                    .AsNoTracking()
+                    .Where(r => r.Is_Active && r.ID_Plant == project.ID_Plant)
+                    .Include(r => r.CTZ_Production_Lines) // Importante para obtener el nombre
+                    .ToList()
+                    .Select(r => new
+                    {
+                        // Campos de filtro
+                        materialTypeId = r.ID_Material_Type,
+
+                        // Rangos (Manejo de nullables para JSON)
+                        thicknessMin = r.Thickness_Min,
+                        thicknessMax = r.Thickness_Max,
+                        widthMin = r.Width_Min,
+                        widthMax = r.Width_Max,
+                        pitchMin = r.Pitch_Min,
+                        pitchMax = r.Pitch_Max,
+                        tensileMin = r.Tensile_Min,
+                        tensileMax = r.Tensile_Max,
+
+                        // Resultado y Prioridad
+                        priority = r.Priority,
+                        resultingLineId = r.Resulting_Line_ID,
+                        // Usamos null-coalescing por seguridad
+                        resultingLineName = r.CTZ_Production_Lines != null ? r.CTZ_Production_Lines.Description : "Unknown Line"
+                    })
+                    .ToList();
+
+                // Rangos de Ingeniería (Pre-cargados para evitar AJAX)
+                // Traemos toda la info técnica activa de la planta actual
+                var engineeringRanges = db.CTZ_Technical_Information_Line
+                 .AsNoTracking()
+                 .Where(t => t.IsActive && t.CTZ_Production_Lines.ID_Plant == project.ID_Plant)
+                 .Select(t => new
+                 {
+                     lineId = t.ID_Line,
+                     materialTypeId = t.ID_Material_type,
+                     criteriaId = t.ID_Criteria,
+                     minValue = t.MinValue,
+                     maxValue = t.MaxValue,
+                     numericValue = t.NumericValue,
+                     tolerance = t.AbsoluteTolerance //AGREGAR ESTA LÍNEA
+                 })
+                 .ToList();
+
                 // 3. Empaquetar todas las listas en un objeto
                 var listsPayload = new
                 {
@@ -1940,13 +2019,18 @@ namespace Portal_2_0.Controllers
                     shapes = shapeList,
                     rackTypeList = arrivalRackList,
                     labelList = labelList,
-                    additionalList = additionalList, 
+                    additionalList = additionalList,
                     strapTypeList = strapTypeList,
                     freightTypeList = freightList,
+                    linesList = LinesList,
+                    theoreticalRules = theoreticalRules,
+                    engineeringRanges = engineeringRanges
                 };
 
                 // 4. Serializar las listas (Es seguro usar settings por defecto aquí)
                 ViewBag.ReactLists = JsonConvert.SerializeObject(listsPayload);
+
+
 
                 #endregion
 
@@ -2006,43 +2090,53 @@ namespace Portal_2_0.Controllers
                     // C. Asignar (Stitch) los objetos ligeros a los materiales en memoria
                     foreach (var m in project.CTZ_Project_Materials)
                     {
-                        // Asignamos a las propiedades de navegación correspondientes (CTZ_Files, CTZ_Files1, etc.)
-                        // Basado en el orden típico de EF para tus FKs:
+                        // 0. CAD Drawing
                         if (m.ID_File_CAD_Drawing.HasValue && fileMetadataMap.ContainsKey(m.ID_File_CAD_Drawing.Value))
                             m.CTZ_Files = fileMetadataMap[m.ID_File_CAD_Drawing.Value];
 
+                        // 1. Packaging
                         if (m.ID_File_Packaging.HasValue && fileMetadataMap.ContainsKey(m.ID_File_Packaging.Value))
                             m.CTZ_Files1 = fileMetadataMap[m.ID_File_Packaging.Value];
 
-                        if (m.ID_File_TechnicalSheet.HasValue && fileMetadataMap.ContainsKey(m.ID_File_TechnicalSheet.Value))
-                            m.CTZ_Files2 = fileMetadataMap[m.ID_File_TechnicalSheet.Value];
-
-                        if (m.ID_File_Additional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_Additional.Value))
-                            m.CTZ_Files3 = fileMetadataMap[m.ID_File_Additional.Value];
-
-                        if (m.ID_File_ArrivalAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_ArrivalAdditional.Value))
-                            m.CTZ_Files4 = fileMetadataMap[m.ID_File_ArrivalAdditional.Value];
-
-                        if (m.ID_File_CoilDataAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_CoilDataAdditional.Value))
-                            m.CTZ_Files5 = fileMetadataMap[m.ID_File_CoilDataAdditional.Value];
-
-                        if (m.ID_File_SlitterDataAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_SlitterDataAdditional.Value))
-                            m.CTZ_Files6 = fileMetadataMap[m.ID_File_SlitterDataAdditional.Value];
-
-                        if (m.ID_File_VolumeAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_VolumeAdditional.Value))
-                            m.CTZ_Files7 = fileMetadataMap[m.ID_File_VolumeAdditional.Value];
-
-                        if (m.ID_File_OutboundFreightAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_OutboundFreightAdditional.Value))
-                            m.CTZ_Files8 = fileMetadataMap[m.ID_File_OutboundFreightAdditional.Value];
-
-                        if (m.ID_File_DeliveryPackagingAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_DeliveryPackagingAdditional.Value))
-                            m.CTZ_Files9 = fileMetadataMap[m.ID_File_DeliveryPackagingAdditional.Value];
-
+                        // 2. Interplant Packaging (¡Aquí estaba el cambio!)
                         if (m.ID_File_InterplantPackaging.HasValue && fileMetadataMap.ContainsKey(m.ID_File_InterplantPackaging.Value))
-                            m.CTZ_Files10 = fileMetadataMap[m.ID_File_InterplantPackaging.Value];
+                            m.CTZ_Files2 = fileMetadataMap[m.ID_File_InterplantPackaging.Value];
 
+                        // 3. Interplant Outbound Freight
                         if (m.ID_File_InterplantOutboundFreight.HasValue && fileMetadataMap.ContainsKey(m.ID_File_InterplantOutboundFreight.Value))
-                            m.CTZ_Files11 = fileMetadataMap[m.ID_File_InterplantOutboundFreight.Value];
+                            m.CTZ_Files3 = fileMetadataMap[m.ID_File_InterplantOutboundFreight.Value];
+
+                        // 4. Technical Sheet
+                        if (m.ID_File_TechnicalSheet.HasValue && fileMetadataMap.ContainsKey(m.ID_File_TechnicalSheet.Value))
+                            m.CTZ_Files4 = fileMetadataMap[m.ID_File_TechnicalSheet.Value];
+
+                        // 5. Additional File (Blank Data)
+                        if (m.ID_File_Additional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_Additional.Value))
+                            m.CTZ_Files5 = fileMetadataMap[m.ID_File_Additional.Value];
+
+                        // 6. Arrival Additional (¡ESTE ES EL QUE BUSCABAS!)
+                        if (m.ID_File_ArrivalAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_ArrivalAdditional.Value))
+                            m.CTZ_Files6 = fileMetadataMap[m.ID_File_ArrivalAdditional.Value];
+
+                        // 7. Coil Data Additional
+                        if (m.ID_File_CoilDataAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_CoilDataAdditional.Value))
+                            m.CTZ_Files7 = fileMetadataMap[m.ID_File_CoilDataAdditional.Value];
+
+                        // 8. Slitter Data Additional
+                        if (m.ID_File_SlitterDataAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_SlitterDataAdditional.Value))
+                            m.CTZ_Files8 = fileMetadataMap[m.ID_File_SlitterDataAdditional.Value];
+
+                        // 9. Volume Additional
+                        if (m.ID_File_VolumeAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_VolumeAdditional.Value))
+                            m.CTZ_Files9 = fileMetadataMap[m.ID_File_VolumeAdditional.Value];
+
+                        // 10. Outbound Freight Additional
+                        if (m.ID_File_OutboundFreightAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_OutboundFreightAdditional.Value))
+                            m.CTZ_Files10 = fileMetadataMap[m.ID_File_OutboundFreightAdditional.Value];
+
+                        // 11. Delivery Packaging Additional
+                        if (m.ID_File_DeliveryPackagingAdditional.HasValue && fileMetadataMap.ContainsKey(m.ID_File_DeliveryPackagingAdditional.Value))
+                            m.CTZ_Files11 = fileMetadataMap[m.ID_File_DeliveryPackagingAdditional.Value];
                     }
                 }
 
@@ -2066,7 +2160,7 @@ namespace Portal_2_0.Controllers
                     backUrl = Url.Action("Index", "CTZ_Projects"),
                     getVehiclesUrl = Url.Action("GetIHSByCountry", "CTZ_Projects"),
                     getIHSDetailsUrl = Url.Action("GetIHSDetails", "CTZ_Projects"),
-                    getTheoreticalStrokes = Url.Action("GetTheoreticalStrokes", "CTZ_Projects"), 
+                    getTheoreticalStrokes = Url.Action("GetTheoreticalStrokes", "CTZ_Projects"),
                 };
 
                 // Serializamos para pasarlo a la vista
@@ -2128,7 +2222,8 @@ namespace Portal_2_0.Controllers
                 // 3. OBTENER PRODUCCIÓN
                 var productionList = db.CTZ_Temp_IHS_Production
                     .Where(p => p.ID_IHS == ihsItem.ID_IHS)
-                    .Select(p => new {
+                    .Select(p => new
+                    {
                         p.Production_Year,
                         p.Production_Month,
                         p.Production_Amount
@@ -2160,8 +2255,11 @@ namespace Portal_2_0.Controllers
         }
 
         [HttpPost]
-        // IMPORTANTE: Agregamos el parámetro 'arrivalAdditionalFile' para recibir el binario
-        public JsonResult SaveSingleMaterial(CTZ_Project_Materials material, HttpPostedFileBase arrivalAdditionalFile)
+        public JsonResult SaveSingleMaterial(CTZ_Project_Materials material,
+       // Agrega aquí los parámetros para los otros archivos si tu formulario los envía
+       HttpPostedFileBase arrivalAdditionalFile, HttpPostedFileBase coilDataAdditionalFile,
+       HttpPostedFileBase archivo, HttpPostedFileBase technicalSheetFile, HttpPostedFileBase AdditionalFile
+   )
         {
             try
             {
@@ -2169,37 +2267,51 @@ namespace Portal_2_0.Controllers
                 if (!TieneRol(TipoRoles.CTZ_ACCESO))
                     return Json(new { success = false, message = "Access Denied." });
 
-                // Truco para evitar conflictos con Proxies de EF si usas validaciones internas
                 db.Configuration.ProxyCreationEnabled = false;
 
                 using (var transaction = db.Database.BeginTransaction())
                 {
                     try
                     {
-                        // --- A. LÓGICA DE GUARDADO DE ARCHIVO (NUEVO) ---
-                        // Si el usuario subió un archivo, lo procesamos antes de guardar el material
-                        if (arrivalAdditionalFile != null && arrivalAdditionalFile.ContentLength > 0)
+                        // Diccionario para rastrear qué archivos se subieron y sus nuevos nombres
+                        // Clave: Nombre de la propiedad del ID (ej: "ID_File_ArrivalAdditional")
+                        // Valor: Nombre del archivo (ej: "mi_pdf.pdf")
+                        var uploadedFileNames = new Dictionary<string, string>();
+
+                        // --- A. LÓGICA DE GUARDADO DE ARCHIVOS ---
+                        // Helper local para procesar archivos (evita repetir código 12 veces)
+                        void ProcessFile(HttpPostedFileBase file, Action<int> setMaterialId, string idPropertyName)
                         {
-                            byte[] fileData;
-                            using (var binaryReader = new System.IO.BinaryReader(arrivalAdditionalFile.InputStream))
+                            if (file != null && file.ContentLength > 0)
                             {
-                                fileData = binaryReader.ReadBytes(arrivalAdditionalFile.ContentLength);
+                                byte[] fileData;
+                                using (var binaryReader = new System.IO.BinaryReader(file.InputStream))
+                                {
+                                    fileData = binaryReader.ReadBytes(file.ContentLength);
+                                }
+
+                                var newFile = new CTZ_Files
+                                {
+                                    Name = System.IO.Path.GetFileName(file.FileName),
+                                    MineType = file.ContentType,
+                                    Data = fileData
+                                };
+
+                                db.CTZ_Files.Add(newFile);
+                                db.SaveChanges(); // Guardamos para obtener el ID
+
+                                setMaterialId(newFile.ID_File); // Asignamos el ID al material
+                                uploadedFileNames[idPropertyName] = newFile.Name; // Guardamos el nombre para el retorno
                             }
-
-                            var newFile = new CTZ_Files
-                            {
-                                Name = System.IO.Path.GetFileName(arrivalAdditionalFile.FileName),
-                                MineType = arrivalAdditionalFile.ContentType,
-                                Data = fileData
-                            };
-
-                            db.CTZ_Files.Add(newFile);
-                            db.SaveChanges(); // Guardamos para obtener el ID
-
-                            // Asignamos el nuevo ID al objeto material que llegó del form
-                            material.ID_File_ArrivalAdditional = newFile.ID_File;
                         }
-                        // ---------------------------------------------
+
+                        // Procesamos el archivo que recibimos (Arrival)
+                        ProcessFile(arrivalAdditionalFile, id => material.ID_File_ArrivalAdditional = id, "ID_File_ArrivalAdditional");
+                        ProcessFile(coilDataAdditionalFile, id => material.ID_File_CoilDataAdditional = id, "ID_File_CoilDataAdditional");
+                        ProcessFile(archivo, id => material.ID_File_CAD_Drawing = id, "ID_File_CAD_Drawing");
+                        ProcessFile(technicalSheetFile, id => material.ID_File_TechnicalSheet = id, "ID_File_TechnicalSheet");
+                        ProcessFile(AdditionalFile, id => material.ID_File_Additional = id, "ID_File_Additional");
+
 
                         CTZ_Project_Materials entity;
 
@@ -2210,9 +2322,19 @@ namespace Portal_2_0.Controllers
                             entity = new CTZ_Project_Materials();
                             entity.ID_Project = material.ID_Project;
 
-                            // Si se creó un archivo nuevo, lo asignamos
-                            if (material.ID_File_ArrivalAdditional > 0)
-                                entity.ID_File_ArrivalAdditional = material.ID_File_ArrivalAdditional;
+                            // Asignar IDs de archivos (si traen un ID válido > 0)
+                            if (material.ID_File_CAD_Drawing > 0) entity.ID_File_CAD_Drawing = material.ID_File_CAD_Drawing;
+                            if (material.ID_File_Packaging > 0) entity.ID_File_Packaging = material.ID_File_Packaging;
+                            if (material.ID_File_InterplantPackaging > 0) entity.ID_File_InterplantPackaging = material.ID_File_InterplantPackaging;
+                            if (material.ID_File_InterplantOutboundFreight > 0) entity.ID_File_InterplantOutboundFreight = material.ID_File_InterplantOutboundFreight;
+                            if (material.ID_File_TechnicalSheet > 0) entity.ID_File_TechnicalSheet = material.ID_File_TechnicalSheet;
+                            if (material.ID_File_Additional > 0) entity.ID_File_Additional = material.ID_File_Additional;
+                            if (material.ID_File_ArrivalAdditional > 0) entity.ID_File_ArrivalAdditional = material.ID_File_ArrivalAdditional;
+                            if (material.ID_File_CoilDataAdditional > 0) entity.ID_File_CoilDataAdditional = material.ID_File_CoilDataAdditional;
+                            if (material.ID_File_SlitterDataAdditional > 0) entity.ID_File_SlitterDataAdditional = material.ID_File_SlitterDataAdditional;
+                            if (material.ID_File_VolumeAdditional > 0) entity.ID_File_VolumeAdditional = material.ID_File_VolumeAdditional;
+                            if (material.ID_File_OutboundFreightAdditional > 0) entity.ID_File_OutboundFreightAdditional = material.ID_File_OutboundFreightAdditional;
+                            if (material.ID_File_DeliveryPackagingAdditional > 0) entity.ID_File_DeliveryPackagingAdditional = material.ID_File_DeliveryPackagingAdditional;
 
                             db.CTZ_Project_Materials.Add(entity);
                         }
@@ -2220,24 +2342,46 @@ namespace Portal_2_0.Controllers
                         {
                             // --- UPDATE ---
                             entity = db.CTZ_Project_Materials.Find(material.ID_Material);
-                            if (entity == null)
-                                return Json(new { success = false, message = "Material not found in DB." });
+                            if (entity == null) return Json(new { success = false, message = "Material not found in DB." });
 
-                            // Solo actualizamos el archivo si viene uno nuevo
-                            if (material.ID_File_ArrivalAdditional.HasValue && material.ID_File_ArrivalAdditional > 0)
-                            {
-                                entity.ID_File_ArrivalAdditional = material.ID_File_ArrivalAdditional;
-                            }
+                            // Actualizar IDs solo si vienen en el modelo (se subió nuevo o se mantuvo el anterior)
+                            if (material.ID_File_CAD_Drawing.HasValue) entity.ID_File_CAD_Drawing = material.ID_File_CAD_Drawing;
+                            if (material.ID_File_Packaging.HasValue) entity.ID_File_Packaging = material.ID_File_Packaging;
+                            if (material.ID_File_InterplantPackaging.HasValue) entity.ID_File_InterplantPackaging = material.ID_File_InterplantPackaging;
+                            if (material.ID_File_InterplantOutboundFreight.HasValue) entity.ID_File_InterplantOutboundFreight = material.ID_File_InterplantOutboundFreight;
+                            if (material.ID_File_TechnicalSheet.HasValue) entity.ID_File_TechnicalSheet = material.ID_File_TechnicalSheet;
+                            if (material.ID_File_Additional.HasValue) entity.ID_File_Additional = material.ID_File_Additional;
+                            if (material.ID_File_ArrivalAdditional.HasValue) entity.ID_File_ArrivalAdditional = material.ID_File_ArrivalAdditional;
+                            if (material.ID_File_CoilDataAdditional.HasValue) entity.ID_File_CoilDataAdditional = material.ID_File_CoilDataAdditional;
+                            if (material.ID_File_SlitterDataAdditional.HasValue) entity.ID_File_SlitterDataAdditional = material.ID_File_SlitterDataAdditional;
+                            if (material.ID_File_VolumeAdditional.HasValue) entity.ID_File_VolumeAdditional = material.ID_File_VolumeAdditional;
+                            if (material.ID_File_OutboundFreightAdditional.HasValue) entity.ID_File_OutboundFreightAdditional = material.ID_File_OutboundFreightAdditional;
+                            if (material.ID_File_DeliveryPackagingAdditional.HasValue) entity.ID_File_DeliveryPackagingAdditional = material.ID_File_DeliveryPackagingAdditional;
                         }
 
-                        // 3. Mapeo de campos
+                        // ==============================================================================
+                        // 3. MAPEO COMPLETO DE PROPIEDADES
+                        // ==============================================================================
+
+                        // --- Identificadores y General ---
+                        entity.ID_IHS_Item = material.ID_IHS_Item;
+                        entity.Part_Number = material.Part_Number;
+                        entity.Part_Name = material.Part_Name;
+                        entity.Ship_To = material.Ship_To;
+                        entity.ID_Route = material.ID_Route;
+                        entity.ID_Interplant_Plant = material.ID_Interplant_Plant;
+
+                        // --- Vehículos y Países ---
                         entity.Vehicle = material.Vehicle;
-                        entity.IHS_Country = material.IHS_Country; 
                         entity.Vehicle_2 = material.Vehicle_2;
-                        entity.IHS_Country_2 = material.IHS_Country_2;
                         entity.Vehicle_3 = material.Vehicle_3;
-                        entity.IHS_Country_3 = material.IHS_Country_3; 
+                        entity.Vehicle_4 = material.Vehicle_4;
+                        entity.IHS_Country = material.IHS_Country;
+                        entity.IHS_Country_2 = material.IHS_Country_2;
+                        entity.IHS_Country_3 = material.IHS_Country_3;
                         entity.Vehicle_version = material.Vehicle_version;
+
+                        // --- Fechas y Programas ---
                         entity.Program_SP = material.Program_SP;
                         entity.IsRunningChange = material.IsRunningChange;
                         entity.IsCarryOver = material.IsCarryOver;
@@ -2245,18 +2389,130 @@ namespace Portal_2_0.Controllers
                         entity.EOP_SP = material.EOP_SP;
                         entity.Real_SOP = material.Real_SOP;
                         entity.Real_EOP = material.Real_EOP;
+
+                        // --- Producción ---
                         entity.Max_Production_SP = material.Max_Production_SP;
                         entity.Max_Production_Factor = material.Max_Production_Factor;
                         entity.Max_Production_Effective = material.Max_Production_Effective;
-                        entity.ID_Route = material.ID_Route;
-                        entity.Part_Number = material.Part_Number;
-                        entity.Part_Name = material.Part_Name;
-                        entity.Ship_To = material.Ship_To;
                         entity.Annual_Volume = material.Annual_Volume;
-                        entity.ID_Interplant_Plant = material.ID_Interplant_Plant;
-                        entity.ID_Delivery_Coil_Position = material.ID_Delivery_Coil_Position;
+                        entity.Volume_Per_year = material.Volume_Per_year;
 
-                        // Mapeos adicionales importantes para Arrival
+                        // --- Coil Data ---
+                        entity.Quality = material.Quality;
+                        entity.Tensile_Strenght = material.Tensile_Strenght;
+                        entity.ID_Material_type = material.ID_Material_type;
+                        entity.Mill = material.Mill;
+                        entity.MaterialSpecification = material.MaterialSpecification;
+
+                        entity.Thickness = material.Thickness;
+                        entity.ThicknessToleranceNegative = material.ThicknessToleranceNegative;
+                        entity.ThicknessTolerancePositive = material.ThicknessTolerancePositive;
+
+                        entity.Width = material.Width;
+                        entity.WidthToleranceNegative = material.WidthToleranceNegative;
+                        entity.WidthTolerancePositive = material.WidthTolerancePositive;
+
+                        entity.MasterCoilWeight = material.MasterCoilWeight;
+                        entity.InnerCoilDiameterArrival = material.InnerCoilDiameterArrival;
+                        entity.OuterCoilDiameterArrival = material.OuterCoilDiameterArrival;
+
+                        // --- Slitter Data ---
+                        entity.Multipliers = material.Multipliers;
+                        entity.InnerCoilDiameterDelivery = material.InnerCoilDiameterDelivery;
+                        entity.OuterCoilDiameterDelivery = material.OuterCoilDiameterDelivery;
+                        entity.SlitterEstimatedAnnualVolume = material.SlitterEstimatedAnnualVolume;
+                        entity.ID_Slitting_Line = material.ID_Slitting_Line;
+
+                        entity.Width_Mults = material.Width_Mults;
+                        entity.Width_Mults_Tol_Pos = material.Width_Mults_Tol_Pos;
+                        entity.Width_Mults_Tol_Neg = material.Width_Mults_Tol_Neg;
+
+                        entity.WeightOfFinalMults = material.WeightOfFinalMults;
+                        entity.WeightOfFinalMults_Min = material.WeightOfFinalMults_Min;
+                        entity.WeightOfFinalMults_Max = material.WeightOfFinalMults_Max;
+
+                        // --- Blank Data ---
+                        entity.ID_Shape = material.ID_Shape;
+                        entity.Blanks_Per_Stroke = material.Blanks_Per_Stroke;
+                        entity.Parts_Per_Vehicle = material.Parts_Per_Vehicle;
+                        entity.IsWeldedBlank = material.IsWeldedBlank;
+                        entity.NumberOfPlates = material.NumberOfPlates;
+                        entity.RequiresDieManufacturing = material.RequiresDieManufacturing;
+                        entity.TurnOver = material.TurnOver;
+                        entity.TurnOverSide = material.TurnOverSide;
+
+                        entity.Width_Plates = material.Width_Plates;
+                        entity.Width_Plates_Tol_Pos = material.Width_Plates_Tol_Pos;
+                        entity.Width_Plates_Tol_Neg = material.Width_Plates_Tol_Neg;
+
+                        entity.Pitch = material.Pitch;
+                        entity.PitchToleranceNegative = material.PitchToleranceNegative;
+                        entity.PitchTolerancePositive = material.PitchTolerancePositive;
+
+                        entity.Flatness = material.Flatness;
+                        entity.FlatnessToleranceNegative = material.FlatnessToleranceNegative;
+                        entity.FlatnessTolerancePositive = material.FlatnessTolerancePositive;
+
+                        entity.Angle_A = material.Angle_A;
+                        entity.AngleAToleranceNegative = material.AngleAToleranceNegative;
+                        entity.AngleATolerancePositive = material.AngleATolerancePositive;
+
+                        entity.Angle_B = material.Angle_B;
+                        entity.AngleBToleranceNegative = material.AngleBToleranceNegative;
+                        entity.AngleBTolerancePositive = material.AngleBTolerancePositive;
+
+                        entity.MajorBase = material.MajorBase;
+                        entity.MajorBaseToleranceNegative = material.MajorBaseToleranceNegative;
+                        entity.MajorBaseTolerancePositive = material.MajorBaseTolerancePositive;
+
+                        entity.MinorBase = material.MinorBase;
+                        entity.MinorBaseToleranceNegative = material.MinorBaseToleranceNegative;
+                        entity.MinorBaseTolerancePositive = material.MinorBaseTolerancePositive;
+
+                        entity.Theoretical_Gross_Weight = material.Theoretical_Gross_Weight;
+                        entity.Gross_Weight = material.Gross_Weight;
+                        entity.ClientNetWeight = material.ClientNetWeight;
+
+                        // --- Blanking Volumes ---
+                        entity.Blanking_Annual_Volume = material.Blanking_Annual_Volume;
+                        entity.Blanking_Volume_Per_year = material.Blanking_Volume_Per_year;
+                        entity.Blanking_InitialWeightPerPart = material.Blanking_InitialWeightPerPart;
+                        entity.InitialWeightPerPart = material.InitialWeightPerPart;
+                        entity.Blanking_ProcessTons = material.Blanking_ProcessTons;
+                        entity.Blanking_ShippingTons = material.Blanking_ShippingTons;
+                        entity.WeightPerPart = material.WeightPerPart;
+                        entity.Initial_Weight = material.Initial_Weight;
+                        entity.AnnualTonnage = material.AnnualTonnage;
+                        entity.ShippingTons = material.ShippingTons;
+
+                        // --- Shearing Data ---
+                        entity.Shearing_Pieces_Per_Stroke = material.Shearing_Pieces_Per_Stroke;
+                        entity.Shearing_Pieces_Per_Car = material.Shearing_Pieces_Per_Car;
+                        entity.Shearing_Width = material.Shearing_Width;
+                        entity.Shearing_Width_Tol_Pos = material.Shearing_Width_Tol_Pos;
+                        entity.Shearing_Width_Tol_Neg = material.Shearing_Width_Tol_Neg;
+                        entity.Shearing_Pitch = material.Shearing_Pitch;
+                        entity.Shearing_Pitch_Tol_Pos = material.Shearing_Pitch_Tol_Pos;
+                        entity.Shearing_Pitch_Tol_Neg = material.Shearing_Pitch_Tol_Neg;
+                        entity.Shearing_Weight = material.Shearing_Weight;
+                        entity.Shearing_Weight_Tol_Pos = material.Shearing_Weight_Tol_Pos;
+                        entity.Shearing_Weight_Tol_Neg = material.Shearing_Weight_Tol_Neg;
+
+                        // --- Technical Feasibility ---
+                        entity.ID_Theoretical_Blanking_Line = material.ID_Theoretical_Blanking_Line;
+                        entity.ID_Real_Blanking_Line = material.ID_Real_Blanking_Line;
+                        entity.Theoretical_Strokes = material.Theoretical_Strokes;
+                        entity.Real_Strokes = material.Real_Strokes;
+                        entity.Ideal_Cycle_Time_Per_Tool = material.Ideal_Cycle_Time_Per_Tool;
+                        entity.OEE = material.OEE;
+                        entity.TonsPerShift = material.TonsPerShift;
+
+                        // --- Efficiency & DM ---
+                        entity.DM_status = material.DM_status;
+                        entity.DM_status_comment = material.DM_status_comment;
+
+                        // --- Arrival Conditions ---
+                        entity.ID_Coil_Position = material.ID_Coil_Position;
                         entity.ID_Arrival_Transport_Type = material.ID_Arrival_Transport_Type;
                         entity.Arrival_Transport_Type_Other = material.Arrival_Transport_Type_Other;
                         entity.ID_Arrival_Packaging_Type = material.ID_Arrival_Packaging_Type;
@@ -2268,36 +2524,408 @@ namespace Portal_2_0.Controllers
                         entity.ID_Arrival_Warehouse = material.ID_Arrival_Warehouse;
                         entity.PassesThroughSouthWarehouse = material.PassesThroughSouthWarehouse;
                         entity.Arrival_Comments = material.Arrival_Comments;
-                        entity.Quality = material.Quality;
-                        entity.ID_Material_type = material.ID_Material_type;
-                        entity.Mill = material.Mill;
-                        entity.MaterialSpecification = material.MaterialSpecification;
+
+                        // --- Interplant Delivery ---
+                        entity.ID_InterplantDelivery_Coil_Position = material.ID_InterplantDelivery_Coil_Position;
+                        entity.InterplantPackagingStandard = material.InterplantPackagingStandard;
+                        entity.InterplantRequiresRackManufacturing = material.InterplantRequiresRackManufacturing;
+                        entity.InterplantRequiresDieManufacturing = material.InterplantRequiresDieManufacturing;
+                        entity.InterplantPiecesPerPackage = material.InterplantPiecesPerPackage;
+                        entity.InterplantStacksPerPackage = material.InterplantStacksPerPackage;
+                        entity.InterplantPackageWeight = material.InterplantPackageWeight;
+                        entity.IsInterplantReturnableRack = material.IsInterplantReturnableRack;
+                        entity.InterplantReturnableUses = material.InterplantReturnableUses;
+                        entity.InterplantLabelOtherDescription = material.InterplantLabelOtherDescription;
+                        entity.InterplantAdditionalsOtherDescription = material.InterplantAdditionalsOtherDescription;
+                        entity.InterplantStrapTypeObservations = material.InterplantStrapTypeObservations;
+                        entity.InterplantSpecialRequirement = material.InterplantSpecialRequirement;
+                        entity.InterplantSpecialPackaging = material.InterplantSpecialPackaging;
+
+                        // --- Interplant Freight ---
+                        entity.ID_Interplant_FreightType = material.ID_Interplant_FreightType;
+                        entity.ID_InterplantDelivery_Transport_Type = material.ID_InterplantDelivery_Transport_Type;
+                        entity.InterplantDelivery_Transport_Type_Other = material.InterplantDelivery_Transport_Type_Other;
+                        entity.InterplantLoadPerTransport = material.InterplantLoadPerTransport;
+                        entity.InterplantDeliveryConditions = material.InterplantDeliveryConditions;
+
+                        entity.InterplantScrapReconciliation = material.InterplantScrapReconciliation;
+                        entity.InterplantScrapReconciliationPercent_Min = material.InterplantScrapReconciliationPercent_Min;
+                        entity.InterplantScrapReconciliationPercent = material.InterplantScrapReconciliationPercent;
+                        entity.InterplantScrapReconciliationPercent_Max = material.InterplantScrapReconciliationPercent_Max;
+                        entity.InterplantClientScrapReconciliationPercent = material.InterplantClientScrapReconciliationPercent;
+
+                        entity.InterplantHeadTailReconciliation = material.InterplantHeadTailReconciliation;
+                        entity.InterplantHeadTailReconciliationPercent_Min = material.InterplantHeadTailReconciliationPercent_Min;
+                        entity.InterplantHeadTailReconciliationPercent = material.InterplantHeadTailReconciliationPercent;
+                        entity.InterplantHeadTailReconciliationPercent_Max = material.InterplantHeadTailReconciliationPercent_Max;
+                        entity.InterplantClientHeadTailReconciliationPercent = material.InterplantClientHeadTailReconciliationPercent;
+
+                        // --- Final Delivery ---
+                        entity.ID_Delivery_Coil_Position = material.ID_Delivery_Coil_Position;
+                        entity.PackagingStandard = material.PackagingStandard;
+                        entity.RequiresRackManufacturing = material.RequiresRackManufacturing;
+                        // entity.RequiresDieManufacturing = material.RequiresDieManufacturing; // Comentado en tu ejemplo
+                        entity.PiecesPerPackage = material.PiecesPerPackage;
+                        entity.StacksPerPackage = material.StacksPerPackage;
+                        entity.PackageWeight = material.PackageWeight;
+                        entity.IsReturnableRack = material.IsReturnableRack;
+                        entity.ReturnableUses = material.ReturnableUses;
+                        entity.LabelOtherDescription = material.LabelOtherDescription;
+                        entity.AdditionalsOtherDescription = material.AdditionalsOtherDescription;
+                        entity.StrapTypeObservations = material.StrapTypeObservations;
+                        entity.SpecialRequirement = material.SpecialRequirement;
+                        entity.SpecialPackaging = material.SpecialPackaging;
+
+                        // --- Final Freight ---
+                        entity.ID_FreightType = material.ID_FreightType;
+                        entity.ID_Delivery_Transport_Type = material.ID_Delivery_Transport_Type;
+                        entity.Delivery_Transport_Type_Other = material.Delivery_Transport_Type_Other;
+                        entity.LoadPerTransport = material.LoadPerTransport;
+                        entity.DeliveryConditions = material.DeliveryConditions;
+
+                        entity.ScrapReconciliation = material.ScrapReconciliation;
+                        entity.ScrapReconciliationPercent_Min = material.ScrapReconciliationPercent_Min;
+                        entity.ScrapReconciliationPercent = material.ScrapReconciliationPercent;
+                        entity.ScrapReconciliationPercent_Max = material.ScrapReconciliationPercent_Max;
+                        entity.ClientScrapReconciliationPercent = material.ClientScrapReconciliationPercent;
+
+                        entity.HeadTailReconciliation = material.HeadTailReconciliation;
+                        entity.HeadTailReconciliationPercent_Min = material.HeadTailReconciliationPercent_Min;
+                        entity.HeadTailReconciliationPercent = material.HeadTailReconciliationPercent;
+                        entity.HeadTailReconciliationPercent_Max = material.HeadTailReconciliationPercent_Max;
+                        entity.ClientHeadTailReconciliationPercent = material.ClientHeadTailReconciliationPercent;
+
+                        // --- MAPEO DE IDs DE ARCHIVOS ---
+                        if (material.ID_File_CAD_Drawing.HasValue) entity.ID_File_CAD_Drawing = material.ID_File_CAD_Drawing;
+                        if (material.ID_File_Packaging.HasValue) entity.ID_File_Packaging = material.ID_File_Packaging;
+                        if (material.ID_File_TechnicalSheet.HasValue) entity.ID_File_TechnicalSheet = material.ID_File_TechnicalSheet;
+                        if (material.ID_File_Additional.HasValue) entity.ID_File_Additional = material.ID_File_Additional;
+                        if (material.ID_File_CoilDataAdditional.HasValue) entity.ID_File_CoilDataAdditional = material.ID_File_CoilDataAdditional;
+                        if (material.ID_File_SlitterDataAdditional.HasValue) entity.ID_File_SlitterDataAdditional = material.ID_File_SlitterDataAdditional;
+                        if (material.ID_File_VolumeAdditional.HasValue) entity.ID_File_VolumeAdditional = material.ID_File_VolumeAdditional;
+                        if (material.ID_File_OutboundFreightAdditional.HasValue) entity.ID_File_OutboundFreightAdditional = material.ID_File_OutboundFreightAdditional;
+                        if (material.ID_File_DeliveryPackagingAdditional.HasValue) entity.ID_File_DeliveryPackagingAdditional = material.ID_File_DeliveryPackagingAdditional;
+                        if (material.ID_File_InterplantPackaging.HasValue) entity.ID_File_InterplantPackaging = material.ID_File_InterplantPackaging;
+                        if (material.ID_File_InterplantOutboundFreight.HasValue) entity.ID_File_InterplantOutboundFreight = material.ID_File_InterplantOutboundFreight;
+
+
 
                         // 4. Guardar Cambios
                         db.SaveChanges();
-                        transaction.Commit();
 
-                        string fileNameToReturn = null;
+                        // ==============================================================================
+                        // 4.1. LÓGICA DE PLATINAS SOLDADAS (AGREGAR ESTO)
+                        // ==============================================================================
 
-                        // Caso A: Acabamos de subir uno nuevo
-                        if (arrivalAdditionalFile != null && arrivalAdditionalFile.ContentLength > 0)
+                        // A. Limpieza Previa: Borramos las platinas existentes para este material.
+                        // Esto maneja el caso "Update" limpiamente (borrar viejas -> insertar nuevas).
+                        var existingPlates = db.CTZ_Material_WeldedPlates
+                                               .Where(x => x.ID_Material == entity.ID_Material);
+
+                        db.CTZ_Material_WeldedPlates.RemoveRange(existingPlates);
+
+                        // B. Inserción de Nuevas (Solo si el checkbox está activo y hay JSON)
+                        if (material.IsWeldedBlank == true && !string.IsNullOrEmpty(material.WeldedPlatesJson))
                         {
-                            fileNameToReturn = System.IO.Path.GetFileName(arrivalAdditionalFile.FileName);
+                            // Deserializamos el JSON que viene del React
+                            // Requiere: using Newtonsoft.Json; (al inicio del archivo)
+                            var plates = Newtonsoft.Json.JsonConvert.DeserializeObject<List<WeldedPlateDto>>(material.WeldedPlatesJson);
+
+                            if (plates != null)
+                            {
+                                foreach (var plate in plates)
+                                {
+                                    var newPlate = new CTZ_Material_WeldedPlates
+                                    {
+                                        ID_Material = entity.ID_Material, // Usamos el ID recién guardado
+                                        PlateNumber = plate.PlateNumber,
+                                        Thickness = plate.Thickness
+                                    };
+                                    db.CTZ_Material_WeldedPlates.Add(newPlate);
+                                }
+                            }
                         }
 
-                        // --- SOLUCIÓN ERROR CIRCULAR ---
-                        // No retornes 'entity' directamente. Crea un objeto anónimo limpio.
-                        // Esto rompe la cadena de referencias de Entity Framework.
+                        // Guardamos los cambios de las platinas en la misma transacción
+                        db.SaveChanges();
+
+                        // ==============================================================================
+                        // 4.5. RECUPERACIÓN DE NOMBRES DE ARCHIVOS (CRÍTICO)
+                        // ==============================================================================
+
+                        // Función local para obtener el nombre final:
+                        // 1. Si se subió ahora, usa el nombre del diccionario 'uploadedFileNames'.
+                        // 2. Si no, consulta la BD usando el ID que quedó en la entidad (entity).
+                        string GetFinalFileName(string idKey, int? fileId)
+                        {
+                            // Caso 1: Recién subido
+                            if (uploadedFileNames.ContainsKey(idKey)) return uploadedFileNames[idKey];
+
+                            // Caso 2: Ya existía (no se tocó en este POST)
+                            if (fileId.HasValue && fileId.Value > 0)
+                            {
+                                // Consultamos EF (usamos AsNoTracking para ser ligeros)
+                                var existingFile = db.CTZ_Files.AsNoTracking()
+                                                   .Where(f => f.ID_File == fileId.Value)
+                                                   .Select(f => f.Name)
+                                                   .FirstOrDefault();
+                                return existingFile;
+                            }
+
+                            return null; // No hay archivo
+                        }
+
+                        // Pre-calculamos los nombres antes de cerrar la transacción
+                        var nameArrival = GetFinalFileName("ID_File_ArrivalAdditional", entity.ID_File_ArrivalAdditional);
+                        var nameCoil = GetFinalFileName("ID_File_CoilDataAdditional", entity.ID_File_CoilDataAdditional);
+                        var nameCAD = GetFinalFileName("ID_File_CAD_Drawing", entity.ID_File_CAD_Drawing);
+                        var nameTechnicalSheet = GetFinalFileName("ID_File_TechnicalSheet", entity.ID_File_TechnicalSheet);
+                        var nameAdditional = GetFinalFileName("ID_File_Additional", entity.ID_File_Additional);
+
+                        transaction.Commit();
+
+                        // ==============================================================================
+                        // 5. RETORNO DEL OBJETO COMPLETO (SafeEntity)
+                        // ==============================================================================
+
+                        // Helper para obtener nombres de archivos. 
+                        // Si se subió ahora, usa 'uploadedFileNames'. Si no, usa el que viene del frontend.
+                        string GetFileName(string idKey, string frontendName)
+                        {
+                            if (uploadedFileNames.ContainsKey(idKey)) return uploadedFileNames[idKey];
+                            return frontendName;
+                        }
+
                         var safeEntity = new
                         {
+                            // IDs
                             ID_Material = entity.ID_Material,
                             ID_Project = entity.ID_Project,
-                            ID_File_ArrivalAdditional = entity.ID_File_ArrivalAdditional,
-                            FileName_ArrivalAdditional = fileNameToReturn,
-                            // Agrega aquí solo los campos que necesitas actualizar en el frontend inmediatamente
-                            // o devuelve el mismo input 'material' con el ID actualizado.
+                            ID_IHS_Item = entity.ID_IHS_Item,
+
+                            // General
+                            Part_Number = entity.Part_Number,
+                            Part_Name = entity.Part_Name,
+                            Ship_To = entity.Ship_To,
+
+                            // Vehículos
                             Vehicle = entity.Vehicle,
-                            Part_Number = entity.Part_Number
+                            Vehicle_2 = entity.Vehicle_2,
+                            Vehicle_3 = entity.Vehicle_3,
+                            Vehicle_4 = entity.Vehicle_4,
+                            IHS_Country = entity.IHS_Country,
+                            IHS_Country_2 = entity.IHS_Country_2,
+                            IHS_Country_3 = entity.IHS_Country_3,
+                            Vehicle_version = entity.Vehicle_version,
+                            // Fechas (Formateadas para JSON)
+                            Program_SP = entity.Program_SP,
+                            SOP_SP = entity.SOP_SP.HasValue ? entity.SOP_SP.Value.ToString("yyyy-MM-dd") : null,
+                            EOP_SP = entity.EOP_SP.HasValue ? entity.EOP_SP.Value.ToString("yyyy-MM-dd") : null,
+                            Real_SOP = entity.Real_SOP.HasValue ? entity.Real_SOP.Value.ToString("yyyy-MM-dd") : null,
+                            Real_EOP = entity.Real_EOP.HasValue ? entity.Real_EOP.Value.ToString("yyyy-MM-dd") : null,
+                            IsRunningChange = entity.IsRunningChange,
+                            IsCarryOver = entity.IsCarryOver,
+
+                            // Producción
+                            Max_Production_SP = entity.Max_Production_SP,
+                            Max_Production_Factor = entity.Max_Production_Factor,
+                            Max_Production_Effective = entity.Max_Production_Effective,
+                            Annual_Volume = entity.Annual_Volume,
+                            Volume_Per_year = entity.Volume_Per_year,
+
+                            // Ruta
+                            ID_Route = entity.ID_Route,
+                            ID_Interplant_Plant = entity.ID_Interplant_Plant,
+
+                            // Coil
+                            Quality = entity.Quality,
+                            ID_Material_type = entity.ID_Material_type,
+                            Mill = entity.Mill,
+                            MaterialSpecification = entity.MaterialSpecification,
+                            Tensile_Strenght = entity.Tensile_Strenght,
+                            Thickness = entity.Thickness,
+                            Width = entity.Width,
+                            Pitch = entity.Pitch,
+                            MasterCoilWeight = entity.MasterCoilWeight,
+                            InnerCoilDiameterArrival = entity.InnerCoilDiameterArrival,
+                            entity.OuterCoilDiameterArrival,
+                            entity.ThicknessToleranceNegative,
+                            entity.ThicknessTolerancePositive,
+                            entity.WidthToleranceNegative,
+                            entity.WidthTolerancePositive,
+
+
+                            // Slitter
+                            Multipliers = entity.Multipliers,
+                            InnerCoilDiameterDelivery = entity.InnerCoilDiameterDelivery,
+                            OuterCoilDiameterDelivery = entity.OuterCoilDiameterDelivery,
+                            SlitterEstimatedAnnualVolume = entity.SlitterEstimatedAnnualVolume,
+                            ID_Slitting_Line = entity.ID_Slitting_Line,
+                            Width_Mults = entity.Width_Mults,
+                            WeightOfFinalMults = entity.WeightOfFinalMults,
+
+                            // Blank
+                            ID_Shape = entity.ID_Shape,
+                            Blanks_Per_Stroke = entity.Blanks_Per_Stroke,
+                            Parts_Per_Vehicle = entity.Parts_Per_Vehicle,
+                            Width_Plates = entity.Width_Plates,
+                            Theoretical_Gross_Weight = entity.Theoretical_Gross_Weight,
+                            Gross_Weight = entity.Gross_Weight,
+                            ClientNetWeight = entity.ClientNetWeight,
+                            IsWeldedBlank = entity.IsWeldedBlank,
+                            WeldedPlatesJson = material.WeldedPlatesJson, // Regresamos el JSON para que React lo recicle
+                            NumberOfPlates = entity.NumberOfPlates,
+                            RequiresDieManufacturing = entity.RequiresDieManufacturing,
+                            TurnOver = entity.TurnOver,
+                            TurnOverSide = entity.TurnOverSide,
+                            entity.Width_Plates_Tol_Neg,
+                            entity.Width_Plates_Tol_Pos,
+                            entity.PitchToleranceNegative,
+                            entity.PitchTolerancePositive,
+                            entity.Flatness,
+                            entity.FlatnessTolerancePositive,
+                            entity.FlatnessToleranceNegative,
+                            entity.Angle_A,
+                            entity.AngleATolerancePositive,
+                            entity.AngleAToleranceNegative,
+                            entity.Angle_B,
+                            entity.AngleBTolerancePositive,
+                            entity.AngleBToleranceNegative,
+                            entity.MajorBase,
+                            entity.MajorBaseToleranceNegative,
+                            entity.MajorBaseTolerancePositive,
+                            entity.MinorBase,
+                            entity.MinorBaseToleranceNegative,
+                            entity.MinorBaseTolerancePositive,
+
+                            // Blanking Volumes
+                            Blanking_Annual_Volume = entity.Blanking_Annual_Volume,
+                            InitialWeightPerPart = entity.InitialWeightPerPart,
+                            ShippingTons = entity.ShippingTons,
+
+                            // Technical Feasibility
+                            ID_Theoretical_Blanking_Line = entity.ID_Theoretical_Blanking_Line,
+                            ID_Real_Blanking_Line = entity.ID_Real_Blanking_Line,
+                            Theoretical_Strokes = entity.Theoretical_Strokes,
+                            Real_Strokes = entity.Real_Strokes,
+                            Ideal_Cycle_Time_Per_Tool = entity.Ideal_Cycle_Time_Per_Tool,
+                            OEE = entity.OEE,
+                            TonsPerShift = entity.TonsPerShift,
+                            DM_status = entity.DM_status,
+                            DM_status_comment = entity.DM_status_comment,
+
+                            // Arrival
+                            ID_Coil_Position = entity.ID_Coil_Position,
+                            ID_Arrival_Transport_Type = entity.ID_Arrival_Transport_Type,
+                            Arrival_Transport_Type_Other = entity.Arrival_Transport_Type_Other,
+                            ID_Arrival_Packaging_Type = entity.ID_Arrival_Packaging_Type,
+                            ID_Arrival_Protective_Material = entity.ID_Arrival_Protective_Material,
+                            Arrival_Protective_Material_Other = entity.Arrival_Protective_Material_Other,
+                            Is_By_Container = entity.Is_By_Container,
+                            Is_Stackable = entity.Is_Stackable,
+                            Stackable_Levels = entity.Stackable_Levels,
+                            ID_Arrival_Warehouse = entity.ID_Arrival_Warehouse,
+                            PassesThroughSouthWarehouse = entity.PassesThroughSouthWarehouse,
+                            Arrival_Comments = entity.Arrival_Comments,
+
+                            // Interplant Delivery
+                            ID_InterplantDelivery_Coil_Position = entity.ID_InterplantDelivery_Coil_Position,
+                            InterplantPackagingStandard = entity.InterplantPackagingStandard,
+                            InterplantRequiresRackManufacturing = entity.InterplantRequiresRackManufacturing,
+                            InterplantPiecesPerPackage = entity.InterplantPiecesPerPackage,
+                            InterplantStacksPerPackage = entity.InterplantStacksPerPackage,
+                            InterplantPackageWeight = entity.InterplantPackageWeight,
+                            IsInterplantReturnableRack = entity.IsInterplantReturnableRack,
+                            InterplantReturnableUses = entity.InterplantReturnableUses,
+                            InterplantLabelOtherDescription = entity.InterplantLabelOtherDescription,
+                            InterplantAdditionalsOtherDescription = entity.InterplantAdditionalsOtherDescription,
+                            InterplantStrapTypeObservations = entity.InterplantStrapTypeObservations,
+                            InterplantSpecialRequirement = entity.InterplantSpecialRequirement,
+                            InterplantSpecialPackaging = entity.InterplantSpecialPackaging,
+
+                            // Interplant Freight
+                            ID_Interplant_FreightType = entity.ID_Interplant_FreightType,
+                            ID_InterplantDelivery_Transport_Type = entity.ID_InterplantDelivery_Transport_Type,
+                            InterplantDelivery_Transport_Type_Other = entity.InterplantDelivery_Transport_Type_Other,
+                            InterplantLoadPerTransport = entity.InterplantLoadPerTransport,
+                            InterplantDeliveryConditions = entity.InterplantDeliveryConditions,
+
+                            // Final Delivery
+                            ID_Delivery_Coil_Position = entity.ID_Delivery_Coil_Position,
+                            PackagingStandard = entity.PackagingStandard,
+                            RequiresRackManufacturing = entity.RequiresRackManufacturing,
+                            PiecesPerPackage = entity.PiecesPerPackage,
+                            StacksPerPackage = entity.StacksPerPackage,
+                            PackageWeight = entity.PackageWeight,
+                            IsReturnableRack = entity.IsReturnableRack,
+                            ReturnableUses = entity.ReturnableUses,
+                            LabelOtherDescription = entity.LabelOtherDescription,
+                            AdditionalsOtherDescription = entity.AdditionalsOtherDescription,
+                            StrapTypeObservations = entity.StrapTypeObservations,
+                            SpecialRequirement = entity.SpecialRequirement,
+                            SpecialPackaging = entity.SpecialPackaging,
+
+                            // Final Freight
+                            ID_FreightType = entity.ID_FreightType,
+                            ID_Delivery_Transport_Type = entity.ID_Delivery_Transport_Type,
+                            Delivery_Transport_Type_Other = entity.Delivery_Transport_Type_Other,
+                            LoadPerTransport = entity.LoadPerTransport,
+                            DeliveryConditions = entity.DeliveryConditions,
+
+
+                            // DEBE COOINCIDIR CON fileNameProp
+
+                            // 1. CAD Drawing
+                            ID_File_CAD_Drawing = entity.ID_File_CAD_Drawing,
+                            CADFileName = nameCAD, // (Asegúrate de usar tu variable correspondiente)
+
+                            // 2. Packaging
+                            //ID_File_Packaging = entity.ID_File_Packaging,
+                            //FileName_Packaging = namePackaging,
+
+                            // 3. Interplant Packaging
+                            //ID_File_InterplantPackaging = entity.ID_File_InterplantPackaging,
+                            //InterplantPackagingFileName = nameInterplantPackaging,
+
+                            // 4. Interplant Outbound Freight
+                            //ID_File_InterplantOutboundFreight = entity.ID_File_InterplantOutboundFreight,
+                            //FileName_InterplantOutboundFreight = nameInterplantOutboundFreight,
+
+                            //// 5. Technical Sheet
+                            ID_File_TechnicalSheet = entity.ID_File_TechnicalSheet,
+                            technicalSheetFileName = nameTechnicalSheet,
+
+                            //// 6. Additional File (Blank Data)
+                            ID_File_Additional = entity.ID_File_Additional,
+                            AdditionalFileName = nameAdditional,
+
+                            // 7. Arrival Additional
+                            ID_File_ArrivalAdditional = entity.ID_File_ArrivalAdditional,
+                            arrivalAdditionalFileName = nameArrival,
+
+                            // 8. Coil Data Additional
+                            ID_File_CoilDataAdditional = entity.ID_File_CoilDataAdditional,
+                            coilDataAdditionalFileName = nameCoil,
+
+                            // 9. Slitter Data Additional
+                            //ID_File_SlitterDataAdditional = entity.ID_File_SlitterDataAdditional,
+                            //FileName_SlitterDataAdditional = nameSlitter,
+
+                            //// 10. Volume Additional
+                            //ID_File_VolumeAdditional = entity.ID_File_VolumeAdditional,
+                            //FileName_VolumeAdditional = nameVolume,
+
+                            //// 11. Outbound Freight Additional
+                            //ID_File_OutboundFreightAdditional = entity.ID_File_OutboundFreightAdditional,
+                            //FileName_OutboundFreightAdditional = nameOutboundFreight,
+
+                            //// 12. Delivery Packaging Additional
+                            //ID_File_DeliveryPackagingAdditional = entity.ID_File_DeliveryPackagingAdditional,
+                            //FileName_DeliveryPackagingAdditional = nameDeliveryPackaging
+
+
+
+                            // ... Agrega los demás nombres si el frontend los envía
                         };
 
                         return Json(new { success = true, message = "Saved successfully", data = safeEntity });
@@ -2306,7 +2934,6 @@ namespace Portal_2_0.Controllers
                     {
                         transaction.Rollback();
                         System.Diagnostics.Debug.WriteLine(ex.ToString());
-                        // Devuelve el mensaje interno para entender mejor el error
                         var msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                         return Json(new { success = false, message = "DB Error: " + msg });
                     }
@@ -2318,10 +2945,10 @@ namespace Portal_2_0.Controllers
             }
             finally
             {
-                // Restaurar configuración por si acaso (opcional)
                 db.Configuration.ProxyCreationEnabled = true;
             }
         }
+
         [HttpPost]
         public JsonResult DeleteMaterial(int id)
         {
@@ -2335,6 +2962,7 @@ namespace Portal_2_0.Controllers
                 {
                     try
                     {
+                        // A. Buscar el material con todas sus relaciones
                         var material = db.CTZ_Project_Materials
                             .Include(m => m.CTZ_Material_RackTypes)
                             .Include(m => m.CTZ_Material_Labels)
@@ -2350,7 +2978,24 @@ namespace Portal_2_0.Controllers
                         if (material == null)
                             return Json(new { success = false, message = "Material not found." });
 
-                        // 2. Eliminar dependencias (Hijos)
+                        // B. RECOLECTAR TODOS LOS IDs DE ARCHIVOS QUE TIENE ESTE MATERIAL
+                        // Usamos un HashSet para evitar duplicados si por error el mismo archivo está en 2 columnas
+                        var fileIdsToEvaluate = new HashSet<int>();
+
+                        if (material.ID_File_CAD_Drawing.HasValue) fileIdsToEvaluate.Add(material.ID_File_CAD_Drawing.Value);
+                        if (material.ID_File_Packaging.HasValue) fileIdsToEvaluate.Add(material.ID_File_Packaging.Value);
+                        if (material.ID_File_TechnicalSheet.HasValue) fileIdsToEvaluate.Add(material.ID_File_TechnicalSheet.Value);
+                        if (material.ID_File_Additional.HasValue) fileIdsToEvaluate.Add(material.ID_File_Additional.Value);
+                        if (material.ID_File_ArrivalAdditional.HasValue) fileIdsToEvaluate.Add(material.ID_File_ArrivalAdditional.Value);
+                        if (material.ID_File_CoilDataAdditional.HasValue) fileIdsToEvaluate.Add(material.ID_File_CoilDataAdditional.Value);
+                        if (material.ID_File_SlitterDataAdditional.HasValue) fileIdsToEvaluate.Add(material.ID_File_SlitterDataAdditional.Value);
+                        if (material.ID_File_VolumeAdditional.HasValue) fileIdsToEvaluate.Add(material.ID_File_VolumeAdditional.Value);
+                        if (material.ID_File_OutboundFreightAdditional.HasValue) fileIdsToEvaluate.Add(material.ID_File_OutboundFreightAdditional.Value);
+                        if (material.ID_File_DeliveryPackagingAdditional.HasValue) fileIdsToEvaluate.Add(material.ID_File_DeliveryPackagingAdditional.Value);
+                        if (material.ID_File_InterplantPackaging.HasValue) fileIdsToEvaluate.Add(material.ID_File_InterplantPackaging.Value);
+                        if (material.ID_File_InterplantOutboundFreight.HasValue) fileIdsToEvaluate.Add(material.ID_File_InterplantOutboundFreight.Value);
+
+                        // C. Eliminar dependencias (Hijos/Tablas intermedias)
                         db.CTZ_Material_RackTypes.RemoveRange(material.CTZ_Material_RackTypes);
                         db.CTZ_Material_Labels.RemoveRange(material.CTZ_Material_Labels);
                         db.CTZ_Material_Additionals.RemoveRange(material.CTZ_Material_Additionals);
@@ -2361,10 +3006,70 @@ namespace Portal_2_0.Controllers
                         db.CTZ_Material_InterplantStrapTypes.RemoveRange(material.CTZ_Material_InterplantStrapTypes);
                         db.CTZ_Material_WeldedPlates.RemoveRange(material.CTZ_Material_WeldedPlates);
 
-                        // 3. Eliminar Material (Padre)
+                        // D. Eliminar Material (Padre)
+                        // ES CRÍTICO hacer esto antes de verificar los archivos, para que este material
+                        // no cuente como "uso activo" del archivo.
                         db.CTZ_Project_Materials.Remove(material);
 
+                        // Guardamos cambios parciales para que la eliminación del material sea efectiva en la transacción
+                        // antes de consultar "Any" en el paso siguiente.
                         db.SaveChanges();
+
+                        // E. LIMPIEZA DE ARCHIVOS HUÉRFANOS
+                        // Verificamos cada archivo recolectado. Si no se usa en ningún otro lado, se borra.
+                        if (fileIdsToEvaluate.Count > 0)
+                        {
+                            foreach (var fileId in fileIdsToEvaluate)
+                            {
+                                // 1. Verificar en tabla Principal (excluyendo el que acabamos de borrar)
+                                bool usedInMaterials = db.CTZ_Project_Materials.Any(m =>
+                                    m.ID_File_CAD_Drawing == fileId ||
+                                    m.ID_File_Packaging == fileId ||
+                                    m.ID_File_TechnicalSheet == fileId ||
+                                    m.ID_File_Additional == fileId ||
+                                    m.ID_File_ArrivalAdditional == fileId ||
+                                    m.ID_File_CoilDataAdditional == fileId ||
+                                    m.ID_File_SlitterDataAdditional == fileId ||
+                                    m.ID_File_VolumeAdditional == fileId ||
+                                    m.ID_File_OutboundFreightAdditional == fileId ||
+                                    m.ID_File_DeliveryPackagingAdditional == fileId ||
+                                    m.ID_File_InterplantPackaging == fileId ||
+                                    m.ID_File_InterplantOutboundFreight == fileId
+                                );
+
+                                // Si ya se usa en Materials, no necesitamos consultar el historial, pasamos al siguiente archivo
+                                if (usedInMaterials) continue;
+
+                                // 2. Verificar en tabla Histórica
+                                bool usedInHistory = db.CTZ_Project_Materials_History.Any(h =>
+                                    h.ID_File_CAD_Drawing == fileId ||
+                                    h.ID_File_Packaging == fileId ||
+                                    h.ID_File_TechnicalSheet == fileId ||
+                                    h.ID_File_Additional == fileId ||
+                                    h.ID_File_ArrivalAdditional == fileId ||
+                                    h.ID_File_CoilDataAdditional == fileId ||
+                                    h.ID_File_SlitterDataAdditional == fileId ||
+                                    h.ID_File_VolumeAdditional == fileId ||
+                                    h.ID_File_OutboundFreightAdditional == fileId ||
+                                    h.ID_File_DeliveryPackagingAdditional == fileId ||
+                                    h.ID_File_InterplantPackaging == fileId ||
+                                    h.ID_File_InterplantOutboundFreight == fileId
+                                );
+
+                                if (usedInHistory) continue;
+
+                                // 3. Si llegamos aquí, el archivo es huérfano: Borrarlo.
+                                var fileToDelete = db.CTZ_Files.Find(fileId);
+                                if (fileToDelete != null)
+                                {
+                                    db.CTZ_Files.Remove(fileToDelete);
+                                }
+                            }
+
+                            // Guardamos los cambios de los archivos eliminados
+                            db.SaveChanges();
+                        }
+
                         transaction.Commit();
 
                         return Json(new { success = true, message = "Material deleted successfully." });
@@ -2372,6 +3077,8 @@ namespace Portal_2_0.Controllers
                     catch (Exception ex)
                     {
                         transaction.Rollback();
+                        // Loguear el error interno si es necesario
+                        System.Diagnostics.Debug.WriteLine(ex.ToString());
                         return Json(new { success = false, message = "Error deleting: " + ex.Message });
                     }
                 }
@@ -2381,7 +3088,6 @@ namespace Portal_2_0.Controllers
                 return Json(new { success = false, message = "Server Error: " + ex.Message });
             }
         }
-
         // GET: CTZ_Projects/EditClientPartInformation/{id}
         public ActionResult EditClientPartInformationLegacy(int id, bool details = false, bool legacy = false)
         {
@@ -3307,7 +4013,7 @@ namespace Portal_2_0.Controllers
                             if (material.IsWeldedBlank == true && !string.IsNullOrEmpty(material.WeldedPlatesJson))
                             {
                                 var plates = new System.Web.Script.Serialization.JavaScriptSerializer()
-                                                .Deserialize<List<WeldedPlateInfo>>(material.WeldedPlatesJson);
+                                                .Deserialize<List<WeldedPlateDto>>(material.WeldedPlatesJson);
 
                                 if (plates != null)
                                 {
@@ -3940,7 +4646,7 @@ namespace Portal_2_0.Controllers
                             if (material.IsWeldedBlank == true && !string.IsNullOrEmpty(material.WeldedPlatesJson))
                             {
                                 var plates = new System.Web.Script.Serialization.JavaScriptSerializer()
-                                                .Deserialize<List<WeldedPlateInfo>>(material.WeldedPlatesJson);
+                                                .Deserialize<List<WeldedPlateDto>>(material.WeldedPlatesJson);
 
                                 if (plates != null)
                                 {
@@ -8026,7 +8732,7 @@ namespace Portal_2_0.Controllers
 
     }
     // Helper class para deserializar los datos de las platinas
-    public class WeldedPlateInfo
+    public class WeldedPlateDto
     {
         public int PlateNumber { get; set; }
         public double Thickness { get; set; }

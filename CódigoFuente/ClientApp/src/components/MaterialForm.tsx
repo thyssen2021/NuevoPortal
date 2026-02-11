@@ -8,6 +8,8 @@ import ToleranceReference from './ToleranceReference';
 import IncotermsReference from './IncotermsReference';
 import DynamicField from './DynamicField';
 import { toast, Slide } from 'react-toastify';
+import { calculateTheoreticalLine } from '../utils/theoretical-calculator';
+import { ROUTES } from '../constants'; // Asegúrate de tener tus constantes de rutas
 
 // --- ESTILOS MODERNOS INCRUSTADOS ---
 // Esto le da el look "Panel de Configuración" sin tocar tu site.css
@@ -308,6 +310,23 @@ const modernStyles = `
      border-color: #28a745;
  }
 
+ .modern-nav .nav-link.data-tab {
+     border-left: 6px solid #6f42c1; /* Púrpura Bootstrap */
+     background-color: #f3f0ff;
+     color: #452c7a;
+ }
+ 
+ .modern-nav .nav-link.data-tab.active {
+     background-color: #6f42c1;
+     color: white;
+     border-color: #6f42c1;
+     box-shadow: 0 8px 20px rgba(111, 66, 193, 0.25);
+ }
+ 
+ .modern-nav .nav-link.data-tab:hover:not(.active) {
+     background-color: #e5dbff;
+     border-color: #6f42c1;
+ }
 
 `;
 
@@ -325,8 +344,8 @@ interface Props {
 export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
     interplantProcess, projectStatusId, onSaved, projectPlantId }: Props) {
     // DIAGNÓSTICO
-    console.log('📋 Cargando Configuración de campos:', materialFields);
-    console.log("📦 Listas disponibles:", lists);
+    //console.log('📋 Cargando Configuración de campos:', materialFields);
+    //console.log("📦 Listas disponibles:", lists);
 
     const [formData, setFormData] = useState<Partial<Material>>({
         Max_Production_Factor: 100
@@ -345,7 +364,70 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
         ProductionDataJson?: string
     }>>({});
 
-    const safeFields = Array.isArray(materialFields) ? materialFields : [];
+    // 1. DEFINICIÓN DE RUTAS Y CAMPOS (Para mover los inputs de volumen)
+    const COIL_ROUTES = [
+        ROUTES.COIL_TO_COIL,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP
+    ]; // IDs 6, 11, 12
+
+    const SLITTER_ROUTES = [
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WEIGHT_DIVISION
+    ]; // IDs 7, 8, 9, 10, 13
+
+    // Lista exacta de los campos que acabamos de agregar
+    const VOLUME_FIELDS = [
+        'Annual_Volume',
+        'Volume_Per_year',
+        'WeightPerPart',
+        'Initial_Weight',
+        'AnnualTonnage',
+        'ShippingTons',
+        'ID_File_VolumeAdditional'
+    ];
+
+    // 2. CÁLCULO DINÁMICO DE CAMPOS (Sobrescribe safeFields)
+    const safeFields = useMemo(() => {
+        const rawFields = Array.isArray(materialFields) ? materialFields : [];
+        const currentRoute = Number(formData.ID_Route || 0);
+
+        // Determinamos el destino basado en la ruta
+        let targetSection = 'HIDDEN'; // Por defecto oculto (Caso Blanking)
+
+        if (COIL_ROUTES.includes(currentRoute)) {
+            targetSection = 'Coil Data';
+        } else if (SLITTER_ROUTES.includes(currentRoute)) {
+            targetSection = 'Slitter Data';
+        }
+
+        // Mapeamos la configuración original
+        return rawFields.map(field => {
+            // Si es un campo de volumen, alteramos su sección
+            if (VOLUME_FIELDS.includes(field.name)) {
+
+                // Si la ruta es Blanking (HIDDEN), lo ocultamos con una regla imposible
+                if (targetSection === 'HIDDEN') {
+                    return {
+                        ...field,
+                        section: 'General', // Sección dummy
+                        visibleWhen: { field: 'ID_Project', is: [-9999] } // Nunca será visible
+                    };
+                }
+
+                // Si aplica (Coil o Slitter), lo movemos a esa sección
+                return {
+                    ...field,
+                    section: targetSection
+                };
+            }
+            return field;
+        });
+
+    }, [formData.ID_Route, materialFields]); // Se recalcula al cambiar Ruta
 
     const sections = useMemo(() => {
         if (safeFields.length === 0) return ['General'];
@@ -403,28 +485,57 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 }
             }
             // =======================================================
+            // Parsear Welded Plates AQUÍ MISMO para asegurar que estén listos
+            let hydratedPlates = [];
+            try {
+                const jsonStr = (selectedMaterial as any).WeldedPlatesJson;
+                if (jsonStr && jsonStr !== '[]') {
+                    hydratedPlates = JSON.parse(jsonStr);
+                }
+            } catch (e) {
+                console.error("Error parsing welded plates on load", e);
+            }
+
+            console.log("🔍 DIAGNÓSTICO COIL DATA FILE:");
+            console.log("ID del archivo:", raw.ID_File_CoilDataAdditional);
+            console.log("Objeto CTZ_Files7 completo:", raw.CTZ_Files7);
+            console.log("Nombre plano enviado de C#:", raw.FileName_CoilDataAdditional);
 
             // A. Llenar el formulario con lo que hay en BD (Tu lógica original)
             setFormData({
                 ...selectedMaterial,
+                _weldedPlates: hydratedPlates,
                 Max_Production_Factor: selectedMaterial.Max_Production_Factor ?? 100,
                 Real_SOP: formatMonth(selectedMaterial.Real_SOP),
                 Real_EOP: formatMonth(selectedMaterial.Real_EOP),
                 Surface: computedSurface,
-                //AQUI van los files
-                CADFileName: raw.CTZ_Files?.Name,
-                FileName_Packaging: raw.CTZ_Files1?.Name,
-                InterplantPackagingFileName: (selectedMaterial as any).CTZ_Files2?.Name, // Ajusta CTZ_FilesX al correcto
-                FileName_InterplantOutboundFreight: raw.CTZ_Files3?.Name,
-                TechnicalSheetFileName: raw.CTZ_Files4?.Name,
-                AdditionalFileName: raw.CTZ_Files5?.Name, //En blank data
-                FileName_ArrivalAdditional: raw.CTZ_Files6?.Name,
-                FileName_CoilDataAdditional: raw.CTZ_Files7?.Name,
-                SlitterDataAdditionalFile: raw.CTZ_Files8?.Name,
-                /** PEndiente de Volumen **/
-                FileName_OutboundFreightAdditional: raw.CTZ_Files10?.Name,
-                FileName_DeliveryPackagingAdditional: raw.CTZ_Files11?.Name, // O raw.CTZ_Files9
 
+                //IMPORTANTE: DEBE COINCIDIR CON: fileNameProp
+
+                // 0. CAD Drawing (CTZ_Files)
+                CADFileName: raw.CTZ_Files?.Name || raw.CADFileName,
+                // 1. Packaging (CTZ_Files1)
+                FileName_Packaging: raw.CTZ_Files1?.Name || raw.FileName_Packaging,
+                // 2. Interplant Packaging (CTZ_Files2)
+                InterplantPackagingFileName: raw.CTZ_Files2?.Name || raw.InterplantPackagingFileName,
+                // 3. Interplant Outbound Freight (CTZ_Files3)
+                FileName_InterplantOutboundFreight: raw.CTZ_Files3?.Name || raw.FileName_InterplantOutboundFreight,
+                // 4. Technical Sheet (CTZ_Files4)
+                technicalSheetFileName: raw.CTZ_Files4?.Name || raw.technicalSheetFileName,
+                // 5. Additional File - Blank Data (CTZ_Files5)
+                AdditionalFileName: raw.CTZ_Files5?.Name || raw.AdditionalFileName,
+                // 6. Arrival Additional (CTZ_Files6) - ¡ESTE ERA TU CASO!
+                arrivalAdditionalFileName: raw.CTZ_Files6?.Name || raw.arrivalAdditionalFileName,
+                // 7. Coil Data Additional (CTZ_Files7)
+                coilDataAdditionalFileName: raw.CTZ_Files7?.Name || raw.coilDataAdditionalFileName,
+                // 8. Slitter Data Additional (CTZ_Files8)
+                FileName_SlitterDataAdditional: raw.CTZ_Files8?.Name || raw.FileName_SlitterDataAdditional,
+                // 9. Volume Additional (CTZ_Files9)    
+                FileName_VolumeAdditional: raw.CTZ_Files9?.Name || raw.FileName_VolumeAdditional,
+                // 10. Outbound Freight Additional (CTZ_Files10)
+                FileName_OutboundFreightAdditional: raw.CTZ_Files10?.Name || raw.FileName_OutboundFreightAdditional,
+                // 11. Delivery Packaging Additional (CTZ_Files11)
+                FileName_DeliveryPackagingAdditional: raw.CTZ_Files11?.Name || raw.FileName_DeliveryPackagingAdditional,
 
                 ['_projectPlantId']: projectPlantId,
                 ['_projectInterplantActive']: interplantProcess,
@@ -650,6 +761,7 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
     // -------------------------------------------------------------
     // EFECTO: HIDRATACIÓN DE WELDED PLATES (JSON -> Array)
     // -------------------------------------------------------------
+    /*
     useEffect(() => {
         if (selectedMaterial && (selectedMaterial as any).WeldedPlatesJson) {
             try {
@@ -669,6 +781,7 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
             }
         }
     }, [selectedMaterial]);
+    */
 
     // -------------------------------------------------------------
     // EFECTO: CÁLCULOS DE VOLÚMENES Y TONELAJES (updateCalculatedWeightFields)
@@ -948,35 +1061,313 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
         (formData as any)['OEE'] // Dependencia del OEE si es dinámico
     ]);
 
-    // 1. NUEVA FUNCIÓN: Determina si el campo aplica lógicamente (ignorando la pestaña actual)
-    const isFieldActive = (field: FieldConfig, contextData: any) => {
-        if (field.visibleWhen) {
-            const dependencyName = field.visibleWhen.field;
-            const dependencyValue = (contextData as any)[dependencyName];
+    // -------------------------------------------------------------
+    // EFECTO: CÁLCULO DE REAL STROKES (AJAX)
+    // -------------------------------------------------------------
+    useEffect(() => {
+        // Datos necesarios
+        const realLineId = (formData as any)['ID_Real_Blanking_Line'];
+        const pitch = parseFloat((formData as any)['Pitch']);
+        const rotation = 0; // Hardcodeado 0
 
-            if (field.visibleWhen.is) {
-                // LÓGICA MEJORADA:
+        // Validación: Si no hay línea seleccionada o pitch, limpiar y salir
+        if (!realLineId || isNaN(pitch) || realLineId === 0) {
+            setFormData(prev => {
+                if (!prev['Real_Strokes'] && !prev['Real_Effective_Strokes']) return prev;
+                return {
+                    ...prev,
+                    Real_Strokes: undefined,
+                    Real_Effective_Strokes: undefined
+                };
+            });
+            return;
+        }
 
-                // 1. Si la dependencia es un Array (Checkbox Group)
-                if (Array.isArray(dependencyValue)) {
-                    // Verificamos si ALGUNO de los valores requeridos está en el array seleccionado
-                    // Ej: dependencyValue = [1, 3], required = [3] -> true
-                    const hasIntersection = field.visibleWhen.is.some(reqVal => dependencyValue.includes(reqVal));
-                    if (!hasIntersection) return false;
+        const fetchRealStrokes = async () => {
+            try {
+                const queryParams = new URLSearchParams({
+                    productionLineId: realLineId.toString(),
+                    pitch: pitch.toString(),
+                    rotation: rotation.toString()
+                });
+
+                // Reutilizamos el MISMO endpoint que el teórico
+                const response = await fetch(`${urls.getTheoreticalStrokes}?${queryParams}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const strokes = parseFloat(data.theoreticalStrokes); // El endpoint devuelve "theoreticalStrokes" como nombre de propiedad
+                    const finalStrokes = parseFloat(strokes.toFixed(2));
+
+                    setFormData(prev => {
+                        // Cálculo local de efectivos
+                        const oeeVal = (prev as any)['OEE'] || 85;
+                        const oeeFactor = oeeVal / 100;
+
+                        let effective = 0;
+                        if (finalStrokes > 0 && oeeFactor > 0) {
+                            effective = Math.round(finalStrokes * oeeFactor);
+                        }
+
+                        // Evitar loop si no cambió
+                        if ((prev as any)['Real_Strokes'] === finalStrokes &&
+                            (prev as any)['Real_Effective_Strokes'] === effective) {
+                            return prev;
+                        }
+
+                        return {
+                            ...prev,
+                            Real_Strokes: finalStrokes,
+                            Real_Effective_Strokes: effective
+                        };
+                    });
                 }
-                // 2. Si es un valor simple (Select, Radio)
-                else {
-                    if (!field.visibleWhen.is.includes(dependencyValue)) return false;
+            } catch (error) {
+                console.error("Error fetching real strokes:", error);
+            }
+        };
+
+        // Debounce para no saturar si cambia el Pitch rápido
+        const timeoutId = setTimeout(() => {
+            fetchRealStrokes();
+        }, 500);
+
+        return () => clearTimeout(timeoutId);
+
+    }, [
+        (formData as any)['ID_Real_Blanking_Line'], // Trigger principal
+        (formData as any)['Pitch'],                 // Trigger secundario
+        (formData as any)['OEE']                    // Trigger recálculo
+    ]);
+
+    // 1. Efecto para Cálculo de Línea Teórica
+    useEffect(() => {
+        // ... (Tu lógica de guard para rutas blanking igual que antes) ...
+        const blankingRoutes = [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_RPLTZ, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD];
+        const currentRouteId = formData.ID_Route ?? 0;
+
+        if (!blankingRoutes.includes(currentRouteId)) return;
+
+        // Ejecutar cálculo
+        const result = calculateTheoreticalLine(formData, lists.theoreticalRules || []);
+        const hasRealLine = !!formData.ID_Real_Blanking_Line;
+
+        if (result) {
+            // A. CASO: SE ENCONTRÓ UNA LÍNEA COMPATIBLE
+            if (formData.ID_Theoretical_Blanking_Line !== result.lineId) {
+
+                console.log("🔄 Updating Theoretical Line:", result.lineName);
+
+                setFormData(prev => ({
+                    ...prev,
+                    ID_Theoretical_Blanking_Line: result.lineId
+                }));
+
+                // 👇 LÓGICA DE TOAST INTELIGENTE
+                if (hasRealLine) {
+                    // 1. Buscamos el nombre amigable en la lista de líneas
+                    // Usamos '==' para que coincida aunque uno sea string y el otro number
+                    const realLineObj = lists.linesList?.find((l: any) => l.Value == formData.ID_Real_Blanking_Line);
+                    const realLineName = realLineObj ? realLineObj.Text : "Real Line";
+
+                    toast.info(
+                        <div>
+                            Theoretical Line updated to <strong>{result.lineName}</strong>.<br />
+                            <small>Note: Validation is using <strong>{realLineName}</strong>.</small>
+                        </div>,
+                        { position: "top-right", autoClose: 5000, hideProgressBar: true }
+                    );
+                } else {
+                    toast.info(
+                        <div>
+                            Selected Theoretical Line: <strong>{result.lineName}</strong>
+                        </div>,
+                        { position: "top-right", autoClose: 5000, hideProgressBar: true, transition: Slide }
+                    );
                 }
             }
+        } else {
+            // B. CASO: NO HUBO MATCH
+            if (formData.ID_Theoretical_Blanking_Line) {
+                console.log("⚠️ No matching theoretical line found. Clearing selection.");
 
-            if (field.visibleWhen.hasValue) {
-                if (dependencyValue === null || dependencyValue === undefined || dependencyValue === "") return false;
-                // Si es array, verificar que no esté vacío
-                if (Array.isArray(dependencyValue) && dependencyValue.length === 0) return false;
+                setFormData(prev => ({
+                    ...prev,
+                    ID_Theoretical_Blanking_Line: undefined
+                }));
+
+                // Solo avisamos si NO hay línea real, para no molestar si ya está usando la real.
+                if (!hasRealLine) {
+                    toast.warn(
+                        "Theoretical Line cleared (No match found).",
+                        { position: "top-right", autoClose: 4000, hideProgressBar: true, transition: Slide }
+                    );
+                }
             }
         }
-        return true;
+
+    }, [
+        formData.ID_Route,
+        formData.ID_Material_type,
+        formData.Thickness,
+        formData.Width,
+        formData.Pitch,
+        formData.Tensile_Strenght,
+        formData.ID_Real_Blanking_Line, // 👈 IMPORTANTE: Agregar esta dependencia para que detecte cambios aquí
+        lists.theoreticalRules
+    ]);
+
+    // CÁLCULO DE RANGOS DE INGENIERÍA ACTIVOS
+    const currentEngineeringRanges = useMemo(() => {
+        // 1. Validar que la lista maestra exista
+        if (!lists.engineeringRanges) return [];
+
+        // 2. Obtener y CONVERTIR inputs (Para evitar error String vs Number)
+        const rawReal = (formData as any)['ID_Real_Blanking_Line'];
+        const rawTheo = (formData as any)['ID_Theoretical_Blanking_Line'];
+        const rawMat = (formData as any)['ID_Material_type'];
+
+        const realLineId = Number(rawReal);       // Convierte "5" -> 5
+        const theoreticalLineId = Number(rawTheo);// Convierte "5" -> 5
+        const materialTypeId = Number(rawMat);    // Convierte "2" -> 2
+
+        // 3. Lógica de Decisión: ¿Quién manda?
+        // Si hay línea Real válida (mayor a 0), ella manda. Si no, la Teórica.
+        let activeLineId = 0;
+        let sourceUsed = "";
+
+        if (realLineId && realLineId !== 0 && !isNaN(realLineId)) {
+            activeLineId = realLineId;
+            sourceUsed = "REAL LINE (Prioridad)";
+        } else {
+            activeLineId = theoreticalLineId;
+            sourceUsed = "THEORETICAL LINE (Fallback)";
+        }
+
+        // 4. Filtrado Seguro
+        // Usamos activeLineId que ya es NUMBER seguro
+        const results = lists.engineeringRanges.filter((r: any) =>
+            r.lineId === activeLineId &&
+            r.materialTypeId === materialTypeId
+        );
+
+        // --- 🕵️‍♂️ DEBUG DETALLADO (Mirar Consola) ---
+        console.groupCollapsed(`🔧 Debug Rangos: Usando ${sourceUsed}`);
+        console.log(`1. Inputs Crudos: Real="${rawReal}", Theo="${rawTheo}", Mat="${rawMat}"`);
+        console.log(`2. Inputs Number: Real=${realLineId}, Theo=${theoreticalLineId}, Mat=${materialTypeId}`);
+        console.log(`3. ID Línea Activa: ${activeLineId}`);
+
+        if (results.length === 0) {
+            console.warn(`⚠️ ALERTA: No se encontraron rangos para Línea ID ${activeLineId} y Material ID ${materialTypeId}`);
+            console.log("   ¿Existe esta combinación en la BD (tabla CTZ_Technical_Information_Line)?");
+            // Intento de ayuda: Buscar si existe la línea en la lista, aunque sea con otro material
+            const lineExists = lists.engineeringRanges.some((r: any) => r.lineId === activeLineId);
+            console.log(`   ¿Existen datos para la línea ${activeLineId} con CUALQUIER material? ${lineExists ? 'SÍ' : 'NO'}`);
+        } else {
+            console.log(`✅ ÉXITO: Se encontraron ${results.length} reglas de validación.`);
+        }
+        console.groupEnd();
+        // ---------------------------------------------
+
+        return results;
+
+    }, [
+        (formData as any)['ID_Real_Blanking_Line'],
+        (formData as any)['ID_Theoretical_Blanking_Line'],
+        (formData as any)['ID_Material_type'],
+        lists.engineeringRanges
+    ]);
+
+    // -------------------------------------------------------------
+    // EFECTO: RE-VALIDAR INPUTS CUANDO CAMBIAN LOS RANGOS
+    // Si cambio de línea, los valores actuales pueden volverse válidos o inválidos.
+    // -------------------------------------------------------------
+    useEffect(() => {
+        // 1. Lista de campos que dependen de ingeniería
+        const engineeringFields = [
+            'Tensile_Strenght',
+            'Tensile_Strength',
+            'Thickness',
+            'Width',
+            'Pitch'
+        ];
+
+        // 2. Actualizamos el estado de errores
+        setErrors(prevErrors => {
+            const newErrors = { ...prevErrors };
+            let hasChanges = false;
+
+            engineeringFields.forEach(fieldName => {
+                // Obtenemos el valor actual del formulario
+                const currentValue = (formData as any)[fieldName];
+
+                // Solo validamos si hay un valor escrito (para no llenar de rojos campos vacíos)
+                if (currentValue !== undefined && currentValue !== null && currentValue !== "") {
+
+                    // Ejecutamos la validación compleja con los NUEVOS rangos
+                    const result = validateComplexRules(fieldName, currentValue, formData);
+
+                    // A. Si ahora hay error
+                    if (result.error) {
+                        if (newErrors[fieldName] !== result.error) {
+                            newErrors[fieldName] = result.error;
+                            hasChanges = true;
+                        }
+                    }
+                    // B. Si ya no hay error (se arregló al cambiar de máquina)
+                    else {
+                        if (newErrors[fieldName]) {
+                            delete newErrors[fieldName];
+                            hasChanges = true;
+                        }
+                    }
+                }
+            });
+
+            // Solo actualizamos el estado si hubo cambios reales para evitar render loops
+            return hasChanges ? newErrors : prevErrors;
+        });
+
+        // Opcional: Si manejas warnings también, replica la lógica para setWarnings aquí.
+
+    }, [currentEngineeringRanges]); // 👈 SE DISPARA CUANDO CAMBIAN LOS RANGOS
+
+    // 1. NUEVA FUNCIÓN MEJORADA: Soporta múltiples condiciones (AND)
+    const isFieldActive = (field: FieldConfig, contextData: any) => {
+        // Si no hay reglas de visibilidad, el campo está activo por defecto
+        if (!field.visibleWhen) return true;
+
+        // 1. Normalizamos: Si es un objeto único, lo convertimos en un array de 1 elemento.
+        // Así tratamos todo como una lista de reglas.
+        const rules = Array.isArray(field.visibleWhen) ? field.visibleWhen : [field.visibleWhen];
+
+        // 2. Verificamos que se cumplan TODAS las reglas (every = AND)
+        // Si quisieras lógica OR, usarías .some()
+        return rules.every(rule => {
+            const dependencyName = rule.field;
+            const dependencyValue = (contextData as any)[dependencyName];
+
+            // Regla A: "is" -> El valor debe estar en la lista permitida
+            if (rule.is) {
+                // Caso especial: Si el valor del formulario es un array (ej. Checkbox Group)
+                if (Array.isArray(dependencyValue)) {
+                    // Verificamos si hay intersección (si alguno de los valores seleccionados está permitido)
+                    return rule.is.some((reqVal: any) => dependencyValue.includes(reqVal));
+                }
+                // Caso normal: Valor simple (Select, Radio, Text)
+                else {
+                    return rule.is.includes(dependencyValue);
+                }
+            }
+
+            // Regla B: "hasValue" -> Solo verifica que no esté vacío
+            if (rule.hasValue) {
+                if (dependencyValue === null || dependencyValue === undefined || dependencyValue === "") return false;
+                if (Array.isArray(dependencyValue) && dependencyValue.length === 0) return false;
+            }
+
+            return true;
+        });
     };
 
     // 2. MODIFICAMOS LA FUNCIÓN EXISTENTE para usar la lógica base
@@ -1012,11 +1403,20 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
         }
 
         // 2. Validar si está vacío
-        // Consideramos vacío: null, undefined, string vacío, o 0 (común en selects de ID)
         if (isRequired) {
-            const isEmpty = value === null || value === undefined || value === "" || value === 0;
+            // A. Leemos la configuración directa del campo
+            // fieldConfig ya lo tienes definido al inicio de esta función: 
+            // const fieldConfig = safeFields.find(f => f.name === name);
+
+            const isZeroAllowed = fieldConfig?.allowZero || false;
+
+            // B. Definición de "Vacío":
+            // - null, undefined o "" siempre son vacío.
+            // - 0 es vacío SOLO SI allowZero es false (o undefined).
+            const isEmpty = value === null || value === undefined || value === "" || (!isZeroAllowed && value === 0);
+
             if (isEmpty) {
-                return rules.customMessage || `${fieldConfig.label} is required.`;
+                return rules.customMessage || `${fieldConfig?.label} is required.`;
             }
         }
 
@@ -1047,6 +1447,28 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                     }
                 }
             }
+        }
+
+        // Lógica específica para Real Blanking Line
+        if (name === 'ID_Real_Blanking_Line') {
+            // Si el usuario es ingeniero, el campo es obligatorio
+            // (Asegúrate de tener acceso a la variable canEditEngineering aquí)
+            //if (canEditEngineering) { 
+            //    if (!value || value === "0" || value === 0) {
+            //        return "Real blanking line is required.";
+            //    }
+            //}
+        }
+
+        // Validación Condicional para Ingeniería
+        if (['Ideal_Cycle_Time_Per_Tool', 'OEE'].includes(name)) {
+            /* 
+             if (canEditEngineering) {
+                 if (value === null || value === undefined || value === "") {
+                     return `${fieldConfig?.label} is required.`;
+                 }
+             }
+             */
         }
 
         return "";
@@ -1128,64 +1550,35 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
         const ranges = (window as any).engineeringRanges || [];
         // NOTA: Si 'ranges' viene en props.lists, usa: const ranges = lists.engineeringRanges || [];
 
-        // A) Master Coil Weight (Criterio 17)
-        if (name === 'MasterCoilWeight' && value) {
-            const val = parseFloat(value);
-            const criterio = ranges.find((r: any) => r.ID_Criteria === 17);
-
-            // Función auxiliar para validar rango (copiada de tu lógica legacy/global)
-            // Si no tienes esta función disponible aquí, la podemos implementar inline
-            if (criterio) {
-                if (criterio.NumericValue != null && val !== criterio.NumericValue) {
-                    result.error = `Value must be exactly ${criterio.NumericValue}.`;
-                }
-                else if (criterio.MinValue != null && criterio.MaxValue != null) {
-                    // Nota: Legacy valida "contra criterio", asumo que verifica estar DENTRO del rango
-                    if (val < criterio.MinValue || val > criterio.MaxValue) {
-                        result.error = `Value must be between ${criterio.MinValue} and ${criterio.MaxValue}.`;
-                    }
-                }
-            }
-        }
-
-        // B) Outer Coil Diameter (Criterio 16)
-        if (name === 'OuterCoilDiameterArrival' && value) {
-            const val = parseFloat(value);
-            const criterio = ranges.find((r: any) => r.ID_Criteria === 16);
-            if (criterio) {
-                if (criterio.MinValue != null && criterio.MaxValue != null) {
-                    if (val < criterio.MinValue || val > criterio.MaxValue) {
-                        result.error = `Value must be between ${criterio.MinValue} and ${criterio.MaxValue}.`;
-                    }
-                }
-            }
-        }
 
         // C) Inner Coil Diameter (Criterio 15 + Regla 508/610)
         if (name === 'InnerCoilDiameterArrival' && value) {
-            const val = parseFloat(value);
-            const criterio = ranges.find((r: any) => r.ID_Criteria === 15);
-
-            if (criterio) {
-                // Caso 1: Valor exacto definido en DB
-                if (criterio.NumericValue != null) {
-                    if (val !== criterio.NumericValue) {
-                        result.error = `Value must be exactly ${criterio.NumericValue}.`;
-                    }
-                }
-                // Caso 2: Rango definido (Legacy dice "endpoints only" en su lógica else-if, 
-                // pero revisa si tu regla es "entre" o "solo extremos". 
-                // El legacy dice: val !== min && val !== max. Mantenemos eso.)
-                else if (criterio.MinValue != null && criterio.MaxValue != null) {
-                    if (val !== criterio.MinValue && val !== criterio.MaxValue) {
-                        result.error = `Value must be either ${criterio.MinValue} or ${criterio.MaxValue}.`;
-                    }
-                }
+            // 1. VALIDACIÓN DE FORMATO NUMÉRICO ESTRICTO
+            if (isNaN(Number(value))) {
+                result.error = "Value must be a valid number.";
             } else {
-                // Caso 3: NO hay criterio en DB -> Regla Hardcodeada Legacy
-                // Solo permite 508 o 610
-                if (val !== 508 && val !== 610) {
-                    result.error = "Value must be 508 or 610.";
+                // 2. Lógica de Negocio
+                const val = parseFloat(value);
+                const criterio = ranges.find((r: any) => r.ID_Criteria === 15);
+
+                if (criterio) {
+                    // Caso 1: Valor exacto definido en DB
+                    if (criterio.NumericValue != null) {
+                        if (val !== criterio.NumericValue) {
+                            result.error = `Value must be exactly ${criterio.NumericValue}.`;
+                        }
+                    }
+                    // Caso 2: Rango definido (Extremos solamente)
+                    else if (criterio.MinValue != null && criterio.MaxValue != null) {
+                        if (val !== criterio.MinValue && val !== criterio.MaxValue) {
+                            result.error = `Value must be either ${criterio.MinValue} or ${criterio.MaxValue}.`;
+                        }
+                    }
+                } else {
+                    // Caso 3: NO hay criterio en DB -> Regla Hardcodeada Legacy
+                    if (val !== 508 && val !== 610) {
+                        result.error = "Value must be 508 or 610.";
+                    }
                 }
             }
         }
@@ -1447,6 +1840,98 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
             if (name === 'HeadTailReconciliationPercent_Max' && !isNaN(max)) {
                 if (!isNaN(opt) && max < opt) result.error = "Max cannot be less than Optimal.";
                 if (!isNaN(min) && max < min) result.error = "Max cannot be less than Min.";
+            }
+        }
+
+        // ---------------------------------------------------------
+        // VALIDACIÓN DE RANGOS DE INGENIERÍA (Tensile, Thickness, etc.)
+        // ---------------------------------------------------------        
+        // Solo validamos si hay valor y si tenemos las listas cargadas
+        if (value && currentEngineeringRanges.length > 0) {
+
+            // 2. Helper interno para validar un criterio específico
+            const checkCriteria = (val: number, criteriaId: number) => {
+                const range = currentEngineeringRanges.find((r: any) => r.criteriaId === criteriaId); if (!range) return null;
+
+                // Definimos la tolerancia (si es null, usamos 0)
+                const tol = range.tolerance || 0;
+
+                // Preparamos el sufijo de texto "(+/- 50)"
+                const tolSuffix = tol > 0 ? ` (+/- ${tol})` : '';
+
+                // A. Validación de Rango Completo (Min y Max)
+                if (range.minValue !== null && range.maxValue !== null) {
+                    const effectiveMin = range.minValue - tol;
+                    const effectiveMax = range.maxValue + tol;
+
+                    // Si está fuera de los límites efectivos (Base +/- Tolerancia)
+                    if (val < effectiveMin || val > effectiveMax) {
+                        return `Allowed range: ${range.minValue} - ${range.maxValue}${tolSuffix}`;
+                    }
+                }
+
+                // B. Validación Solo Máximo
+                else if (range.maxValue !== null) {
+                    const effectiveMax = range.maxValue + tol;
+                    if (val > effectiveMax) {
+                        return `Max allowed: ${range.maxValue}${tolSuffix}`;
+                    }
+                }
+
+                // C. Validación Solo Mínimo
+                else if (range.minValue !== null) {
+                    const effectiveMin = range.minValue - tol;
+                    if (val < effectiveMin) {
+                        return `Min allowed: ${range.minValue}${tolSuffix}`;
+                    }
+                }
+
+                // D. Validación Valor Exacto
+                else if (range.numericValue !== null) {
+                    const minExact = range.numericValue - tol;
+                    const maxExact = range.numericValue + tol;
+                    if (val < minExact || val > maxExact) {
+                        return `Required value: ${range.numericValue}${tolSuffix}`;
+                    }
+                }
+
+                return null;
+            };
+
+            const numVal = parseFloat(value);
+
+            if (!isNaN(numVal)) {
+                // ID 14 = Tensile Strength
+                if (name === 'Tensile_Strenght' || name === 'Tensile_Strength') {
+                    const msg = checkCriteria(numVal, 14);
+                    if (msg) result.error = msg;
+                }
+
+                // ID 7 = Thickness (Gauge - Metric)
+                if (name === 'Thickness') {
+                    const msg = checkCriteria(numVal, 7); // 👈 ID 7
+                    if (msg) result.error = msg;
+                }
+
+                // ID 8 = Width (Longitudinal Width)
+                if (name === 'Width') {
+                    const msg = checkCriteria(numVal, 8); // 👈 ID 8
+                    if (msg) result.error = msg;
+                }
+
+                // ID 9 = Pitch (Longitudinal Pitch)
+                if (name === 'Pitch') {
+                    const msg = checkCriteria(numVal, 9); // 👈 ID 9
+                    if (msg) result.error = msg;
+                }
+                if (name === 'OuterCoilDiameterArrival') {
+                    const msg = checkCriteria(numVal, 16); // ID 16 = Outer Diameter
+                    if (msg) result.error = msg;
+                }
+                if (name === 'MasterCoilWeight') {
+                    const msg = checkCriteria(numVal, 17); // ID 17 = MasterCoilWeight
+                    if (msg) result.error = msg;
+                }
             }
         }
 
@@ -1720,9 +2205,9 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 }
 
                 // Regla especial para valores por defecto (ej: Factor 100)
-                else if (field.name === 'Max_Production_Factor' && shouldBeActive && !(nextData as any)[field.name]) {
-                    (nextData as any)[field.name] = 100;
-                }
+                //else if (field.name === 'Max_Production_Factor' && shouldBeActive && !(nextData as any)[field.name]) {
+                //    (nextData as any)[field.name] = 100;
+                //}
 
             });
         }
@@ -1755,6 +2240,17 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
             const errorMsg = basicError || complexResult.error;
 
             if (errorMsg) {
+                // 👇 AGREGA ESTE BLOQUE DE DEPURACIÓN
+                console.group(`❌ Error de Validación detectado`);
+                console.log(`Campo: %c${field.name}`, 'color: red; font-weight: bold;');
+                console.log(`Etiqueta: ${field.label}`);
+                console.log(`Sección: ${field.section}`);
+                console.log(`Valor actual:`, value);
+                console.log(`Mensaje de error: ${errorMsg}`);
+                console.log(`¿Está activo/visible?: ${isActive}`);
+                console.groupEnd();
+                // 👆 FIN DEL BLOQUE
+
                 newErrors[field.name] = errorMsg;
                 if (!firstInvalidFieldName) {
                     firstInvalidFieldName = field.name;
@@ -1773,8 +2269,8 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
         if (firstInvalidFieldName) {
             // Toast de Advertencia
             toast.warn("Please verify the highlighted fields before saving.", {
-                position: "top-center",
-                autoClose: 4000
+                position: "top-right",
+                autoClose: 5000
             });
 
             if (firstInvalidSection && firstInvalidSection !== activeTab) {
@@ -1881,19 +2377,23 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                     render: "Data saved successfully!",
                     type: "success",
                     isLoading: false,
-                    autoClose: 2000,
+                    autoClose: 3000,
                     transition: Slide
                 });
 
                 // Pequeño delay para que el usuario vea el check verde antes de cerrar
                 setTimeout(() => {
                     if (onSaved && result.data) {
-                        onSaved(result.data); // Actualiza la tabla en App.tsx
+                        onSaved(result.data); // Actualiza la tabla y cierra el form
+
+                        // 👇 AGREGAR ESTO: Scroll suave hacia arriba
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+
                     } else {
                         // Fallback por si el backend no devolvió 'data'
                         window.location.reload();
                     }
-                }, 1000); // 1 segundo es suficiente
+                }, 1000);
 
             } else {
                 // Actualizar el toast de carga a Error
@@ -1923,6 +2423,27 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
     if (!DynamicField) {
         return <div className="alert alert-danger">Error: El componente DynamicField no se cargó correctamente.</div>;
     }
+    // Calculamos qué secciones tienen al menos un campo activo bajo las condiciones actuales
+    const visibleSections = useMemo(() => {
+        return sections.filter(sectionName => {
+            // Buscamos todos los campos de esta sección
+            const fieldsInSection = safeFields.filter(f => f.section === sectionName);
+
+            // Verificamos si AL MENOS UNO está activo (cumple visibleWhen)
+            const hasVisibleFields = fieldsInSection.some(f => isFieldActive(f, formData));
+
+            return hasVisibleFields;
+        });
+    }, [sections, safeFields, formData]); // Se recalcula cada vez que cambia la data
+
+    // 2. AUTO-CAMBIO DE PESTAÑA
+    // Si la pestaña actual se vuelve invisible (ej: cambiaste la Ruta y se ocultó Arrival),
+    // saltamos automáticamente a la primera pestaña visible para no dejar al usuario en el limbo.
+    useEffect(() => {
+        if (visibleSections.length > 0 && !visibleSections.includes(activeTab)) {
+            setActiveTab(visibleSections[0]);
+        }
+    }, [visibleSections, activeTab]);
 
     // --- NUEVO LAYOUT VISUAL (GRID + PESTAÑAS IZQUIERDAS) ---
     return (
@@ -1933,7 +2454,7 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 {/* COLUMNA IZQUIERDA: MENÚ DE NAVEGACIÓN */}
                 <div className="col-lg-2 col-md-3 mb-4">
                     <div className="nav flex-column nav-pills modern-nav" role="tablist" aria-orientation="vertical">
-                        {sections.map(sectionName => {
+                        {visibleSections.map(sectionName => {
 
                             // 1. CALCULAMOS LOS ERRORES DE ESTA PESTAÑA ESPECÍFICA
                             // Filtramos todos los campos que pertenecen a esta sección ('sectionName')
@@ -1980,6 +2501,9 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                             } else if (sectionName === "Technical Feasibility") {
                                 iconClass = "fa-clipboard-check"; // Icono de reporte/resultado
                                 linkClass = "special-tab";        // 👈 Clase CSS nueva
+                            } else if (sectionName === "Efficiency and Capacity") {
+                                iconClass = "fa-chart-line"; // Icono de gráfica/análisis
+                                linkClass = "data-tab";      // Clase CSS Púrpura
                             }
 
                             return (
@@ -2093,90 +2617,218 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
 
                                 {safeFields.map((fieldConfig, index) => {
 
-                                    // -----------------------------------------------------------------------
-                                    // 1. LÓGICA PARA EVITAR DUPLICADOS (Si ya se renderizó en un grupo)
-                                    // -----------------------------------------------------------------------
+                                    // =======================================================================
+                                    // 1. DEFINICIÓN UNIFICADA DE getFieldProps
+                                    //    Esta función ahora está disponible para TODOS los campos del ciclo.
+                                    // =======================================================================
+                                    const getFieldProps = (fc: any) => {
+                                        // A. Visibilidad
+                                        if (!fc || !isFieldVisible(fc, formData)) return null;
+
+                                        // B. Required Dinámico
+                                        let isReq = fc.validation?.required || false;
+                                        if (fc.validation?.requiredWhen) {
+                                            const { field, is } = fc.validation.requiredWhen;
+                                            const depVal = (formData as any)[field];
+                                            if (is && is.includes(depVal)) isReq = true;
+                                        }
+
+                                        // C. Valor y Configuración Base
+                                        let displayValue = (formData as any)[fc.name];
+                                        let currentConfig = { ...fc };
+
+                                        // D. Interceptor: Línea Teórica (ID -> Nombre)
+                                        if (fc.name === 'ID_Theoretical_Blanking_Line') {
+                                            const foundLine = lists.linesList?.find((l: any) => l.Value == displayValue);
+                                            if (foundLine) displayValue = foundLine.Text;
+                                            currentConfig.type = 'text';
+                                            currentConfig.disabled = true;
+                                        }
+
+                                        // E. Lógica de Ingeniería (HelperText - Límites)
+                                        let helperText = undefined;
+                                        let criteriaId = null;
+
+                                        // Normalizamos nombre para evitar errores de espacios
+                                        const fieldName = fc.name ? fc.name.trim() : "";
+
+                                        // Mapa manual de IDs
+                                        if (fieldName === 'Tensile_Strenght' || fieldName === 'Tensile_Strength') criteriaId = 14;
+                                        else if (fieldName === 'Thickness') criteriaId = 7;  // Gauge - Metric
+                                        else if (fieldName === 'Width') criteriaId = 8; //Longitudinal width
+                                        else if (fieldName === 'Pitch') criteriaId = 9; //Longitudinal pitch
+                                        else if (fieldName === 'OuterCoilDiameterArrival') criteriaId = 16;
+                                        else if (fieldName === 'MasterCoilWeight') criteriaId = 17;
+
+
+                                        // Si es un campo de ingeniería (tiene criteriaId)...
+                                        if (criteriaId !== null) {
+
+                                            // CASO 1: Hay reglas cargadas y encontramos la específica
+                                            if (currentEngineeringRanges && currentEngineeringRanges.length > 0) {
+                                                const range = currentEngineeringRanges.find((r: any) => r.criteriaId === criteriaId);
+
+                                                if (range) {
+                                                    const tolText = (range.tolerance !== null && range.tolerance !== 0) ? ` (±${range.tolerance})` : '';
+
+                                                    if (range.minValue !== null && range.maxValue !== null) {
+                                                        helperText = `Limit: ${range.minValue} - ${range.maxValue}${tolText}`;
+                                                    } else if (range.maxValue !== null) {
+                                                        helperText = `Max: ${range.maxValue}${tolText}`;
+                                                    } else if (range.minValue !== null) {
+                                                        helperText = `Min: ${range.minValue}${tolText}`;
+                                                    } else if (range.numericValue !== null) {
+                                                        helperText = `Exact: ${range.numericValue}${tolText}`;
+                                                    }
+                                                } else {
+                                                    // Hay reglas para la línea (ej: ancho), pero NO para este campo (ej: tensile)
+                                                    helperText = "No specific limit defined.";
+                                                }
+                                            }
+                                            // CASO 2: No hay reglas para esta combinación (Línea + Material)
+                                            else {
+                                                // Solo mostramos el mensaje si el usuario ya seleccionó Línea y Material
+                                                // (para que no salga el aviso apenas entra al formulario vacío)
+                                                const hasLine = (formData as any)['ID_Real_Blanking_Line'] || (formData as any)['ID_Theoretical_Blanking_Line'];
+                                                const hasMat = (formData as any)['ID_Material_type'];
+
+                                                if (hasLine && hasMat) {
+                                                    helperText = "No limits for this Line/Material.";
+                                                }
+                                            }
+                                        }
+
+                                        return {
+                                            config: {
+                                                ...currentConfig,
+                                                validation: { ...currentConfig.validation, required: isReq }
+                                            },
+                                            value: displayValue,
+                                            helperText: helperText
+                                        };
+                                    };
+
+                                    // =======================================================================
+                                    // 2. LÓGICA PARA EVITAR DUPLICADOS (Si ya se renderizó en un grupo anterior)
+                                    // =======================================================================
                                     const prev1 = safeFields[index - 1];
                                     const prev2 = safeFields[index - 2];
                                     if (prev1?.rowTitle || prev2?.rowTitle) {
                                         return null;
                                     }
 
-                                    // -----------------------------------------------------------------------
-                                    // 2. RENDERIZADO DE GRUPO (FILA MATRIZ - Solución Definitiva)
-                                    // -----------------------------------------------------------------------
-                                    if (fieldConfig.rowTitle) {
-                                        const field2 = safeFields[index + 1];
-                                        const field3 = safeFields[index + 2];
+                                    // =======================================================================
+                                    // 3. PREPARAR PROPS (Usando la función unificada)
+                                    // =======================================================================
+                                    const hasRowTitle = !!fieldConfig.rowTitle;
 
-                                        // Helper para preparar props
-                                        const getFieldProps = (fc: any) => {
-                                            if (!fc || !isFieldVisible(fc, formData)) return null;
+                                    // Calculamos las props del campo actual (p1)
+                                    const p1 = getFieldProps(fieldConfig);
 
-                                            let isReq = fc.validation?.required || false;
-                                            if (fc.validation?.requiredWhen) {
-                                                const { field, is } = fc.validation.requiredWhen;
-                                                const depVal = (formData as any)[field];
-                                                if (is && is.includes(depVal)) isReq = true;
-                                            }
+                                    // Si es un grupo, calculamos los siguientes 2
+                                    const field2 = hasRowTitle ? safeFields[index + 1] : null;
+                                    const field3 = hasRowTitle ? safeFields[index + 2] : null;
 
-                                            return {
-                                                config: { ...fc, validation: { ...fc.validation, required: isReq } },
-                                                value: (formData as any)[fc.name]
-                                            };
-                                        };
+                                    const p2 = field2 ? getFieldProps(field2) : null;
+                                    const p3 = field3 ? getFieldProps(field3) : null;
 
-                                        const p1 = getFieldProps(fieldConfig);
-                                        const p2 = getFieldProps(field2);
-                                        const p3 = getFieldProps(field3);
+                                    // Si el campo principal no es visible, no renderizamos nada
+                                    if (!p1) return null;
 
-                                        if (!p1) return null;
+                                    // =======================================================================
+                                    // 4. SOBRESCRITURA DE DATOS (Fix para ID -> Texto en DynamicField)
+                                    //    Usamos 'any' para evitar error TS7053 (Index signature)
+                                    // =======================================================================
+                                    const overriddenData: any = { ...formData };
 
+                                    if (p1) overriddenData[fieldConfig.name] = p1.value;
+
+                                    // Validamos existencia antes de asignar para evitar error 'possibly null'
+                                    if (p2 && field2) {
+                                        overriddenData[field2.name] = p2.value;
+                                    }
+                                    if (p3 && field3) {
+                                        overriddenData[field3.name] = p3.value;
+                                    }
+
+
+                                    // =======================================================================
+                                    // 5. RENDERIZADO
+                                    // =======================================================================
+                                    if (hasRowTitle) {
+                                        // === VISTA MATRIZ (CON TÍTULO A LA IZQUIERDA) ===
                                         return (
                                             <div className="col-12 mb-3 pb-2 border-bottom" key={fieldConfig.name} style={{ borderBottomColor: '#eee' }}>
-                                                {/* Usamos Flexbox directo para alinear Título e Inputs */}
+
+                                                {/* 👇 NUEVO BLOQUE: SEPARADOR TRAPEZOIDE 👇 */}
+                                                {fieldConfig.name === 'Angle_A' && (
+                                                    <div className="col-12 mt-4 mb-2">
+                                                        <h6 className="text-primary font-weight-bold" style={{
+                                                            borderBottom: '1px solid #dee2e6',
+                                                            paddingBottom: '10px',
+                                                            textTransform: 'uppercase',
+                                                            fontSize: '0.9rem',
+                                                            letterSpacing: '0.5px'
+                                                        }}>
+                                                            <i className="fa fa-ruler-combined mr-2"></i> Trapezoid Dimensions
+                                                        </h6>
+                                                    </div>
+                                                )}
+
                                                 <div style={{ display: 'flex', flexDirection: 'row' }}>
 
-                                                    {/* 1. COLUMNA TÍTULO AZUL */}
+                                                    {/* Título de la Fila */}
                                                     <div style={{ width: '140px', minWidth: '140px', textAlign: 'right', paddingRight: '20px' }}>
-                                                        <label style={{
-                                                            color: '#009ff5',
-                                                            fontWeight: 'bold',
-                                                            fontSize: '1.1em',
-                                                            marginTop: '38px',
-                                                            display: 'block'
-                                                        }}>
+                                                        <label style={{ color: '#009ff5', fontWeight: 'bold', fontSize: '1.1em', marginTop: '38px', display: 'block' }}>
                                                             {fieldConfig.rowTitle}
                                                         </label>
                                                     </div>
 
-                                                    {/* 2. GRUPO DE INPUTS */}
+                                                    {/* Inputs Agrupados */}
                                                     <div className="matrix-group-container">
                                                         <div className="matrix-cell">
                                                             <DynamicField
-                                                                config={p1.config} value={p1.value}
-                                                                onChange={handleFieldChange} lists={lists} urls={urls}
-                                                                error={errors[fieldConfig.name]} warning={warnings[fieldConfig.name]}
-                                                                isVisible={true} fullData={formData}
+                                                                key={fieldConfig.name}
+                                                                config={p1.config}
+                                                                value={p1.value}
+                                                                onChange={handleFieldChange}
+                                                                lists={lists} urls={urls}
+                                                                error={errors[fieldConfig.name]}
+                                                                warning={warnings[fieldConfig.name]}
+                                                                isVisible={true}
+                                                                fullData={overriddenData}
+                                                                helperText={p1.helperText}
                                                             />
                                                         </div>
-                                                        {p2 && (
+                                                        {p2 && field2 && (
                                                             <div className="matrix-cell">
                                                                 <DynamicField
-                                                                    config={p2.config} value={p2.value}
-                                                                    onChange={handleFieldChange} lists={lists} urls={urls}
-                                                                    error={errors[field2.name]} warning={warnings[field2.name]}
-                                                                    isVisible={true} fullData={formData}
+                                                                    key={field2.name}
+                                                                    config={p2.config}
+                                                                    value={p2.value}
+                                                                    onChange={handleFieldChange}
+                                                                    lists={lists} urls={urls}
+                                                                    error={errors[field2.name]}
+                                                                    warning={warnings[field2.name]}
+                                                                    isVisible={true}
+                                                                    fullData={overriddenData}
+                                                                    helperText={p2.helperText}
                                                                 />
                                                             </div>
                                                         )}
-                                                        {p3 && (
+                                                        {p3 && field3 && (
                                                             <div className="matrix-cell">
                                                                 <DynamicField
-                                                                    config={p3.config} value={p3.value}
-                                                                    onChange={handleFieldChange} lists={lists} urls={urls}
-                                                                    error={errors[field3.name]} warning={warnings[field3.name]}
-                                                                    isVisible={true} fullData={formData}
+                                                                    key={field3.name}
+                                                                    config={p3.config}
+                                                                    value={p3.value}
+                                                                    onChange={handleFieldChange}
+                                                                    lists={lists} urls={urls}
+                                                                    error={errors[field3.name]}
+                                                                    warning={warnings[field3.name]}
+                                                                    isVisible={true}
+                                                                    fullData={overriddenData}
+                                                                    helperText={p3.helperText}
                                                                 />
                                                             </div>
                                                         )}
@@ -2184,138 +2836,104 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                                                 </div>
                                             </div>
                                         );
-                                    }
+                                    } else {
+                                        // === VISTA NORMAL (COLUMNAS ESTÁNDAR) ===
+                                        return (
+                                            <div key={fieldConfig.name + "_container"} style={{ display: 'contents' }}>
+                                                {/* 👇 NUEVO BLOQUE: SEPARADOR VISUAL PARA VOLUMEN 👇 */}
+                                                {fieldConfig.name === 'Annual_Volume' && (
+                                                    <div className="col-12 mt-4 mb-2">
+                                                        <h6 className="text-primary font-weight-bold" style={{
+                                                            borderBottom: '1px solid #dee2e6',
+                                                            paddingBottom: '10px',
+                                                            textTransform: 'uppercase',
+                                                            fontSize: '0.9rem',
+                                                            letterSpacing: '0.5px'
+                                                        }}>
+                                                            <i className="fa fa-chart-bar mr-2"></i> Volume & Weights
+                                                        </h6>
+                                                    </div>
+                                                )}
+                                                <DynamicField
+                                                    key={fieldConfig.name}
+                                                    config={p1.config}
 
-                                    // -----------------------------------------------------------------------
-                                    // 3. RENDERIZADO NORMAL (Para el resto de campos)
-                                    // -----------------------------------------------------------------------
-                                    const visible = isFieldVisible(fieldConfig, formData);
-
-                                    let isCurrentlyRequired = fieldConfig.validation?.required || false;
-                                    if (fieldConfig.validation?.requiredWhen) {
-                                        const { field, is } = fieldConfig.validation.requiredWhen;
-                                        const dependencyValue = (formData as any)[field];
-                                        if (is && is.includes(dependencyValue)) {
-                                            isCurrentlyRequired = true;
-                                        }
-                                    }
-
-                                    let isCurrentlyDisabled = fieldConfig.disabled;
-                                    if (fieldConfig.name === 'PassesThroughSouthWarehouse') {
-                                        const warehouseId = (formData as any)['ID_Arrival_Warehouse'];
-                                        if (String(warehouseId) === '2') {
-                                            isCurrentlyDisabled = true;
-                                        }
-                                    }
-
-                                    const dynamicConfig = {
-                                        ...fieldConfig,
-                                        disabled: isCurrentlyDisabled,
-                                        validation: {
-                                            ...fieldConfig.validation,
-                                            required: isCurrentlyRequired
-                                        }
-                                    };
-
-                                    // Componente Base (El Input Normal)
-                                    const dynamicComponent = (
-                                        <DynamicField
-                                            key={fieldConfig.name} // Key explícito para estabilidad
-                                            config={dynamicConfig}
-                                            onSideEffect={fieldConfig.type === 'vehicle-selector'
-                                                ? (fullData: any) => {
-                                                    if (fullData) {
-                                                        setVehicleMetadata(prev => ({
-                                                            ...prev,
-                                                            [fieldConfig.name]: {
-                                                                Program: fullData.Program,
-                                                                SOP: fullData.SOP,
-                                                                EOP: fullData.EOP,
-                                                                ProductionDataJson: fullData.ProductionDataJson
+                                                    // Side Effects (Vehicles, etc)
+                                                    onSideEffect={fieldConfig.type === 'vehicle-selector'
+                                                        ? (fullData: any) => {
+                                                            if (fullData) {
+                                                                setVehicleMetadata(prev => ({
+                                                                    ...prev,
+                                                                    [fieldConfig.name]: {
+                                                                        Program: fullData.Program,
+                                                                        SOP: fullData.SOP,
+                                                                        EOP: fullData.EOP,
+                                                                        ProductionDataJson: fullData.ProductionDataJson
+                                                                    }
+                                                                }));
                                                             }
-                                                        }));
+                                                        }
+                                                        : fieldConfig.onSideEffect
                                                     }
-                                                }
-                                                : fieldConfig.onSideEffect
-                                            }
-                                            value={(formData as any)[fieldConfig.name]}
-                                            onChange={handleFieldChange}
-                                            lists={lists} urls={urls}
-                                            error={errors[fieldConfig.name]}
-                                            warning={warnings[fieldConfig.name]}
-                                            isVisible={visible}
-                                            fullData={formData}
-                                        />
-                                    );
 
-                                    // Verificamos si este es el campo "Number of Blanks" y si debe mostrar hijos
-                                    const isWeldedParent = fieldConfig.name === 'NumberOfPlates';
-                                    // 👇 CORRECCIÓN: Agregamos "&& visible" al final
-                                    // Esto asegura que solo se muestren si la pestaña actual es la correcta.
-                                    const showWeldedChildren = isWeldedParent
-                                        && (formData as any).IsWeldedBlank
-                                        && (formData as any)._weldedPlates?.length > 0
-                                        && visible;
-                                    // 👇 AQUÍ ESTÁ EL ARREGLO: Usamos un Fragment (<>) o un div contenedor estable
-                                    // en lugar de devolver cosas distintas en un if/else.
-                                    // Esto mantiene el input "Number of Blanks" montado siempre.
-                                    return (
-                                        <div key={fieldConfig.name + "_container"} style={{ display: 'contents' }}>
+                                                    value={p1.value}
+                                                    onChange={handleFieldChange}
+                                                    lists={lists} urls={urls}
+                                                    error={errors[fieldConfig.name]}
+                                                    warning={warnings[fieldConfig.name]}
+                                                    isVisible={true}
 
-                                            {/* 1. Siempre renderizamos el componente principal igual */}
-                                            {dynamicComponent}
+                                                    fullData={overriddenData}
+                                                    helperText={p1.helperText}
+                                                />
 
-                                            {/* 2. Renderizamos los hijos condicionalmente DEBAJO, sin reemplazar al padre */}
-                                            {showWeldedChildren && (
-                                                <div className="col-12 mt-2 mb-4 pl-0" key="welded-children">
-                                                    <div className="card bg-light border-0">
-                                                        <div className="card-body py-3 px-3">
-                                                            <h6 className="text-primary small font-weight-bold mb-3" style={{ borderBottom: '1px solid #dee2e6', paddingBottom: '5px' }}>
-                                                                Thickness per Blank [mm]
-                                                            </h6>
-
-                                                            <div className="row">
-                                                                {(formData as any)._weldedPlates.map((plate: any, pIdx: number) => {
-                                                                    // Calculamos colWidth aquí dentro para tener acceso al length actualizado
-                                                                    const count = (formData as any)._weldedPlates.length;
-                                                                    const colWidth = Math.max(Math.floor(12 / count), 2);
-
-                                                                    return (
-                                                                        <div key={plate.PlateNumber} className={`col-md-${colWidth} form-group`}>
-                                                                            <label className="small font-weight-bold text-muted">
-                                                                                Blank #{plate.PlateNumber} Thickness
-                                                                            </label>
-                                                                            <div className="input-group input-group-sm">
-                                                                                <input
-                                                                                    type="number"
-                                                                                    className="form-control"
-                                                                                    placeholder="0.00"
-                                                                                    min="0"
-                                                                                    step="0.01"
-                                                                                    value={plate.Thickness || ''}
-                                                                                    onChange={(e) => {
-                                                                                        let val = parseFloat(e.target.value);
-                                                                                        if (val < 0) val = 0;
-                                                                                        const newArr = [...(formData as any)._weldedPlates];
-                                                                                        newArr[pIdx].Thickness = isNaN(val) ? 0 : val;
-                                                                                        setFormData({ ...formData, _weldedPlates: newArr });
-                                                                                    }}
-                                                                                    style={{ borderColor: (!plate.Thickness || plate.Thickness <= 0) ? '#ffc107' : '#ced4da' }}
-                                                                                />
-                                                                                <div className="input-group-append">
-                                                                                    <span className="input-group-text">mm</span>
+                                                {/* Renderizado especial de Welded Plates */}
+                                                {fieldConfig.name === 'NumberOfPlates'
+                                                    && (formData as any).IsWeldedBlank
+                                                    && (formData as any)._weldedPlates?.length > 0 && (
+                                                        <div className="col-12 mt-2 mb-4 pl-0" key="welded-children">
+                                                            <div className="card bg-light border-0">
+                                                                <div className="card-body py-3 px-3">
+                                                                    <h6 className="text-primary small font-weight-bold mb-3" style={{ borderBottom: '1px solid #dee2e6', paddingBottom: '5px' }}>
+                                                                        Thickness per Blank [mm]
+                                                                    </h6>
+                                                                    <div className="row">
+                                                                        {(formData as any)._weldedPlates.map((plate: any, pIdx: number) => {
+                                                                            const count = (formData as any)._weldedPlates.length;
+                                                                            const colWidth = Math.max(Math.floor(12 / count), 2);
+                                                                            return (
+                                                                                <div key={plate.PlateNumber} className={`col-md-${colWidth} form-group`}>
+                                                                                    <label className="small font-weight-bold text-muted">Blank #{plate.PlateNumber} Thickness</label>
+                                                                                    <div className="input-group input-group-sm">
+                                                                                        <input
+                                                                                            type="number"
+                                                                                            className="form-control"
+                                                                                            placeholder="0.00"
+                                                                                            min="0"
+                                                                                            step="0.01"
+                                                                                            value={plate.Thickness || ''}
+                                                                                            onChange={(e) => {
+                                                                                                let val = parseFloat(e.target.value);
+                                                                                                if (val < 0) val = 0;
+                                                                                                const newArr = [...(formData as any)._weldedPlates];
+                                                                                                newArr[pIdx].Thickness = isNaN(val) ? 0 : val;
+                                                                                                setFormData({ ...formData, _weldedPlates: newArr });
+                                                                                            }}
+                                                                                            style={{ borderColor: (!plate.Thickness || plate.Thickness <= 0) ? '#ffc107' : '#ced4da' }}
+                                                                                        />
+                                                                                        <div className="input-group-append"><span className="input-group-text">mm</span></div>
+                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    );
-                                                                })}
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
+                                                    )}
+                                            </div>
+                                        );
+                                    }
                                 })}
 
                                 {/* Mensaje de "No hay campos" si nada es visible en esta sección */}

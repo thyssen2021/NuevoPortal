@@ -23,6 +23,31 @@ export interface AppLists {
     [key: string]: any; // Esto permite flexibilidad para otras listas futuras    
 }
 
+export interface TheoreticalRule {
+    materialTypeId: number;
+    thicknessMin: number | null;
+    thicknessMax: number | null;
+    widthMin: number | null;
+    widthMax: number | null;
+    pitchMin: number | null;
+    pitchMax: number | null;
+    tensileMin: number | null;
+    tensileMax: number | null;
+    priority: number;
+    resultingLineId: number;
+    resultingLineName: string;
+}
+
+export interface EngineeringRange {
+    lineId: number;
+    materialTypeId: number;
+    criteriaId: number;
+    minValue: number | null;
+    maxValue: number | null;
+    numericValue: number | null;
+    tolerance: number | null; 
+}
+
 export interface Material {
     // Identificadores
     ID_Material: number;
@@ -322,10 +347,29 @@ export interface Material {
     Theoretical_Strokes?: number;
     Theoretical_Effective_Strokes?: number;
     
-    // Campo auxiliar necesario para el cálculo (OEE)
-    // Asumo que existe o se traerá de algún lado (ej. de la línea seleccionada)
-    OEE?: number;
+    // Real Blanking Data
+    ID_Real_Blanking_Line?: number;
+    Real_Strokes?: number;
+    Real_Effective_Strokes?: number;
 
+    // Technical Feasibility Additional Fields
+    Ideal_Cycle_Time_Per_Tool?: number;
+    OEE?: number;
+    TonsPerShift?: number;
+    ID_Slitting_Line?: number;
+
+    // Efficiency and Capacity
+    Parts_Auto?: number;
+    Strokes_Auto?: number;
+    Blanks_Per_Year?: number;
+    Min_Max_Reales?: number;
+    Min_Max_Reales_OEE?: number;
+    Actual_Shifts?: number;
+    Strokes_Shift?: number;
+    
+    // Campos del modelo de datos
+    DM_status?: string;
+    DM_status_comment?: string;
     // ... puedes agregar más según necesites
 }
 

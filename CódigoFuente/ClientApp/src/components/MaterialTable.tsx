@@ -9,6 +9,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import type { Material } from '../types';
 import { materialFields } from '../config/material-fields';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { toast } from 'react-toastify';
 import ConfirmationModal from './ConfirmationModal';
 
@@ -16,10 +17,10 @@ interface Props {
     materials: Material[];
     onEdit: (material: Material) => void;
     onDeleted: (id: number) => void;
+    onCopy: (material: Material) => void;
 }
 
-export default function MaterialTable({ materials, onEdit, onDeleted }: Props) {
-
+export default function MaterialTable({ materials, onEdit, onDeleted, onCopy }: Props) {
     // 1. ESTADO DEL MODAL DE BORRADO (Igual que antes)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null);
@@ -34,6 +35,7 @@ export default function MaterialTable({ materials, onEdit, onDeleted }: Props) {
     const closeDeleteModal = () => {
         setIsDeleteModalOpen(false);
         setMaterialToDelete(null);
+        setIsDeleting(false); // Aseguramos reiniciar el estado al cerrar manualmente
     };
 
     const handleConfirmDelete = async () => {
@@ -56,12 +58,16 @@ export default function MaterialTable({ materials, onEdit, onDeleted }: Props) {
             const result = await response.json();
 
             if (result.success) {
-                toast.success("Material deleted successfully");
-                closeDeleteModal();
+                toast.success("Material deleted successfully");                
+                // Actualizamos la UI padre
                 onDeleted(materialToDelete.ID_Material);
+                // Apagamos el loading antes de cerrar
+                setIsDeleting(false);                 
+                // Cerramos el modal
+                closeDeleteModal();
             } else {
                 toast.error("Error: " + result.message);
-                setIsDeleting(false);
+                setIsDeleting(false); // Apagar loading en error de lógica
             }
         } catch (error) {
             console.error(error);
@@ -112,7 +118,6 @@ export default function MaterialTable({ materials, onEdit, onDeleted }: Props) {
     }, []);
 
 
-    // 3. CONFIGURACIÓN DE LA TABLA (ESTILO PRO & FIX VISUAL)
     // 3. CONFIGURACIÓN DE LA TABLA (SIN CORTE DE TEXTO)
     const table = useMaterialReactTable({
         columns,
@@ -253,6 +258,11 @@ export default function MaterialTable({ materials, onEdit, onDeleted }: Props) {
                         <EditIcon fontSize="small" />
                     </IconButton>
                 </Tooltip>
+                <Tooltip title="Copy">
+                    <IconButton color="info" onClick={() => onCopy(row.original)} size="small">
+                        <ContentCopyIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
                 <Tooltip title="Delete">
                     <IconButton color="error" onClick={() => promptDelete(row.original)} size="small">
                         <DeleteIcon fontSize="small" />
@@ -273,10 +283,14 @@ export default function MaterialTable({ materials, onEdit, onDeleted }: Props) {
             <ConfirmationModal
                 isOpen={isDeleteModalOpen}
                 title="Delete Material"
-                message={`Are you sure you want to delete the part "${materialToDelete?.Part_Number || 'Unknown'}"?`}
+                message={`Are you sure you want to delete the part "${materialToDelete?.Part_Number || 'Unknown'}"? This action cannot be undone.`}
                 onConfirm={handleConfirmDelete}
                 onCancel={closeDeleteModal}
                 isLoading={isDeleting}
+                // 👇 Personalización para Borrar
+                confirmText="Yes, Delete It"
+                variant="danger" // Rojo
+                icon="fa-trash"
             />
         </>
     );

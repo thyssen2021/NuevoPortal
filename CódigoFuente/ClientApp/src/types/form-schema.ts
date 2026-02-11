@@ -44,7 +44,7 @@ export interface FieldConfig {
   rowTitle?: string;
   // Reglas de Negocio
   validation?: ValidationRules;
-  visibleWhen?: VisibilityRule;
+  visibleWhen?: VisibilityRule | VisibilityRule[];
 
   // UI Helpers
   className?: string; // 'col-md-3', 'col-md-6', etc.
@@ -52,4 +52,7 @@ export interface FieldConfig {
   // Permite ejecutar lógica extra al cambiar un valor (ej: autocompletar fechas)
   onSideEffect?: (data: any) => void;
   uploadFieldName?: string;
+  fileNameProp?: string;    //ej. Filename
+  fileEntityProp?: string;  //ej. CTZ_File1
+  allowZero?: boolean;
 }

@@ -18,15 +18,25 @@ interface Props {
     isVisible?: boolean;
     onSideEffect?: (data: any) => void;
     fullData?: any;
+    helperText?: string | React.ReactNode;
 }
 
 export default function DynamicField({ config, value, onChange, lists, error, warning,
-    isVisible = true, fullData, onSideEffect }: Props) {
+    isVisible = true, fullData, onSideEffect, helperText }: Props) {
+
     // Función para manejar cambios de input
     const handleChange = (newValue: any) => {
         let val = newValue;
+
         if (config.type === 'number') {
-            val = val === '' ? null : parseFloat(val);
+            // Si está vacío, mandamos null para indicar "sin valor"
+            // Si es un número válido, lo parseamos.
+            // OJO: isNaN("") es false en JS puro (lo toma como 0), así que validamos string vacío explícitamente.
+            if (val === '' || val === null || val === undefined) {
+                val = null;
+            } else {
+                val = parseFloat(val);
+            }
         }
         onChange(config.name, val);
     };
@@ -220,27 +230,51 @@ export default function DynamicField({ config, value, onChange, lists, error, wa
                     />
                 );
             case 'file':
-                // 👇 AQUÍ USAMOS 'fullData' PARA LEER EL NOMBRE DEL ARCHIVO
-                // Si el campo es 'ID_File_ArrivalAdditional', buscamos 'FileName_ArrivalAdditional'
-                const relatedFileName = fullData
-                    ? fullData[`FileName_${config.name.replace('ID_File_', '')}`]
-                    : undefined;
+                let displayFileName = undefined;
+
+                // 1. Si el usuario acaba de seleccionar un archivo local (File object)
+                if (value instanceof File) {
+                    displayFileName = value.name;
+                } 
+                // 2. Si viene de la BD, leemos la data
+                else if (fullData) {
+                    // A. Prioridad 1: Leer el objeto anidado de Entity Framework (Ej: CTZ_Files7.Name)
+                    if (config.fileEntityProp && fullData[config.fileEntityProp]) {
+                        displayFileName = fullData[config.fileEntityProp].Name;
+                    }
+                    // B. Prioridad 2: Fallback a la propiedad plana (por si C# la manda)
+                    else if (config.fileNameProp && fullData[config.fileNameProp]) {
+                        displayFileName = fullData[config.fileNameProp];
+                    }
+                }
+
+                const maxSize = config.validation?.maxSizeInMB || 10;
+                const acceptText = config.validation?.accept
+                    ? config.validation.accept.replace(/\./g, '').toUpperCase().split(',').join(', ')
+                    : 'Any file type';
 
                 return (
-                    <FileUploader
-                        fileId={value} // El valor del campo es el ID (number)
-                        fileName={relatedFileName} // Pasamos el nombre recuperado
+                    <div>
+                        <FileUploader
+                            fileId={value}
+                            fileName={displayFileName} // 👈 Ahora sí recibirá el nombre correcto
 
-                        onFileSelect={(file) => {
-                            // Devolvemos el objeto File nativo al padre
-                            // Usamos uploadFieldName si existe, sino el nombre original
-                            onChange(config.uploadFieldName || config.name, file);
-                        }}
-                        disabled={config.disabled}
-                        accept={config.validation?.accept}           // Si es undefined, usará el default del componente
-                        maxSizeInMB={config.validation?.maxSizeInMB} // Si es undefined, usará 10MB                        // URL base para descargas
-                        downloadUrl="/CTZ_Projects/DownloadFile"
-                    />
+                            onFileSelect={(file) => {
+                                onChange(config.uploadFieldName || config.name, file);
+                            }}
+                            disabled={config.disabled}
+                            accept={config.validation?.accept}
+                            maxSizeInMB={maxSize}
+                            downloadUrl="/CTZ_Projects/DownloadFile"
+                        />
+
+                        {!config.disabled && (
+                            <small className="form-text text-muted mt-1" style={{ fontSize: '0.75rem' }}>
+                                <i className="fa fa-info-circle mr-1"></i>
+                                Supported formats: <strong>{acceptText}</strong>. Max size: <strong>{maxSize} MB</strong>.
+                            </small>
+                        )}
+                    </div>
                 );
             case 'textarea':
                 return (
@@ -263,8 +297,14 @@ export default function DynamicField({ config, value, onChange, lists, error, wa
                     </div>
                 );
             case 'creatable-select':
-                // Obtenemos la lista de opciones desde props
-                const optionsList = config.optionsKey ? lists[config.optionsKey] : [];
+                // si no existe, buscar en lists usando config.optionsKey.
+                let optionsList = [];
+
+                if (Array.isArray(config.options)) {
+                    optionsList = config.options;
+                } else if (config.optionsKey) {
+                    optionsList = lists[config.optionsKey] || [];
+                }
 
                 return (
                     <CreatableSelect
@@ -300,8 +340,8 @@ export default function DynamicField({ config, value, onChange, lists, error, wa
                                 const isDisabled = config.disabled;
 
                                 return (
-                                    <label 
-                                        key={optId} 
+                                    <label
+                                        key={optId}
                                         className={`pro-checkbox-option ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}`}
                                     >
                                         <input
@@ -309,9 +349,9 @@ export default function DynamicField({ config, value, onChange, lists, error, wa
                                             checked={isChecked}
                                             disabled={isDisabled}
                                             onChange={(e) => handleCheck(optId, e.target.checked)}
-                                            style={{ display: 'none' }} 
+                                            style={{ display: 'none' }}
                                         />
-                                        
+
                                         <div className="pro-checkbox-icon">
                                             <i className="fa fa-check"></i>
                                         </div>
@@ -362,6 +402,15 @@ export default function DynamicField({ config, value, onChange, lists, error, wa
             )}
 
             {renderInput()}
+
+            {/* 👇 NUEVO BLOQUE: Texto de ayuda (Límites de ingeniería) */}
+            {/* Se muestra si existe texto y NO hay un error bloqueante (para no saturar) */}
+            {helperText && !error && config.type !== 'vehicle-selector' && (
+                <small className="form-text text-muted mt-1 limit-display" style={{ fontSize: '0.85em' }}>
+                    {helperText}
+                </small>
+            )}
+
             {error && config.type !== 'vehicle-selector' && (
                 <small className="text-danger d-block">{error}</small>
             )}

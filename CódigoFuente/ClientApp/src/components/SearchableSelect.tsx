@@ -21,11 +21,19 @@ interface Props {
 export default function SearchableSelect({ value, onChange, options, placeholder, disabled, error, isLoading }: Props) {
 
     // 1. Transformar tus opciones {Value, Text} al formato de react-select {value, label}
-    const formattedOptions: OptionType[] = options.map(opt => ({
-        value: opt.Value,
-        label: opt.Text,
-        ...opt // Mantenemos propiedades extra (SOP, EOP) si existen
-    }));
+    // Acepta {Value, Text} (Backend) O {value, label} (Frontend procesado)
+    const formattedOptions: OptionType[] = (options || []).map(opt => {
+        // Detectar si la propiedad existe (prioridad a Value/Text de C#, fallback a value/label de JS)
+        const rawValue = opt.Value !== undefined ? opt.Value : opt.value;
+        const rawLabel = opt.Text !== undefined ? opt.Text : opt.label;
+
+        return {
+            value: rawValue,
+            // 🛑 CORRECCIÓN CRÍTICA: Forzamos String() para evitar crash .toLowerCase()
+            label: String(rawLabel !== undefined && rawLabel !== null ? rawLabel : ""), 
+            ...opt 
+        };
+    });
 
     // 2. Encontrar el objeto seleccionado actual basado en el value simple
     const selectedOption = formattedOptions.find(opt => opt.value === value) || null;

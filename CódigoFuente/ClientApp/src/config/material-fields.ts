@@ -1,30 +1,11 @@
 // config/material-fields
 import type { FieldConfig } from '../types/form-schema';
+import { ROUTES, PROJECT_STATUS } from '../constants'; // Ajusta la ruta si constants.ts está en otra carpeta
 
-// --- CONSTANTES DE RUTAS (IDs de BD) ---
-export const ROUTES = {
-  BLK: 1,
-  BLK_RP: 2,
-  BLK_RPLTZ: 3,
-  BLK_SH: 4,
-  BLK_WLD: 5,
-  COIL_TO_COIL: 6,
-  REWINDED: 7,
-  SLT: 8,
-  SLT_BLK: 9,
-  SLT_BLK_WLD: 10,
-  WAREHOUSING: 11,
-  WAREHOUSING_RP: 12,
-  WEIGHT_DIVISION: 13
-};
-
-export const PROJECT_STATUS = {
-  QUOTES: 1,
-  CARRY_OVER: 2,
-  CASI_CASI: 3,
-  POH: 4,
-  SPARE_PARTS: 9,
-};
+const coilDiameterOptions = [
+  { value: 508, label: '508' },
+  { value: 610, label: '610' }
+];
 
 export const materialFields: FieldConfig[] = [
   // --- SECCIÓN: Vehicle Information ---
@@ -234,15 +215,12 @@ export const materialFields: FieldConfig[] = [
       is: [true]                         // Solo muestra si es true
     }
   },
+  /********** ARRIVAL CONDITION ************* */
   {
-    // Reemplaza 'ID_Delivery_Coil_Position' por el nombre real de tu columna en BD si es diferente
-    name: 'ID_Delivery_Coil_Position',
+    name: 'ID_Coil_Position',
     label: 'Coil Position',
     type: 'select',
-
-    // ALERTA: Al poner un nombre nuevo de sección, se creará una pestaña nueva automáticamente
     section: 'Arrival Conditions',
-
     className: 'col-md-4',
     optionsKey: 'coilPositions', // Debe coincidir con la key en AppLists (Paso 2)
     placeholder: '-- Select Position --',
@@ -282,17 +260,12 @@ export const materialFields: FieldConfig[] = [
     name: 'ID_Arrival_Transport_Type',
     label: 'Transportation Type',
     type: 'select',
-
     // Mantenemos la misma sección
     section: 'Arrival Conditions',
-
     className: 'col-md-4',
-
     // IMPORTANTE: Esto debe coincidir con el nombre de la lista que envías desde C#
     optionsKey: 'transportTypes',
-
     placeholder: '-- Select Transport Type --',
-
     validation: {
       required: false,
       // Replicamos la lógica: Obligatorio solo para ciertos estatus del proyecto
@@ -327,8 +300,6 @@ export const materialFields: FieldConfig[] = [
       ]
     }
   },
-  // ... configuración anterior de ID_Arrival_Transport_Type ...
-
   {
     name: 'Arrival_Transport_Type_Other', // Debe coincidir con types.ts
     label: 'Specify Other Transport',
@@ -336,32 +307,25 @@ export const materialFields: FieldConfig[] = [
     section: 'Arrival Conditions',
     className: 'col-md-4',
     placeholder: 'Specify details...',
-
-    // VALIDACIÓN: Solo aplica si el campo es visible
     validation: {
       required: true, // Requerido si se muestra
       maxLength: 50   // Límite de caracteres del legacy
     },
-
     // VISIBILIDAD: Solo se muestra si el dropdown anterior vale 5
     visibleWhen: {
       field: 'ID_Arrival_Transport_Type',
       is: [5] // 5 es el ID de "Other" según tu código legacy
     }
   },
-
   {
     name: 'ID_Arrival_Packaging_Type',
     label: 'Packaging Type',
     type: 'select',
     section: 'Arrival Conditions',
     className: 'col-md-4',
-
     // Debe coincidir con el nombre en el C# (Paso 1)
     optionsKey: 'arrivalRackTypes',
-
     placeholder: '-- Select Packaging --',
-
     validation: {
       required: false,
       // Validación dinámica basada en tu legacy:
@@ -376,7 +340,6 @@ export const materialFields: FieldConfig[] = [
         ]
       }
     },
-
     // Visibilidad basada en la Ruta (Oculto en Rewinded, etc.)
     visibleWhen: {
       field: 'ID_Route',
@@ -403,16 +366,23 @@ export const materialFields: FieldConfig[] = [
     type: 'select',
     section: 'Arrival Conditions',
     className: 'col-md-4',
-
     // Debe coincidir con el nombre en C# (Paso 1)
     optionsKey: 'arrivalProtectiveMaterials',
-
     placeholder: '-- Select Option --',
-
     validation: {
-      required: true // Siempre requerido si es visible (según tu JS legacy)
+      required: false,
+      // Validación dinámica basada en tu legacy:
+      // Requerido solo si el estatus es Quotes(1), CarryOver(2), CasiCasi(3) o POH(4)
+      requiredWhen: {
+        field: '_projectStatusId',
+        is: [
+          PROJECT_STATUS.QUOTES,
+          PROJECT_STATUS.CARRY_OVER,
+          PROJECT_STATUS.CASI_CASI,
+          PROJECT_STATUS.POH
+        ]
+      }
     },
-
     // Misma visibilidad que los otros campos de Arrival
     visibleWhen: {
       field: 'ID_Route',
@@ -440,12 +410,10 @@ export const materialFields: FieldConfig[] = [
     section: 'Arrival Conditions',
     className: 'col-md-4',
     placeholder: 'Specify material...',
-
     validation: {
       required: true, // Obligatorio siempre que sea visible
-      maxLength: 120  // Límite de tu legacy
+      maxLength: 120  // Límite 
     },
-
     // Solo visible si el Dropdown anterior vale 6 (Other)
     visibleWhen: {
       field: 'ID_Arrival_Protective_Material',
@@ -458,8 +426,24 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Arrival Conditions',
     className: 'col-md-4', // Mantenemos la consistencia de ancho
-
-    // Al no poner 'visibleWhen', se muestra siempre en esta pestaña.
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED omitido
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
     // Al no poner 'validation', es opcional (true/false).
   },
   {
@@ -467,7 +451,25 @@ export const materialFields: FieldConfig[] = [
     label: 'Is it stackable?',
     type: 'checkbox',
     section: 'Arrival Conditions',
-    className: 'col-md-4'
+    className: 'col-md-4',
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED omitido
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   {
     name: 'Stackable_Levels',
@@ -476,13 +478,11 @@ export const materialFields: FieldConfig[] = [
     section: 'Arrival Conditions',
     className: 'col-md-4',
     placeholder: 'Levels',
-
     // Validación: Solo aplica si el campo es visible
     validation: {
       required: true, // Obligatorio si Is_Stackable está marcado
       min: 1          // Debe ser un número no negativo
     },
-
     // Visibilidad: Solo si Is_Stackable es true
     visibleWhen: {
       field: 'Is_Stackable',
@@ -497,14 +497,32 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-4',
     optionsKey: 'warehouseList', // Coincide con el C#
     placeholder: '-- Select Warehouse --',
-
     validation: { required: false }, // En tu legacy la validación estaba comentada
-
-    // VISIBILIDAD: Solo si la planta inyectada es 1 (Puebla)
-    visibleWhen: {
-      field: '_projectPlantId',
-      is: [1]
-    }
+    visibleWhen: [
+      // Condición 1: Solo planta Puebla (ID 1)
+      {
+        field: '_projectPlantId',
+        is: [1]
+      },
+      // Condición 2: Solo ciertas rutas
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      }
+    ]
   },
   {
     name: 'PassesThroughSouthWarehouse',
@@ -512,12 +530,32 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Arrival Conditions',
     className: 'col-md-4', // O el tamaño que prefieras
-
     // VISIBILIDAD: Misma regla, solo para planta 1
-    visibleWhen: {
-      field: '_projectPlantId',
-      is: [1]
-    }
+    visibleWhen: [
+      // Condición 1: Solo planta Puebla (ID 1)
+      {
+        field: '_projectPlantId',
+        is: [1]
+      },
+      // Condición 2: Solo ciertas rutas
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      }
+    ]
   },
   {
     name: 'ID_File_ArrivalAdditional', // Campo que guarda el ID (viene de BD)
@@ -525,19 +563,18 @@ export const materialFields: FieldConfig[] = [
     type: 'file', // Nuevo tipo
     section: 'Arrival Conditions',
     className: 'col-md-4',
-
     // Nombre de la propiedad donde guardaremos el binario temporalmente
     // Esta propiedad debe coincidir con el nombre del parámetro en el Controller C# (Legacy)
     // En tu legacy: arrivalAdditionalFile
     uploadFieldName: 'arrivalAdditionalFile',
-
+    fileNameProp: 'arrivalAdditionalFileName',
+    fileEntityProp: 'CTZ_Files6',
     validation: {
       required: false,
-      // 👇 AHORA PUEDES CONFIGURAR ESTO A GUSTO:
+      //AHORA PUEDES CONFIGURAR ESTO A GUSTO:
       accept: ".pdf, .jpg, .png, .zip, .rar",
       maxSizeInMB: 10 // Solo 5 MB para este campo
     },
-
     // Visibilidad (ejemplo, solo para Warehouse 1)
     visibleWhen: {
       field: 'ID_Route',
@@ -561,16 +598,15 @@ export const materialFields: FieldConfig[] = [
   {
     name: 'Arrival_Comments', // Debe coincidir con la BD y types.ts
     label: 'Comments',
-    type: 'textarea', // 👈 Usamos el nuevo tipo
+    type: 'textarea', //  Usamos el nuevo tipo
     section: 'Arrival Conditions',
-    className: 'col-md-12', // 👈 Ocupa todo el ancho
+    className: 'col-md-12', //  Ocupa todo el ancho
     placeholder: 'Comments...',
 
     validation: {
       required: false,
       maxLength: 250 // 👈 Validación automática (Legacy: limit = 250)
     },
-
     // Misma visibilidad que los otros campos de Arrival (basado en la Ruta)
     visibleWhen: {
       field: 'ID_Route',
@@ -599,7 +635,6 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',    // Ancho solicitado en tu legacy
     optionsKey: 'qualityList', // La lista que cargamos en el Paso 1
     placeholder: 'Select or type...',
-
     validation: {
       required: false, // Por defecto no es requerido
       maxLength: 50,   // Regla legacy: Max 50 chars
@@ -615,7 +650,6 @@ export const materialFields: FieldConfig[] = [
         ]
       }
     },
-    // Misma visibilidad que los otros campos de Arrival (basado en la Ruta)
     visibleWhen: {
       field: 'ID_Route',
       is: [
@@ -625,7 +659,7 @@ export const materialFields: FieldConfig[] = [
         ROUTES.BLK_SH,
         ROUTES.BLK_WLD,
         ROUTES.COIL_TO_COIL,
-        ROUTES.REWINDED, //omitido
+        ROUTES.REWINDED,
         ROUTES.SLT,
         ROUTES.SLT_BLK,
         ROUTES.SLT_BLK_WLD,
@@ -641,12 +675,9 @@ export const materialFields: FieldConfig[] = [
     type: 'select',           // Dropdown estándar
     section: 'Coil Data',     // Pestaña Coil Data
     className: 'col-md-3',    // Ajustado a 3 columnas para mejor diseño (Legacy era 2)
-
     // Nombre de la lista en tu objeto 'lists' (revisado en tu controlador C#)
     optionsKey: 'materialTypes',
-
     placeholder: 'Select Material Type',
-
     validation: {
       required: false, // Por defecto opcional
 
@@ -660,6 +691,24 @@ export const materialFields: FieldConfig[] = [
           PROJECT_STATUS.POH         // 4
         ]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   {
@@ -668,13 +717,29 @@ export const materialFields: FieldConfig[] = [
     type: 'creatable-select', // Permite seleccionar o escribir
     section: 'Coil Data',
     className: 'col-md-3',    // Mismo ancho que en Legacy
-
     optionsKey: 'millList',   // La lista que cargamos en el Paso 1
     placeholder: 'Select or type Mill...',
-
     validation: {
       required: false, // No era obligatorio en tu legacy
       maxLength: 80    // Regla legacy: "Cannot exceed 80 characters"
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   {
@@ -684,10 +749,27 @@ export const materialFields: FieldConfig[] = [
     section: 'Coil Data',     // Pestaña Coil Data
     className: 'col-md-3',    // Ancho solicitado (Legacy era col-md-3)
     placeholder: 'Specification',
-
     validation: {
       required: false, // Legacy: No validaba si estaba vacío, solo longitud
       maxLength: 80    // Regla Legacy: "Cannot exceed 80 characters"
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   {
@@ -697,20 +779,36 @@ export const materialFields: FieldConfig[] = [
     section: 'Coil Data',  // Ajusta la sección si es necesario
     className: 'col-md-2', // 👈 Ancho solicitado (col-md-2)
     placeholder: 'Auto-calculated',
-
     disabled: true,        // 👈 ESTO es clave: Lo hace ReadOnly y le pone fondo gris (#e9ecef)
-    showInTable: true      // Opcional: Para que salga en la tabla resumen
+    showInTable: true,      // Opcional: Para que salga en la tabla resumen
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // 1. Tensile Strength (Solo)
   {
     name: 'Tensile_Strenght',
-    label: 'Tensile Strength',
+    label: 'Tensile Strength [N/mm²]',
     type: 'number',
     section: 'Coil Data',
     className: 'col-md-3',
     placeholder: 'Tensile Strength',
     decimals: 2, // Esto generará step="0.01" automáticamente
-
     validation: {
       required: false, // Default
       min: 0,          // Valida que sea positivo
@@ -724,6 +822,24 @@ export const materialFields: FieldConfig[] = [
           PROJECT_STATUS.POH
         ]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // --- GRUPO THICKNESS ---
@@ -749,6 +865,24 @@ export const materialFields: FieldConfig[] = [
           PROJECT_STATUS.POH
         ]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // Campo 2: Tol (-)
@@ -760,6 +894,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0, // Debe ser negativo
@@ -767,6 +902,24 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // Campo 3: Tol (+)
@@ -778,6 +931,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0,
@@ -785,9 +939,26 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
-
   // --- FILA VISUAL: WIDTH ---
   {
     name: 'Width',
@@ -811,9 +982,26 @@ export const materialFields: FieldConfig[] = [
           PROJECT_STATUS.POH
         ]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
-
   // 2. Tolerancia Negativa
   {
     name: 'WidthToleranceNegative',
@@ -823,6 +1011,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0, // Debe ser negativo o 0
@@ -831,9 +1020,26 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
-
   // 3. Tolerancia Positiva
   {
     name: 'WidthTolerancePositive',
@@ -843,6 +1049,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0,
@@ -850,6 +1057,24 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 1. Master Coil Weight
@@ -868,18 +1093,35 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CARRY_OVER, PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
-
   // 2. Inner Coil Diameter Arrival
   {
     name: 'InnerCoilDiameterArrival',
     label: 'Inner Diameter',
-    type: 'number',
+    type: 'creatable-select',
     section: 'Coil Data',
     className: 'col-md-3',
     placeholder: 'Inner Dia.',
-    decimals: 0,
+    options: coilDiameterOptions,
     validation: {
       required: false,
       min: 0,
@@ -887,18 +1129,35 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
-
   // 3. Outer Coil Diameter Arrival
   {
     name: 'OuterCoilDiameterArrival',
     label: 'Outer Diameter',
-    type: 'number',
+    type: 'creatable-select',
     section: 'Coil Data',
     className: 'col-md-3',
     placeholder: 'Outer Dia.',
-    decimals: 0,
+    options: coilDiameterOptions,
     validation: {
       required: false,
       min: 0,
@@ -906,6 +1165,24 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   {
@@ -914,12 +1191,32 @@ export const materialFields: FieldConfig[] = [
     type: 'file',
     section: 'Coil Data',
     className: 'col-md-4', // Ancho Legacy para archivo
-    // Nombre del parámetro que espera tu controlador C#
+    // Nombre del parámetro que espera tu controlador C# Metodo POST
     uploadFieldName: 'coilDataAdditionalFile',
+    fileNameProp: 'coilDataAdditionalFileName',
+    fileEntityProp: 'CTZ_Files7',
     validation: {
       required: false,
       accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
       maxSizeInMB: 10
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        ROUTES.REWINDED,
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // --- NUEVA SECCIÓN: Slitter Data ---
@@ -931,20 +1228,14 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',   // Ancho solicitado
     placeholder: 'Strips',   // Placeholder del legacy
     //step: 'any',             // Permite decimales si fuera necesario
-
     validation: {
       required: false, // Ajusta si es obligatorio
       min: 0           // Regla visual básica (no negativos)
     },
-
-    // Opcional: Si este campo solo debe verse para ciertas rutas (ej. Slitter)
-    // puedes descomentar y ajustar esto:
-    /*
     visibleWhen: {
       field: 'ID_Route',
-      is: [ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
-    */
   },
   // 1. Inner Coil Diameter Delivery
   {
@@ -963,9 +1254,12 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
   },
-
   // 2. Outer Coil Diameter Delivery
   {
     name: 'OuterCoilDiameterDelivery',
@@ -982,9 +1276,12 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
   },
-
   // 3. Slitter Estimated Annual Volume
   {
     name: 'SlitterEstimatedAnnualVolume [Tons]',
@@ -999,6 +1296,10 @@ export const materialFields: FieldConfig[] = [
       min: 0
       // Legacy no muestra "required" explícito en el HTML para este campo, 
       // pero puedes agregarlo si es necesario.
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
   },
   // 1. Campo Principal (Value)
@@ -1014,6 +1315,10 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
   },
 
@@ -1026,9 +1331,14 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0 // Debe ser negativo o 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
   },
 
@@ -1041,9 +1351,14 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
   },
   // 1. Campo Min (Lleva el título de la fila)
@@ -1059,9 +1374,12 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
   },
-
   // 2. Campo Optimal (Es el WeightOfFinalMults "a secas" en tu modelo)
   {
     name: 'WeightOfFinalMults',
@@ -1072,21 +1390,14 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Optimal',
     decimals: 2,
     validation: {
-      required: false, // Se valida por estatus en la lógica compleja si es necesario
-      min: 0,
-      // Estatus donde el Optimal es requerido (Legacy)
-      requiredWhen: {
-        field: '_projectStatusId',
-        is: [
-          PROJECT_STATUS.QUOTES,
-          PROJECT_STATUS.CARRY_OVER,
-          PROJECT_STATUS.CASI_CASI,
-          PROJECT_STATUS.POH
-        ]
-      }
+      required: false,
+      min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
   },
-
   // 3. Campo Max
   {
     name: 'WeightOfFinalMults_Max',
@@ -1099,6 +1410,10 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
   },
   {
@@ -1107,14 +1422,18 @@ export const materialFields: FieldConfig[] = [
     type: 'file',
     section: 'Slitter Data',
     className: 'col-md-6', // Un poco más ancho que col-md-4 para ver mejor el nombre
-
     // Nombre del parámetro en el controlador C#
     uploadFieldName: 'SlitterDataAdditionalFile',
-
+    fileNameProp: 'FileName_SlitterDataAdditional',
+    fileEntityProp: 'CTZ_Files8',
     validation: {
       required: false,
       accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
       maxSizeInMB: 20 // Ajusta el tamaño máximo si es necesario
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.REWINDED, ROUTES.SLT, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD, ROUTES.WEIGHT_DIVISION]
     }
   },
   // --- SECCIÓN: Blank Data ---
@@ -1138,6 +1457,10 @@ export const materialFields: FieldConfig[] = [
           PROJECT_STATUS.POH
         ]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
   // 1. Blanks Per Stroke
@@ -1161,12 +1484,12 @@ export const materialFields: FieldConfig[] = [
           PROJECT_STATUS.POH
         ]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
-    // Nota: Los cálculos (updates) se manejarán automáticamente en React
-    // gracias a que el estado es reactivo. Si necesitas un cálculo específico,
-    // lo agregaremos en un useEffect en MaterialForm.
   },
-
   // 2. Parts Per Vehicle
   {
     name: 'Parts_Per_Vehicle',
@@ -1188,13 +1511,17 @@ export const materialFields: FieldConfig[] = [
           PROJECT_STATUS.POH
         ]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
   // --- GRUPO 1: PLATES WIDTH ---
   {
     name: 'Width_Plates',
     label: 'Value [mm]',
-    rowTitle: 'Plates Width', // 👈 Título Azul
+    rowTitle: 'Blank Width', // 👈 Título Azul
     type: 'number',
     section: 'Blank Data',
     className: 'col-md-12',
@@ -1204,6 +1531,10 @@ export const materialFields: FieldConfig[] = [
       required: false,
       min: 0,
       // Validación Lógica Cruzada (Tol vs Width) se hará en MaterialForm
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
   {
@@ -1217,6 +1548,10 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       max: 0 // Debe ser negativo o 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
   {
@@ -1230,9 +1565,12 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
-
   // --- GRUPO 2: PITCH ---
   {
     name: 'Pitch',
@@ -1250,6 +1588,10 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.QUOTES, PROJECT_STATUS.CARRY_OVER, PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
   {
@@ -1260,6 +1602,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0,
@@ -1267,6 +1610,10 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
   {
@@ -1277,6 +1624,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0,
@@ -1284,9 +1632,12 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
-
   // --- GRUPO 3: FLATNESS ---
   {
     name: 'Flatness',
@@ -1304,6 +1655,10 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
   {
@@ -1314,6 +1669,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0,
@@ -1321,6 +1677,10 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
   {
@@ -1331,6 +1691,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0,
@@ -1338,6 +1699,10 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
   // --- GRUPO 1: ANGLE A ---
@@ -1357,7 +1722,19 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.QUOTES, PROJECT_STATUS.CARRY_OVER, PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
   {
     name: 'AngleAToleranceNegative',
@@ -1367,6 +1744,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0,
@@ -1374,7 +1752,19 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
   {
     name: 'AngleATolerancePositive',
@@ -1384,6 +1774,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0,
@@ -1391,7 +1782,19 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
 
   // --- GRUPO 2: ANGLE B ---
@@ -1411,7 +1814,19 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.QUOTES, PROJECT_STATUS.CARRY_OVER, PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
   {
     name: 'AngleBToleranceNegative',
@@ -1421,6 +1836,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0,
@@ -1428,7 +1844,19 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
   {
     name: 'AngleBTolerancePositive',
@@ -1438,6 +1866,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0,
@@ -1445,9 +1874,20 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
-
   // --- GRUPO 3: MAJOR BASE ---
   {
     name: 'MajorBase',
@@ -1465,7 +1905,19 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.QUOTES, PROJECT_STATUS.CARRY_OVER, PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
   {
     name: 'MajorBaseToleranceNegative',
@@ -1475,6 +1927,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0,
@@ -1482,7 +1935,19 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
   {
     name: 'MajorBaseTolerancePositive',
@@ -1492,6 +1957,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0,
@@ -1499,7 +1965,19 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
 
   // --- GRUPO 4: MINOR BASE ---
@@ -1519,7 +1997,19 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.QUOTES, PROJECT_STATUS.CARRY_OVER, PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
   {
     name: 'MinorBaseToleranceNegative',
@@ -1529,6 +2019,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0,
@@ -1536,7 +2027,19 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
   {
     name: 'MinorBaseTolerancePositive',
@@ -1546,6 +2049,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0,
@@ -1553,8 +2057,21 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
-    }
+    },
+    visibleWhen: [
+      // Regla 1: Debe ser una de estas Rutas
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      // Regla 2: ADEMÁS, el Shape debe ser Trapezoide (ID 3)
+      {
+        field: 'ID_Shape',
+        is: [3]
+      }
+    ]
   },
+  //---------
   // 1. Theoretical Gross Weight (Calculado)
   {
     name: 'Theoretical_Gross_Weight',
@@ -1568,9 +2085,12 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
-
   // 2. Gross Weight (Manual)
   {
     name: 'Gross_Weight',
@@ -1587,9 +2107,12 @@ export const materialFields: FieldConfig[] = [
         field: '_projectStatusId',
         is: [PROJECT_STATUS.QUOTES, PROJECT_STATUS.CARRY_OVER, PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
       }
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
-
   // 3. Client Net Weight (Manual)
   {
     name: 'ClientNetWeight',
@@ -1602,6 +2125,10 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
     }
   },
   // 1. TurnOver (Checkbox)
@@ -1611,16 +2138,17 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Blank Data',
     className: 'col-md-3', // Suficiente espacio para el label
-    // Visible SOLO si Shape es 18 (Configured)
-    visibleWhen: {
-      field: 'ID_Shape',
-      is: [18] // Valor numérico del ID 18
-    },
-    validation: {
-      required: false
-    }
+    visibleWhen: [
+      {
+        field: 'ID_Shape',
+        is: [18] // Valor numérico del ID 18
+      },
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      }
+    ]
   },
-
   // 2. TurnOverSide (Select)
   {
     name: 'TurnOverSide',
@@ -1634,15 +2162,16 @@ export const materialFields: FieldConfig[] = [
       { value: 'Right', label: 'Right' }
     ],
     placeholder: 'Select an option',
-    // Visible SOLO si Shape es 18 Y TurnOver está marcado
-    // NOTA: La lógica 'visibleWhen' simple solo soporta una dependencia.
-    // Manejaremos la visibilidad combinada (Shape + Checkbox) en MaterialForm.tsx 
-    // o usaremos un truco de dependencia en cadena.
-    // Por ahora, lo hacemos depender de TurnOver, y como TurnOver depende de Shape, funciona en cadena.
-    visibleWhen: {
-      field: 'TurnOver',
-      is: [true]
-    },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      {
+        field: 'TurnOver',
+        is: [true]
+      }
+    ],
     validation: {
       // Requerido si es visible (es decir, si TurnOver es true)
       required: true,
@@ -1656,7 +2185,11 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Blank Data',
     className: 'col-md-3',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+    }
   },
   // 2. Is Welded Blank? (Checkbox)
   {
@@ -1665,7 +2198,11 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Blank Data',
     className: 'col-md-3',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+    }
     // En MaterialForm.tsx manejaremos la lógica de limpiar/mostrar hijos
   },
   // 3. Number of Blanks (Input Numérico)
@@ -1695,6 +2232,8 @@ export const materialFields: FieldConfig[] = [
     section: 'Blank Data',
     className: 'col-md-4',
     uploadFieldName: 'archivo', // 👈 Nombre exacto del input en tu Legacy
+    fileNameProp: 'CADFileName',
+    fileEntityProp: 'CTZ_Files',
     visibleWhen: {
       field: 'ID_Shape',
       is: [18] // Valor numérico para 'Configured'
@@ -1714,6 +2253,8 @@ export const materialFields: FieldConfig[] = [
     section: 'Blank Data',
     className: 'col-md-4',
     uploadFieldName: 'technicalSheetFile', // 👈 Nombre exacto del input en tu Legacy
+    fileNameProp: 'technicalSheetFileName',
+    fileEntityProp: 'CTZ_Files4',
     visibleWhen: {
       field: 'ID_Route',
       is: [
@@ -1722,12 +2263,9 @@ export const materialFields: FieldConfig[] = [
         ROUTES.BLK_RPLTZ,
         ROUTES.BLK_SH,
         ROUTES.BLK_WLD,
-        // ROUTES.COIL_TO_COIL,  <-- Generalmente NO aplica a Coil to Coil
-        // ROUTES.REWINDED,      <-- Tampoco a Rewinded
-        // ROUTES.SLT,           <-- Tampoco a Slitter puro
         ROUTES.SLT_BLK,       // <-- Sí aplica porque tiene BLK
         ROUTES.SLT_BLK_WLD    // <-- Sí aplica porque tiene BLK
-        // Verifica si WAREHOUSING o WEIGHT_DIVISION aplican según tu negocio
+
       ]
     },
     validation: {
@@ -1745,6 +2283,8 @@ export const materialFields: FieldConfig[] = [
     section: 'Blank Data',
     className: 'col-md-4',
     uploadFieldName: 'AdditionalFile', // 👈 Nombre exacto del input en tu Legacy
+    fileNameProp: 'AdditionalFileName',
+    fileEntityProp: 'CTZ_Files5',
     visibleWhen: {
       field: 'ID_Route',
       is: [
@@ -1763,6 +2303,7 @@ export const materialFields: FieldConfig[] = [
       maxSizeInMB: 20
     }
   },
+  // ---- Seccion volumnes de blanking
   // 1. Blanking Annual Volume
   {
     name: 'Blanking_Annual_Volume',
@@ -1776,7 +2317,19 @@ export const materialFields: FieldConfig[] = [
       required: false, // Legacy dice opcional (a menos que cambies lógica)
       min: 0,
       customMessage: "Must be a positive whole number."
-    }
+    },
+     visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD
+      ]
+    },
   },
 
   // 2. Blanking Volume Per Year
@@ -1791,7 +2344,19 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
-    }
+    },
+     visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD
+      ]
+    },
   },
 
   // 3. Blanking Initial Weight Per Part (Calculado)
@@ -1803,7 +2368,19 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-4',
     placeholder: 'Calculated',
     decimals: 3,
-    disabled: true // Readonly
+    disabled: true, // Readonly
+     visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD
+      ]
+    },
   },
 
   // 4. Initial Weight Per Part (Calculado)
@@ -1815,7 +2392,19 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-4',
     placeholder: 'Calculated',
     decimals: 3,
-    disabled: true
+    disabled: true,
+     visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD
+      ]
+    },
   },
 
   // 5. Blanking Process Tons (Calculado)
@@ -1827,7 +2416,19 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-4',
     placeholder: 'Calculated',
     decimals: 3,
-    disabled: true
+    disabled: true,
+     visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD
+      ]
+    },
   },
 
   // 6. Blanking Shipping Tons (Calculado)
@@ -1839,8 +2440,22 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-4',
     placeholder: 'Calculated',
     decimals: 3,
-    disabled: true
+    disabled: true,
+     visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD
+      ]
+    },
   },
+/*****  SHEARING DATA ******/
+
   // 1. Shearing Pieces Per Stroke
   {
     name: 'Shearing_Pieces_Per_Stroke',
@@ -1898,6 +2513,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0 // Debe ser negativo o 0
@@ -1913,6 +2529,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0
@@ -1943,6 +2560,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0 // Debe ser negativo o 0
@@ -1958,6 +2576,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0
@@ -1991,6 +2610,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (-)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       max: 0
@@ -2006,6 +2626,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Tol (+)',
     decimals: 2,
+    allowZero: true,
     validation: {
       required: false,
       min: 0
@@ -2108,10 +2729,10 @@ export const materialFields: FieldConfig[] = [
     type: 'file',
     section: 'Interplant Delivery Packaging',
     className: 'col-md-4',
-
     // Nombre del parámetro que espera tu controlador C#
     uploadFieldName: 'interplant_packaging_archivo',
-
+    fileNameProp: 'InterplantPackagingFileName',
+    fileEntityProp: 'CTZ_Files2',
     validation: {
       required: false,
       accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
@@ -2274,8 +2895,8 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-6', // 👈 Mitad del ancho
     placeholder: 'Enter requirements...',
     validation: {
-        required: false,
-        maxLength: 350 // Regla del legacy
+      required: false,
+      maxLength: 350 // Regla del legacy
     }
   },
   // 2. Special Packaging
@@ -2287,8 +2908,8 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-6', // 👈 La otra mitad
     placeholder: 'Enter packaging details...',
     validation: {
-        required: false,
-        maxLength: 350 // Regla del legacy
+      required: false,
+      maxLength: 350 // Regla del legacy
     }
   },
   {
@@ -2300,7 +2921,7 @@ export const materialFields: FieldConfig[] = [
     optionsKey: 'freightTypeList', // Debe coincidir con el controller
     placeholder: 'Select an option',
     validation: {
-        required: false
+      required: false
     }
   },
   // 2. Transport Type (Reutiliza la lista de transporte general)
@@ -2313,7 +2934,7 @@ export const materialFields: FieldConfig[] = [
     optionsKey: 'transportTypes', // 👈 REUTILIZADO
     placeholder: 'Select transport...',
     validation: {
-        required: false
+      required: false
     }
   },
   // 3. Specify Other Transport (Condicional)
@@ -2324,16 +2945,16 @@ export const materialFields: FieldConfig[] = [
     section: 'Interplant Outbound Freight & Conditions',
     className: 'col-md-3',
     placeholder: 'Specify transport...',
-    
+
     // VISIBILIDAD: Solo si TransportType es 5 (Other)
     visibleWhen: {
-        field: 'ID_InterplantDelivery_Transport_Type',
-        is: [5] // 5 es el ID de "Other" en tu BD
+      field: 'ID_InterplantDelivery_Transport_Type',
+      is: [5] // 5 es el ID de "Other" en tu BD
     },
-    
+
     validation: {
-        required: true, // Requerido si es visible
-        maxLength: 50
+      required: true, // Requerido si es visible
+      maxLength: 50
     }
   },
   // 4. Load Per Transport
@@ -2346,9 +2967,9 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Load',
     decimals: 2, // step="any"
     validation: {
-        required: false,
-        min: 0,
-        customMessage: "Must be a positive number."
+      required: false,
+      min: 0,
+      customMessage: "Must be a positive number."
     }
   },
   // 5. Delivery Conditions (Textarea grande)
@@ -2360,8 +2981,8 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12', // 👈 Ajustado a 12 para que use toda la fila (o 9 si prefieres mantener legacy layout exacto)
     placeholder: 'Describe interplant delivery conditions...',
     validation: {
-        required: false,
-        maxLength: 350
+      required: false,
+      maxLength: 350
     }
   },
   // 1. Checkbox Padre
@@ -2400,10 +3021,10 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Optimal %',
     decimals: 2,
     visibleWhen: { field: 'InterplantScrapReconciliation', is: [true] },
-    validation: { 
-        required: true, // Requerido si el padre está activo (legacy logic)
-        min: 0, 
-        max: 100 
+    validation: {
+      required: true, // Requerido si el padre está activo (legacy logic)
+      min: 0,
+      max: 100
     }
   },
   {
@@ -2463,10 +3084,10 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Optimal %',
     decimals: 2,
     visibleWhen: { field: 'InterplantHeadTailReconciliation', is: [true] },
-    validation: { 
-        required: true, // Requerido si el padre está activo
-        min: 0, 
-        max: 100 
+    validation: {
+      required: true, // Requerido si el padre está activo
+      min: 0,
+      max: 100
     }
   },
   {
@@ -2498,13 +3119,14 @@ export const materialFields: FieldConfig[] = [
     type: 'file',
     section: 'Interplant Outbound Freight & Conditions',
     className: 'col-md-4',
-    
     // ⚠️ CRÍTICO: Debe coincidir con el nombre del parámetro en tu Controller C# legacy
-    uploadFieldName: 'interplantOutboundFreightAdditionalFile',     
+    uploadFieldName: 'interplantOutboundFreightAdditionalFile',
+    fileNameProp: 'FileName_InterplantOutboundFreight',
+    fileEntityProp: 'CTZ_Files3',
     validation: {
-        required: false,
-        accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
-        maxSizeInMB: 20
+      required: false,
+      accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
+      maxSizeInMB: 20
     }
   },
   // 1. Delivery Coil Position (Reusa la lista existente)
@@ -2517,7 +3139,7 @@ export const materialFields: FieldConfig[] = [
     optionsKey: 'coilPositions', // 👈 REUTILIZADO
     placeholder: 'Select an option',
     validation: {
-        required: false
+      required: false
     }
   },
   // 2. Packaging Standard
@@ -2529,12 +3151,12 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-4',
     // Opciones hardcodeadas según legacy
     options: [
-        { value: 'OWN', label: 'Developed by tkMM' },
-        { value: 'CM', label: 'Provided by Client' }
+      { value: 'OWN', label: 'Developed by tkMM' },
+      { value: 'CM', label: 'Provided by Client' }
     ],
     placeholder: 'Select an option',
     validation: {
-        required: false // Puedes cambiar a true si quieres replicar validatePackagingStandard
+      required: false // Puedes cambiar a true si quieres replicar validatePackagingStandard
     }
   },
   // 3. Requires Rack Manufacturing (Condicional)
@@ -2546,8 +3168,8 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     // VISIBILIDAD: Solo si Standard es 'OWN'
     visibleWhen: {
-        field: 'PackagingStandard',
-        is: ['OWN']
+      field: 'PackagingStandard',
+      is: ['OWN']
     },
     validation: { required: false }
   },
@@ -2561,9 +3183,9 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Qty',
     decimals: 0,
     validation: {
-        required: false,
-        min: 0,
-        customMessage: "Must be a non-negative whole number."
+      required: false,
+      min: 0,
+      customMessage: "Must be a non-negative whole number."
     }
   },
   // 5. Stacks Per Package
@@ -2576,9 +3198,9 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Qty',
     decimals: 0,
     validation: {
-        required: false,
-        min: 0,
-        customMessage: "Must be a non-negative whole number."
+      required: false,
+      min: 0,
+      customMessage: "Must be a non-negative whole number."
     }
   },
   // 6. Package Weight (Calculado)
@@ -2599,14 +3221,14 @@ export const materialFields: FieldConfig[] = [
     type: 'file',
     section: 'Final Delivery Packaging',
     className: 'col-md-6', // Legacy usa col-md-8
-    
     // Nombre del parámetro que espera el Controller C#
-    uploadFieldName: 'packaging_archivo', 
-    
+    uploadFieldName: 'packaging_archivo',
+    fileNameProp: 'FileName_Packaging', 
+    fileEntityProp: 'CTZ_Files1',
     validation: {
-        required: false,
-        accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
-        maxSizeInMB: 10
+      required: false,
+      accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
+      maxSizeInMB: 10
     }
   },
   // 8. Delivery Packaging Additional File
@@ -2616,14 +3238,14 @@ export const materialFields: FieldConfig[] = [
     type: 'file',
     section: 'Final Delivery Packaging',
     className: 'col-md-6', // Legacy usa col-md-4
-    
     // Nombre del parámetro que espera el Controller C#
-    uploadFieldName: 'deliveryPackagingAdditionalFile', 
-    
+    uploadFieldName: 'deliveryPackagingAdditionalFile',
+    fileNameProp: 'FileName_DeliveryPackagingAdditional', 
+    fileEntityProp: 'CTZ_Files11',
     validation: {
-        required: false,
-        accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
-        maxSizeInMB: 10 // Asumiendo 10MB igual que el otro
+      required: false,
+      accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
+      maxSizeInMB: 10 // Asumiendo 10MB igual que el otro
     }
   },
   // 9. Rack Types (Checkbox Group)
@@ -2636,7 +3258,7 @@ export const materialFields: FieldConfig[] = [
     optionsKey: 'rackTypeList', // Reuses the list from Interplant/Arrival
     validation: { required: false }
   },
-// --- RETURNABLE RACK LOGIC (Depends on Rack Types) ---  
+  // --- RETURNABLE RACK LOGIC (Depends on Rack Types) ---  
   // 12. Is Returnable Rack?
   {
     name: 'IsReturnableRack',
@@ -2646,8 +3268,8 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3', // Small width    
     // VISIBILITY: Only if special racks [2, 3, 4] are selected
     visibleWhen: {
-        field: 'SelectedRackTypeIds',
-        is: [2, 3, 4] // Adjust IDs based on your DB (Wood, etc.)
+      field: 'SelectedRackTypeIds',
+      is: [2, 3, 4] // Adjust IDs based on your DB (Wood, etc.)
     },
     validation: { required: false }
   },
@@ -2659,16 +3281,16 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Delivery Packaging',
     className: 'col-md-3',
     placeholder: 'e.g., 5',
-    decimals: 0,    
+    decimals: 0,
     // VISIBILITY: Only if IsReturnableRack is checked
     visibleWhen: {
-        field: 'IsReturnableRack',
-        is: [true]
+      field: 'IsReturnableRack',
+      is: [true]
     },
     validation: {
-        required: true,
-        min: 1,
-        customMessage: "Must be a positive whole number."
+      required: true,
+      min: 1,
+      customMessage: "Must be a positive whole number."
     }
   },
   // 10. Labels (Checkbox Group)
@@ -2690,18 +3312,18 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Delivery Packaging',
     className: 'col-md-12',
     placeholder: 'Description...',
-    
+
     // VISIBILITY: Depends on SelectedLabelIds containing 3
     visibleWhen: {
-        field: 'SelectedLabelIds',
-        is: [3]
+      field: 'SelectedLabelIds',
+      is: [3]
     },
-    
+
     validation: {
-        required: true,
-        maxLength: 120
+      required: true,
+      maxLength: 120
     }
-  },  
+  },
   // --- GRUPO: Additionals ---
   // 14. Additionals (Checkbox Group)
   {
@@ -2720,14 +3342,14 @@ export const materialFields: FieldConfig[] = [
     type: 'text',
     section: 'Final Delivery Packaging',
     className: 'col-md-12',
-    placeholder: 'Description...',    
+    placeholder: 'Description...',
     visibleWhen: {
-        field: 'SelectedAdditionalIds',
-        is: [6] // ID 6 is "Other"
-    },    
+      field: 'SelectedAdditionalIds',
+      is: [6] // ID 6 is "Other"
+    },
     validation: {
-        required: true,
-        maxLength: 120
+      required: true,
+      maxLength: 120
     }
   },
   // --- GRUPO: Standard Packaging (Straps) ---
@@ -2750,8 +3372,8 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Strap type observations...',
     validation: {
-        required: false,
-        maxLength: 120
+      required: false,
+      maxLength: 120
     }
   },
   // --- SPECIAL TEXTAREAS ---
@@ -2764,8 +3386,8 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-6',
     placeholder: 'Enter requirements...',
     validation: {
-        required: false,
-        maxLength: 350
+      required: false,
+      maxLength: 350
     }
   },
   // 19. Special Packaging
@@ -2777,8 +3399,8 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-6',
     placeholder: 'Enter packaging details...',
     validation: {
-        required: false,
-        maxLength: 350
+      required: false,
+      maxLength: 350
     }
   },
   // --- SECCIÓN: Final Outbound Freight & Conditions ---
@@ -2813,12 +3435,12 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Specify transport...',
     // VISIBILIDAD: Solo si TransportType es 5 (Other)
     visibleWhen: {
-        field: 'ID_Delivery_Transport_Type',
-        is: [5]
+      field: 'ID_Delivery_Transport_Type',
+      is: [5]
     },
     validation: {
-        required: true,
-        maxLength: 50
+      required: true,
+      maxLength: 50
     }
   },
   // 4. Load Per Transport
@@ -2831,9 +3453,9 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Load',
     decimals: 2,
     validation: {
-        required: false,
-        min: 0,
-        customMessage: "Must be a positive number."
+      required: false,
+      min: 0,
+      customMessage: "Must be a positive number."
     }
   },
   // 5. Delivery Conditions (Textarea)
@@ -2845,8 +3467,8 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-12',
     placeholder: 'Describe delivery conditions...',
     validation: {
-        required: false,
-        maxLength: 350
+      required: false,
+      maxLength: 350
     }
   },
 
@@ -2969,24 +3591,25 @@ export const materialFields: FieldConfig[] = [
     type: 'file',
     section: 'Final Outbound Freight & Conditions',
     className: 'col-md-4',
-    
     // Nombre del parámetro en el Controller C#
-    uploadFieldName: 'outboundFreightAdditionalFile', 
-    
+    uploadFieldName: 'outboundFreightAdditionalFile',
+    fileNameProp: 'FileName_OutboundFreightAdditional',
+    fileEntityProp: 'CTZ_Files10',
     validation: {
-        required: false,
-        accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
-        maxSizeInMB: 20
+      required: false,
+      accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
+      maxSizeInMB: 20
     }
   },
   // 1. Theoretical Blanking Line (Readonly)
   {
-    name: 'ID_Theoretical_Blanking_Line', // Este guarda el ID oculto si es necesario
+    name: 'ID_Theoretical_Blanking_Line',
     label: 'Theoretical Blanking Line',
-    type: 'text', // Usamos text para mostrar el nombre
+    type: 'select', // CAMBIO: Ahora es un Select
+    optionsKey: 'linesList', // CAMBIO: Se conecta a la lista que viene del backend
     section: 'Technical Feasibility',
     className: 'col-md-3',
-    disabled: true, // Readonly
+    disabled: true, // Se mantiene deshabilitado para que sea solo lectura
     placeholder: 'Theoretical Blanking Line',
     // Usaremos un campo virtual en el form para mostrar el nombre si viene separado del ID
     // O si el backend manda el nombre en este campo, perfecto.
@@ -3012,5 +3635,286 @@ export const materialFields: FieldConfig[] = [
     disabled: true, // Readonly
     placeholder: 'Strokes * OEE',
     decimals: 0 // Entero
+  },
+  // 4. Real Blanking Line (Dropdown editable por Ingeniería)
+  {
+    name: 'ID_Real_Blanking_Line',
+    label: 'Real Blanking Line',
+    type: 'select',
+    section: 'Technical Feasibility',
+    className: 'col-md-3',
+    optionsKey: 'linesList', // Nombre en listsPayload
+    placeholder: 'Select Line',
+    validation: {
+      required: false // Se valida dinámicamente según permisos
+    }
+  },
+  // 5. Real Strokes (Calculado AJAX)
+  {
+    name: 'Real_Strokes',
+    label: 'Real Strokes',
+    type: 'number',
+    section: 'Technical Feasibility',
+    className: 'col-md-3',
+    disabled: true, // Readonly
+    placeholder: 'Real Strokes',
+    decimals: 2
+  },
+  // 6. Real Effective Strokes (Calculado Local)
+  {
+    name: 'Real_Effective_Strokes',
+    label: 'Real Effective Strokes',
+    type: 'number',
+    section: 'Technical Feasibility',
+    className: 'col-md-3',
+    disabled: true, // Readonly
+    placeholder: 'Strokes * OEE',
+    decimals: 0 // Entero
+  },
+  // 7. Ideal Cycle Time Per Tool
+  {
+    name: 'Ideal_Cycle_Time_Per_Tool',
+    label: 'Ideal Cycle Time Per Tool',
+    type: 'number',
+    section: 'Technical Feasibility',
+    className: 'col-md-3',
+    placeholder: 'Ideal Cycle Time',
+    decimals: 2,
+    validation: {
+      required: false // Se valida dinámicamente si es Ingeniero
+    }
+  },
+  // 8. OEE (%)
+  {
+    name: 'OEE',
+    label: 'OEE (%)',
+    type: 'number', // O 'percentage' si creaste un tipo especial
+    section: 'Technical Feasibility',
+    className: 'col-md-3',
+    placeholder: 'OEE',
+    decimals: 2,
+    validation: {
+      required: false, // Dinámico
+      min: 0,
+      max: 100
+    }
+  },
+  // 9. Tons Per Shift
+  {
+    name: 'TonsPerShift',
+    label: 'Tons per Shift',
+    type: 'number',
+    section: 'Technical Feasibility',
+    className: 'col-md-3',
+    placeholder: 'Tons/Shift',
+    decimals: 2,
+    validation: {
+      required: false,
+      min: 0
+    }
+  },
+  // 10. Slitting Line
+  {
+    name: 'ID_Slitting_Line',
+    label: 'Slitting Line',
+    type: 'select',
+    section: 'Technical Feasibility',
+    className: 'col-md-3',
+    optionsKey: 'linesList', // Reusa la lista de líneas cargada
+    placeholder: 'Select a slitting line',
+    validation: {
+      required: false
+    }
+  },
+  // 1. Parts / Auto
+  {
+    name: 'Parts_Auto',
+    label: 'Parts/Auto',
+    type: 'number',
+    section: 'Efficiency and Capacity',
+    className: 'col-md-3',
+    disabled: true,
+    placeholder: 'Parts/Auto',
+    decimals: 2
+  },
+  // 2. Stroke / Auto
+  {
+    name: 'Strokes_Auto',
+    label: 'Stroke/Auto',
+    type: 'number',
+    section: 'Efficiency and Capacity',
+    className: 'col-md-3',
+    disabled: true,
+    placeholder: 'Stroke/Auto',
+    decimals: 2
+  },
+  // 3. Blanks / Year
+  {
+    name: 'Blanks_Per_Year',
+    label: 'Blanks/Year',
+    type: 'number',
+    section: 'Efficiency and Capacity',
+    className: 'col-md-3',
+    disabled: true,
+    placeholder: 'Blanks/Year',
+    decimals: 0
+  },
+  // 4. Min Max Reales
+  {
+    name: 'Min_Max_Reales',
+    label: 'Min Max Reales',
+    type: 'number',
+    section: 'Efficiency and Capacity',
+    className: 'col-md-3',
+    disabled: true,
+    placeholder: 'Min Max Reales',
+    decimals: 2
+  },
+  // 5. Min Max Reales / OEE
+  {
+    name: 'Min_Max_Reales_OEE',
+    label: 'Min Max Reales / OEE',
+    type: 'number',
+    section: 'Efficiency and Capacity',
+    className: 'col-md-3',
+    disabled: true,
+    placeholder: 'Min Max / OEE',
+    decimals: 2
+  },
+  // 6. Actual Shifts
+  {
+    name: 'Actual_Shifts',
+    label: 'Actual Shifts',
+    type: 'number',
+    section: 'Efficiency and Capacity',
+    className: 'col-md-3',
+    disabled: true,
+    placeholder: 'Actual Shifts',
+    decimals: 2
+  },
+  // 7. Stroke / Shift
+  {
+    name: 'Strokes_Shift',
+    label: 'Stroke / shift',
+    type: 'number',
+    section: 'Efficiency and Capacity',
+    className: 'col-md-3',
+    disabled: true,
+    placeholder: 'Stroke / shift',
+    decimals: 2
+  },
+  // 8. Status DM
+  {
+    name: 'DM_status',
+    label: 'Status DM',
+    type: 'text',
+    section: 'Efficiency and Capacity',
+    className: 'col-md-3',
+    disabled: true,
+    placeholder: 'Status DM'
+  },
+  // 9. Status Comment (Usamos textarea para emular el bloque grande del legacy)
+  {
+    name: 'DM_status_comment',
+    label: 'Status Comment',
+    type: 'textarea', // O 'text' si prefieres una sola línea
+    section: 'Efficiency and Capacity',
+    className: 'col-md-6', // Más ancho como en tu legacy
+    disabled: true,
+    placeholder: 'Comments...',
+    // Simulamos el estilo grisáceo del legacy con disabled
+  },
+  // =====================================================================
+  // SECCIÓN: VOLUME & WEIGHTS (DINÁMICA)
+  // Estos campos se moverán a 'Coil Data' o 'Slitter Data' según la ruta
+  // =====================================================================
+  {
+    name: 'Annual_Volume',
+    label: 'Annual Volume',
+    type: 'number',
+    section: 'General', // Se sobrescribe dinámicamente
+    className: 'col-md-2',
+    placeholder: 'Annual Volume',
+    decimals: 0,
+    validation: {
+      required: false, // Legacy: Requerido según estatus (Quotes, CarryOver, etc.)
+      requiredWhen: {
+        field: '_projectStatusId',
+        is: [PROJECT_STATUS.QUOTES, PROJECT_STATUS.CARRY_OVER, PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
+      },
+      min: 0
+    }
+  },
+  {
+    name: 'Volume_Per_year',
+    label: 'Volume Per Year',
+    type: 'number',
+    section: 'General',
+    className: 'col-md-2',
+    placeholder: 'Volume / Year',
+    decimals: 2, // step="any"
+    validation: {
+      required: false,
+      requiredWhen: {
+        field: '_projectStatusId',
+        is: [PROJECT_STATUS.QUOTES, PROJECT_STATUS.CARRY_OVER, PROJECT_STATUS.CASI_CASI, PROJECT_STATUS.POH]
+      },
+      min: 0
+    }
+  },
+  {
+    name: 'WeightPerPart',
+    label: 'Weight Per Part',
+    type: 'number',
+    section: 'General',
+    className: 'col-md-2',
+    placeholder: 'Weight/Part',
+    decimals: 3,
+    disabled: true // Readonly (Calculado)
+  },
+  {
+    name: 'Initial_Weight',
+    label: 'Initial Weight',
+    type: 'number',
+    section: 'General',
+    className: 'col-md-2',
+    placeholder: 'Initial Weight',
+    decimals: 3,
+    disabled: true // Readonly (Calculado)
+  },
+  {
+    name: 'AnnualTonnage',
+    label: 'Annual Tonnage',
+    type: 'number',
+    section: 'General',
+    className: 'col-md-2',
+    placeholder: 'Annual Tonnage',
+    decimals: 3,
+    disabled: true // Readonly (Calculado)
+  },
+  {
+    name: 'ShippingTons',
+    label: 'Shipping Tons',
+    type: 'number',
+    section: 'General',
+    className: 'col-md-2', // Legacy lo tenía col-md-3, ajusta a gusto
+    placeholder: 'Shipping Tons',
+    decimals: 3,
+    disabled: true // Readonly (Calculado)
+  },
+  {
+    name: 'ID_File_VolumeAdditional',
+    label: 'Volume Additional File',
+    type: 'file',
+    section: 'General',
+    className: 'col-md-4',
+    uploadFieldName: 'volumeAdditionalFile', // Nombre para el Controller
+    fileNameProp: 'FileName_VolumeAdditional',
+    fileEntityProp: 'CTZ_Files9',
+    validation: {
+      required: false,
+      accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
+      maxSizeInMB: 20
+    }
   }
 ];

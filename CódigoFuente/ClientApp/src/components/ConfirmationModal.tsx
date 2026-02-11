@@ -1,3 +1,8 @@
+// src/components/ConfirmationModal.tsx
+//import React from 'react';
+
+type Variant = 'danger' | 'warning' | 'info' | 'success';
+
 interface Props {
     isOpen: boolean;
     title: string;
@@ -5,6 +10,12 @@ interface Props {
     onConfirm: () => void;
     onCancel: () => void;
     isLoading?: boolean;
+    
+    // Nuevas props opcionales para personalización
+    confirmText?: string;
+    cancelText?: string;
+    variant?: Variant; // 'danger' (rojo), 'warning' (naranja/amarillo), 'info' (azul), 'success' (verde)
+    icon?: string; // Clase de FontAwesome, ej: 'fa-trash'
 }
 
 const modalStyles = `
@@ -32,19 +43,30 @@ const modalStyles = `
     text-align: center;
   }
 
+  /* Variantes de Icono */
   .modal-icon-container {
     margin: 0 auto 20px;
     width: 60px;
     height: 60px;
-    background-color: #fee2e2;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
+  .variant-danger .modal-icon-container { background-color: #fee2e2; }
+  .variant-danger .modal-icon { color: #dc2626; }
+  
+  .variant-warning .modal-icon-container { background-color: #fef3c7; }
+  .variant-warning .modal-icon { color: #d97706; }
+
+  .variant-info .modal-icon-container { background-color: #e0f2fe; }
+  .variant-info .modal-icon { color: #0284c7; }
+
+  .variant-success .modal-icon-container { background-color: #dcfce7; }
+  .variant-success .modal-icon { color: #16a34a; }
+
   .modal-icon {
-    color: #dc2626;
     font-size: 24px;
   }
 
@@ -85,27 +107,62 @@ const modalStyles = `
   }
   .btn-modal-cancel:hover { background-color: #e5e7eb; }
 
-  .btn-modal-confirm {
+  /* Variantes de Botón Confirmar */
+  .variant-danger .btn-modal-confirm {
     background-color: #dc2626;
     color: white;
     box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3);
   }
-  .btn-modal-confirm:hover { background-color: #b91c1c; }
+  .variant-danger .btn-modal-confirm:hover { background-color: #b91c1c; }
+
+  .variant-warning .btn-modal-confirm {
+    background-color: #d97706;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.3);
+  }
+  .variant-warning .btn-modal-confirm:hover { background-color: #b45309; }
+
+  .variant-info .btn-modal-confirm {
+    background-color: #0284c7;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.3);
+  }
+  .variant-info .btn-modal-confirm:hover { background-color: #0369a1; }
+  
+  .variant-success .btn-modal-confirm {
+    background-color: #16a34a;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3);
+  }
+  .variant-success .btn-modal-confirm:hover { background-color: #15803d; }
 
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 `;
 
-export default function ConfirmationModal({ isOpen, title, message, onConfirm, onCancel, isLoading }: Props) {
+export default function ConfirmationModal({ 
+    isOpen, 
+    title, 
+    message, 
+    onConfirm, 
+    onCancel, 
+    isLoading,
+    confirmText = "Confirm", // Valor por defecto
+    cancelText = "Cancel",
+    variant = "danger",      // Valor por defecto (Rojo)
+    icon = "fa-exclamation-triangle" // Icono por defecto
+}: Props) {
+    
     if (!isOpen) return null;
 
     return (
         <div className="modern-modal-overlay">
             <style>{modalStyles}</style>
-            <div className="modern-modal-card">
-                {/* Icono de Alerta */}
+            {/* Agregamos la clase de la variante al contenedor principal para que aplique los estilos CSS */}
+            <div className={`modern-modal-card variant-${variant}`}>
+                
                 <div className="modal-icon-container">
-                    <i className="fa fa-exclamation-triangle modal-icon"></i>
+                    <i className={`fa ${icon} modal-icon`}></i>
                 </div>
 
                 <h3 className="modal-title">{title}</h3>
@@ -117,7 +174,7 @@ export default function ConfirmationModal({ isOpen, title, message, onConfirm, o
                         onClick={onCancel}
                         disabled={isLoading}
                     >
-                        Cancel
+                        {cancelText}
                     </button>
                     <button 
                         className="btn-modal btn-modal-confirm" 
@@ -125,10 +182,8 @@ export default function ConfirmationModal({ isOpen, title, message, onConfirm, o
                         disabled={isLoading}
                     >
                         {isLoading ? (
-                            <span><i className="fa fa-spinner fa-spin mr-2"></i>Deleting...</span>
-                        ) : (
-                            "Yes, delete it"
-                        )}
+                            <span><i className="fa fa-spinner fa-spin mr-2"></i>Processing...</span>
+                        ) : confirmText}
                     </button>
                 </div>
             </div>
