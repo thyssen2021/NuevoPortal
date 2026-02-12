@@ -157,3 +157,5 @@ _[Ss]cripts
 **/.vs/
 .vs/
 
+#Permite esta carpeta
+!CódigoFuente/ClientApp/
