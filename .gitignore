@@ -156,3 +156,5 @@ _[Ss]cripts
 # Esta es la regla clave que resuelve tu problema para TODAS las carpetas .vs
 **/.vs/
 .vs/
+#ignora la carpeta de node
+CódigoFuente/ClientApp
