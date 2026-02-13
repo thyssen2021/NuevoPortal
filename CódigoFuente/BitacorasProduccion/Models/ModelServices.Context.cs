@@ -12,6 +12,8 @@ namespace Portal_2_0.Models
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class Portal_2_0_ServicesEntities : DbContext
     {
@@ -33,5 +35,18 @@ namespace Portal_2_0.Models
         public virtual DbSet<BomItems> BomItems { get; set; }
         public virtual DbSet<Materials> Materials { get; set; }
         public virtual DbSet<vw_ReporteBalanceMateriales> vw_ReporteBalanceMateriales { get; set; }
+    
+        public virtual ObjectResult<sp_GetReporteBalanceScrap_Result> sp_GetReporteBalanceScrap(Nullable<System.DateTime> fechaInicio, Nullable<System.DateTime> fechaFin)
+        {
+            var fechaInicioParameter = fechaInicio.HasValue ?
+                new ObjectParameter("FechaInicio", fechaInicio) :
+                new ObjectParameter("FechaInicio", typeof(System.DateTime));
+    
+            var fechaFinParameter = fechaFin.HasValue ?
+                new ObjectParameter("FechaFin", fechaFin) :
+                new ObjectParameter("FechaFin", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_GetReporteBalanceScrap_Result>("sp_GetReporteBalanceScrap", fechaInicioParameter, fechaFinParameter);
+        }
     }
 }

@@ -179,6 +179,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
           <Property Name="Porcentaje_Scrap_PC" Type="float" />
           <Property Name="Porcentaje_Scrap_Merma" Type="float" />
         </EntityType>
+        <Function Name="sp_GetReporteBalanceScrap" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="FechaInicio" Type="datetime" Mode="In" />
+          <Parameter Name="FechaFin" Type="datetime" Mode="In" />
+        </Function>
         <EntityContainer Name="Portal_2_0_ServicesModelStoreContainer">
           <EntitySet Name="BatchCharacteristics" EntityType="Self.BatchCharacteristics" Schema="SAP" store:Type="Tables" />
           <EntitySet Name="Batches" EntityType="Self.Batches" Schema="SAP" store:Type="Tables" />
@@ -292,6 +296,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
           <EntitySet Name="BomItems" EntityType="Portal_2_0_ServicesModel.BomItems" />
           <EntitySet Name="Materials" EntityType="Portal_2_0_ServicesModel.Materials" />
           <EntitySet Name="vw_ReporteBalanceMateriales" EntityType="Portal_2_0_ServicesModel.vw_ReporteBalanceMateriales" />
+          <FunctionImport Name="sp_GetReporteBalanceScrap" ReturnType="Collection(Portal_2_0_ServicesModel.sp_GetReporteBalanceScrap_Result)">
+            <Parameter Name="FechaInicio" Mode="In" Type="DateTime" />
+            <Parameter Name="FechaFin" Mode="In" Type="DateTime" />
+          </FunctionImport>
         </EntityContainer>
         <EntityType Name="BomItems">
           <Key>
@@ -398,6 +406,29 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
           <Property Name="Porcentaje_Scrap_PC" Type="Double" />
           <Property Name="Porcentaje_Scrap_Merma" Type="Double" />
         </EntityType>
+        <ComplexType Name="sp_GetReporteBalanceScrap_Result">
+          <Property Type="Int32" Name="IdFila" Nullable="false" />
+          <Property Type="DateTime" Name="Fecha_Produccion" Nullable="true" Precision="23" />
+          <Property Type="Double" Name="Orden_Produccion" Nullable="true" />
+          <Property Type="Double" Name="Planta" Nullable="true" />
+          <Property Type="String" Name="Numero_Parte" Nullable="true" MaxLength="255" />
+          <Property Type="String" Name="Business_Model" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="Tipo_Metal" Nullable="true" MaxLength="80" />
+          <Property Type="Int32" Name="Rollos_Usados" Nullable="true" />
+          <Property Type="Double" Name="Tons_Usadas" Nullable="true" />
+          <Property Type="Double" Name="Total_Kg_Used" Nullable="true" />
+          <Property Type="Double" Name="Peso_Platina_KG" Nullable="true" />
+          <Property Type="Double" Name="Platinas_Producidas" Nullable="true" />
+          <Property Type="Double" Name="Platinas_Vendidas" Nullable="true" />
+          <Property Type="Double" Name="Diferencia_Inventario_Teorica" Nullable="true" />
+          <Property Type="Double" Name="Merma_Almacen" Nullable="true" />
+          <Property Type="Double" Name="Scrap_OffFall_KG" Nullable="true" />
+          <Property Type="Double" Name="Scrap_PC_KG" Nullable="true" />
+          <Property Type="Double" Name="Scrap_Merma_KG" Nullable="true" />
+          <Property Type="Double" Name="Porcentaje_Scrap_OffFall" Nullable="true" />
+          <Property Type="Double" Name="Porcentaje_Scrap_PC" Nullable="true" />
+          <Property Type="Double" Name="Porcentaje_Scrap_Merma" Nullable="true" />
+        </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -573,6 +604,33 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="sp_GetReporteBalanceScrap" FunctionName="Portal_2_0_ServicesModel.Store.sp_GetReporteBalanceScrap">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="Portal_2_0_ServicesModel.sp_GetReporteBalanceScrap_Result">
+                <ScalarProperty Name="IdFila" ColumnName="IdFila" />
+                <ScalarProperty Name="Fecha_Produccion" ColumnName="Fecha_Produccion" />
+                <ScalarProperty Name="Orden_Produccion" ColumnName="Orden_Produccion" />
+                <ScalarProperty Name="Planta" ColumnName="Planta" />
+                <ScalarProperty Name="Numero_Parte" ColumnName="Numero_Parte" />
+                <ScalarProperty Name="Business_Model" ColumnName="Business_Model" />
+                <ScalarProperty Name="Tipo_Metal" ColumnName="Tipo_Metal" />
+                <ScalarProperty Name="Rollos_Usados" ColumnName="Rollos_Usados" />
+                <ScalarProperty Name="Tons_Usadas" ColumnName="Tons_Usadas" />
+                <ScalarProperty Name="Total_Kg_Used" ColumnName="Total_Kg_Used" />
+                <ScalarProperty Name="Peso_Platina_KG" ColumnName="Peso_Platina_KG" />
+                <ScalarProperty Name="Platinas_Producidas" ColumnName="Platinas_Producidas" />
+                <ScalarProperty Name="Platinas_Vendidas" ColumnName="Platinas_Vendidas" />
+                <ScalarProperty Name="Diferencia_Inventario_Teorica" ColumnName="Diferencia_Inventario_Teorica" />
+                <ScalarProperty Name="Merma_Almacen" ColumnName="Merma_Almacen" />
+                <ScalarProperty Name="Scrap_OffFall_KG" ColumnName="Scrap_OffFall_KG" />
+                <ScalarProperty Name="Scrap_PC_KG" ColumnName="Scrap_PC_KG" />
+                <ScalarProperty Name="Scrap_Merma_KG" ColumnName="Scrap_Merma_KG" />
+                <ScalarProperty Name="Porcentaje_Scrap_OffFall" ColumnName="Porcentaje_Scrap_OffFall" />
+                <ScalarProperty Name="Porcentaje_Scrap_PC" ColumnName="Porcentaje_Scrap_PC" />
+                <ScalarProperty Name="Porcentaje_Scrap_Merma" ColumnName="Porcentaje_Scrap_Merma" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

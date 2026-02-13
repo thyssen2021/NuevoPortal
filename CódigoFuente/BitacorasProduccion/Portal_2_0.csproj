@@ -1528,6 +1528,9 @@
     <Compile Include="Models\SCDM_versiones_herramienta_excel.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\sp_GetReporteBalanceScrap_Result.cs">
+      <DependentUpon>ModelServices.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\upgrade_check_item.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>

@@ -405,18 +405,17 @@ namespace Portal_2_0.Controllers
         [System.Web.Mvc.AllowAnonymous]
         public ActionResult ReporteBalanceScrap()
         {
-            // Usamos el rol de reportes de producción
-            //if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE) || TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS) || TieneRol(TipoRoles.ADMIN))
-            //{
-                return View();
-            //}
-            //else
-            //{
-            //    return View("../Home/ErrorPermisos");
-            //}
+            // Nota: Descomenta la seguridad cuando pases a producción
+            // if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE) || TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS) || TieneRol(TipoRoles.ADMIN))
+            // {
+            return View();
+            // }
+            // else
+            // {
+            //     return View("../Home/ErrorPermisos");
+            // }
         }
 
-        // 2. Método AJAX para alimentar el DataTables (Server-Side Processing)
         // 2. Método AJAX para alimentar el DataTables (Server-Side Processing)
         [HttpPost]
         public ActionResult GetReporteScrapData()
@@ -439,7 +438,8 @@ namespace Portal_2_0.Controllers
 
                 using (var db_sap = new Portal_2_0_ServicesEntities())
                 {
-                    var query = db_sap.vw_ReporteBalanceMateriales.AsQueryable();
+                    // OPTIMIZACIÓN 1: AsNoTracking() evita que EF guarde caché de estos datos, agilizando la lectura
+                    var query = db_sap.vw_ReporteBalanceMateriales.AsNoTracking().AsQueryable();
 
                     // 1. Aplicar Filtro global (Buscador general)
                     if (!string.IsNullOrEmpty(searchValue))
@@ -461,7 +461,6 @@ namespace Portal_2_0.Controllers
                     {
                         bool isDesc = sortDirection == "desc";
 
-                        // Hacemos match del índice de la columna en DataTables con la propiedad en EF
                         switch (sortColumnIndex)
                         {
                             case "0": query = isDesc ? query.OrderByDescending(x => x.Orden_Produccion) : query.OrderBy(x => x.Orden_Produccion); break;
@@ -480,21 +479,18 @@ namespace Portal_2_0.Controllers
                             case "13": query = isDesc ? query.OrderByDescending(x => x.Scrap_OffFall_KG) : query.OrderBy(x => x.Scrap_OffFall_KG); break;
                             case "14": query = isDesc ? query.OrderByDescending(x => x.Scrap_PC_KG) : query.OrderBy(x => x.Scrap_PC_KG); break;
                             case "15": query = isDesc ? query.OrderByDescending(x => x.Scrap_Merma_KG) : query.OrderBy(x => x.Scrap_Merma_KG); break;
-                            // TUS NUEVAS COLUMNAS DE PORCENTAJE
                             case "16": query = isDesc ? query.OrderByDescending(x => x.Porcentaje_Scrap_OffFall) : query.OrderBy(x => x.Porcentaje_Scrap_OffFall); break;
                             case "17": query = isDesc ? query.OrderByDescending(x => x.Porcentaje_Scrap_PC) : query.OrderBy(x => x.Porcentaje_Scrap_PC); break;
                             case "18": query = isDesc ? query.OrderByDescending(x => x.Porcentaje_Scrap_Merma) : query.OrderBy(x => x.Porcentaje_Scrap_Merma); break;
-
                             default: query = query.OrderByDescending(x => x.Orden_Produccion); break;
                         }
                     }
                     else
                     {
-                        // Orden por defecto si no ha hecho clic en nada
                         query = query.OrderByDescending(x => x.Orden_Produccion);
                     }
 
-                    // 3. Paginación final (Después de filtrar y después de ordenar)
+                    // 3. Paginación final
                     var data = query.Skip(skip).Take(pageSize).ToList();
 
                     return Json(new
@@ -513,7 +509,7 @@ namespace Portal_2_0.Controllers
             }
         }
 
-        // 3. Método para Exportar TODO a Excel ultra rápido con SpreadsheetLight
+        // 3. Método para Exportar TODO a Excel optimizado (Projection + SpreadsheetLight)
         [HttpPost]
         public ActionResult ExportarBalanceScrapExcel(string searchTerm)
         {
@@ -521,7 +517,7 @@ namespace Portal_2_0.Controllers
             {
                 using (var db_sap = new Portal_2_0_ServicesEntities())
                 {
-                    // 1. AsNoTracking(): LA REGLA DE ORO PARA PERFORMANCE EN LECTURAS MASIVAS
+                    // OPTIMIZACIÓN 1: AsNoTracking() evita la sobrecarga de memoria de EF
                     var query = db_sap.vw_ReporteBalanceMateriales.AsNoTracking().AsQueryable();
 
                     if (!string.IsNullOrEmpty(searchTerm))
@@ -536,7 +532,9 @@ namespace Portal_2_0.Controllers
                         );
                     }
 
-                    // 2. Proyección Ligera: Jalamos solo lo necesario para la RAM
+                    // OPTIMIZACIÓN 2: Proyección Select. 
+                    // Traemos solo los datos planos necesarios, evitando traer el objeto completo de EF.
+                    // Esto hace que el "ToList()" sea mucho más rápido y ligero.
                     var datosExportar = query
                         .OrderByDescending(x => x.Orden_Produccion)
                         .Select(item => new
@@ -548,7 +546,7 @@ namespace Portal_2_0.Controllers
                             item.Tipo_Metal,
                             item.Rollos_Usados,
                             item.Tons_Usadas,
-                            item.Total_Kg_Used, // (Asegúrate de que este campo exista en tu vista/EDMX)
+                            item.Total_Kg_Used,
                             item.Peso_Platina_KG,
                             item.Platinas_Producidas,
                             item.Platinas_Vendidas,
@@ -563,10 +561,13 @@ namespace Portal_2_0.Controllers
                         })
                         .ToList();
 
+                    // ==========================================
+                    // IMPLEMENTACIÓN SPREADSHEETLIGHT
+                    // ==========================================
                     SLDocument oSLDocument = new SLDocument();
                     System.Data.DataTable dt = new System.Data.DataTable();
 
-                    // Pre-asignar capacidad a la DataTable para que no pierda tiempo redimensionando internamente
+                    // Pre-asignar capacidad a la DataTable mejora el rendimiento al insertar filas
                     dt.MinimumCapacity = datosExportar.Count;
 
                     dt.Columns.Add("Orden Producción", typeof(string));
@@ -589,7 +590,7 @@ namespace Portal_2_0.Controllers
                     dt.Columns.Add("Scrap (P&C)%", typeof(double));
                     dt.Columns.Add("Scrap (Merma)%", typeof(double));
 
-                    // 3. Llenado ultra rápido sin Convert.ToDouble (Usando casteos nativos de nullable)
+                    // Llenado de filas iterando sobre la lista ligera proyectada
                     foreach (var item in datosExportar)
                     {
                         dt.Rows.Add(
@@ -615,6 +616,7 @@ namespace Portal_2_0.Controllers
                         );
                     }
 
+                    // Selecciona el nombre de la hoja
                     oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Balance Materiales");
                     oSLDocument.ImportDataTable(1, 1, dt, true);
 
@@ -626,8 +628,8 @@ namespace Portal_2_0.Controllers
                     styleHeader.Font.FontSize = 11;
                     styleHeader.Font.FontColor = System.Drawing.Color.White;
                     styleHeader.Font.Bold = true;
-                    styleHeader.Alignment.Horizontal = HorizontalAlignmentValues.Center;
-                    styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#009ff5"), System.Drawing.ColorTranslator.FromHtml("#009ff5"));
+                    styleHeader.Alignment.Horizontal = DocumentFormat.OpenXml.Spreadsheet.HorizontalAlignmentValues.Center;
+                    styleHeader.Fill.SetPattern(DocumentFormat.OpenXml.Spreadsheet.PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#009ff5"), System.Drawing.ColorTranslator.FromHtml("#009ff5"));
 
                     oSLDocument.SetRowStyle(1, styleHeader);
                     oSLDocument.FreezePanes(1, 0);
@@ -649,6 +651,7 @@ namespace Portal_2_0.Controllers
                 return RedirectToAction("ReporteBalanceScrap");
             }
         }
+
         // ==============================================================================================
         // FIN: MÓDULO REPORTE DE BALANCE DE MATERIALES (SCRAP)
         // ==============================================================================================
