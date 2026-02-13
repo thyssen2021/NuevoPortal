@@ -2258,7 +2258,22 @@ namespace Portal_2_0.Controllers
         public JsonResult SaveSingleMaterial(CTZ_Project_Materials material,
        // Agrega aquí los parámetros para los otros archivos si tu formulario los envía
        HttpPostedFileBase arrivalAdditionalFile, HttpPostedFileBase coilDataAdditionalFile,
-       HttpPostedFileBase archivo, HttpPostedFileBase technicalSheetFile, HttpPostedFileBase AdditionalFile
+       HttpPostedFileBase archivo, HttpPostedFileBase technicalSheetFile, HttpPostedFileBase AdditionalFile,
+       HttpPostedFileBase interplant_packaging_archivo,
+       HttpPostedFileBase interplantOutboundFreightAdditionalFile,
+       HttpPostedFileBase packaging_archivo,
+       HttpPostedFileBase deliveryPackagingAdditionalFile,
+       HttpPostedFileBase outboundFreightAdditionalFile,
+       HttpPostedFileBase SlitterDataAdditionalFile,
+       HttpPostedFileBase volumeAdditionalFile,
+        int[] InterplantRackTypeIds,
+        int[] InterplantLabelTypeIds,
+        int[] InterplantStrapTypeIds,
+        int[] InterplantAdditionalIds,
+        int[] SelectedRackTypeIds,
+        int[] SelectedLabelIds,
+        int[] SelectedAdditionalIds,
+        int[] SelectedStrapTypeIds
    )
         {
             try
@@ -2311,6 +2326,13 @@ namespace Portal_2_0.Controllers
                         ProcessFile(archivo, id => material.ID_File_CAD_Drawing = id, "ID_File_CAD_Drawing");
                         ProcessFile(technicalSheetFile, id => material.ID_File_TechnicalSheet = id, "ID_File_TechnicalSheet");
                         ProcessFile(AdditionalFile, id => material.ID_File_Additional = id, "ID_File_Additional");
+                        ProcessFile(interplant_packaging_archivo, id => material.ID_File_InterplantPackaging = id, "ID_File_InterplantPackaging");
+                        ProcessFile(interplantOutboundFreightAdditionalFile, id => material.ID_File_InterplantOutboundFreight = id, "ID_File_InterplantOutboundFreight");
+                        ProcessFile(packaging_archivo, id => material.ID_File_Packaging = id, "ID_File_Packaging");
+                        ProcessFile(deliveryPackagingAdditionalFile, id => material.ID_File_DeliveryPackagingAdditional = id, "ID_File_DeliveryPackagingAdditional");
+                        ProcessFile(outboundFreightAdditionalFile, id => material.ID_File_OutboundFreightAdditional = id, "ID_File_OutboundFreightAdditional");
+                        ProcessFile(SlitterDataAdditionalFile, id => material.ID_File_SlitterDataAdditional = id, "ID_File_SlitterDataAdditional");
+                        ProcessFile(volumeAdditionalFile, id => material.ID_File_VolumeAdditional = id, "ID_File_VolumeAdditional");
 
 
                         CTZ_Project_Materials entity;
@@ -2473,7 +2495,7 @@ namespace Portal_2_0.Controllers
                         entity.Gross_Weight = material.Gross_Weight;
                         entity.ClientNetWeight = material.ClientNetWeight;
 
-                        // --- Blanking Volumes ---
+                        // --- Blanking Volumes 
                         entity.Blanking_Annual_Volume = material.Blanking_Annual_Volume;
                         entity.Blanking_Volume_Per_year = material.Blanking_Volume_Per_year;
                         entity.Blanking_InitialWeightPerPart = material.Blanking_InitialWeightPerPart;
@@ -2649,6 +2671,157 @@ namespace Portal_2_0.Controllers
                         // Guardamos los cambios de las platinas en la misma transacción
                         db.SaveChanges();
 
+                        // ... (Después de guardar material principal y welded plates) ...
+
+                        // ====================================================================
+                        // 4.2. GUARDADO DE RELACIONES (INTERPLANT RACK TYPES)
+                        // ====================================================================
+
+                        #region 4.X - Guardado de Tablas Relacionales (Multi-Selects)
+
+                        // =================================================================
+                        // SECCIÓN A: INTERPLANT PROCESS (4 Tablas)
+                        // =================================================================
+
+                        // 1. Interplant Rack Types
+                        var oldInterRacks = db.CTZ_Material_InterplantRackTypes.Where(x => x.ID_Material == entity.ID_Material);
+                        db.CTZ_Material_InterplantRackTypes.RemoveRange(oldInterRacks);
+
+                        if (InterplantRackTypeIds != null && InterplantRackTypeIds.Length > 0)
+                        {
+                            foreach (var id in InterplantRackTypeIds)
+                            {
+                                db.CTZ_Material_InterplantRackTypes.Add(new CTZ_Material_InterplantRackTypes
+                                {
+                                    ID_Material = entity.ID_Material,
+                                    ID_RackType = id
+                                });
+                            }
+                        }
+
+                        // 2. Interplant Label Types
+                        var oldInterLabels = db.CTZ_Material_InterplantLabelTypes.Where(x => x.ID_Material == entity.ID_Material);
+                        db.CTZ_Material_InterplantLabelTypes.RemoveRange(oldInterLabels);
+
+                        if (InterplantLabelTypeIds != null && InterplantLabelTypeIds.Length > 0)
+                        {
+                            foreach (var id in InterplantLabelTypeIds)
+                            {
+                                db.CTZ_Material_InterplantLabelTypes.Add(new CTZ_Material_InterplantLabelTypes
+                                {
+                                    ID_Material = entity.ID_Material,
+                                    ID_LabelType = id
+                                });
+                            }
+                        }
+
+                        // 3. Interplant Strap Types
+                        var oldInterStraps = db.CTZ_Material_InterplantStrapTypes.Where(x => x.ID_Material == entity.ID_Material);
+                        db.CTZ_Material_InterplantStrapTypes.RemoveRange(oldInterStraps);
+
+                        if (InterplantStrapTypeIds != null && InterplantStrapTypeIds.Length > 0)
+                        {
+                            foreach (var id in InterplantStrapTypeIds)
+                            {
+                                db.CTZ_Material_InterplantStrapTypes.Add(new CTZ_Material_InterplantStrapTypes
+                                {
+                                    ID_Material = entity.ID_Material,
+                                    ID_StrapType = id
+                                });
+                            }
+                        }
+
+                        // 4. Interplant Additionals
+                        var oldInterAdds = db.CTZ_Material_InterplantAdditionals.Where(x => x.ID_Material == entity.ID_Material);
+                        db.CTZ_Material_InterplantAdditionals.RemoveRange(oldInterAdds);
+
+                        if (InterplantAdditionalIds != null && InterplantAdditionalIds.Length > 0)
+                        {
+                            foreach (var id in InterplantAdditionalIds)
+                            {
+                                db.CTZ_Material_InterplantAdditionals.Add(new CTZ_Material_InterplantAdditionals
+                                {
+                                    ID_Material = entity.ID_Material,
+                                    ID_Additional = id
+                                });
+                            }
+                        }
+
+                        // =================================================================
+                        // SECCIÓN B: FINAL DELIVERY (4 Tablas)
+                        // =================================================================
+
+                        // 5. Final Delivery Rack Types
+                        var oldRacks = db.CTZ_Material_RackTypes.Where(x => x.ID_Material == entity.ID_Material);
+                        db.CTZ_Material_RackTypes.RemoveRange(oldRacks);
+
+                        if (SelectedRackTypeIds != null && SelectedRackTypeIds.Length > 0)
+                        {
+                            foreach (var id in SelectedRackTypeIds)
+                            {
+                                db.CTZ_Material_RackTypes.Add(new CTZ_Material_RackTypes
+                                {
+                                    ID_Material = entity.ID_Material,
+                                    ID_RackType = id
+                                });
+                            }
+                        }
+
+                        // 6. Final Delivery Labels
+                        var oldLabels = db.CTZ_Material_Labels.Where(x => x.ID_Material == entity.ID_Material);
+                        db.CTZ_Material_Labels.RemoveRange(oldLabels);
+
+                        if (SelectedLabelIds != null && SelectedLabelIds.Length > 0)
+                        {
+                            foreach (var id in SelectedLabelIds)
+                            {
+                                db.CTZ_Material_Labels.Add(new CTZ_Material_Labels
+                                {
+                                    ID_Material = entity.ID_Material,
+                                    ID_LabelType = id
+                                });
+                            }
+                        }
+
+                        // 7. Final Delivery Strap Types
+                        var oldStraps = db.CTZ_Material_StrapTypes.Where(x => x.ID_Material == entity.ID_Material);
+                        db.CTZ_Material_StrapTypes.RemoveRange(oldStraps);
+
+                        if (SelectedStrapTypeIds != null && SelectedStrapTypeIds.Length > 0)
+                        {
+                            foreach (var id in SelectedStrapTypeIds)
+                            {
+                                db.CTZ_Material_StrapTypes.Add(new CTZ_Material_StrapTypes
+                                {
+                                    ID_Material = entity.ID_Material,
+                                    ID_StrapType = id
+                                });
+                            }
+                        }
+
+                        // 8. Final Delivery Additionals
+                        var oldAdds = db.CTZ_Material_Additionals.Where(x => x.ID_Material == entity.ID_Material);
+                        db.CTZ_Material_Additionals.RemoveRange(oldAdds);
+
+                        if (SelectedAdditionalIds != null && SelectedAdditionalIds.Length > 0)
+                        {
+                            foreach (var id in SelectedAdditionalIds)
+                            {
+                                db.CTZ_Material_Additionals.Add(new CTZ_Material_Additionals
+                                {
+                                    ID_Material = entity.ID_Material,
+                                    ID_Additional = id
+                                });
+                            }
+                        }
+
+                        #endregion
+
+                        // Guardamos los cambios de las relaciones
+                        db.SaveChanges();
+
+                        // ... (continúa con la lógica de nombres de archivos) ...
+
                         // ==============================================================================
                         // 4.5. RECUPERACIÓN DE NOMBRES DE ARCHIVOS (CRÍTICO)
                         // ==============================================================================
@@ -2681,6 +2854,13 @@ namespace Portal_2_0.Controllers
                         var nameCAD = GetFinalFileName("ID_File_CAD_Drawing", entity.ID_File_CAD_Drawing);
                         var nameTechnicalSheet = GetFinalFileName("ID_File_TechnicalSheet", entity.ID_File_TechnicalSheet);
                         var nameAdditional = GetFinalFileName("ID_File_Additional", entity.ID_File_Additional);
+                        var nameInterplantPackaging = GetFinalFileName("ID_File_InterplantPackaging", entity.ID_File_InterplantPackaging);
+                        var nameInterplantOutboundFreight = GetFinalFileName("ID_File_InterplantOutboundFreight", entity.ID_File_InterplantOutboundFreight);
+                        var namePackaging = GetFinalFileName("ID_File_Packaging", entity.ID_File_Packaging);
+                        var nameDeliveryPackaging = GetFinalFileName("ID_File_DeliveryPackagingAdditional", entity.ID_File_DeliveryPackagingAdditional);
+                        var nameOutboundFreight = GetFinalFileName("ID_File_OutboundFreightAdditional", entity.ID_File_OutboundFreightAdditional);
+                        var nameSlitter = GetFinalFileName("ID_File_SlitterDataAdditional", entity.ID_File_SlitterDataAdditional);
+                        var nameVolume = GetFinalFileName("ID_File_VolumeAdditional", entity.ID_File_VolumeAdditional);
 
                         transaction.Commit();
 
@@ -2754,15 +2934,31 @@ namespace Portal_2_0.Controllers
                             entity.WidthToleranceNegative,
                             entity.WidthTolerancePositive,
 
-
                             // Slitter
-                            Multipliers = entity.Multipliers,
-                            InnerCoilDiameterDelivery = entity.InnerCoilDiameterDelivery,
-                            OuterCoilDiameterDelivery = entity.OuterCoilDiameterDelivery,
-                            SlitterEstimatedAnnualVolume = entity.SlitterEstimatedAnnualVolume,
-                            ID_Slitting_Line = entity.ID_Slitting_Line,
-                            Width_Mults = entity.Width_Mults,
-                            WeightOfFinalMults = entity.WeightOfFinalMults,
+                            entity.Multipliers,
+                            entity.InnerCoilDiameterDelivery,
+                            entity.OuterCoilDiameterDelivery,
+                            entity.SlitterEstimatedAnnualVolume,
+                            entity.ID_Slitting_Line,
+                            entity.Width_Mults,
+                            entity.Width_Mults_Tol_Pos,
+                            entity.Width_Mults_Tol_Neg,
+                            entity.WeightOfFinalMults,
+                            entity.WeightOfFinalMults_Min,
+                            entity.WeightOfFinalMults_Max,
+
+                            //Shearing
+                            entity.Shearing_Pieces_Per_Stroke,
+                            entity.Shearing_Pieces_Per_Car,
+                            entity.Shearing_Width,
+                            entity.Shearing_Width_Tol_Pos,
+                            entity.Shearing_Width_Tol_Neg,
+                            entity.Shearing_Pitch,
+                            entity.Shearing_Pitch_Tol_Pos,
+                            entity.Shearing_Pitch_Tol_Neg,
+                            entity.Shearing_Weight,
+                            entity.Shearing_Weight_Tol_Pos,
+                            entity.Shearing_Weight_Tol_Neg,
 
                             // Blank
                             ID_Shape = entity.ID_Shape,
@@ -2800,8 +2996,12 @@ namespace Portal_2_0.Controllers
 
                             // Blanking Volumes
                             Blanking_Annual_Volume = entity.Blanking_Annual_Volume,
+                            entity.Blanking_Volume_Per_year,
                             InitialWeightPerPart = entity.InitialWeightPerPart,
                             ShippingTons = entity.ShippingTons,
+                            Blanking_ShippingTons = entity.Blanking_ShippingTons,
+                            entity.Blanking_InitialWeightPerPart,
+                            entity.Blanking_ProcessTons,
 
                             // Technical Feasibility
                             ID_Theoretical_Blanking_Line = entity.ID_Theoretical_Blanking_Line,
@@ -2849,6 +3049,16 @@ namespace Portal_2_0.Controllers
                             InterplantDelivery_Transport_Type_Other = entity.InterplantDelivery_Transport_Type_Other,
                             InterplantLoadPerTransport = entity.InterplantLoadPerTransport,
                             InterplantDeliveryConditions = entity.InterplantDeliveryConditions,
+                            entity.InterplantScrapReconciliation,
+                            entity.InterplantScrapReconciliationPercent_Min,
+                            entity.InterplantScrapReconciliationPercent,
+                            entity.InterplantScrapReconciliationPercent_Max,
+                            entity.InterplantClientScrapReconciliationPercent,
+                            entity.InterplantHeadTailReconciliation,
+                            entity.InterplantHeadTailReconciliationPercent_Min,
+                            entity.InterplantHeadTailReconciliationPercent,
+                            entity.InterplantHeadTailReconciliationPercent_Max,
+                            entity.InterplantClientHeadTailReconciliationPercent,
 
                             // Final Delivery
                             ID_Delivery_Coil_Position = entity.ID_Delivery_Coil_Position,
@@ -2871,7 +3081,16 @@ namespace Portal_2_0.Controllers
                             Delivery_Transport_Type_Other = entity.Delivery_Transport_Type_Other,
                             LoadPerTransport = entity.LoadPerTransport,
                             DeliveryConditions = entity.DeliveryConditions,
-
+                            entity.ScrapReconciliation,
+                            entity.ScrapReconciliationPercent_Min,
+                            entity.ScrapReconciliationPercent,
+                            entity.ScrapReconciliationPercent_Max,
+                            entity.ClientScrapReconciliationPercent,
+                            entity.HeadTailReconciliation,
+                            entity.HeadTailReconciliationPercent_Min,
+                            entity.HeadTailReconciliationPercent,
+                            entity.HeadTailReconciliationPercent_Max,
+                            entity.ClientHeadTailReconciliationPercent,
 
                             // DEBE COOINCIDIR CON fileNameProp
 
@@ -2880,16 +3099,16 @@ namespace Portal_2_0.Controllers
                             CADFileName = nameCAD, // (Asegúrate de usar tu variable correspondiente)
 
                             // 2. Packaging
-                            //ID_File_Packaging = entity.ID_File_Packaging,
-                            //FileName_Packaging = namePackaging,
+                            ID_File_Packaging = entity.ID_File_Packaging,
+                            FileName_Packaging = namePackaging,
 
                             // 3. Interplant Packaging
-                            //ID_File_InterplantPackaging = entity.ID_File_InterplantPackaging,
-                            //InterplantPackagingFileName = nameInterplantPackaging,
+                            ID_File_InterplantPackaging = entity.ID_File_InterplantPackaging,
+                            InterplantPackagingFileName = nameInterplantPackaging,
 
                             // 4. Interplant Outbound Freight
-                            //ID_File_InterplantOutboundFreight = entity.ID_File_InterplantOutboundFreight,
-                            //FileName_InterplantOutboundFreight = nameInterplantOutboundFreight,
+                            ID_File_InterplantOutboundFreight = entity.ID_File_InterplantOutboundFreight,
+                            FileName_InterplantOutboundFreight = nameInterplantOutboundFreight,
 
                             //// 5. Technical Sheet
                             ID_File_TechnicalSheet = entity.ID_File_TechnicalSheet,
@@ -2908,22 +3127,30 @@ namespace Portal_2_0.Controllers
                             coilDataAdditionalFileName = nameCoil,
 
                             // 9. Slitter Data Additional
-                            //ID_File_SlitterDataAdditional = entity.ID_File_SlitterDataAdditional,
-                            //FileName_SlitterDataAdditional = nameSlitter,
+                            ID_File_SlitterDataAdditional = entity.ID_File_SlitterDataAdditional,
+                            FileName_SlitterDataAdditional = nameSlitter,
 
                             //// 10. Volume Additional
-                            //ID_File_VolumeAdditional = entity.ID_File_VolumeAdditional,
-                            //FileName_VolumeAdditional = nameVolume,
+                            ID_File_VolumeAdditional = entity.ID_File_VolumeAdditional,
+                            FileName_VolumeAdditional = nameVolume,
 
                             //// 11. Outbound Freight Additional
-                            //ID_File_OutboundFreightAdditional = entity.ID_File_OutboundFreightAdditional,
-                            //FileName_OutboundFreightAdditional = nameOutboundFreight,
+                            ID_File_OutboundFreightAdditional = entity.ID_File_OutboundFreightAdditional,
+                            FileName_OutboundFreightAdditional = nameOutboundFreight,
 
                             //// 12. Delivery Packaging Additional
-                            //ID_File_DeliveryPackagingAdditional = entity.ID_File_DeliveryPackagingAdditional,
-                            //FileName_DeliveryPackagingAdditional = nameDeliveryPackaging
+                            ID_File_DeliveryPackagingAdditional = entity.ID_File_DeliveryPackagingAdditional,
+                            FileName_DeliveryPackagingAdditional = nameDeliveryPackaging,
 
-
+                            // Esto permite que el frontend mantenga los checks visualmente sin recargar
+                            InterplantRackTypeIds = InterplantRackTypeIds,
+                            InterplantLabelTypeIds = InterplantLabelTypeIds,
+                            InterplantStrapTypeIds = InterplantStrapTypeIds,
+                            InterplantAdditionalIds = InterplantAdditionalIds,
+                            SelectedRackTypeIds = SelectedRackTypeIds,
+                            SelectedLabelIds = SelectedLabelIds,
+                            SelectedAdditionalIds = SelectedAdditionalIds,
+                            SelectedStrapTypeIds = SelectedStrapTypeIds,
 
                             // ... Agrega los demás nombres si el frontend los envía
                         };

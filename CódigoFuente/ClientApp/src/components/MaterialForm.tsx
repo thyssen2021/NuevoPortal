@@ -330,6 +330,33 @@ const modernStyles = `
 
 `;
 
+// Mapa de dependencias: Si cambia la "clave", hay que re-validar todos los "valores"
+const VALIDATION_GROUPS: Record<string, string[]> = {
+    // Grupo Interplant Scrap
+    'InterplantScrapReconciliationPercent_Min': ['InterplantScrapReconciliationPercent', 'InterplantScrapReconciliationPercent_Max'],
+    'InterplantScrapReconciliationPercent': ['InterplantScrapReconciliationPercent_Min', 'InterplantScrapReconciliationPercent_Max'],
+    'InterplantScrapReconciliationPercent_Max': ['InterplantScrapReconciliationPercent', 'InterplantScrapReconciliationPercent_Min'],
+
+    // Grupo Interplant Head/Tail (Agrega si lo usas)
+    'InterplantHeadTailReconciliationPercent_Min': ['InterplantHeadTailReconciliationPercent', 'InterplantHeadTailReconciliationPercent_Max'],
+    'InterplantHeadTailReconciliationPercent': ['InterplantHeadTailReconciliationPercent_Min', 'InterplantHeadTailReconciliationPercent_Max'],
+    'InterplantHeadTailReconciliationPercent_Max': ['InterplantHeadTailReconciliationPercent', 'InterplantHeadTailReconciliationPercent_Min'],
+
+    // Grupo Final Scrap (Agrega si lo usas)
+    'ScrapReconciliationPercent_Min': ['ScrapReconciliationPercent', 'ScrapReconciliationPercent_Max'],
+    'ScrapReconciliationPercent': ['ScrapReconciliationPercent_Min', 'ScrapReconciliationPercent_Max'],
+    'ScrapReconciliationPercent_Max': ['ScrapReconciliationPercent', 'ScrapReconciliationPercent_Min'],
+
+    'HeadTailReconciliationPercent_Min': ['HeadTailReconciliationPercent', 'HeadTailReconciliationPercent_Max'],
+    'HeadTailReconciliationPercent': ['HeadTailReconciliationPercent_Min', 'HeadTailReconciliationPercent_Max'],
+    'HeadTailReconciliationPercent_Max': ['HeadTailReconciliationPercent', 'HeadTailReconciliationPercent_Min'],
+
+    // Grupo Weight of Final Mults
+    'WeightOfFinalMults_Min': ['WeightOfFinalMults', 'WeightOfFinalMults_Max'],
+    'WeightOfFinalMults': ['WeightOfFinalMults_Min', 'WeightOfFinalMults_Max'],
+    'WeightOfFinalMults_Max': ['WeightOfFinalMults', 'WeightOfFinalMults_Min']
+};
+
 interface Props {
     selectedMaterial: Material | null;
     onCancel: () => void;
@@ -486,14 +513,22 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
             }
             // =======================================================
             // Parsear Welded Plates AQUÍ MISMO para asegurar que estén listos
-            let hydratedPlates = [];
-            try {
-                const jsonStr = (selectedMaterial as any).WeldedPlatesJson;
-                if (jsonStr && jsonStr !== '[]') {
-                    hydratedPlates = JSON.parse(jsonStr);
+            let hydratedPlates: any[] = [];
+            const rawMat = selectedMaterial as any;
+
+            // CASO 1 (F5 / Carga Inicial): La data viene en el array relacional de Entity Framework
+            if (Array.isArray(rawMat.CTZ_Material_WeldedPlates) && rawMat.CTZ_Material_WeldedPlates.length > 0) {
+                console.log("✅ blanks cargadas desde Array CTZ_Material_WeldedPlates");
+                hydratedPlates = rawMat.CTZ_Material_WeldedPlates;
+            }
+            // CASO 2 (Post-Save / Legacy): La data viene en el string JSON
+            else if (rawMat.WeldedPlatesJson && rawMat.WeldedPlatesJson !== '[]') {
+                try {
+                    console.log("✅ blanks cargadas desde JSON String");
+                    hydratedPlates = JSON.parse(rawMat.WeldedPlatesJson);
+                } catch (e) {
+                    console.error("Error parsing welded plates JSON", e);
                 }
-            } catch (e) {
-                console.error("Error parsing welded plates on load", e);
             }
 
             console.log("🔍 DIAGNÓSTICO COIL DATA FILE:");
@@ -536,6 +571,56 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 FileName_OutboundFreightAdditional: raw.CTZ_Files10?.Name || raw.FileName_OutboundFreightAdditional,
                 // 11. Delivery Packaging Additional (CTZ_Files11)
                 FileName_DeliveryPackagingAdditional: raw.CTZ_Files11?.Name || raw.FileName_DeliveryPackagingAdditional,
+
+                // =================================================================
+                // 1. INTERPLANT PROCESS (Mapeo basado en SQL)
+                // =================================================================
+
+                // Rack Types
+                InterplantRackTypeIds: raw.CTZ_Material_InterplantRackTypes?.map((x: any) => x.ID_RackType)
+                    || raw.InterplantRackTypeIds
+                    || [],
+
+                // Label Types (⚠️ Corrección: Columna es ID_LabelType)
+                InterplantLabelTypeIds: raw.CTZ_Material_InterplantLabelTypes?.map((x: any) => x.ID_LabelType)
+                    || raw.InterplantLabelTypeIds
+                    || [],
+
+                // Additionals
+                InterplantAdditionalIds: raw.CTZ_Material_InterplantAdditionals?.map((x: any) => x.ID_Additional)
+                    || raw.InterplantAdditionalIds
+                    || [],
+
+                // Strap Types
+                InterplantStrapTypeIds: raw.CTZ_Material_InterplantStrapTypes?.map((x: any) => x.ID_StrapType)
+                    || raw.InterplantStrapTypeIds
+                    || [],
+
+
+                // =================================================================
+                // 2. FINAL DELIVERY (Mapeo basado en SQL)
+                // =================================================================
+
+                // Rack Types
+                SelectedRackTypeIds: raw.CTZ_Material_RackTypes?.map((x: any) => x.ID_RackType)
+                    || raw.SelectedRackTypeIds
+                    || [],
+
+                // Labels (⚠️ Corrección: Columna es ID_LabelType)
+                SelectedLabelIds: raw.CTZ_Material_Labels?.map((x: any) => x.ID_LabelType)
+                    || raw.SelectedLabelIds
+                    || [],
+
+                // Additionals
+                SelectedAdditionalIds: raw.CTZ_Material_Additionals?.map((x: any) => x.ID_Additional)
+                    || raw.SelectedAdditionalIds
+                    || [],
+
+                // Strap Types
+                SelectedStrapTypeIds: raw.CTZ_Material_StrapTypes?.map((x: any) => x.ID_StrapType)
+                    || raw.SelectedStrapTypeIds
+                    || [],
+
 
                 ['_projectPlantId']: projectPlantId,
                 ['_projectInterplantActive']: interplantProcess,
@@ -1941,6 +2026,7 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
     const handleFieldChange = (name: string, value: any) => {
         let nextData = { ...formData, [name]: value };
 
+
         // -------------------------------------------------------------
         // NUEVA LÓGICA: Sincronización País-Vehículo (Sin Race Condition)
         // -------------------------------------------------------------
@@ -2185,34 +2271,39 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
 
         let nextErrors = { ...errors, [name]: finalError };
         let nextWarnings = { ...warnings, [name]: finalWarning };
-        let hasChanges = true;
 
-        while (hasChanges) {
-            hasChanges = false;
-            safeFields.forEach(field => {
-                const currentValue = (nextData as any)[field.name];
-                const shouldBeActive = isFieldActive(field, nextData);
+        // Creamos una lista de campos a validar: El campo actual + sus dependientes
+        // (Si no hay dependientes en el mapa, el array queda vacío y solo valida 'name')
+        const relatedFields = VALIDATION_GROUPS[name] || [];
+        const fieldsToValidate = [name, ...relatedFields];
 
-                // Si tiene valor pero LÓGICAMENTE no debería existir (ej: borraste Vehicle 1, Vehicle 2 debe morir)
-                if (currentValue !== undefined && currentValue !== null && !shouldBeActive) {
-                    (nextData as any)[field.name] = null; // Borramos el dato
+        // Validamos TODOS los campos involucrados con la NUEVA data (nextData)
+        fieldsToValidate.forEach(fieldName => {
+            const val = (nextData as any)[fieldName];
 
-                    // Limpiamos errores fantasmas
-                    if (nextErrors[field.name]) delete nextErrors[field.name];
-                    if (nextWarnings[field.name]) delete nextWarnings[field.name];
+            // Solo validamos si el campo existe en la data (para evitar errores con campos ocultos)
+            if (val !== undefined) {
+                const basicError = validateField(fieldName, val, nextData);
+                const complexResult = validateComplexRules(fieldName, val, nextData);
+                const finalError = basicError || complexResult.error;
+                const finalWarning = complexResult.warning;
 
-                    hasChanges = true; // Repetimos el ciclo por si esto afectó a otros campos
+                // Actualizamos Error
+                if (finalError) {
+                    nextErrors[fieldName] = finalError;
+                } else {
+                    // Si ya no hay error, lo borramos del objeto de errores
+                    delete nextErrors[fieldName];
                 }
 
-                // Regla especial para valores por defecto (ej: Factor 100)
-                //else if (field.name === 'Max_Production_Factor' && shouldBeActive && !(nextData as any)[field.name]) {
-                //    (nextData as any)[field.name] = 100;
-                //}
-
-            });
-        }
-
-
+                // Actualizamos Warning
+                if (finalWarning) {
+                    nextWarnings[fieldName] = finalWarning;
+                } else {
+                    delete nextWarnings[fieldName];
+                }
+            }
+        });
 
         setFormData(nextData);
         setErrors(nextErrors);
@@ -2307,18 +2398,36 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
         const toastId = toast.loading("Saving changes...");
 
         try {
-
             // PRE-PROCESAMIENTO: Serializar Welded Plates
             if ((formData as any)._weldedPlates) {
                 (formData as any).WeldedPlatesJson = JSON.stringify((formData as any)._weldedPlates);
             }
 
-            // 1. CREAMOS EL FORM DATA (Soporte para Archivos + Datos)
+            // 1. CREAMOS UNA COPIA LIMPIA DE LOS DATOS (Solo campos activos)
+            const cleanFormData = { ...formData };
+
+            // Recorremos la configuración para eliminar lo que no debe enviarse
+            safeFields.forEach(field => {
+                // Si el campo NO está activo visualmente (oculto por reglas de negocio)
+                if (!isFieldActive(field, formData)) {
+                    const key = field.name;
+
+                    // Borramos el valor principal
+                    delete (cleanFormData as any)[key];
+
+                    // Si es un archivo, borramos también su propiedad de archivo binario si existe
+                    if (field.type === 'file' && field.uploadFieldName) {
+                        delete (cleanFormData as any)[field.uploadFieldName];
+                    }
+                }
+            });
+
+            // 2. CREAMOS EL FORM DATA (Soporte para Archivos + Datos)
             const dataToSend = new FormData();
 
-            // 2. CONVERTIMOS EL OBJETO 'formData' A FORM DATA
-            Object.keys(formData).forEach(key => {
-                const value = (formData as any)[key];
+            // 3. CONVERTIMOS EL OBJETO 'cleanFormData' A FORM DATA
+            Object.keys(cleanFormData).forEach(key => {
+                const value = (cleanFormData as any)[key];
 
                 // A. Ignoramos campos virtuales (empiezan con _)
                 if (key.startsWith('_')) return;
@@ -2326,7 +2435,20 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 // B. CASO ARCHIVO: Si es un objeto File nativo, lo adjuntamos directo
                 if (value instanceof File) {
                     // El 'key' aquí será el nombre definido en 'uploadFieldName' (ej: arrivalAdditionalFile)
+                    // Buscamos si este key corresponde a un campo configurado para usar su uploadFieldName correcto
+                    // Ojo: Si 'value' está en cleanFormData[key], 'key' suele ser el ID_File_X o el nombre de propiedad virtual.
+                    // Si tu lógica anterior funcionaba confiando en que 'key' ya era el correcto, lo dejamos así.
+                    // Pero típicamente los Files se guardan en propiedades específicas como 'arrivalAdditionalFile'.
+
                     dataToSend.append(key, value);
+                }
+                // 👇 NUEVA LÓGICA PARA ARRAYS (Checkbox Groups)
+                else if (Array.isArray(value)) {
+                    // Si es un array [1, 2, 3], agregamos:
+                    // key=1, key=2, key=3
+                    value.forEach(item => {
+                        dataToSend.append(key, item.toString());
+                    });
                 }
                 // C. CASO DATOS NORMALES (No nulos)
                 else if (value !== null && value !== undefined) {
@@ -2346,15 +2468,25 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 }
             });
 
-            // 3. ASEGURAR QUE EL ID DEL PROYECTO SE ENVÍE
+            // 4. ASEGURAR QUE EL ID DEL PROYECTO SE ENVÍE
             if (!dataToSend.has('ID_Project')) {
                 const projectId = (formData as any).ID_Project || selectedMaterial?.ID_Project;
                 if (projectId) dataToSend.append('ID_Project', projectId.toString());
             }
 
+            // Asegurar ID_Material si existe (para Updates)
+            if (!dataToSend.has('ID_Material') && (formData as any).ID_Material) {
+                dataToSend.append('ID_Material', (formData as any).ID_Material.toString());
+            }
+
+            // Asegurar WeldedPlatesJson si existe y no se agregó por el loop (porque es un campo oculto/no configurado en safeFields visuales)
+            if ((cleanFormData as any).WeldedPlatesJson && !dataToSend.has('WeldedPlatesJson')) {
+                dataToSend.append('WeldedPlatesJson', (cleanFormData as any).WeldedPlatesJson);
+            }
+
             if (!urls || !urls.saveUrl) throw new Error("Save URL is missing.");
 
-            // 4. ENVIAR LA PETICIÓN
+            // 5. ENVIAR LA PETICIÓN
             // IMPORTANTE: NO agregamos 'Content-Type': 'multipart/form-data'.
             // Fetch lo detecta automáticamente al ver el objeto FormData y añade el 'boundary' correcto.
             const response = await fetch(urls.saveUrl, {
@@ -2851,6 +2983,21 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                                                             letterSpacing: '0.5px'
                                                         }}>
                                                             <i className="fa fa-chart-bar mr-2"></i> Volume & Weights
+                                                        </h6>
+                                                    </div>
+                                                )}
+
+                                                {/* NUEVO BLOQUE: SEPARADOR PARA BLANKING VOLUMES */}
+                                                {fieldConfig.name === 'Blanking_Annual_Volume' && (
+                                                    <div className="col-12 mt-4 mb-2">
+                                                        <h6 className="text-primary font-weight-bold" style={{
+                                                            borderBottom: '1px solid #dee2e6',
+                                                            paddingBottom: '10px',
+                                                            textTransform: 'uppercase',
+                                                            fontSize: '0.9rem',
+                                                            letterSpacing: '0.5px'
+                                                        }}>
+                                                            <i className="fa fa-cubes mr-2"></i> Blanking Volumes
                                                         </h6>
                                                     </div>
                                                 )}

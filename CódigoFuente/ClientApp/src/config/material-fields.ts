@@ -1284,7 +1284,7 @@ export const materialFields: FieldConfig[] = [
   },
   // 3. Slitter Estimated Annual Volume
   {
-    name: 'SlitterEstimatedAnnualVolume [Tons]',
+    name: 'SlitterEstimatedAnnualVolume',
     label: 'Est. Annual Volume',
     type: 'number',
     section: 'Slitter Data',
@@ -2213,10 +2213,16 @@ export const materialFields: FieldConfig[] = [
     section: 'Blank Data',
     className: 'col-md-3',
     placeholder: 'Enter number',
-    visibleWhen: {
-      field: 'IsWeldedBlank',
-      is: [true]
-    },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      {
+        field: 'IsWeldedBlank',
+        is: [true]
+      },
+    ],
     validation: {
       required: true, // Si es visible, es requerido
       min: 2,
@@ -2234,10 +2240,16 @@ export const materialFields: FieldConfig[] = [
     uploadFieldName: 'archivo', // 👈 Nombre exacto del input en tu Legacy
     fileNameProp: 'CADFileName',
     fileEntityProp: 'CTZ_Files',
-    visibleWhen: {
-      field: 'ID_Shape',
-      is: [18] // Valor numérico para 'Configured'
-    },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [ROUTES.BLK, ROUTES.BLK_RP, ROUTES.BLK_SH, ROUTES.BLK_WLD, ROUTES.SLT_BLK, ROUTES.SLT_BLK_WLD]
+      },
+      {
+        field: 'ID_Shape',
+        is: [18] // Valor numérico para 'Configured'
+      }
+    ],
     validation: {
       required: false,
       accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
@@ -2307,9 +2319,9 @@ export const materialFields: FieldConfig[] = [
   // 1. Blanking Annual Volume
   {
     name: 'Blanking_Annual_Volume',
-    label: 'Blanking Annual Volume',
+    label: 'Annual Volume [Vehicles]',
     type: 'number',
-    section: 'Blanking Specific Volumes', // Nueva pestaña
+    section: 'Blank Data', // Nueva pestaña
     className: 'col-md-4', // 3 columnas por fila para mejor diseño
     placeholder: 'Volume',
     decimals: 0, // Entero
@@ -2318,7 +2330,7 @@ export const materialFields: FieldConfig[] = [
       min: 0,
       customMessage: "Must be a positive whole number."
     },
-     visibleWhen: {
+    visibleWhen: {
       field: 'ID_Route',
       is: [
         ROUTES.BLK,
@@ -2335,9 +2347,9 @@ export const materialFields: FieldConfig[] = [
   // 2. Blanking Volume Per Year
   {
     name: 'Blanking_Volume_Per_year',
-    label: 'Blanking Volume / Year',
+    label: 'Annual Volume [m tons/year]',
     type: 'number',
-    section: 'Blanking Specific Volumes',
+    section: 'Blank Data',
     className: 'col-md-4',
     placeholder: 'M Tons/Year',
     decimals: 3, // step="any"
@@ -2345,7 +2357,7 @@ export const materialFields: FieldConfig[] = [
       required: false,
       min: 0
     },
-     visibleWhen: {
+    visibleWhen: {
       field: 'ID_Route',
       is: [
         ROUTES.BLK,
@@ -2362,14 +2374,14 @@ export const materialFields: FieldConfig[] = [
   // 3. Blanking Initial Weight Per Part (Calculado)
   {
     name: 'Blanking_InitialWeightPerPart',
-    label: 'Blanking Initial Weight/Part',
+    label: 'Initial Weight per Part [kg]',
     type: 'number',
-    section: 'Blanking Specific Volumes',
+    section: 'Blank Data',
     className: 'col-md-4',
     placeholder: 'Calculated',
     decimals: 3,
     disabled: true, // Readonly
-     visibleWhen: {
+    visibleWhen: {
       field: 'ID_Route',
       is: [
         ROUTES.BLK,
@@ -2386,14 +2398,14 @@ export const materialFields: FieldConfig[] = [
   // 4. Initial Weight Per Part (Calculado)
   {
     name: 'InitialWeightPerPart',
-    label: 'Initial Weight/Part',
+    label: 'Initial Weight per Part (Adjusted) [kg]',
     type: 'number', // O text, según prefieras visualmente
-    section: 'Blanking Specific Volumes',
+    section: 'Blank Data',
     className: 'col-md-4',
     placeholder: 'Calculated',
     decimals: 3,
     disabled: true,
-     visibleWhen: {
+    visibleWhen: {
       field: 'ID_Route',
       is: [
         ROUTES.BLK,
@@ -2412,12 +2424,12 @@ export const materialFields: FieldConfig[] = [
     name: 'Blanking_ProcessTons',
     label: 'Blanking Process Tons',
     type: 'number',
-    section: 'Blanking Specific Volumes',
+    section: 'Blank Data',
     className: 'col-md-4',
     placeholder: 'Calculated',
     decimals: 3,
     disabled: true,
-     visibleWhen: {
+    visibleWhen: {
       field: 'ID_Route',
       is: [
         ROUTES.BLK,
@@ -2436,12 +2448,12 @@ export const materialFields: FieldConfig[] = [
     name: 'Blanking_ShippingTons',
     label: 'Blanking Shipping Tons',
     type: 'number',
-    section: 'Blanking Specific Volumes',
+    section: 'Blank Data',
     className: 'col-md-4',
     placeholder: 'Calculated',
     decimals: 3,
     disabled: true,
-     visibleWhen: {
+    visibleWhen: {
       field: 'ID_Route',
       is: [
         ROUTES.BLK,
@@ -2454,12 +2466,12 @@ export const materialFields: FieldConfig[] = [
       ]
     },
   },
-/*****  SHEARING DATA ******/
+  /*****  SHEARING DATA ******/
 
   // 1. Shearing Pieces Per Stroke
   {
     name: 'Shearing_Pieces_Per_Stroke',
-    label: 'Pieces / Stroke',
+    label: 'Shearing Pieces / Stroke',
     type: 'number',
     section: 'Shearing Data', // Nueva Pestaña
     className: 'col-md-3',
@@ -2468,13 +2480,19 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
 
   // 2. Shearing Pieces Per Car
   {
     name: 'Shearing_Pieces_Per_Car',
-    label: 'Pieces / Car',
+    label: 'Shearing Pieces / Car',
     type: 'number',
     section: 'Shearing Data',
     className: 'col-md-3',
@@ -2483,6 +2501,12 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
 
@@ -2501,6 +2525,12 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
 
@@ -2517,9 +2547,14 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       max: 0 // Debe ser negativo o 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
-
   // C) Tolerancia Positiva
   {
     name: 'Shearing_Width_Tol_Pos',
@@ -2533,6 +2568,12 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
   // A) Campo Principal (Value)
@@ -2548,9 +2589,14 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
-
   // B) Tolerancia Negativa
   {
     name: 'Shearing_Pitch_Tol_Neg',
@@ -2564,9 +2610,14 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       max: 0 // Debe ser negativo o 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
-
   // C) Tolerancia Positiva
   {
     name: 'Shearing_Pitch_Tol_Pos',
@@ -2580,11 +2631,15 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
-
   // --- GRUPO MATRIZ: Shearing Weight ---
-
   // A) Campo Principal (Value)
   {
     name: 'Shearing_Weight',
@@ -2598,6 +2653,12 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
 
@@ -2614,9 +2675,14 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       max: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
-
   // C) Tolerancia Positiva
   {
     name: 'Shearing_Weight_Tol_Pos',
@@ -2630,6 +2696,12 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       min: 0
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK_SH,
+      ]
     }
   },
   // 1. Interplant Coil Position (Reusa la lista existente)
@@ -2643,9 +2715,26 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Select an option',
     validation: {
       required: false
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
-
   // 2. Packaging Standard (Dropdown estático)
   {
     name: 'InterplantPackagingStandard',
@@ -2661,9 +2750,26 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Select an option',
     validation: {
       required: false
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
-
   // 3. Requires Rack Manufacturing (Checkbox Condicional)
   {
     name: 'InterplantRequiresRackManufacturing',
@@ -2671,16 +2777,34 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Interplant Delivery Packaging',
     className: 'col-md-3',
-    // VISIBILIDAD: Solo si Standard es 'OWN'
-    visibleWhen: {
-      field: 'InterplantPackagingStandard',
-      is: ['OWN']
-    },
+    visibleWhen: [
+      {
+        field: 'InterplantPackagingStandard',
+        is: ['OWN']
+      },
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      }
+    ],
     validation: {
       required: false
-    }
+    },
   },
-
   // 4. Pieces Per Package
   {
     name: 'InterplantPiecesPerPackage',
@@ -2694,6 +2818,24 @@ export const materialFields: FieldConfig[] = [
       required: false,
       min: 0,
       customMessage: "Must be a non-negative whole number."
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 5. Stacks Per Package
@@ -2709,6 +2851,24 @@ export const materialFields: FieldConfig[] = [
       required: false,
       min: 0,
       customMessage: "Must be a non-negative whole number."
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 6. Package Weight (Calculado)
@@ -2720,7 +2880,25 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Calculated',
     decimals: 3,
-    disabled: true // ReadOnly
+    disabled: true, // ReadOnly
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // 7. Interplant Packaging File
   {
@@ -2737,6 +2915,24 @@ export const materialFields: FieldConfig[] = [
       required: false,
       accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
       maxSizeInMB: 20
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 4. Interplant Rack Types (Grupo de Checkboxes)
@@ -2746,20 +2942,30 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox-group',        // 👈 El nuevo tipo
     section: 'Interplant Delivery Packaging',
     className: 'col-md-12',         // Ancho según tu legacy
-
     // Nombre de la lista en 'lists' (debe coincidir con ViewBag.RackTypeList)
     optionsKey: 'rackTypeList',
 
     validation: {
       required: false
     },
-
-    // VISIBILIDAD: Igual que el checkbox "Requires Rack Manufacturing"
-    // Solo visible si el Standard es 'OWN'
-    //visibleWhen: {
-    //    field: 'InterplantPackagingStandard',
-    //    is: ['OWN']
-    //}
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // 8. Is Returnable Rack? (Depende de los Racks seleccionados)
   {
@@ -2768,10 +2974,30 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Interplant Delivery Packaging',
     className: 'col-md-3',
-    visibleWhen: {
-      field: 'InterplantRackTypeIds',
-      is: [2, 3, 4]
-    },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'InterplantRackTypeIds',
+        is: [2, 3, 4]
+      }
+    ],
     validation: {
       required: false
     }
@@ -2786,13 +3012,30 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'e.g., 5',
     decimals: 0, // Entero
-
-    // Visible solo si el checkbox anterior está marcado
-    visibleWhen: {
-      field: 'IsInterplantReturnableRack',
-      is: [true]
-    },
-
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'IsInterplantReturnableRack',
+        is: [true]
+      }
+    ],
     validation: {
       required: true, // Si es visible, es requerido (legacy logic)
       min: 1,
@@ -2809,6 +3052,24 @@ export const materialFields: FieldConfig[] = [
     optionsKey: 'labelList',
     validation: {
       required: false
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 2. Specify Other Label (Visible solo si se selecciona ID 3)
@@ -2819,13 +3080,30 @@ export const materialFields: FieldConfig[] = [
     section: 'Interplant Delivery Packaging',
     className: 'col-md-6',
     placeholder: 'Description...',
-
-    // VISIBILIDAD: Depende del campo anterior
-    visibleWhen: {
-      field: 'InterplantLabelTypeIds',
-      is: [3] // 3 es el ID de "Other" en tu BD
-    },
-
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'InterplantLabelTypeIds',
+        is: [3] // 3 es el ID de "Other" en tu BD
+      }
+    ],
     validation: {
       required: true, // Si es visible, es requerido
       maxLength: 120
@@ -2839,7 +3117,25 @@ export const materialFields: FieldConfig[] = [
     section: 'Interplant Delivery Packaging',
     className: 'col-md-12',
     optionsKey: 'additionalList',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // 2. Specify Other (Solo si ID 6 está seleccionado)
   {
@@ -2849,13 +3145,30 @@ export const materialFields: FieldConfig[] = [
     section: 'Interplant Delivery Packaging',
     className: 'col-md-6',
     placeholder: 'Description...',
-
-    // VISIBILIDAD: Depende del campo anterior (ID 6)
-    visibleWhen: {
-      field: 'InterplantAdditionalIds',
-      is: [6] // 6 es el ID de "Other" en tu BD
-    },
-
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'InterplantAdditionalIds',
+        is: [6] // 6 es el ID de "Other" en tu BD
+      }
+    ],
     validation: {
       required: true, // Si es visible, es requerido
       maxLength: 120
@@ -2870,7 +3183,25 @@ export const materialFields: FieldConfig[] = [
     section: 'Interplant Delivery Packaging',
     className: 'col-md-12',
     optionsKey: 'strapTypeList',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // 4. Observations (SIEMPRE VISIBLE)
   {
@@ -2884,6 +3215,24 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false, // Opcional
       maxLength: 120
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 1. Special Requirement
@@ -2897,6 +3246,24 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       maxLength: 350 // Regla del legacy
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 2. Special Packaging
@@ -2910,8 +3277,27 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       maxLength: 350 // Regla del legacy
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
+  /****** Interplant Freight ********/
   {
     name: 'ID_Interplant_FreightType',
     label: 'Incoterm Type',
@@ -2922,6 +3308,24 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Select an option',
     validation: {
       required: false
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 2. Transport Type (Reutiliza la lista de transporte general)
@@ -2935,6 +3339,24 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Select transport...',
     validation: {
       required: false
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 3. Specify Other Transport (Condicional)
@@ -2945,13 +3367,30 @@ export const materialFields: FieldConfig[] = [
     section: 'Interplant Outbound Freight & Conditions',
     className: 'col-md-3',
     placeholder: 'Specify transport...',
-
-    // VISIBILIDAD: Solo si TransportType es 5 (Other)
-    visibleWhen: {
-      field: 'ID_InterplantDelivery_Transport_Type',
-      is: [5] // 5 es el ID de "Other" en tu BD
-    },
-
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'ID_InterplantDelivery_Transport_Type',
+        is: [5] // 5 es el ID de "Other" en tu BD
+      }
+    ],
     validation: {
       required: true, // Requerido si es visible
       maxLength: 50
@@ -2970,6 +3409,24 @@ export const materialFields: FieldConfig[] = [
       required: false,
       min: 0,
       customMessage: "Must be a positive number."
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 5. Delivery Conditions (Textarea grande)
@@ -2983,6 +3440,24 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       maxLength: 350
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 1. Checkbox Padre
@@ -2992,14 +3467,28 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Interplant Outbound Freight & Conditions',
     className: 'col-md-12', // Ocupa toda la fila para separar visualmente
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
 
   // 2. Fila de Porcentajes (Matriz de 4 columnas)
-  // Nota: Para matrices de 4 columnas, usaremos un truco visual o definiremos col-md-3 en cada uno.
-  // Pero DynamicField está diseñado para matrices de 3 (Value, Tol-, Tol+).
-  // COMO TÚ QUIERES 4 INPUTS EN FILA, lo mejor es definirlos como campos normales 'col-md-3'
-  // y usar visibleWhen. Se verán alineados perfectamente si van seguidos.
 
   {
     name: 'InterplantScrapReconciliationPercent_Min',
@@ -3009,8 +3498,28 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Min %',
     decimals: 2,
-    visibleWhen: { field: 'InterplantScrapReconciliation', is: [true] },
-    validation: { required: false, min: 0, max: 100 }
+    validation: { required: false, min: 0, max: 100 },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'InterplantScrapReconciliation', is: [true] }
+    ],
   },
   {
     name: 'InterplantScrapReconciliationPercent', // Optimal
@@ -3020,12 +3529,32 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Optimal %',
     decimals: 2,
-    visibleWhen: { field: 'InterplantScrapReconciliation', is: [true] },
     validation: {
       required: true, // Requerido si el padre está activo (legacy logic)
       min: 0,
       max: 100
-    }
+    },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'InterplantScrapReconciliation', is: [true] }
+    ],
   },
   {
     name: 'InterplantScrapReconciliationPercent_Max',
@@ -3035,7 +3564,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Max %',
     decimals: 2,
-    visibleWhen: { field: 'InterplantScrapReconciliation', is: [true] },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'InterplantScrapReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
   {
@@ -3046,13 +3595,30 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Client %',
     decimals: 2,
-    visibleWhen: { field: 'InterplantScrapReconciliation', is: [true] },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'InterplantScrapReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
-
-
   // --- GRUPO 2: Interplant Head/Tail Reconciliation ---
-
   // 1. Checkbox Padre
   {
     name: 'InterplantHeadTailReconciliation',
@@ -3060,9 +3626,26 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Interplant Outbound Freight & Conditions',
     className: 'col-md-12',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
-
   // 2. Fila de Porcentajes (4 inputs)
   {
     name: 'InterplantHeadTailReconciliationPercent_Min',
@@ -3072,7 +3655,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Min %',
     decimals: 2,
-    visibleWhen: { field: 'InterplantHeadTailReconciliation', is: [true] },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'InterplantHeadTailReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
   {
@@ -3083,7 +3686,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Optimal %',
     decimals: 2,
-    visibleWhen: { field: 'InterplantHeadTailReconciliation', is: [true] },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'InterplantHeadTailReconciliation', is: [true] }
+    ],
     validation: {
       required: true, // Requerido si el padre está activo
       min: 0,
@@ -3098,7 +3721,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Max %',
     decimals: 2,
-    visibleWhen: { field: 'InterplantHeadTailReconciliation', is: [true] },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'InterplantHeadTailReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
   {
@@ -3109,7 +3752,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Client %',
     decimals: 2,
-    visibleWhen: { field: 'InterplantHeadTailReconciliation', is: [true] },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'InterplantHeadTailReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
   // 6. Interplant Outbound Freight File
@@ -3119,7 +3782,6 @@ export const materialFields: FieldConfig[] = [
     type: 'file',
     section: 'Interplant Outbound Freight & Conditions',
     className: 'col-md-4',
-    // ⚠️ CRÍTICO: Debe coincidir con el nombre del parámetro en tu Controller C# legacy
     uploadFieldName: 'interplantOutboundFreightAdditionalFile',
     fileNameProp: 'FileName_InterplantOutboundFreight',
     fileEntityProp: 'CTZ_Files3',
@@ -3127,6 +3789,24 @@ export const materialFields: FieldConfig[] = [
       required: false,
       accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
       maxSizeInMB: 20
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 1. Delivery Coil Position (Reusa la lista existente)
@@ -3140,6 +3820,24 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Select an option',
     validation: {
       required: false
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 2. Packaging Standard
@@ -3157,6 +3855,24 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'Select an option',
     validation: {
       required: false // Puedes cambiar a true si quieres replicar validatePackagingStandard
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 3. Requires Rack Manufacturing (Condicional)
@@ -3167,10 +3883,30 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Delivery Packaging',
     className: 'col-md-3',
     // VISIBILIDAD: Solo si Standard es 'OWN'
-    visibleWhen: {
-      field: 'PackagingStandard',
-      is: ['OWN']
-    },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'PackagingStandard',
+        is: ['OWN']
+      }
+    ],
     validation: { required: false }
   },
   // 4. Pieces Per Package
@@ -3186,6 +3922,24 @@ export const materialFields: FieldConfig[] = [
       required: false,
       min: 0,
       customMessage: "Must be a non-negative whole number."
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 5. Stacks Per Package
@@ -3201,6 +3955,24 @@ export const materialFields: FieldConfig[] = [
       required: false,
       min: 0,
       customMessage: "Must be a non-negative whole number."
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 6. Package Weight (Calculado)
@@ -3212,7 +3984,25 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Calculated',
     decimals: 3,
-    disabled: true // ReadOnly
+    disabled: true, // ReadOnly
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // 7. Packaging Drawing / Standard
   {
@@ -3223,12 +4013,30 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-6', // Legacy usa col-md-8
     // Nombre del parámetro que espera el Controller C#
     uploadFieldName: 'packaging_archivo',
-    fileNameProp: 'FileName_Packaging', 
+    fileNameProp: 'FileName_Packaging',
     fileEntityProp: 'CTZ_Files1',
     validation: {
       required: false,
       accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
       maxSizeInMB: 10
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 8. Delivery Packaging Additional File
@@ -3240,12 +4048,30 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-6', // Legacy usa col-md-4
     // Nombre del parámetro que espera el Controller C#
     uploadFieldName: 'deliveryPackagingAdditionalFile',
-    fileNameProp: 'FileName_DeliveryPackagingAdditional', 
+    fileNameProp: 'FileName_DeliveryPackagingAdditional',
     fileEntityProp: 'CTZ_Files11',
     validation: {
       required: false,
       accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
       maxSizeInMB: 10 // Asumiendo 10MB igual que el otro
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 9. Rack Types (Checkbox Group)
@@ -3256,7 +4082,25 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Delivery Packaging',
     className: 'col-md-12',
     optionsKey: 'rackTypeList', // Reuses the list from Interplant/Arrival
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // --- RETURNABLE RACK LOGIC (Depends on Rack Types) ---  
   // 12. Is Returnable Rack?
@@ -3267,10 +4111,30 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Delivery Packaging',
     className: 'col-md-3', // Small width    
     // VISIBILITY: Only if special racks [2, 3, 4] are selected
-    visibleWhen: {
-      field: 'SelectedRackTypeIds',
-      is: [2, 3, 4] // Adjust IDs based on your DB (Wood, etc.)
-    },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'SelectedRackTypeIds',
+        is: [2, 3, 4] // Adjust IDs based on your DB (Wood, etc.)
+      }
+    ],
     validation: { required: false }
   },
   // 13. Returnable Uses
@@ -3283,10 +4147,30 @@ export const materialFields: FieldConfig[] = [
     placeholder: 'e.g., 5',
     decimals: 0,
     // VISIBILITY: Only if IsReturnableRack is checked
-    visibleWhen: {
-      field: 'IsReturnableRack',
-      is: [true]
-    },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'IsReturnableRack',
+        is: [true]
+      }
+    ],
     validation: {
       required: true,
       min: 1,
@@ -3301,9 +4185,26 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Delivery Packaging',
     className: 'col-md-12',
     optionsKey: 'labelList', // Reuses label list
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
-
   // 11. Specify "Other" Label (Only if ID 3 is selected in Labels)
   {
     name: 'LabelOtherDescription',
@@ -3312,13 +4213,31 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Delivery Packaging',
     className: 'col-md-12',
     placeholder: 'Description...',
-
     // VISIBILITY: Depends on SelectedLabelIds containing 3
-    visibleWhen: {
-      field: 'SelectedLabelIds',
-      is: [3]
-    },
-
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'SelectedLabelIds',
+        is: [3]
+      }
+    ],
     validation: {
       required: true,
       maxLength: 120
@@ -3333,7 +4252,25 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Delivery Packaging',
     className: 'col-md-12',
     optionsKey: 'additionalList',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // 15. Specify "Other" Additional (Only if ID 6 is selected)
   {
@@ -3343,10 +4280,30 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Delivery Packaging',
     className: 'col-md-12',
     placeholder: 'Description...',
-    visibleWhen: {
-      field: 'SelectedAdditionalIds',
-      is: [6] // ID 6 is "Other"
-    },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'SelectedAdditionalIds',
+        is: [6] // ID 6 is "Other"
+      }
+    ],
     validation: {
       required: true,
       maxLength: 120
@@ -3361,7 +4318,25 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Delivery Packaging',
     className: 'col-md-12',
     optionsKey: 'strapTypeList',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // 17. Strap Type Observations (Always Visible)
   {
@@ -3374,6 +4349,24 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       maxLength: 120
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // --- SPECIAL TEXTAREAS ---
@@ -3388,6 +4381,24 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       maxLength: 350
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 19. Special Packaging
@@ -3401,6 +4412,24 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       maxLength: 350
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // --- SECCIÓN: Final Outbound Freight & Conditions ---
@@ -3412,7 +4441,25 @@ export const materialFields: FieldConfig[] = [
     section: 'Final Outbound Freight & Conditions',
     className: 'col-md-3',
     optionsKey: 'freightTypeList',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // 2. Transport Type
   {
@@ -3423,7 +4470,25 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     optionsKey: 'transportTypes', // Reutilizado
     placeholder: 'Select transport...',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
   // 3. Specify Other Transport (Condicional)
   {
@@ -3434,10 +4499,30 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Specify transport...',
     // VISIBILIDAD: Solo si TransportType es 5 (Other)
-    visibleWhen: {
-      field: 'ID_Delivery_Transport_Type',
-      is: [5]
-    },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      {
+        field: 'ID_Delivery_Transport_Type',
+        is: [5]
+      }
+    ],
     validation: {
       required: true,
       maxLength: 50
@@ -3456,6 +4541,24 @@ export const materialFields: FieldConfig[] = [
       required: false,
       min: 0,
       customMessage: "Must be a positive number."
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 5. Delivery Conditions (Textarea)
@@ -3469,9 +4572,26 @@ export const materialFields: FieldConfig[] = [
     validation: {
       required: false,
       maxLength: 350
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
-
   // --- GRUPO: Scrap Reconciliation ---
   // 6. Checkbox Padre
   {
@@ -3480,9 +4600,26 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Final Outbound Freight & Conditions',
     className: 'col-md-12',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
-
   // 7. Porcentajes Scrap (4 inputs)
   {
     name: 'ScrapReconciliationPercent_Min',
@@ -3492,7 +4629,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Min %',
     decimals: 2,
-    visibleWhen: { field: 'ScrapReconciliation', is: [true] },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'ScrapReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
   {
@@ -3503,7 +4660,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Optimal %',
     decimals: 2,
-    visibleWhen: { field: 'ScrapReconciliation', is: [true] },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'ScrapReconciliation', is: [true] }
+    ],
     validation: { required: true, min: 0, max: 100 }
   },
   {
@@ -3514,7 +4691,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Max %',
     decimals: 2,
-    visibleWhen: { field: 'ScrapReconciliation', is: [true] },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'ScrapReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
   {
@@ -3525,7 +4722,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Client %',
     decimals: 2,
-    visibleWhen: { field: 'ScrapReconciliation', is: [true] },
+    visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      },
+      { field: 'ScrapReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
   // --- GRUPO: Head/Tail Reconciliation ---
@@ -3536,9 +4753,26 @@ export const materialFields: FieldConfig[] = [
     type: 'checkbox',
     section: 'Final Outbound Freight & Conditions',
     className: 'col-md-12',
-    validation: { required: false }
+    validation: { required: false },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
+    }
   },
-
   // 9. Porcentajes H/T (4 inputs)
   {
     name: 'HeadTailReconciliationPercent_Min',
@@ -3548,7 +4782,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Min %',
     decimals: 2,
-    visibleWhen: { field: 'HeadTailReconciliation', is: [true] },
+     visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      }, 
+      { field: 'HeadTailReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
   {
@@ -3559,7 +4813,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Optimal %',
     decimals: 2,
-    visibleWhen: { field: 'HeadTailReconciliation', is: [true] },
+     visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      }, 
+      { field: 'HeadTailReconciliation', is: [true] }
+    ],
     validation: { required: true, min: 0, max: 100 }
   },
   {
@@ -3570,7 +4844,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Max %',
     decimals: 2,
-    visibleWhen: { field: 'HeadTailReconciliation', is: [true] },
+     visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      }, 
+      { field: 'HeadTailReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
   {
@@ -3581,7 +4875,27 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Client %',
     decimals: 2,
-    visibleWhen: { field: 'HeadTailReconciliation', is: [true] },
+     visibleWhen: [
+      {
+        field: 'ID_Route',
+        is: [
+          ROUTES.BLK,
+          ROUTES.BLK_RP,
+          ROUTES.BLK_RPLTZ,
+          ROUTES.BLK_SH,
+          ROUTES.BLK_WLD,
+          ROUTES.COIL_TO_COIL,
+          // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+          ROUTES.SLT,
+          ROUTES.SLT_BLK,
+          ROUTES.SLT_BLK_WLD,
+          ROUTES.WAREHOUSING,
+          ROUTES.WAREHOUSING_RP,
+          ROUTES.WEIGHT_DIVISION
+        ]
+      }, 
+      { field: 'HeadTailReconciliation', is: [true] }
+    ],
     validation: { required: false, min: 0, max: 100 }
   },
   // 10. Outbound Freight Additional File
@@ -3599,6 +4913,24 @@ export const materialFields: FieldConfig[] = [
       required: false,
       accept: ".dwg,.dxf,.dwt,.pdf,.rar,.zip",
       maxSizeInMB: 20
+    },
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.BLK,
+        ROUTES.BLK_RP,
+        ROUTES.BLK_RPLTZ,
+        ROUTES.BLK_SH,
+        ROUTES.BLK_WLD,
+        ROUTES.COIL_TO_COIL,
+        // ROUTES.REWINDED,  <-- OMITIDO (ID 7) para que se oculte
+        ROUTES.SLT,
+        ROUTES.SLT_BLK,
+        ROUTES.SLT_BLK_WLD,
+        ROUTES.WAREHOUSING,
+        ROUTES.WAREHOUSING_RP,
+        ROUTES.WEIGHT_DIVISION
+      ]
     }
   },
   // 1. Theoretical Blanking Line (Readonly)
@@ -3907,7 +5239,7 @@ export const materialFields: FieldConfig[] = [
     label: 'Volume Additional File',
     type: 'file',
     section: 'General',
-    className: 'col-md-4',
+    className: 'col-md-6',
     uploadFieldName: 'volumeAdditionalFile', // Nombre para el Controller
     fileNameProp: 'FileName_VolumeAdditional',
     fileEntityProp: 'CTZ_Files9',
