@@ -159,6 +159,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
             <PropertyRef Name="IdFila" />
           </Key>
           <Property Name="IdFila" Type="int" Nullable="false" />
+          <Property Name="Fecha_Produccion" Type="datetime" />
           <Property Name="Orden_Produccion" Type="float" />
           <Property Name="Planta" Type="float" />
           <Property Name="Numero_Parte" Type="nvarchar" MaxLength="255" />
@@ -194,6 +195,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
           <EntitySet Name="vw_ReporteBalanceMateriales" EntityType="Self.vw_ReporteBalanceMateriales" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [vw_ReporteBalanceMateriales].[IdFila] AS [IdFila], 
+    [vw_ReporteBalanceMateriales].[Fecha_Produccion] AS [Fecha_Produccion], 
     [vw_ReporteBalanceMateriales].[Orden_Produccion] AS [Orden_Produccion], 
     [vw_ReporteBalanceMateriales].[Planta] AS [Planta], 
     [vw_ReporteBalanceMateriales].[Numero_Parte] AS [Numero_Parte], 
@@ -295,11 +297,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
           <EntitySet Name="MaterialPlants" EntityType="Self.MaterialPlants" />
           <EntitySet Name="BomItems" EntityType="Portal_2_0_ServicesModel.BomItems" />
           <EntitySet Name="Materials" EntityType="Portal_2_0_ServicesModel.Materials" />
-          <EntitySet Name="vw_ReporteBalanceMateriales" EntityType="Portal_2_0_ServicesModel.vw_ReporteBalanceMateriales" />
           <FunctionImport Name="sp_GetReporteBalanceScrap" ReturnType="Collection(Portal_2_0_ServicesModel.sp_GetReporteBalanceScrap_Result)">
             <Parameter Name="FechaInicio" Mode="In" Type="DateTime" />
             <Parameter Name="FechaFin" Mode="In" Type="DateTime" />
           </FunctionImport>
+          <EntitySet Name="vw_ReporteBalanceMateriales" EntityType="Portal_2_0_ServicesModel.vw_ReporteBalanceMateriales" />
         </EntityContainer>
         <EntityType Name="BomItems">
           <Key>
@@ -381,31 +383,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
           <Property Name="ZZSELLTYP" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
           <Property Name="ZZBUSSMODL" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="vw_ReporteBalanceMateriales">
-          <Key>
-            <PropertyRef Name="IdFila" />
-          </Key>
-          <Property Name="IdFila" Type="Int32" Nullable="false" />
-          <Property Name="Orden_Produccion" Type="Double" />
-          <Property Name="Planta" Type="Double" />
-          <Property Name="Numero_Parte" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Business_Model" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
-          <Property Name="Tipo_Metal" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
-          <Property Name="Rollos_Usados" Type="Int32" />
-          <Property Name="Tons_Usadas" Type="Double" />
-          <Property Name="Total_Kg_Used" Type="Double" />
-          <Property Name="Peso_Platina_KG" Type="Double" />
-          <Property Name="Platinas_Producidas" Type="Double" />
-          <Property Name="Platinas_Vendidas" Type="Double" />
-          <Property Name="Diferencia_Inventario_Teorica" Type="Double" />
-          <Property Name="Merma_Almacen" Type="Double" />
-          <Property Name="Scrap_OffFall_KG" Type="Double" />
-          <Property Name="Scrap_PC_KG" Type="Double" />
-          <Property Name="Scrap_Merma_KG" Type="Double" />
-          <Property Name="Porcentaje_Scrap_OffFall" Type="Double" />
-          <Property Name="Porcentaje_Scrap_PC" Type="Double" />
-          <Property Name="Porcentaje_Scrap_Merma" Type="Double" />
-        </EntityType>
         <ComplexType Name="sp_GetReporteBalanceScrap_Result">
           <Property Type="Int32" Name="IdFila" Nullable="false" />
           <Property Type="DateTime" Name="Fecha_Produccion" Nullable="true" Precision="23" />
@@ -429,6 +406,32 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
           <Property Type="Double" Name="Porcentaje_Scrap_PC" Nullable="true" />
           <Property Type="Double" Name="Porcentaje_Scrap_Merma" Nullable="true" />
         </ComplexType>
+        <EntityType Name="vw_ReporteBalanceMateriales">
+          <Key>
+            <PropertyRef Name="IdFila" />
+          </Key>
+          <Property Name="IdFila" Type="Int32" Nullable="false" />
+          <Property Name="Fecha_Produccion" Type="DateTime" Precision="3" />
+          <Property Name="Orden_Produccion" Type="Double" />
+          <Property Name="Planta" Type="Double" />
+          <Property Name="Numero_Parte" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Business_Model" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="Tipo_Metal" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="Rollos_Usados" Type="Int32" />
+          <Property Name="Tons_Usadas" Type="Double" />
+          <Property Name="Total_Kg_Used" Type="Double" />
+          <Property Name="Peso_Platina_KG" Type="Double" />
+          <Property Name="Platinas_Producidas" Type="Double" />
+          <Property Name="Platinas_Vendidas" Type="Double" />
+          <Property Name="Diferencia_Inventario_Teorica" Type="Double" />
+          <Property Name="Merma_Almacen" Type="Double" />
+          <Property Name="Scrap_OffFall_KG" Type="Double" />
+          <Property Name="Scrap_PC_KG" Type="Double" />
+          <Property Name="Scrap_Merma_KG" Type="Double" />
+          <Property Name="Porcentaje_Scrap_OffFall" Type="Double" />
+          <Property Name="Porcentaje_Scrap_PC" Type="Double" />
+          <Property Name="Porcentaje_Scrap_Merma" Type="Double" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -578,32 +581,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="vw_ReporteBalanceMateriales">
-            <EntityTypeMapping TypeName="Portal_2_0_ServicesModel.vw_ReporteBalanceMateriales">
-              <MappingFragment StoreEntitySet="vw_ReporteBalanceMateriales">
-                <ScalarProperty Name="Porcentaje_Scrap_Merma" ColumnName="Porcentaje_Scrap_Merma" />
-                <ScalarProperty Name="Porcentaje_Scrap_PC" ColumnName="Porcentaje_Scrap_PC" />
-                <ScalarProperty Name="Porcentaje_Scrap_OffFall" ColumnName="Porcentaje_Scrap_OffFall" />
-                <ScalarProperty Name="Scrap_Merma_KG" ColumnName="Scrap_Merma_KG" />
-                <ScalarProperty Name="Scrap_PC_KG" ColumnName="Scrap_PC_KG" />
-                <ScalarProperty Name="Scrap_OffFall_KG" ColumnName="Scrap_OffFall_KG" />
-                <ScalarProperty Name="Merma_Almacen" ColumnName="Merma_Almacen" />
-                <ScalarProperty Name="Diferencia_Inventario_Teorica" ColumnName="Diferencia_Inventario_Teorica" />
-                <ScalarProperty Name="Platinas_Vendidas" ColumnName="Platinas_Vendidas" />
-                <ScalarProperty Name="Platinas_Producidas" ColumnName="Platinas_Producidas" />
-                <ScalarProperty Name="Peso_Platina_KG" ColumnName="Peso_Platina_KG" />
-                <ScalarProperty Name="Total_Kg_Used" ColumnName="Total_Kg_Used" />
-                <ScalarProperty Name="Tons_Usadas" ColumnName="Tons_Usadas" />
-                <ScalarProperty Name="Rollos_Usados" ColumnName="Rollos_Usados" />
-                <ScalarProperty Name="Tipo_Metal" ColumnName="Tipo_Metal" />
-                <ScalarProperty Name="Business_Model" ColumnName="Business_Model" />
-                <ScalarProperty Name="Numero_Parte" ColumnName="Numero_Parte" />
-                <ScalarProperty Name="Planta" ColumnName="Planta" />
-                <ScalarProperty Name="Orden_Produccion" ColumnName="Orden_Produccion" />
-                <ScalarProperty Name="IdFila" ColumnName="IdFila" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <FunctionImportMapping FunctionImportName="sp_GetReporteBalanceScrap" FunctionName="Portal_2_0_ServicesModel.Store.sp_GetReporteBalanceScrap">
             <ResultMapping>
               <ComplexTypeMapping TypeName="Portal_2_0_ServicesModel.sp_GetReporteBalanceScrap_Result">
@@ -631,6 +608,33 @@ advertencia 6002: La tabla o vista 'Portal_2_0_Services.dbo.vw_ReporteBalanceMat
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <EntitySetMapping Name="vw_ReporteBalanceMateriales">
+            <EntityTypeMapping TypeName="Portal_2_0_ServicesModel.vw_ReporteBalanceMateriales">
+              <MappingFragment StoreEntitySet="vw_ReporteBalanceMateriales">
+                <ScalarProperty Name="Porcentaje_Scrap_Merma" ColumnName="Porcentaje_Scrap_Merma" />
+                <ScalarProperty Name="Porcentaje_Scrap_PC" ColumnName="Porcentaje_Scrap_PC" />
+                <ScalarProperty Name="Porcentaje_Scrap_OffFall" ColumnName="Porcentaje_Scrap_OffFall" />
+                <ScalarProperty Name="Scrap_Merma_KG" ColumnName="Scrap_Merma_KG" />
+                <ScalarProperty Name="Scrap_PC_KG" ColumnName="Scrap_PC_KG" />
+                <ScalarProperty Name="Scrap_OffFall_KG" ColumnName="Scrap_OffFall_KG" />
+                <ScalarProperty Name="Merma_Almacen" ColumnName="Merma_Almacen" />
+                <ScalarProperty Name="Diferencia_Inventario_Teorica" ColumnName="Diferencia_Inventario_Teorica" />
+                <ScalarProperty Name="Platinas_Vendidas" ColumnName="Platinas_Vendidas" />
+                <ScalarProperty Name="Platinas_Producidas" ColumnName="Platinas_Producidas" />
+                <ScalarProperty Name="Peso_Platina_KG" ColumnName="Peso_Platina_KG" />
+                <ScalarProperty Name="Total_Kg_Used" ColumnName="Total_Kg_Used" />
+                <ScalarProperty Name="Tons_Usadas" ColumnName="Tons_Usadas" />
+                <ScalarProperty Name="Rollos_Usados" ColumnName="Rollos_Usados" />
+                <ScalarProperty Name="Tipo_Metal" ColumnName="Tipo_Metal" />
+                <ScalarProperty Name="Business_Model" ColumnName="Business_Model" />
+                <ScalarProperty Name="Numero_Parte" ColumnName="Numero_Parte" />
+                <ScalarProperty Name="Planta" ColumnName="Planta" />
+                <ScalarProperty Name="Orden_Produccion" ColumnName="Orden_Produccion" />
+                <ScalarProperty Name="Fecha_Produccion" ColumnName="Fecha_Produccion" />
+                <ScalarProperty Name="IdFila" ColumnName="IdFila" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

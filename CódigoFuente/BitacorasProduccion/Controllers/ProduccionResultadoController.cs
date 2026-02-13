@@ -416,21 +416,19 @@ namespace Portal_2_0.Controllers
             // }
         }
 
-        // 2. Método AJAX para alimentar el DataTables (Server-Side Processing)
+        // 2. Método AJAX corregido para paginación REAL en Base de Datos
         [HttpPost]
-        public ActionResult GetReporteScrapData()
+        public ActionResult GetReporteScrapData(string fechaInicio, string fechaFin)
         {
             try
             {
-                // Parámetros propios de DataTables para paginación y búsqueda
+                // Parámetros de DataTables
                 var draw = Request.Form.GetValues("draw")?.FirstOrDefault();
                 var start = Request.Form.GetValues("start")?.FirstOrDefault();
                 var length = Request.Form.GetValues("length")?.FirstOrDefault();
                 var searchValue = Request.Form.GetValues("search[value]")?.FirstOrDefault();
-
-                // Parámetros propios de DataTables para ORDENAMIENTO
                 var sortColumnIndex = Request.Form.GetValues("order[0][column]")?.FirstOrDefault();
-                var sortDirection = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault(); // Viene como "asc" o "desc"
+                var sortDirection = Request.Form.GetValues("order[0][dir]")?.FirstOrDefault();
 
                 int pageSize = length != null ? Convert.ToInt32(length) : 0;
                 int skip = start != null ? Convert.ToInt32(start) : 0;
@@ -438,29 +436,43 @@ namespace Portal_2_0.Controllers
 
                 using (var db_sap = new Portal_2_0_ServicesEntities())
                 {
-                    // OPTIMIZACIÓN 1: AsNoTracking() evita que EF guarde caché de estos datos, agilizando la lectura
+                    // CAMBIO CLAVE: Usamos la VISTA, no el SP.
+                    // Al usar la vista como Queryable, el filtrado y paginado se hace en SQL Server, no en RAM.
                     var query = db_sap.vw_ReporteBalanceMateriales.AsNoTracking().AsQueryable();
 
-                    // 1. Aplicar Filtro global (Buscador general)
+                    // 1. FILTRO DE FECHAS (Se traduce a WHERE en SQL)
+                    DateTime fInicio = DateTime.Now.AddDays(-30);
+                    DateTime fFin = DateTime.Now.AddHours(23).AddMinutes(59);
+
+                    if (!string.IsNullOrEmpty(fechaInicio)) DateTime.TryParse(fechaInicio, out fInicio);
+                    if (!string.IsNullOrEmpty(fechaFin))
+                    {
+                        DateTime.TryParse(fechaFin, out fFin);
+                        fFin = fFin.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
+
+                    query = query.Where(x => x.Fecha_Produccion >= fInicio && x.Fecha_Produccion <= fFin);
+
+                    // 2. FILTRO DE TEXTO (Se traduce a LIKE en SQL)
                     if (!string.IsNullOrEmpty(searchValue))
                     {
                         searchValue = searchValue.ToLower();
                         query = query.Where(x =>
-                            x.Numero_Parte.ToLower().Contains(searchValue) ||
+                            (x.Numero_Parte != null && x.Numero_Parte.ToLower().Contains(searchValue)) ||
                             (x.Business_Model != null && x.Business_Model.ToLower().Contains(searchValue)) ||
                             (x.Tipo_Metal != null && x.Tipo_Metal.ToLower().Contains(searchValue)) ||
-                            x.Orden_Produccion.ToString().Contains(searchValue) ||
-                            x.Planta.ToString().Contains(searchValue)
+                            (x.Orden_Produccion != null && x.Orden_Produccion.ToString().Contains(searchValue)) ||
+                            (x.Planta != null && x.Planta.ToString().Contains(searchValue))
                         );
                     }
 
+                    // Contamos el total filtrado directamente en SQL
                     recordsTotal = query.Count();
 
-                    // 2. Lógica de ORDENAMIENTO DINÁMICO
+                    // 3. ORDENAMIENTO (Se traduce a ORDER BY en SQL)
                     if (!string.IsNullOrEmpty(sortColumnIndex) && !string.IsNullOrEmpty(sortDirection))
                     {
                         bool isDesc = sortDirection == "desc";
-
                         switch (sortColumnIndex)
                         {
                             case "0": query = isDesc ? query.OrderByDescending(x => x.Orden_Produccion) : query.OrderBy(x => x.Orden_Produccion); break;
@@ -490,51 +502,59 @@ namespace Portal_2_0.Controllers
                         query = query.OrderByDescending(x => x.Orden_Produccion);
                     }
 
-                    // 3. Paginación final
+                    // 4. PAGINACIÓN (Se traduce a OFFSET / FETCH en SQL)
+                    // Aquí ocurre la magia: Solo viajan por la red 50 registros, no 35,000
                     var data = query.Skip(skip).Take(pageSize).ToList();
 
-                    return Json(new
-                    {
-                        draw = draw,
-                        recordsFiltered = recordsTotal,
-                        recordsTotal = recordsTotal,
-                        data = data
-                    }, JsonRequestBehavior.AllowGet);
+                    return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data }, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex)
             {
                 EscribeExcepcion(ex, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
-                return Json(new { error = "Ocurrió un error al procesar los datos: " + ex.Message });
+                return Json(new { error = "Ocurrió un error: " + ex.Message });
             }
         }
 
-        // 3. Método para Exportar TODO a Excel optimizado (Projection + SpreadsheetLight)
+        // 3. Método de Exportación corregido para usar el SP
         [HttpPost]
-        public ActionResult ExportarBalanceScrapExcel(string searchTerm)
+        public ActionResult ExportarBalanceScrapExcel(string searchTerm, string fechaInicio, string fechaFin)
         {
             try
             {
                 using (var db_sap = new Portal_2_0_ServicesEntities())
                 {
-                    // OPTIMIZACIÓN 1: AsNoTracking() evita la sobrecarga de memoria de EF
+                    // 1. Usamos la VISTA con AsNoTracking para máxima velocidad de lectura
                     var query = db_sap.vw_ReporteBalanceMateriales.AsNoTracking().AsQueryable();
 
+                    // 2. Filtro de Fechas
+                    DateTime fInicio = DateTime.Now.AddDays(-30);
+                    DateTime fFin = DateTime.Now.AddHours(23).AddMinutes(59);
+
+                    if (!string.IsNullOrEmpty(fechaInicio)) DateTime.TryParse(fechaInicio, out fInicio);
+                    if (!string.IsNullOrEmpty(fechaFin))
+                    {
+                        DateTime.TryParse(fechaFin, out fFin);
+                        fFin = fFin.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
+
+                    query = query.Where(x => x.Fecha_Produccion >= fInicio && x.Fecha_Produccion <= fFin);
+
+                    // 3. Filtro de Texto (Mismo que en la tabla)
                     if (!string.IsNullOrEmpty(searchTerm))
                     {
                         searchTerm = searchTerm.ToLower();
                         query = query.Where(x =>
-                            x.Numero_Parte.ToLower().Contains(searchTerm) ||
+                            (x.Numero_Parte != null && x.Numero_Parte.ToLower().Contains(searchTerm)) ||
                             (x.Business_Model != null && x.Business_Model.ToLower().Contains(searchTerm)) ||
                             (x.Tipo_Metal != null && x.Tipo_Metal.ToLower().Contains(searchTerm)) ||
-                            x.Orden_Produccion.ToString().Contains(searchTerm) ||
-                            x.Planta.ToString().Contains(searchTerm)
+                            (x.Orden_Produccion != null && x.Orden_Produccion.ToString().Contains(searchTerm)) ||
+                            (x.Planta != null && x.Planta.ToString().Contains(searchTerm))
                         );
                     }
 
-                    // OPTIMIZACIÓN 2: Proyección Select. 
-                    // Traemos solo los datos planos necesarios, evitando traer el objeto completo de EF.
-                    // Esto hace que el "ToList()" sea mucho más rápido y ligero.
+                    // 4. Proyección Ligera (Select)
+                    // Traemos solo los datos necesarios para el Excel, evitando cargar todo el objeto de EF
                     var datosExportar = query
                         .OrderByDescending(x => x.Orden_Produccion)
                         .Select(item => new
@@ -559,7 +579,7 @@ namespace Portal_2_0.Controllers
                             item.Porcentaje_Scrap_PC,
                             item.Porcentaje_Scrap_Merma
                         })
-                        .ToList();
+                        .ToList(); // Ejecuta la consulta optimizada
 
                     // ==========================================
                     // IMPLEMENTACIÓN SPREADSHEETLIGHT
@@ -567,7 +587,7 @@ namespace Portal_2_0.Controllers
                     SLDocument oSLDocument = new SLDocument();
                     System.Data.DataTable dt = new System.Data.DataTable();
 
-                    // Pre-asignar capacidad a la DataTable mejora el rendimiento al insertar filas
+                    // Pre-asignar capacidad mejora el rendimiento
                     dt.MinimumCapacity = datosExportar.Count;
 
                     dt.Columns.Add("Orden Producción", typeof(string));
@@ -590,7 +610,7 @@ namespace Portal_2_0.Controllers
                     dt.Columns.Add("Scrap (P&C)%", typeof(double));
                     dt.Columns.Add("Scrap (Merma)%", typeof(double));
 
-                    // Llenado de filas iterando sobre la lista ligera proyectada
+                    // Llenado de filas
                     foreach (var item in datosExportar)
                     {
                         dt.Rows.Add(
@@ -616,13 +636,10 @@ namespace Portal_2_0.Controllers
                         );
                     }
 
-                    // Selecciona el nombre de la hoja
                     oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Balance Materiales");
                     oSLDocument.ImportDataTable(1, 1, dt, true);
 
-                    // ==========================================
-                    // ESTILOS
-                    // ==========================================
+                    // Estilos
                     SLStyle styleHeader = oSLDocument.CreateStyle();
                     styleHeader.Font.FontName = "Calibri";
                     styleHeader.Font.FontSize = 11;
@@ -651,7 +668,6 @@ namespace Portal_2_0.Controllers
                 return RedirectToAction("ReporteBalanceScrap");
             }
         }
-
         // ==============================================================================================
         // FIN: MÓDULO REPORTE DE BALANCE DE MATERIALES (SCRAP)
         // ==============================================================================================

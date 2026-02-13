@@ -13,122 +13,196 @@
 
     <style>
         /* ==============================================================
-           ESTILOS PREMIUM DATATABLES - TEMA CORPORATIVO (#009ff5)
+           ESTILOS MANUALES: LOADER Y SCROLL
            ============================================================== */
-        .report-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+
+        /* 1. CORTINA DE CARGA (LOADER OVERLAY) */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh; /* Usamos 100vh para asegurar que cubra toda la ventana visible */
+            background: rgba(255, 255, 255, 0.85); /* Un poco más opaco para tapar mejor */
+            z-index: 99999;
+            /* CENTRADO FLEXBOX (La clave para que esté al centro) */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* MECANISMO DE OCULTADO (Sin display:none para no romper el flex) */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s;
+            backdrop-filter: blur(2px);
         }
 
+            /* Clase para activar el loader */
+            #loading-overlay.is-active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        .loader-card {
+            background: white;
+            padding: 30px 50px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-align: center;
+            border: 1px solid #f0f0f0;
+            min-width: 300px;
+        }
+
+        .spinner-custom {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #009ff5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 2. CONTENEDOR DE SCROLL MANUAL */
+        .table-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #eee;
+            margin-bottom: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 3. ESTILOS DE TABLA */
         table.dataTable {
-            border-collapse: collapse !important;
             width: 100% !important;
+            margin: 0 !important;
+            border-collapse: collapse !important;
         }
 
             table.dataTable thead th {
                 background-color: #009ff5;
                 color: #ffffff;
-                font-weight: 500;
-                text-transform: uppercase;
-                font-size: 12px;
-                letter-spacing: 0.5px;
-                border: none;
                 padding: 12px 15px;
                 white-space: nowrap;
+                font-size: 12px;
+                text-transform: uppercase;
+                border: none;
             }
 
             table.dataTable tbody td {
-                padding: 12px 15px;
+                padding: 10px 15px;
                 vertical-align: middle;
-                border-bottom: 1px solid #edf2f9;
-                color: #495057;
+                border-bottom: 1px solid #f0f0f0;
+                color: #555;
                 font-size: 13px;
+                white-space: nowrap;
             }
 
             table.dataTable tbody tr:hover {
-                background-color: #f4f8fd !important;
-                transition: background-color 0.2s ease;
-            }
-        /* Botones personalizados */
-        .btn-export-excel {
-            background-color: #009ff5;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 2px 5px rgba(0, 159, 245, 0.3);
-        }
-
-            .btn-export-excel:hover {
-                background-color: #007cc0;
-                color: #fff;
-                transform: translateY(-1px);
-                box-shadow: 0 4px 8px rgba(0, 159, 245, 0.4);
+                background-color: #f1f8ff !important;
             }
 
-        .btn-search-custom {
-            background-color: #009ff5;
-            color: white;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            padding: 0;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: all 0.2s;
+        /* 4. BOTONES Y CONTROLES */
+        .report-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-            .btn-search-custom:hover {
-                background-color: #007cc0;
-                transform: scale(1.05);
-            }
-
-        /* Paginación y Inputs */
-        .pagination > .active > a,
-        .pagination > .active > a:focus,
-        .pagination > .active > a:hover,
-        .pagination > .active > span,
-        .pagination > .active > span:focus,
-        .pagination > .active > span:hover {
-            background-color: #009ff5 !important;
-            border-color: #009ff5 !important;
-        }
-
-        .dataTables_filter input, .form-control-date {
-            border-radius: 20px;
-            border: 1px solid #ccc;
-            padding: 5px 15px;
-            outline: none;
-            height: 34px; /* Altura estándar bootstrap */
-        }
-
-            .dataTables_filter input:focus, .form-control-date:focus {
-                border-color: #009ff5;
-                box-shadow: 0 0 5px rgba(0, 159, 245, 0.3);
-            }
-
-        /* Layout de la barra superior */
         .dt-top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap; /* Para pantallas pequeñas */
-            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .dt-filters-group {
+        .btn-custom {
+            background-color: #009ff5;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+            .btn-custom:hover {
+                background-color: #008cd6;
+                color: white;
+                transform: translateY(-1px);
+            }
+
+        .btn-clean {
+            background-color: #f0ad4e;
+            color: white;
+        }
+
+            .btn-clean:hover {
+                background-color: #ec971f;
+                color: white;
+            }
+
+        .btn-search-icon {
+            background: #009ff5;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .form-control-custom {
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 18px;
+            padding: 0 15px;
+            outline: none;
+        }
+
+            .form-control-custom:focus {
+                border-color: #009ff5;
+            }
+
+        .dt-footer-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .pagination > .active > a {
+            background-color: #009ff5 !important;
+            border-color: #009ff5 !important;
         }
     </style>
 }
+
+<div id="loading-overlay">
+    <div class="loader-card">
+        <div class="spinner-custom"></div>
+        <h4 style="margin:0; color:#555; font-size:16px; font-weight:600;">Procesando datos...</h4>
+        <small style="color:#999;">Esto puede tomar unos segundos</small>
+    </div>
+</div>
 
 <div class="right_col" role="main">
     <div class="">
@@ -145,57 +219,54 @@
                         <div class="report-container">
                             <div class="dt-top-bar">
                                 <div>
-                                    <button type="button" id="btnExportarExcel" class="btn-export-excel">
-                                        <i class="fa fa-file-excel"></i> Descargar Excel
+                                    <button type="button" id="btnExportarExcel" class="btn btn-custom">
+                                        <i class="fa fa-file-excel"></i> Excel
                                     </button>
-                                    <button type="button" id="btnLimpiarFiltros" class="btn btn-warning" style="margin-left: 10px; margin-bottom: 0; color: white;">
+                                    <button type="button" id="btnLimpiarFiltros" class="btn btn-custom btn-clean" style="margin-left: 5px;">
                                         <i class="fa fa-eraser"></i> Limpiar
                                     </button>
                                 </div>
 
-                                <div class="dt-filters-group">
-                                    <div style="display:flex; align-items:center; gap:5px;">
-                                        <input type="date" id="fechaInicio" class="form-control-date" title="Fecha Inicio">
-                                        <span style="font-weight:bold; color:#666;">-</span>
-                                        <input type="date" id="fechaFin" class="form-control-date" title="Fecha Fin">
-                                        <button type="button" id="btnBuscarFecha" class="btn-search-custom" title="Aplicar filtro de fecha">
-                                            <i class="fa fa-search"></i>
-                                        </button>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <input type="date" id="fechaInicio" class="form-control-custom" title="Fecha Inicio">
+                                    <span style="font-weight:bold; color:#ccc;">—</span>
+                                    <input type="date" id="fechaFin" class="form-control-custom" title="Fecha Fin">
+                                    <button type="button" id="btnBuscarFecha" class="btn-search-icon" title="Buscar">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <input type="text" id="inputBuscador" class="form-control-custom" placeholder="Buscar..." style="margin-left: 10px; width: 250px;">
                                     </div>
-
-                                    <div id="custom-search-container"></div>
                                 </div>
                             </div>
 
-                            <div class="table-responsive">
-                                <table id="tablaReporteScrap" class="table table-striped dt-responsive nowrap" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Orden Prod.</th>
-                                            <th>Planta</th>
-                                            <th>Número Parte</th>
-                                            <th>Business Model</th>
-                                            <th>Tipo Metal</th>
-                                            <th>Rollos Usados</th>
-                                            <th>Tons Usadas</th>
-                                            <th>Total KG Usados</th>
-                                            <th>Peso Platina (KG)</th>
-                                            <th>Platinas Prod.</th>
-                                            <th>Platinas Vend.</th>
-                                            <th>Dif. Inv. Teórica</th>
-                                            <th>Merma Almacén</th>
-                                            <th>Scrap OffFall (KG)</th>
-                                            <th>Scrap P&C (KG)</th>
-                                            <th>Scrap Merma (KG)</th>
-                                            <th>Scrap (Off-all)%</th>
-                                            <th>Scrap (P&C)%</th>
-                                            <th>Scrap (Merma)%</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <table id="tablaReporteScrap" class="table table-striped" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Orden Prod.</th>
+                                        <th>Planta</th>
+                                        <th>Número Parte</th>
+                                        <th>Business Model</th>
+                                        <th>Tipo Metal</th>
+                                        <th>Rollos Usados</th>
+                                        <th>Tons Usadas</th>
+                                        <th>Total KG Usados</th>
+                                        <th>Peso Platina (KG)</th>
+                                        <th>Platinas Prod.</th>
+                                        <th>Platinas Vend.</th>
+                                        <th>Dif. Inv. Teórica</th>
+                                        <th>Merma Almacén</th>
+                                        <th>Scrap OffFall (KG)</th>
+                                        <th>Scrap P&C (KG)</th>
+                                        <th>Scrap Merma (KG)</th>
+                                        <th>Scrap (Off-all)%</th>
+                                        <th>Scrap (P&C)%</th>
+                                        <th>Scrap (Merma)%</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
                         </div>
 
                     </div>
@@ -212,25 +283,29 @@
     <script>
         $(document).ready(function () {
 
-            // Establecer fechas por defecto en los inputs (Últimos 30 días)
             var today = new Date();
             var lastMonth = new Date();
             lastMonth.setDate(today.getDate() - 30);
 
-            // Formato YYYY-MM-DD para inputs date
             $('#fechaFin').val(today.toISOString().split('T')[0]);
             $('#fechaInicio').val(lastMonth.toISOString().split('T')[0]);
 
             var tabla = $('#tablaReporteScrap').DataTable({
-                "processing": true,
+                "processing": false,
                 "serverSide": true,
+                "scrollX": false,
+                "autoWidth": false,
+                // Mantenemos el DOM sin la 'f' porque usaremos nuestro propio input
+                "dom": '<"table-scroll-wrapper"t><"dt-footer-wrapper"ip>',
                 "ajax": {
                     "url": "@Url.Action("GetReporteScrapData", "ProduccionResultado")",
                     "type": "POST",
                     "data": function(d) {
-                        // Enviamos las fechas al controlador en cada petición
                         d.fechaInicio = $('#fechaInicio').val();
                         d.fechaFin = $('#fechaFin').val();
+                    },
+                    "error": function (xhr, error, thrown) {
+                        $('#loading-overlay').removeClass('is-active');
                     }
                 },
                 "pageLength": 50,
@@ -239,6 +314,7 @@
                 },
                 "order": [],
                 "columns": [
+                    // ... (Tus columnas siguen igual) ...
                     { "data": "Orden_Produccion", "name": "Orden_Produccion" },
                     { "data": "Planta", "name": "Planta" },
                     { "data": "Numero_Parte", "name": "Numero_Parte" },
@@ -260,82 +336,79 @@
                     { "data": "Porcentaje_Scrap_Merma", "name": "Porcentaje_Scrap_Merma", render: $.fn.dataTable.render.number(',', '.', 2, '', ' %') }
                 ],
                 "initComplete": function() {
-                    // Movemos el buscador al contenedor custom
-                    var $filter = $("#tablaReporteScrap_filter");
-                    $filter.detach().appendTo('#custom-search-container');
-
-                    // DEBOUNCE
-                    var searchInput = $filter.find('input');
-                    searchInput.unbind();
-                    var delayTimer;
-                    searchInput.on('keyup', function(e) {
-                        var valorFiltro = this.value;
-                        clearTimeout(delayTimer);
-                        delayTimer = setTimeout(function() {
-                            tabla.search(valorFiltro).draw();
-                        }, 600);
-                    });
+                    // Ya no necesitamos mover nada, el input ya está en el HTML
                 }
             });
 
-            // Evento Botón Buscar (Lupa)
-            $('#btnBuscarFecha').on('click', function() {
-                tabla.draw(); // Esto recarga la tabla enviando las nuevas fechas
+            // =========================================================
+            // LÓGICA DE BUSCADOR MANUAL CON DEBOUNCE
+            // =========================================================
+            var delayTimer;
+            $('#inputBuscador').on('keyup', function() {
+                var valor = this.value;
+                clearTimeout(delayTimer);
+
+                delayTimer = setTimeout(function() {
+                    // Esto actualiza el filtro interno de DataTables y dispara el AJAX
+                    tabla.search(valor).draw();
+                }, 1000); // 600ms de espera
             });
 
-            // Código del botón de Excel
+            // =========================================================
+            // CONTROL DEL LOADER
+            // =========================================================
+            tabla.on('preXhr.dt', function () {
+                $('#loading-overlay').addClass('is-active');
+            });
+
+            tabla.on('draw.dt', function () {
+                $('#loading-overlay').removeClass('is-active');
+            });
+
+            // =========================================================
+            // EVENTOS BOTONES
+            // =========================================================
+            $('#btnBuscarFecha').on('click', function() {
+                tabla.draw();
+            });
+
             $('#btnExportarExcel').on('click', function () {
-                var currentSearch = tabla.search();
+                $('#loading-overlay').addClass('is-active');
 
                 var form = $('<form>', {
                     'method': 'POST',
                     'action': '@Url.Action("ExportarBalanceScrapExcel", "ProduccionResultado")'
                 });
 
-                // Enviamos Filtro de Texto
-                form.append($('<input>', { 'type': 'hidden', 'name': 'searchTerm', 'value': currentSearch }));
-
-                // Enviamos Filtros de Fecha
+                // Importante: tabla.search() obtiene el valor que pusimos en nuestro input manual
+                form.append($('<input>', { 'type': 'hidden', 'name': 'searchTerm', 'value': tabla.search() }));
                 form.append($('<input>', { 'type': 'hidden', 'name': 'fechaInicio', 'value': $('#fechaInicio').val() }));
                 form.append($('<input>', { 'type': 'hidden', 'name': 'fechaFin', 'value': $('#fechaFin').val() }));
 
                 var token = $('input[name="__RequestVerificationToken"]').val();
-                if(token) {
-                    form.append($('<input>', { 'type': 'hidden', 'name': '__RequestVerificationToken', 'value': token }));
-                }
+                if(token) form.append($('<input>', { 'type': 'hidden', 'name': '__RequestVerificationToken', 'value': token }));
 
                 $('body').append(form);
-
-                var $btn = $(this);
-                var originalText = $btn.html();
-                $btn.html('<i class="fa fa-spinner fa-spin"></i> Generando...');
-                $btn.prop('disabled', true);
-
                 form.submit();
                 form.remove();
 
                 setTimeout(function() {
-                    $btn.html(originalText);
-                    $btn.prop('disabled', false);
+                    $('#loading-overlay').removeClass('is-active');
                 }, 3000);
             });
 
-            // Evento Limpiar Filtros
             $('#btnLimpiarFiltros').on('click', function () {
-                // 1. Limpiar inputs visuales
-                $('#custom-search-container input').val('');
+                // Limpiar inputs
+                $('#inputBuscador').val(''); // Limpiamos nuestro input manual
 
-                // Resetear fechas a los últimos 30 días (opcional, o dejarlas vacías)
                 var today = new Date();
                 var lastMonth = new Date();
                 lastMonth.setDate(today.getDate() - 30);
                 $('#fechaFin').val(today.toISOString().split('T')[0]);
                 $('#fechaInicio').val(lastMonth.toISOString().split('T')[0]);
 
-                // 2. Resetear DataTables
-                tabla.search('')
-                     .order([0, 'desc'])
-                     .draw();
+                // Resetear tabla
+                tabla.search('').order([0, 'desc']).draw();
             });
 
         });

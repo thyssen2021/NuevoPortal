@@ -15,6 +15,7 @@ namespace Portal_2_0.Models
     public partial class vw_ReporteBalanceMateriales
     {
         public int IdFila { get; set; }
+        public Nullable<System.DateTime> Fecha_Produccion { get; set; }
         public Nullable<double> Orden_Produccion { get; set; }
         public Nullable<double> Planta { get; set; }
         public string Numero_Parte { get; set; }
