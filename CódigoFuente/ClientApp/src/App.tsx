@@ -170,6 +170,7 @@ function App({ context }: AppProps) {
           <div className="x_content">
             <MaterialForm
               selectedMaterial={selectedMaterial}
+              projectMaterials={materials}
               onCancel={handleCloseForm}
               lists={context.lists}
               urls={context.urls}

@@ -20,7 +20,33 @@ export interface AppLists {
     additionalList: DropdownItem[]; 
     strapTypeList: DropdownItem[];
     freightTypeList: DropdownItem[];
+    slittingRules: SlittingValidationRule[];
+    capacityData: Record<string, CapacityInfo[]>; // Key: PlantID
+    currentLoad: Record<string, CurrentLoadItem[]>; // Key: LineID
+    oeeHistory: Record<string, number>; // Key: LineID -> AvgOEE
+    fiscalYears: FiscalYearDef[];
     [key: string]: any; // Esto permite flexibilidad para otras listas futuras    
+    projectStatuses?: Array<{ Value: number; Text: string }>; // 👈 Debe coincidir con el nombre en C#
+}
+
+export interface ChartDataPoints {
+    labels: string[];
+    datasets: any[];
+    maxPercentage: number;
+    lineName?: string;
+}
+
+export interface SlittingValidationRule {
+    ID_Production_Line: number;
+    LineName?: string; // Nombre amigable para mostrar en la tabla
+    Thickness_Min: number;
+    Thickness_Max: number;
+    Tensile_Min: number;
+    Tensile_Max: number;
+    Width_Min?: number | null;
+    Width_Max?: number | null;
+    Mults_Max: number;
+    Is_Active: boolean;
 }
 
 export interface TheoreticalRule {
@@ -47,6 +73,15 @@ export interface EngineeringRange {
     numericValue: number | null;
     tolerance: number | null; 
 }
+
+// Respuesta del endpoint GetEngineeringDimensions
+export interface EngineeringResponse {
+    success: boolean;
+    message?: string;
+    validationRanges: EngineeringRange[];
+    maxMultsAllowed: number | null; // 👇 AQUÍ ESTÁ EL DATO CLAVE
+}
+
 
 export interface Material {
     // Identificadores
@@ -431,4 +466,33 @@ export interface AppContext {
         backUrl: string;
     };
     lists: AppLists;
+}
+
+// Definición de Año Fiscal
+export interface FiscalYearDef {
+    ID: number;
+    Name: string;
+    Start: string; // Vienen como ISO string desde C#
+    End: string;
+}
+
+// Capacidad Instalada { [FY_ID]: { Blk: horas, Slt: turnos } }
+export interface CapacityInfo {
+    FY: number;
+    Blk: number;
+    Slt: number;
+}
+
+// Carga Actual que viene del backend
+export interface CurrentLoadItem {
+    FY: number;   // ID del Año Fiscal
+    St: number;   // ID del Estatus (1=Quotes, 4=POH, etc.) - Antes era ID_Status
+    Hrs: number;  // Horas cargadas
+}
+
+// Estructura de un item de producción IHS (lo que viene en el JSON)
+export interface IhsProductionItem {
+    Production_Year: number;
+    Production_Month: number; // 👈 Nuevo
+    Production_Amount: number;
 }

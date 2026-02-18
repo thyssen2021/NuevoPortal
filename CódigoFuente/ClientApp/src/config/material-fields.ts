@@ -1153,11 +1153,11 @@ export const materialFields: FieldConfig[] = [
   {
     name: 'OuterCoilDiameterArrival',
     label: 'Outer Diameter',
-    type: 'creatable-select',
+    type: 'number',
     section: 'Coil Data',
     className: 'col-md-3',
     placeholder: 'Outer Dia.',
-    options: coilDiameterOptions,
+    decimals: 0,
     validation: {
       required: false,
       min: 0,
@@ -1241,7 +1241,8 @@ export const materialFields: FieldConfig[] = [
   {
     name: 'InnerCoilDiameterDelivery',
     label: 'Inner Diameter Delivery',
-    type: 'number',
+    type: 'creatable-select',
+    options: coilDiameterOptions,
     section: 'Slitter Data',
     className: 'col-md-3',
     placeholder: 'Inner Dia.',
@@ -1268,7 +1269,7 @@ export const materialFields: FieldConfig[] = [
     section: 'Slitter Data',
     className: 'col-md-3',
     placeholder: 'Outer Dia.',
-    decimals: 2,
+    decimals: 0,
     validation: {
       required: false,
       min: 0,
@@ -4782,7 +4783,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Min %',
     decimals: 2,
-     visibleWhen: [
+    visibleWhen: [
       {
         field: 'ID_Route',
         is: [
@@ -4800,7 +4801,7 @@ export const materialFields: FieldConfig[] = [
           ROUTES.WAREHOUSING_RP,
           ROUTES.WEIGHT_DIVISION
         ]
-      }, 
+      },
       { field: 'HeadTailReconciliation', is: [true] }
     ],
     validation: { required: false, min: 0, max: 100 }
@@ -4813,7 +4814,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Optimal %',
     decimals: 2,
-     visibleWhen: [
+    visibleWhen: [
       {
         field: 'ID_Route',
         is: [
@@ -4831,7 +4832,7 @@ export const materialFields: FieldConfig[] = [
           ROUTES.WAREHOUSING_RP,
           ROUTES.WEIGHT_DIVISION
         ]
-      }, 
+      },
       { field: 'HeadTailReconciliation', is: [true] }
     ],
     validation: { required: true, min: 0, max: 100 }
@@ -4844,7 +4845,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Max %',
     decimals: 2,
-     visibleWhen: [
+    visibleWhen: [
       {
         field: 'ID_Route',
         is: [
@@ -4862,7 +4863,7 @@ export const materialFields: FieldConfig[] = [
           ROUTES.WAREHOUSING_RP,
           ROUTES.WEIGHT_DIVISION
         ]
-      }, 
+      },
       { field: 'HeadTailReconciliation', is: [true] }
     ],
     validation: { required: false, min: 0, max: 100 }
@@ -4875,7 +4876,7 @@ export const materialFields: FieldConfig[] = [
     className: 'col-md-3',
     placeholder: 'Client %',
     decimals: 2,
-     visibleWhen: [
+    visibleWhen: [
       {
         field: 'ID_Route',
         is: [
@@ -4893,7 +4894,7 @@ export const materialFields: FieldConfig[] = [
           ROUTES.WAREHOUSING_RP,
           ROUTES.WEIGHT_DIVISION
         ]
-      }, 
+      },
       { field: 'HeadTailReconciliation', is: [true] }
     ],
     validation: { required: false, min: 0, max: 100 }
@@ -5052,10 +5053,21 @@ export const materialFields: FieldConfig[] = [
     type: 'select',
     section: 'Technical Feasibility',
     className: 'col-md-3',
-    optionsKey: 'linesList', // Reusa la lista de líneas cargada
+    optionsKey: 'linesList',
     placeholder: 'Select a slitting line',
     validation: {
-      required: false
+      required: false, // Opcional: Podrías poner requiredWhen aquí si quieres que sea obligatorio en estas rutas
+    },
+    // 👇 AGREGAR ESTE BLOQUE DE VISIBILIDAD
+    visibleWhen: {
+      field: 'ID_Route',
+      is: [
+        ROUTES.REWINDED,        // ID 7
+        ROUTES.SLT,             // ID 8
+        ROUTES.SLT_BLK,         // ID 9
+        ROUTES.SLT_BLK_WLD,     // ID 10
+        ROUTES.WEIGHT_DIVISION  // ID 13
+      ]
     }
   },
   // 1. Parts / Auto

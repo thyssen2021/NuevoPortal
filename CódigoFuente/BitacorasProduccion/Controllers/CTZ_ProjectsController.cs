@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Validation;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
@@ -1829,7 +1830,7 @@ namespace Portal_2_0.Controllers
                 // 2. Traer producción de golpe
                 var allProduction = db.CTZ_Temp_IHS_Production.AsNoTracking()
                     .Where(p => allIds.Contains(p.ID_IHS))
-                    .Select(p => new { p.ID_IHS, p.Production_Year, p.Production_Amount })
+                    .Select(p => new { p.ID_IHS, p.Production_Year, p.Production_Amount, p.Production_Month})
                     .ToList()
                     .GroupBy(p => p.ID_IHS)
                     .ToDictionary(g => g.Key, g => g.ToList());
@@ -1850,7 +1851,7 @@ namespace Portal_2_0.Controllers
                             MaxProduction = x.Max_Production,
                             // Serializamos la producción aquí mismo
                             ProductionDataJson = allProduction.ContainsKey(x.ID_IHS)
-                                ? JsonConvert.SerializeObject(allProduction[x.ID_IHS].Select(p => new { p.Production_Year, p.Production_Amount }))
+                                ? JsonConvert.SerializeObject(allProduction[x.ID_IHS].Select(p => new { p.Production_Year, p.Production_Amount, p.Production_Month }))
                                 : "[]"
                         }).OrderBy(x => x.Text).ToList()
                     );
@@ -2001,6 +2002,102 @@ namespace Portal_2_0.Controllers
                  })
                  .ToList();
 
+                var slittingRules = db.CTZ_Slitting_Validation_Rules
+                 .Where(r => r.Is_Active)
+                 .Select(r => new
+                 {
+                     r.ID_Production_Line,
+                     LineName = r.CTZ_Production_Lines.Description, // O r.CTZ_Production_Lines.Line_Name
+                     r.Thickness_Min,
+                     r.Thickness_Max,
+                     r.Tensile_Min,
+                     r.Tensile_Max,
+                     Width_Min = r.Width_Min,
+                     Width_Max = r.Width_Max,
+                     r.Mults_Max,
+                     r.Is_Active
+                 }).ToList();
+
+                // CAPACIDAD INSTALADA (Total Time per Fiscal Year) ---
+                // Estructura para React: { [PlantId]: { [FY_ID]: { Hours_BLK, Shifts_SLT } } }
+                var capacityData = db.CTZ_Total_Time_Per_Fiscal_Year
+                    .AsNoTracking()
+                    .GroupBy(t => t.ID_Plant)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => new
+                        {
+                            FY = x.ID_Fiscal_Year,
+                            Blk = x.Hours_BLK ?? 0,
+                            Slt = x.Shifts_SLT ?? 0
+                  
+                        }).ToList()
+                    );
+
+                // --- CARGA ACTUAL DE LÍNEAS (Hours By Line) ---
+                // Estructura para React: { [LineId]: { [FY_ID]: { [StatusId]: Hours } } }
+                // Filtramos solo líneas activas de la planta actual para no enviar basura
+                var activeLineIds = db.CTZ_Production_Lines
+                    .Where(l => l.ID_Plant == project.ID_Plant && l.Active)
+                    .Select(l => l.ID_Line)
+                    .ToList();
+
+                var currentLoadRaw = db.CTZ_Hours_By_Line
+                    .AsNoTracking()
+                    .Where(h => activeLineIds.Contains(h.ID_Line))
+                    .GroupBy(h => h.ID_Line)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => new
+                        {
+                            FY = x.ID_Fiscal_Year,
+                            St = x.ID_Status,
+                            Hrs = x.Hours
+                        }).ToList()
+                    );
+
+                // --- HISTORIAL DE OEE (Promedios últimos 6 meses) ---
+                // Estructura para React: { [LineId]: AverageOEE }
+                var cutoffDate = DateTime.Now.AddMonths(-5);
+                int cutoffYear = cutoffDate.Year;
+                int cutoffMonth = cutoffDate.Month;
+
+                var oeeHistory = db.CTZ_OEE
+                    .AsNoTracking()
+                    .Where(o => activeLineIds.Contains(o.ID_Line) &&
+                                (o.Year > cutoffYear || (o.Year == cutoffYear && o.Month >= cutoffMonth)) &&
+                                o.OEE.HasValue)
+                    .GroupBy(o => o.ID_Line)
+                    .ToDictionary(
+                        g => g.Key,
+                        g =>
+                        {
+                            double avg = g.Average(x => x.OEE.Value);
+                            return (avg > 1.0) ? avg / 100.0 : avg; // Normalizar si viene en %
+                        }
+                    );
+
+                // --- DEFINICIÓN DE AÑOS FISCALES ---
+                // Estructura: [ { ID, Name, Start, End } ]
+                var fiscalYearsDefinitions = db.CTZ_Fiscal_Years
+                    .AsNoTracking()
+                    .OrderBy(f => f.ID_Fiscal_Year)
+                    .Select(f => new
+                    {
+                        ID = f.ID_Fiscal_Year,
+                        Name = f.Fiscal_Year_Name,
+                        Start = f.Start_Date,
+                        End = f.End_Date
+                    })
+                    .ToList();
+
+                // Primero asegúrate de tener la lista cargada desde tu repositorio o contexto
+                var projectStatusesList = db.CTZ_Project_Status
+                    .Select(s => new {
+                        Value = s.ID_Status,
+                        Text = s.Description
+                    }).ToList();
+
                 // 3. Empaquetar todas las listas en un objeto
                 var listsPayload = new
                 {
@@ -2009,6 +2106,7 @@ namespace Portal_2_0.Controllers
                     routeList = routeList, //  AGREGAMOS ESTA LÍNEA
                     interplantPlants = interplantPlants,
                     coilPositions = coilPositions,
+                    projectStatuses = projectStatusesList,
                     transportTypes = transportList,
                     arrivalRackTypes = arrivalRackList,
                     arrivalProtectiveMaterials = arrivalProtectiveList,
@@ -2024,8 +2122,15 @@ namespace Portal_2_0.Controllers
                     freightTypeList = freightList,
                     linesList = LinesList,
                     theoreticalRules = theoreticalRules,
-                    engineeringRanges = engineeringRanges
+                    engineeringRanges = engineeringRanges,
+                    slittingRules = slittingRules,
+                    // 👇 NUEVOS DATOS PARA CÁLCULO EN CLIENTE
+                    capacityData = capacityData,       // Capacidad instalada por planta
+                    currentLoad = currentLoadRaw,      // Carga actual por línea
+                    oeeHistory = oeeHistory,           // OEEs promedio por línea
+                    fiscalYears = fiscalYearsDefinitions, // Fechas de los FY
                 };
+
 
                 // 4. Serializar las listas (Es seguro usar settings por defecto aquí)
                 ViewBag.ReactLists = JsonConvert.SerializeObject(listsPayload);
@@ -2820,6 +2925,7 @@ namespace Portal_2_0.Controllers
                         // Guardamos los cambios de las relaciones
                         db.SaveChanges();
 
+
                         // ... (continúa con la lógica de nombres de archivos) ...
 
                         // ==============================================================================
@@ -3157,12 +3263,43 @@ namespace Portal_2_0.Controllers
 
                         return Json(new { success = true, message = "Saved successfully", data = safeEntity });
                     }
+                    // 1. CAPTURA ESPECÍFICA DE VALIDACIÓN DE ENTIDAD (Longitudes, Tipos, Required)
+                    catch (DbEntityValidationException e)
+                    {
+                        transaction.Rollback();
+                        var errorMessages = new List<string>();
+                        foreach (var eve in e.EntityValidationErrors)
+                        {
+                            foreach (var ve in eve.ValidationErrors)
+                            {
+                                errorMessages.Add($"Propiedad: <b>{ve.PropertyName}</b> - Error: {ve.ErrorMessage}");
+                            }
+                        }
+                        var fullError = string.Join("<br/>", errorMessages);
+                        return Json(new { success = false, message = "DATA ERROR:<br/>" + fullError });
+                    }
+                    // 2. CAPTURA GENÉRICA (SQL Errors, FKs, Conversions)
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        System.Diagnostics.Debug.WriteLine(ex.ToString());
-                        var msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                        return Json(new { success = false, message = "DB Error: " + msg });
+
+                        // Función local para escarbar en la excepción hasta el fondo
+                        string GetInnerMessage(Exception e)
+                        {
+                            var sb = new System.Text.StringBuilder();
+                            sb.Append(e.Message);
+                            while (e.InnerException != null)
+                            {
+                                e = e.InnerException;
+                                sb.Append(" <br/> ---> <b>Caused by:</b> " + e.Message);
+                            }
+                            return sb.ToString();
+                        }
+
+                        var deepError = GetInnerMessage(ex);
+                        System.Diagnostics.Debug.WriteLine(deepError);
+
+                        return Json(new { success = false, message = "SYSTEM ERROR:<br/>" + deepError });
                     }
                 }
             }

@@ -11,6 +11,8 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  
 }
 
 a {
@@ -65,4 +67,20 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* Fondo amarillo intenso y texto negro */
+.Toastify__toast--warning {
+  background-color: #ffc107 !important; /* Amarillo Bootstrap */
+  color: #454546 !important; /* Gris muy oscuro (casi negro) */
+}
+
+/* Para que el icono (el signo de exclamación) también sea oscuro */
+.Toastify__toast--warning .Toastify__toast-icon svg {
+  fill: #454546 !important;
+}
+
+/* Para que la barra de progreso sea visible (un poco más oscura que el fondo) */
+.Toastify__progress-bar--warning {
+  background-color: #d39e00 !important;
 }

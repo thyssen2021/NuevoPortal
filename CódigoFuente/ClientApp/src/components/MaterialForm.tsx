@@ -1,7 +1,6 @@
 //src/componemts/MaterialForm.tsx
 import { useState, useEffect, useMemo } from 'react';
-import type { Material, WeldedPlate } from '../types';
-// Aseguramos la importación.
+import type { Material, WeldedPlate, ChartDataPoints } from '../types';// Aseguramos la importación.
 import type { FieldConfig } from '../types/form-schema';
 import { materialFields } from '../config/material-fields';
 import ToleranceReference from './ToleranceReference';
@@ -10,6 +9,9 @@ import DynamicField from './DynamicField';
 import { toast, Slide } from 'react-toastify';
 import { calculateTheoreticalLine } from '../utils/theoretical-calculator';
 import { ROUTES } from '../constants'; // Asegúrate de tener tus constantes de rutas
+// Actualiza esta línea para incluir generateChartData
+import { calculateTotalProjectLoad, generateChartData } from '../utils/capacity-calculator';
+import { CapacityChart } from './CapacityChart';
 
 // --- ESTILOS MODERNOS INCRUSTADOS ---
 // Esto le da el look "Panel de Configuración" sin tocar tu site.css
@@ -354,11 +356,19 @@ const VALIDATION_GROUPS: Record<string, string[]> = {
     // Grupo Weight of Final Mults
     'WeightOfFinalMults_Min': ['WeightOfFinalMults', 'WeightOfFinalMults_Max'],
     'WeightOfFinalMults': ['WeightOfFinalMults_Min', 'WeightOfFinalMults_Max'],
-    'WeightOfFinalMults_Max': ['WeightOfFinalMults', 'WeightOfFinalMults_Min']
+    'WeightOfFinalMults_Max': ['WeightOfFinalMults', 'WeightOfFinalMults_Min'],
+
+    // Grupo Slitter Rules (Si cambian las dimensiones o la máquina, validar Multipliers)
+    'ID_Slitting_Line': ['Multipliers'],
+    'Thickness': ['Multipliers', 'ThicknessToleranceNegative', 'ThicknessTolerancePositive'], // Aprovechamos para revalidar tolerancias también
+    'Width': ['Multipliers', 'WidthToleranceNegative', 'WidthTolerancePositive'],
+    'Tensile_Strenght': ['Multipliers'], // Ojo con el typo 'ht' que viene de tu BD
+    'Multipliers': [] // Se valida a sí mismo
 };
 
 interface Props {
     selectedMaterial: Material | null;
+    projectMaterials: Material[];
     onCancel: () => void;
     lists: any;
     urls: any;
@@ -368,7 +378,7 @@ interface Props {
     projectPlantId: number;
 }
 
-export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
+export default function MaterialForm({ selectedMaterial, projectMaterials = [], onCancel, lists, urls,
     interplantProcess, projectStatusId, onSaved, projectPlantId }: Props) {
     // DIAGNÓSTICO
     //console.log('📋 Cargando Configuración de campos:', materialFields);
@@ -382,6 +392,8 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
     const [warnings, setWarnings] = useState<Record<string, string>>({});
     const [showToleranceModal, setShowToleranceModal] = useState(false);
     const [showIncotermsModal, setShowIncotermsModal] = useState(false);
+    const [showSlittingModal, setShowSlittingModal] = useState(false);
+    const [chartData, setChartData] = useState<ChartDataPoints | null>(null); // 👈 AGREGA ESTO
 
     // Estado Metadata
     const [vehicleMetadata, setVehicleMetadata] = useState<Record<string, {
@@ -472,6 +484,20 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
         // Buscamos el vehículo en la lista de ese país
         return vehiclesInCountry.find((v: any) => v.Value === vehicleName || v.Text === vehicleName);
     };
+
+    const getFyNameFromDate = (dateStr?: string) => {
+        if (!dateStr || !lists.fiscalYears) return undefined;
+        const d = new Date(dateStr);
+        // Busca en qué rango cae la fecha
+        // 👇 Agregamos ': any' aquí para calmar a TypeScript
+        const fy = lists.fiscalYears.find((f: any) => {
+            const start = new Date(f.Start);
+            const end = new Date(f.End);
+            return d >= start && d <= end;
+        });
+        return fy ? fy.Name : undefined;
+    };
+
 
     // --- EFECTOS (Lógica de negocio intacta) ---
 
@@ -1417,6 +1443,196 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
 
     }, [currentEngineeringRanges]); // 👈 SE DISPARA CUANDO CAMBIAN LOS RANGOS
 
+
+    // 2. Calcular opciones de Líneas de Slitter (Filtradas)
+    // Solo mostramos líneas que tengan reglas de validación asociadas (son las Slitters)
+    const slitterLineOptions = useMemo(() => {
+        if (!lists.linesList || !lists.slittingRules) return [];
+
+        // Obtenemos los IDs únicos de las máquinas que tienen reglas
+        const validSlitterIds = lists.slittingRules.map((r: any) => r.ID_Production_Line);
+
+        // Filtramos la lista maestra de líneas
+        // Usamos '==' para comparar porque Value puede ser string "8" y el ID number 8
+        return lists.linesList.filter((line: any) => validSlitterIds.includes(Number(line.Value)));
+
+    }, [lists.linesList, lists.slittingRules]);
+
+    // -------------------------------------------------------------
+    // EFECTO: AUTO-SELECCIÓN DE SLITTING LINE
+    // -------------------------------------------------------------
+    useEffect(() => {
+        const currentRouteId = Number(formData.ID_Route);
+        const isSlittingRoute = SLITTER_ROUTES.includes(currentRouteId);
+
+        // A. Si estamos en una ruta de Slitter
+        if (isSlittingRoute) {
+            // Si solo hay UNA línea disponible y no tenemos ninguna seleccionada aún
+            if (slitterLineOptions.length === 1) {
+                const singleLineId = slitterLineOptions[0].Value;
+
+                // Solo actualizamos si es diferente para evitar loops
+                if (formData.ID_Slitting_Line != singleLineId) {
+                    console.log("⚡ Auto-selecting single Slitter Line:", singleLineId);
+                    setFormData(prev => ({ ...prev, ID_Slitting_Line: singleLineId }));
+                }
+            }
+        }
+        // B. Si NO es ruta de Slitter, limpiamos la selección para no dejar basura
+        else {
+            if (formData.ID_Slitting_Line) {
+                setFormData(prev => ({ ...prev, ID_Slitting_Line: undefined }));
+            }
+        }
+    }, [
+        formData.ID_Route, // Se dispara al cambiar ruta
+        slitterLineOptions // Se dispara al cargar las listas
+        // NO agregamos formData.ID_Slitting_Line aquí para evitar loops infinitos
+    ]);
+
+
+    // 1. Cálculo del límite máximo de tiras (Strips/Mults) en memoria
+    const maxMultsAllowed = useMemo(() => {
+        const rules = lists.slittingRules || [];
+
+        const slitterLineId = Number(formData.ID_Slitting_Line);
+        const thickness = parseFloat(String(formData.Thickness || 0));
+        const tensile = parseFloat(String(formData.Tensile_Strenght || 0));
+        // 👇 LEER EL ANCHO
+        const width = parseFloat(String(formData.Width || 0));
+
+        // Si falta alguno de los 4 datos clave, no podemos calcular
+        if (!slitterLineId || thickness === 0 || tensile === 0 || width === 0) return null;
+
+        const matchedRule = rules.find((r: any) =>
+            r.ID_Production_Line === slitterLineId &&
+            thickness >= r.Thickness_Min &&
+            thickness <= r.Thickness_Max &&
+            tensile >= r.Tensile_Min &&
+            tensile <= r.Tensile_Max &&
+            (r.Width_Min == null || width >= r.Width_Min) &&
+            (r.Width_Max == null || width <= r.Width_Max) &&
+            r.Is_Active
+        );
+
+        return matchedRule ? matchedRule.Mults_Max : 0;
+
+    }, [
+        formData.ID_Slitting_Line,
+        formData.Thickness,
+        formData.Tensile_Strenght,
+        formData.Width, // 👈 AGREGAR DEPENDENCIA
+        lists.slittingRules
+    ]);
+
+    // ✅ LABORATORIO DE PRUEBAS FINAL (Pasos 1, 2, 3 y 4)
+    useEffect(() => {
+        if (formData.Vehicle && lists.fiscalYears && lists.vehicleMasterData) {
+
+            // 1. Preparamos la lista combinada (Materiales BD + Edición Actual)
+            const siblings = projectMaterials.filter(m => m.ID_Material !== formData.ID_Material);
+            const allMaterialsForCalculation = [...siblings, formData];
+
+            // 2. Ejecutamos el cálculo de Horas (Pasos 1, 2 y 3)
+            // Esto imprime la "Tabla 1" y "Tabla 2" en consola
+            const totalLoadHours = calculateTotalProjectLoad(allMaterialsForCalculation, lists);
+
+            // 3. Obtener el nombre del estatus real
+            // Aquí cambiamos 'project' por 'formData' o la variable que contenga los datos del proyecto
+            // Si en tu componente la variable que tiene el ID_Status se llama projectStatusId, úsala directamente:
+
+            const currentStatusId = projectStatusId || 1; // Fallback al ID 1 (Quotes) si no hay nada
+
+            let statusName = "Estatus proyecto";
+
+            if (lists.projectStatuses) {
+                // Buscamos el nombre amigable en la lista
+                const statusObj = lists.projectStatuses.find((s: any) => s.Value == currentStatusId);
+                if (statusObj) {
+                    statusName = statusObj.Text;
+                }
+            }
+
+            // 4. Generar Datos para Gráfica
+            const chartData = generateChartData(
+                totalLoadHours,
+                formData,
+                lists,
+                projectPlantId,
+                statusName,
+                currentStatusId // Pasamos el ID que calculamos arriba
+            );
+
+            // 5. Guardar en el estado para que el componente pueda leerlo
+            setChartData(chartData); // 👈 ESTO ES LO QUE FALTABA
+
+            // 5. Ver el resultado final (JSON para Chart.js)
+            if (chartData) {
+                console.log("📈 DATOS FINALES GRÁFICA (Chart.js):", chartData);
+                console.log("   - Etiquetas (X):", chartData.labels);
+                console.log("   - Series (Y):", chartData.datasets.map(d => `${d.label}: ${d.data.join(', ')}`));
+                console.log("   - Max Y Axis:", chartData.maxPercentage);
+            }
+        }
+    }, [
+        // --- DEPENDENCIAS CRÍTICAS DE CÁLCULO ---
+        formData.Vehicle, 
+        formData.Real_SOP, 
+        formData.Real_EOP, 
+        formData.Max_Production_Factor,
+        formData.Annual_Volume,
+        formData.Blanking_Annual_Volume, // 👈 ¡AGREGAR ESTA LÍNEA!
+        formData.ID_Route,
+        formData.ID_Real_Blanking_Line,
+        formData.ID_Theoretical_Blanking_Line,
+        formData.ID_Slitting_Line,
+        // 👇 NUEVOS CAMPOS AGREGADOS PARA RECALCULO EN TIEMPO REAL
+        formData.Parts_Per_Vehicle,          // <--- Solicitado explícitamente
+        formData.Ideal_Cycle_Time_Per_Tool,  // ICT
+        formData.Theoretical_Strokes,        // Strokes teóricos
+        formData.Real_Strokes,               // Strokes reales
+        formData.Blanks_Per_Stroke,          // Golpes
+        formData.OEE,                        // Eficiencia
+        // ----------------------------------------
+        projectMaterials,
+        lists.fiscalYears,
+        lists.vehicleMasterData,
+        projectStatusId, 
+        projectPlantId
+    ]);
+
+    // -------------------------------------------------------------
+    // EFECTO: RE-VALIDAR MULTIPLIERS CUANDO CAMBIA LA REGLA (LÍMITE)
+    // -------------------------------------------------------------
+    useEffect(() => {
+        // Solo validamos si hay un valor escrito en Multipliers
+        const currentVal = (formData as any)['Multipliers'];
+
+        if (currentVal !== undefined && currentVal !== null && currentVal !== "") {
+            setErrors(prevErrors => {
+                const newErrors = { ...prevErrors };
+
+                // Ejecutamos la validación compleja con el NUEVO límite (maxMultsAllowed)
+                const result = validateComplexRules('Multipliers', currentVal, formData);
+
+                if (result.error) {
+                    // Si ahora hay error (ej: el límite bajó de 5 a 3 y yo tenía 4)
+                    if (newErrors['Multipliers'] !== result.error) {
+                        newErrors['Multipliers'] = result.error;
+                        return newErrors; // Actualizamos estado
+                    }
+                } else {
+                    // Si ya no hay error (ej: el límite subió)
+                    if (newErrors['Multipliers']) {
+                        delete newErrors['Multipliers'];
+                        return newErrors; // Actualizamos estado
+                    }
+                }
+                return prevErrors; // Sin cambios
+            });
+        }
+    }, [maxMultsAllowed]); // 👈 SE DISPARA AUTOMÁTICAMENTE CUANDO CAMBIA EL LÍMITE
+
     // 1. NUEVA FUNCIÓN MEJORADA: Soporta múltiples condiciones (AND)
     const isFieldActive = (field: FieldConfig, contextData: any) => {
         // Si no hay reglas de visibilidad, el campo está activo por defecto
@@ -1926,6 +2142,60 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 if (!isNaN(opt) && max < opt) result.error = "Max cannot be less than Optimal.";
                 if (!isNaN(min) && max < min) result.error = "Max cannot be less than Min.";
             }
+        }
+
+        // Q) Validación de Multipliers vs Regla de Slitting
+        if (name === 'Multipliers') {
+            console.group("🔍 Debug Multipliers Validation");
+
+            // 1. Extraemos los valores clave del objeto de datos actual (allData)
+            //    Usamos las mismas conversiones que usa el useMemo para ser consistentes
+            const debugSlitter = Number(allData['ID_Slitting_Line']);
+            const debugThickness = parseFloat(String(allData['Thickness'] || 0));
+            const debugTensile = parseFloat(String(allData['Tensile_Strenght'] || 0)); // Ojo con el typo 'ht'
+            const debugWidth = parseFloat(String(allData['Width'] || 0));
+
+            console.log("Valores actuales:", {
+                Line: debugSlitter,
+                Thickness: debugThickness,
+                Tensile: debugTensile,
+                Width: debugWidth, // 👈 VER EN CONSOLA
+                InputMultipliers: value
+            });
+
+            const val = parseFloat(value);
+
+            if (maxMultsAllowed === null) {
+                // 2. Lógica para decirte EXACTAMENTE qué falta
+                const missing = [];
+                if (!debugSlitter) missing.push("ID_Slitting_Line (Vacío o 0)");
+                if (!debugThickness) missing.push("Thickness (Vacío o 0)");
+                if (!debugTensile) missing.push("Tensile_Strenght (Vacío o 0)");
+                if (!debugWidth) missing.push("Width"); // 👈 AVISAR SI FALTA
+
+                console.warn(`⚠️ VALIDACIÓN OMITIDA. Faltan los siguientes datos: ${missing.join(', ')}`);
+
+                // Opcional: Si quieres ver si hay reglas cargadas en general
+                console.log("Reglas disponibles en lists.slittingRules:", lists.slittingRules?.length || 0);
+            }
+            else if (isNaN(val)) {
+                console.warn("⚠️ El valor ingresado en Multipliers no es un número válido.");
+            }
+            else {
+                // Caso A: Límite es 0 (Combinación inválida)
+                if (maxMultsAllowed === 0) {
+                    console.error("❌ ERROR: Combinación prohibida (Límite calculado es 0). Revisa si existe una regla para este espesor/tensile.");
+                    result.error = "Invalid configuration: Thickness/Tensile not allowed for this Slitting Line.";
+                }
+                // Caso B: Excede el máximo
+                else if (val > maxMultsAllowed) {
+                    console.error(`❌ ERROR: Excede límite. Valor: ${val}, Máximo permitido: ${maxMultsAllowed}`);
+                    result.error = `Slitting Rule Violation: Maximum ${maxMultsAllowed} strips allowed for these dimensions.`;
+                } else {
+                    console.log(`✅ VALIDACIÓN OK: ${val} es menor o igual a ${maxMultsAllowed}.`);
+                }
+            }
+            console.groupEnd();
         }
 
         // ---------------------------------------------------------
@@ -2528,23 +2798,32 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 }, 1000);
 
             } else {
-                // Actualizar el toast de carga a Error
+                // En lugar de crear uno nuevo, ACTUALIZAMOS el existente 'toastId'
                 toast.update(toastId, {
-                    render: "Server Error: " + result.message,
+                    // Renderizamos el HTML del error (ej: lista de validaciones)
+                    render: <div dangerouslySetInnerHTML={{ __html: result.message }} />,
                     type: "error",
-                    isLoading: false,
-                    autoClose: 5000
+                    isLoading: false, // ⚠️ CRÍTICO: Esto detiene el spinner
+                    autoClose: false, // ⚠️ Esto hace que no se cierre solo
+                    closeOnClick: false,
+                    draggable: true,
+                    closeButton: true, // Asegura que aparezca la X para cerrar
+                    style: { minWidth: '400px' } // Un poco más ancho para leer mejor
                 });
+
+                setIsSaving(false);
             }
 
         } catch (error: any) {
             console.error("❌ Error saving data:", error);
-            // Actualizar el toast de carga a Error Crítico
+
+            // 👇 TAMBIÉN ACTUALIZAMOS EN EL CATCH
             toast.update(toastId, {
                 render: "An unexpected error occurred. Please check console.",
                 type: "error",
-                isLoading: false,
-                autoClose: 5000
+                isLoading: false, // ⚠️ CRÍTICO
+                autoClose: 5000,
+                closeButton: true
             });
         } finally {
             setIsSaving(false);
@@ -2576,6 +2855,39 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
             setActiveTab(visibleSections[0]);
         }
     }, [visibleSections, activeTab]);
+
+    // -------------------------------------------------------------
+    // LÓGICA DE NAVEGACIÓN ENTRE PESTAÑAS (PREV / NEXT)
+    // -------------------------------------------------------------
+    const handleTabNavigation = (direction: 'prev' | 'next') => {
+        // Usamos visibleSections en lugar de sections para saltar pestañas ocultas
+        const currentIndex = visibleSections.indexOf(activeTab);
+
+        if (currentIndex === -1) return; // Seguridad
+
+        let nextIndex = currentIndex;
+
+        if (direction === 'next') {
+            if (currentIndex < visibleSections.length - 1) {
+                nextIndex = currentIndex + 1;
+            }
+        } else {
+            if (currentIndex > 0) {
+                nextIndex = currentIndex - 1;
+            }
+        }
+
+        const nextTab = visibleSections[nextIndex];
+
+        if (nextTab !== activeTab) {
+            setActiveTab(nextTab);
+            // Scroll suave al inicio del formulario para que el usuario no se pierda
+            const formContainer = document.querySelector('.form-card');
+            if (formContainer) {
+                formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    };
 
     // --- NUEVO LAYOUT VISUAL (GRID + PESTAÑAS IZQUIERDAS) ---
     return (
@@ -2734,6 +3046,18 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                                         </button>
                                     )}
 
+                                {activeTab === 'Slitter Data' && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-sm btn-outline-primary shadow-sm"
+                                        onClick={() => setShowSlittingModal(true)}
+                                        style={{ borderRadius: '50px', fontWeight: 600, padding: '6px 15px' }}
+                                    >
+                                        <i className="fa fa-list-ol mr-2"></i> Slitting Rules
+                                    </button>
+                                )}
+
+
                                 {/* BOTÓN CANCELAR */}
                                 <button className="btn-modern-cancel" onClick={onCancel} title="Discard all changes">
                                     <i className="fa fa-times-circle" style={{ fontSize: '16px' }}></i>
@@ -2792,6 +3116,20 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                                         else if (fieldName === 'OuterCoilDiameterArrival') criteriaId = 16;
                                         else if (fieldName === 'MasterCoilWeight') criteriaId = 17;
 
+
+                                        // Lógica para el campo Multipliers
+                                        if (fc.name === 'Multipliers') {
+                                            if (maxMultsAllowed === 0) {
+                                                helperText = <span className="text-danger font-weight-bold"><i className="fa fa-ban mr-1"></i> Dimensions not allowed</span>;
+                                            } else if (maxMultsAllowed !== null) {
+                                                helperText = <span className="text-success font-weight-bold"><i className="fa fa-check-circle mr-1"></i> Max allowed: {maxMultsAllowed}</span>;
+                                            }
+                                        }
+
+                                        if (fc.name === 'ID_Slitting_Line') {
+                                            // Sobrescribimos las opciones genéricas con las filtradas
+                                            currentConfig.options = slitterLineOptions;
+                                        }
 
                                         // Si es un campo de ingeniería (tiene criteriaId)...
                                         if (criteriaId !== null) {
@@ -3083,6 +3421,64 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                                     }
                                 })}
 
+                                {/* 👇 INICIO: BARRA DE NAVEGACIÓN INFERIOR POR PESTAÑA 👇 */}
+                                <div className="col-12 mt-4 pt-3 border-top">
+                                    <div className="d-flex justify-content-between align-items-center">
+
+                                        {/* Botón ANTERIOR (Solo si no es la primera pestaña visible) */}
+                                        <div>
+                                            {visibleSections.indexOf(activeTab) > 0 ? (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-outline-secondary rounded-pill px-4"
+                                                    onClick={() => handleTabNavigation('prev')}
+                                                >
+                                                    <i className="fa fa-arrow-left mr-2"></i> Previous
+                                                </button>
+                                            ) : (
+                                                /* Espaciador vacío para mantener el diseño Flex */
+                                                <span></span>
+                                            )}
+                                        </div>
+
+                                        {/* Indicador de Posición (Opcional, ayuda a la UX) */}
+                                        <div className="text-muted small font-weight-bold text-uppercase d-none d-md-block">
+                                            {activeTab}
+                                            <span className="ml-2 badge badge-light border">
+                                                {visibleSections.indexOf(activeTab) + 1} / {visibleSections.length}
+                                            </span>
+                                        </div>
+
+                                        {/* Botón SIGUIENTE o GUARDAR (Dependiendo si es el último) */}
+                                        <div>
+                                            {visibleSections.indexOf(activeTab) < visibleSections.length - 1 ? (
+                                                <button
+                                                    type="button"
+                                                    // CAMBIO AQUÍ: Usamos 'btn-outline-primary' en lugar de 'btn-primary'
+                                                    className="btn btn-outline-primary rounded-pill px-4"
+                                                    onClick={() => handleTabNavigation('next')}
+                                                >
+                                                    Next <i className="fa fa-arrow-right ml-2"></i>
+                                                </button>
+                                            ) : (
+                                                // Si es la última pestaña, podemos mostrar un botón secundario de Guardar
+                                                // o dejarlo vacío si prefieres usar solo el botón grande de abajo.
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-success rounded-pill px-4"
+                                                    onClick={handleSave}
+                                                    disabled={isSaving}
+                                                >
+                                                    {isSaving ? <i className="fa fa-spinner fa-spin"></i> : <i className="fa fa-check mr-2"></i>}
+                                                    Finish
+                                                </button>
+                                            )}
+                                        </div>
+
+                                    </div>
+                                </div>
+                                {/* 👆 FIN: BARRA DE NAVEGACIÓN 👆 */}
+
                                 {/* Mensaje de "No hay campos" si nada es visible en esta sección */}
                                 {!safeFields.some(f => isFieldVisible(f, formData)) && (
                                     <div className="col-12 text-center p-5 text-muted">
@@ -3117,6 +3513,34 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                     </div>
                 </div>
             </div>
+
+            {/* SECCIÓN DE GRÁFICA */}
+            <div className="row mt-4">
+                <div className="col-12">
+                    <div className="card">
+                        <div className="card-header bg-light">
+                            <strong>Capacity Analysis</strong>
+                        </div>
+                        <div className="card-body">
+                            {chartData ? (
+                                <CapacityChart
+                                    data={chartData}
+                                    maxPercentage={chartData.maxPercentage}
+                                    fyStart={getFyNameFromDate(formData.Real_SOP)}
+                                    fyEnd={getFyNameFromDate(formData.Real_EOP)}
+                                    title={chartData.lineName} // 👈 PASAMOS EL NOMBRE DE LA LÍNEA
+                                />
+                            ) : (
+                                <div className="text-center text-muted py-5">
+                                    <i className="fa fa-chart-area fa-2x mb-2"></i>
+                                    <p>Fill out the capacity fields (Line, Volume, Cycle Time) to generate the graph.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <ToleranceReference
                 show={showToleranceModal}
                 onClose={() => setShowToleranceModal(false)}
@@ -3125,6 +3549,103 @@ export default function MaterialForm({ selectedMaterial, onCancel, lists, urls,
                 show={showIncotermsModal}
                 onClose={() => setShowIncotermsModal(false)}
             />
+            {showSlittingModal && (
+                <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
+                    <div className="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div className="modal-content shadow-lg border-0">
+                            <div className="modal-header bg-primary text-white">
+                                <h5 className="modal-title">
+                                    <i className="fa fa-scissors mr-2"></i> Slitting Validation Rules
+                                </h5>
+                                <button type="button" className="close text-white" onClick={() => setShowSlittingModal(false)}>
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="alert alert-info small mb-3">
+                                    <i className="fa fa-info-circle mr-2"></i>
+                                    Highlight indicates the rule currently applied based on your inputs.
+                                </div>
+                                <div className="table-responsive">
+                                    <table className="table table-sm table-hover border small">
+                                        <thead className="thead-light">
+                                            <tr>
+                                                <th>Line</th>
+                                                <th>Thickness Range</th>
+                                                <th>Tensile Range</th>
+                                                <th>Width Range</th>
+                                                <th className="text-center">Max Strips</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {lists.slittingRules && lists.slittingRules.length > 0 ? (
+                                                // 1. ORDENAR: De mayor a menor por Mults_Max
+                                                [...lists.slittingRules]
+                                                    .sort((a: any, b: any) => b.Mults_Max - a.Mults_Max)
+                                                    .map((rule: any, i: number) => {
+
+                                                        // 2. LÓGICA DE MATCH EXACTO (Para iluminar solo UNO)
+                                                        const currentThickness = parseFloat(String(formData.Thickness || 0));
+                                                        const currentTensile = parseFloat(String(formData.Tensile_Strenght || 0)); // Ojo con el typo 'ht'
+                                                        const currentLine = Number(formData.ID_Slitting_Line);
+                                                        const currentWidth = parseFloat(String(formData.Width || 0));
+
+                                                        const isMatch =
+                                                            currentLine === rule.ID_Production_Line &&
+                                                            currentThickness >= rule.Thickness_Min &&
+                                                            currentThickness <= rule.Thickness_Max &&
+                                                            currentTensile >= rule.Tensile_Min &&
+                                                            currentTensile <= rule.Tensile_Max &&
+                                                            // 👇 COMPARAR ANCHO
+                                                            (rule.Width_Min == null || currentWidth >= rule.Width_Min) &&
+                                                            (rule.Width_Max == null || currentWidth <= rule.Width_Max) &&
+                                                            rule.Is_Active;
+
+                                                        return (
+                                                            <tr key={i} className={isMatch ? "table-success border-left-success" : ""} style={isMatch ? { borderLeft: '5px solid #28a745' } : {}}>
+                                                                {/* 3. FRIENDLY NAME: Intenta leer LineName, si no Description, si no el ID */}
+                                                                <td className="font-weight-bold">
+                                                                    {rule.LineName || rule.Description || rule.ID_Production_Line}
+                                                                </td>
+                                                                <td style={isMatch ? { fontWeight: 'bold' } : {}}>
+                                                                    {rule.Thickness_Min} - {rule.Thickness_Max}
+                                                                </td>
+                                                                <td style={isMatch ? { fontWeight: 'bold' } : {}}>
+                                                                    {rule.Tensile_Min} - {rule.Tensile_Max}
+                                                                </td>
+                                                                <td>
+                                                                    {/* Validación visual por si Width es null */}
+                                                                    {(rule.Width_Min !== null && rule.Width_Min !== undefined) ?
+                                                                        `${rule.Width_Min} - ${rule.Width_Max}` :
+                                                                        '- - -'
+                                                                    }
+                                                                </td>
+                                                                <td className="text-center font-weight-bold text-primary" style={{ fontSize: '1.1em' }}>
+                                                                    {rule.Mults_Max}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={5} className="text-center text-muted p-4">
+                                                        No slitting rules available.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary rounded-pill" onClick={() => setShowSlittingModal(false)}>
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
