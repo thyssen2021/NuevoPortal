@@ -1,6 +1,6 @@
 //src/componemts/MaterialForm.tsx
 import { useState, useEffect, useMemo } from 'react';
-import type { Material, WeldedPlate, ChartDataPoints } from '../types';// Aseguramos la importación.
+import type { Material, WeldedPlate, ChartDataPoints, LineCapacityGroup } from '../types';
 import type { FieldConfig } from '../types/form-schema';
 import { materialFields } from '../config/material-fields';
 import ToleranceReference from './ToleranceReference';
@@ -9,8 +9,12 @@ import DynamicField from './DynamicField';
 import { toast, Slide } from 'react-toastify';
 import { calculateTheoreticalLine } from '../utils/theoretical-calculator';
 import { ROUTES } from '../constants'; // Asegúrate de tener tus constantes de rutas
+import { CapacityBreakdownTable } from './CapacityBreakdownTable';
 // Actualiza esta línea para incluir generateChartData
-import { calculateTotalProjectLoad, generateChartData } from '../utils/capacity-calculator';
+import {
+    calculateTotalProjectLoad, generateMultiLineChartData, generateCapacityBreakdown // 👈 Importar la nueva función
+} from '../utils/capacity-calculator';
+
 import { CapacityChart } from './CapacityChart';
 
 // --- ESTILOS MODERNOS INCRUSTADOS ---
@@ -393,7 +397,8 @@ export default function MaterialForm({ selectedMaterial, projectMaterials = [], 
     const [showToleranceModal, setShowToleranceModal] = useState(false);
     const [showIncotermsModal, setShowIncotermsModal] = useState(false);
     const [showSlittingModal, setShowSlittingModal] = useState(false);
-    const [chartData, setChartData] = useState<ChartDataPoints | null>(null); // 👈 AGREGA ESTO
+    const [chartsData, setChartsData] = useState<ChartDataPoints[]>([]);
+    const [breakdownData, setBreakdownData] = useState<LineCapacityGroup[]>([]);
 
     // Estado Metadata
     const [vehicleMetadata, setVehicleMetadata] = useState<Record<string, {
@@ -483,19 +488,6 @@ export default function MaterialForm({ selectedMaterial, projectMaterials = [], 
         const vehiclesInCountry = lists.vehicleMasterData[countryName] || [];
         // Buscamos el vehículo en la lista de ese país
         return vehiclesInCountry.find((v: any) => v.Value === vehicleName || v.Text === vehicleName);
-    };
-
-    const getFyNameFromDate = (dateStr?: string) => {
-        if (!dateStr || !lists.fiscalYears) return undefined;
-        const d = new Date(dateStr);
-        // Busca en qué rango cae la fecha
-        // 👇 Agregamos ': any' aquí para calmar a TypeScript
-        const fy = lists.fiscalYears.find((f: any) => {
-            const start = new Date(f.Start);
-            const end = new Date(f.End);
-            return d >= start && d <= end;
-        });
-        return fy ? fy.Name : undefined;
     };
 
 
@@ -1525,79 +1517,86 @@ export default function MaterialForm({ selectedMaterial, projectMaterials = [], 
         lists.slittingRules
     ]);
 
-    // ✅ LABORATORIO DE PRUEBAS FINAL (Pasos 1, 2, 3 y 4)
+    // ✅ LABORATORIO DE PRUEBAS FINAL
     useEffect(() => {
         if (formData.Vehicle && lists.fiscalYears && lists.vehicleMasterData) {
 
-            // 1. Preparamos la lista combinada (Materiales BD + Edición Actual)
+            // 1. Preparar lista combinada
             const siblings = projectMaterials.filter(m => m.ID_Material !== formData.ID_Material);
             const allMaterialsForCalculation = [...siblings, formData];
 
-            // 2. Ejecutamos el cálculo de Horas (Pasos 1, 2 y 3)
-            // Esto imprime la "Tabla 1" y "Tabla 2" en consola
-            const totalLoadHours = calculateTotalProjectLoad(allMaterialsForCalculation, lists);
-
-            // 3. Obtener el nombre del estatus real
-            // Aquí cambiamos 'project' por 'formData' o la variable que contenga los datos del proyecto
-            // Si en tu componente la variable que tiene el ID_Status se llama projectStatusId, úsala directamente:
-
-            const currentStatusId = projectStatusId || 1; // Fallback al ID 1 (Quotes) si no hay nada
-
-            let statusName = "Estatus proyecto";
-
+            // 2. Info Estatus (SE HACE UNA SOLA VEZ)
+            const currentStatusId = projectStatusId || 1;
+            let statusName = "Estatus";
             if (lists.projectStatuses) {
-                // Buscamos el nombre amigable en la lista
                 const statusObj = lists.projectStatuses.find((s: any) => s.Value == currentStatusId);
-                if (statusObj) {
-                    statusName = statusObj.Text;
-                }
+                if (statusObj) statusName = statusObj.Text;
             }
 
-            // 4. Generar Datos para Gráfica
-            const chartData = generateChartData(
-                totalLoadHours,
+            // 3. Generar Tabla de Resumen
+            const breakdown = generateCapacityBreakdown(
+                allMaterialsForCalculation,
+                formData.ID_Material || 0, // ID del actual
+                lists,
+                projectPlantId,
+                statusName // 👈 Nombre del estatus
+            );
+
+            if (breakdown.length > 0) {
+                breakdown.forEach(g => {
+                    g.materials.forEach(m => {
+                        if (m.materialId === (formData.ID_Material || 0)) {
+                            if (m.partNumber === (formData.Part_Number || "New Material")) {
+                                m.isCurrentEditing = true;
+                            }
+                        }
+                    });
+                });
+            }
+            setBreakdownData(breakdown);
+
+            // 4. Calcular Horas Totales
+            const totalLoadHours = calculateTotalProjectLoad(allMaterialsForCalculation, lists);
+
+            // 5. Generar Gráficas Múltiples
+            const generatedCharts = generateMultiLineChartData(
+                totalLoadHours, 
+                allMaterialsForCalculation,
                 formData,
                 lists,
                 projectPlantId,
                 statusName,
-                currentStatusId // Pasamos el ID que calculamos arriba
+                currentStatusId
             );
 
-            // 5. Guardar en el estado para que el componente pueda leerlo
-            setChartData(chartData); // 👈 ESTO ES LO QUE FALTABA
+            setChartsData(generatedCharts);
 
-            // 5. Ver el resultado final (JSON para Chart.js)
-            if (chartData) {
-                console.log("📈 DATOS FINALES GRÁFICA (Chart.js):", chartData);
-                console.log("   - Etiquetas (X):", chartData.labels);
-                console.log("   - Series (Y):", chartData.datasets.map(d => `${d.label}: ${d.data.join(', ')}`));
-                console.log("   - Max Y Axis:", chartData.maxPercentage);
-            }
+        } else {
+            setChartsData([]);
+            setBreakdownData([]);
         }
     }, [
         // --- DEPENDENCIAS CRÍTICAS DE CÁLCULO ---
-        formData.Vehicle, 
-        formData.Real_SOP, 
-        formData.Real_EOP, 
+        formData.Vehicle,
+        formData.Real_SOP,
+        formData.Real_EOP,
         formData.Max_Production_Factor,
         formData.Annual_Volume,
-        formData.Blanking_Annual_Volume, // 👈 ¡AGREGAR ESTA LÍNEA!
+        formData.Blanking_Annual_Volume,
         formData.ID_Route,
         formData.ID_Real_Blanking_Line,
         formData.ID_Theoretical_Blanking_Line,
         formData.ID_Slitting_Line,
-        // 👇 NUEVOS CAMPOS AGREGADOS PARA RECALCULO EN TIEMPO REAL
-        formData.Parts_Per_Vehicle,          // <--- Solicitado explícitamente
-        formData.Ideal_Cycle_Time_Per_Tool,  // ICT
-        formData.Theoretical_Strokes,        // Strokes teóricos
-        formData.Real_Strokes,               // Strokes reales
-        formData.Blanks_Per_Stroke,          // Golpes
-        formData.OEE,                        // Eficiencia
-        // ----------------------------------------
+        formData.Parts_Per_Vehicle,
+        formData.Ideal_Cycle_Time_Per_Tool,
+        formData.Theoretical_Strokes,
+        formData.Real_Strokes,
+        formData.Blanks_Per_Stroke,
+        formData.OEE,
         projectMaterials,
         lists.fiscalYears,
         lists.vehicleMasterData,
-        projectStatusId, 
+        projectStatusId,
         projectPlantId
     ]);
 
@@ -3514,30 +3513,58 @@ export default function MaterialForm({ selectedMaterial, projectMaterials = [], 
                 </div>
             </div>
 
-            {/* SECCIÓN DE GRÁFICA */}
             <div className="row mt-4">
                 <div className="col-12">
-                    <div className="card">
-                        <div className="card-header bg-light">
-                            <strong>Capacity Analysis</strong>
-                        </div>
-                        <div className="card-body">
-                            {chartData ? (
-                                <CapacityChart
-                                    data={chartData}
-                                    maxPercentage={chartData.maxPercentage}
-                                    fyStart={getFyNameFromDate(formData.Real_SOP)}
-                                    fyEnd={getFyNameFromDate(formData.Real_EOP)}
-                                    title={chartData.lineName} // 👈 PASAMOS EL NOMBRE DE LA LÍNEA
-                                />
-                            ) : (
-                                <div className="text-center text-muted py-5">
-                                    <i className="fa fa-chart-area fa-2x mb-2"></i>
-                                    <p>Fill out the capacity fields (Line, Volume, Cycle Time) to generate the graph.</p>
+                    <CapacityBreakdownTable
+                        data={breakdownData}
+                    // currentMaterialIndex ya no es necesario pasarlo, pero si lo dejaste en Props, bórralo de la interfaz
+                    />
+                </div>
+            </div>
+
+            {/* SECCIÓN DE GRÁFICA (Multi-Línea) */}
+            <div className="row mt-4">
+                <div className="col-12">
+                    {chartsData.length > 0 ? (
+                        <div className="card shadow-sm">
+                            <div className="card-header bg-light">
+                                <strong className="text-primary">
+                                    <i className="fa fa-chart-area mr-2"></i>
+                                    Capacity Analysis by Line
+                                </strong>
+                            </div>
+                            <div className="card-body bg-white">
+                                <div className="row">
+                                    {/* Mapeamos todas las gráficas generadas */}
+                                    {chartsData.map((chart, index) => (
+                                        <div key={index} className="col-md-6 col-sm-12 mb-4">
+                                            <div className="card h-100 border-light shadow-sm">
+                                                <div className="card-header font-weight-bold text-center small text-uppercase bg-light">
+                                                    {chart.lineName}
+                                                </div>
+                                                <div className="card-body p-2" style={{ minHeight: '320px' }}>
+                                                    <CapacityChart
+                                                        data={chart}
+                                                        maxPercentage={chart.maxPercentage}
+                                                        fyStart={chart.fyStartLine}
+                                                        fyEnd={chart.fyEndLine}
+                                                        title=""
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            )}
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="card">
+                            <div className="card-body text-center text-muted py-5">
+                                <i className="fa fa-calculator fa-2x mb-2"></i>
+                                <p>Fill out Vehicle, SOP/EOP, and Line selection to view capacity charts.</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

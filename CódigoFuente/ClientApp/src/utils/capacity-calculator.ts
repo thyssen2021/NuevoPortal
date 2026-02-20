@@ -1,5 +1,5 @@
 import type { Material, AppLists, FiscalYearDef, IhsProductionItem, ChartDataPoints } from '../types';
-
+import type { CapacityValidationResult, LineCapacityGroup } from '../types';
 // 1. Paleta de Colores
 const STATUS_COLORS: Record<string, string> = {
     "Spare Parts": "#94c149", // Gris (ID 9)
@@ -26,7 +26,50 @@ const STATIC_STATUS_NAMES: Record<number, string> = {
 const BLANKING_ROUTE_IDS = [1, 2, 4, 5, 9, 10, 13];
 
 // 3. Orden Lógico (De abajo hacia arriba en Gráfica / De Izq a Der en Tabla)
-const STATUS_ORDER = ["Spare Parts", "POH", "Casi Casi", "Carry Over", "Quotes"];/**
+const STATUS_ORDER = ["Spare Parts", "POH", "Casi Casi", "Carry Over", "Quotes"];
+
+
+/**
+ * Valida lo básico (si faltan campos)
+ */
+export const validateMaterialCapacity = (
+    mat: Partial<Material>
+): CapacityValidationResult => {
+
+    const missing: string[] = [];
+
+    // 1. Validar Línea
+    const realLine = Number(mat.ID_Real_Blanking_Line);
+    const theoLine = Number(mat.ID_Theoretical_Blanking_Line);
+    const lineId = realLine > 0 ? realLine : (theoLine > 0 ? theoLine : 0);
+    if (lineId === 0) missing.push("Line");
+
+    // 2. Validar Volumen
+    const routeId = Number(mat.ID_Route || 0);
+    // Ajusta estos IDs a tus constantes reales de Blanking
+    const isBlanking = [1, 2, 4, 5, 9, 10, 13].includes(routeId);
+    let vol = Number(mat.Annual_Volume || 0);
+    if (isBlanking && Number(mat.Blanking_Annual_Volume) > 0) {
+        vol = Number(mat.Blanking_Annual_Volume);
+    }
+    if (vol <= 0) missing.push("Volume");
+
+    // 3. Validar Ciclo
+    const ict = Number(mat.Ideal_Cycle_Time_Per_Tool || mat.Theoretical_Strokes || mat.Real_Strokes || 0);
+    if (ict <= 0) missing.push("Cycle");
+
+    // 4. Validar Fechas (Crucial para el desglose por año)
+    if (!mat.Real_SOP) missing.push("SOP");
+    if (!mat.Real_EOP) missing.push("EOP");
+
+    return {
+        isValid: missing.length === 0,
+        missingFields: missing,
+        // loadPercentage y loadMinutes eliminados, se calculan dinámicamente
+    };
+};
+
+/**
  * REPLICA EXACTA DE: GetProductionByFiscalYearID (Legacy)
  * Obtiene la producción total por año fiscal para el material seleccionado.
  * (Versión limpia: Sin logs, solo cálculo)
@@ -130,27 +173,44 @@ export const calculateMaterialLoad = (
     fiscalYears: FiscalYearDef[]
 ): Record<number, number> => {
 
-    // 1. Obtener Inputs
-    const partNumber = formData.Part_Number || "N/A"; // 👈 Capturamos el número de parte
-    const routeId = Number(formData.ID_Route || 0);    
+    // 🛑 1. GATEKEEPER PRINCIPAL: Validación Estricta
+    const validation = validateMaterialCapacity(formData);
+    if (!validation.isValid) {
+        return {};
+    }
+
+    // 2. Obtener Inputs y SANITIZARLOS
+    const partNumber = formData.Part_Number || "N/A";
+    const routeId = Number(formData.ID_Route || 0);
     let annualVol = Number(formData.Annual_Volume || 0);
-    // Si es ruta de Blanking y existe volumen de blanking, lo usamos con prioridad
+
+    // Lógica de prioridad de volumen (Blanking vs General)
     if (BLANKING_ROUTE_IDS.includes(routeId)) {
-        const blkVol = Number(formData.Blanking_Annual_Volume);
+        const blkVol = Number(formData.Blanking_Annual_Volume || 0);
         if (blkVol > 0) {
             annualVol = blkVol;
         }
     }
 
-    const partsPerVeh = Number(formData.Parts_Per_Vehicle || 1);
+    // 🛑 3. SEGUNDO GATEKEEPER (Redundancia de Seguridad)
+    // Aunque el validador diga que es válido, si el volumen final que vamos a usar es 0, abortamos.
+    // Esto previene el dibujo de líneas planas si la lógica de validación difiere sutilmente.
+    if (annualVol <= 0) return {};
 
-    // Prioridad de Ciclo: ICT > Theo > Real > Default 1
-    const ict = Number(formData.Ideal_Cycle_Time_Per_Tool || formData.Theoretical_Strokes || formData.Real_Strokes || 1);
+    const partsPerVeh = Number(formData.Parts_Per_Vehicle || 0); // Ojo: Si es 0, no calcula
+    if (partsPerVeh <= 0) return {}; // Abortar si no hay piezas por vehículo
 
-    const blanksPerStroke = Number(formData.Blanks_Per_Stroke || 1);
+    // Prioridad de Ciclo: ICT > Theo > Real > 0
+    // IMPORTANTE: Quitamos el "|| 1" del final para que sea estricto
+    const ict = Number(formData.Ideal_Cycle_Time_Per_Tool || formData.Theoretical_Strokes || formData.Real_Strokes || 0);
+
+    if (ict <= 0) return {}; // Abortar si no hay ciclo
+
+    const blanksPerStroke = Number(formData.Blanks_Per_Stroke || 0);
+    if (blanksPerStroke <= 0) return {}; // Abortar si no hay blanks/golpe
+
     const lineId = Number(formData.ID_Real_Blanking_Line || formData.ID_Theoretical_Blanking_Line || 0);
-    // Validación básica
-    if (annualVol === 0 || lineId === 0) return {};
+    if (lineId === 0) return {};
 
     // ---------------------------------------------------------
     // Lógica de Factor de Ajuste
@@ -185,7 +245,7 @@ export const calculateMaterialLoad = (
     // Función helper para llenar la fila del log
     const addRow = (fyName: string, originalVol: number, adjustedVol: number, minutes: number) => {
         debugTable.push({
-            "Part #": partNumber, // 👈 PRIMERA COLUMNA
+            "Part #": partNumber,
             "FY": fyName,
             "Orig Vol": Math.round(originalVol),
             "Factor": `${factorPercent}%`,
@@ -217,8 +277,16 @@ export const calculateMaterialLoad = (
         // CASO B: Fallback (Annual Volume)
         const relevantFYs = fiscalYears.filter(fy => {
             if (!formData.Real_SOP || !formData.Real_EOP) return false;
-            const s = new Date(`${formData.Real_SOP}-01`);
-            const e = new Date(`${formData.Real_EOP}-28`);
+            // Manejo seguro de fechas cortas (YYYY-MM)
+            const sStr = formData.Real_SOP.length === 7 ? `${formData.Real_SOP}-01` : formData.Real_SOP;
+            const eStr = formData.Real_EOP.length === 7 ? `${formData.Real_EOP}-01` : formData.Real_EOP;
+
+            const s = new Date(sStr);
+            const e = new Date(eStr);
+            // Ajuste a fin de mes para EOP
+            e.setMonth(e.getMonth() + 1);
+            e.setDate(0);
+
             const fs = new Date(fy.Start);
             const fe = new Date(fy.End);
             return !(fe < s || fs > e);
@@ -236,21 +304,14 @@ export const calculateMaterialLoad = (
 
     // IMPRESIÓN EN CONSOLA (Detallada)
     if (debugTable.length > 0) {
-        console.groupCollapsed(`📊 CÁLCULO DE CAPACIDAD: ${partNumber}`); // 👈 Título del grupo
-
+        console.groupCollapsed(`📊 CÁLCULO DE CAPACIDAD: ${partNumber}`);
         console.log("1. CONSTANTES GLOBALES:");
         console.log({
             "Line ID": lineId,
-            "Parts Per Vehicle": partsPerVeh,
             "Cycle Time": ict,
-            "Blanks Per Stroke": blanksPerStroke,
-            "OEE": oee,
             "Denominator": denominator.toFixed(4)
         });
-
-        console.log("2. TABLA DE CÁLCULO POR AÑO:");
         console.table(debugTable);
-
         console.groupEnd();
     }
 
@@ -263,10 +324,10 @@ export const calculateMaterialLoad = (
  * - Tabla 2: Resumen final consolidado por Línea.
  */
 export const calculateTotalProjectLoad = (
-    materials: Partial<Material>[], 
+    materials: Partial<Material>[],
     lists: AppLists
 ): Record<number, Record<number, number>> => {
-    
+
     const result: Record<number, Record<number, number>> = {};
     const sumRealMinByLine: Record<number, number> = {};
     const summaryLog: any[] = [];
@@ -277,13 +338,18 @@ export const calculateTotalProjectLoad = (
     // PASO 1: PROCESO DE ACUMULACIÓN Y CÁLCULO DE REAL MIN
     // ========================================================================
     materials.forEach((material, index) => {
-        
+
+        // 🟢 NUEVO: Si este material está incompleto, lo saltamos y no ensuciamos la gráfica
+        if (!validateMaterialCapacity(material).isValid) {
+            return; // Continue al siguiente material
+        }
+
         // --- A. Selección de Línea ---
         const realLine = Number(material.ID_Real_Blanking_Line);
         const theoLine = Number(material.ID_Theoretical_Blanking_Line);
         let lineId = realLine > 0 ? realLine : (theoLine > 0 ? theoLine : 0);
 
-        if (lineId === 0) return; 
+        if (lineId === 0) return;
 
         // Nombre de línea
         const lineObj = lists.linesList?.find((l: any) => Number(l.Value) === lineId);
@@ -304,11 +370,11 @@ export const calculateTotalProjectLoad = (
         const partsPerVeh = Number(material.Parts_Per_Vehicle || 1);
         const ict = Number(material.Ideal_Cycle_Time_Per_Tool || material.Theoretical_Strokes || material.Real_Strokes || 1); // Strokes per Minute
         const blanksPerStroke = Number(material.Blanks_Per_Stroke || 1);
-        
+
         let oee = Number(material.OEE);
         if (!oee || oee === 0) {
             const histOee = lists.oeeHistory ? lists.oeeHistory[lineId.toString()] : null;
-            oee = histOee || 0.85; 
+            oee = histOee || 0.85;
         }
         if (oee > 1) oee = oee / 100;
 
@@ -322,7 +388,7 @@ export const calculateTotalProjectLoad = (
 
         // --- C. CÁLCULOS INTERMEDIOS (Excel Logic) ---
         // Nota: Estas variables replican las filas de tu imagen
-        
+
         // 1. Parts per Auto
         const val_PartsPerAuto = partsPerVeh;
 
@@ -335,8 +401,8 @@ export const calculateTotalProjectLoad = (
         // 4. Min. Max. Reales (Ideal Minutes / Sin OEE)
         // Fórmula: BlanksPerYear / ICT / BlanksPerStroke
         // (ICT está en Strokes/Min. Blanks/Min = ICT * BlanksPerStroke)
-        const val_MinMaxReales = (ict * blanksPerStroke) > 0 
-            ? val_BlanksPerYear / (ict * blanksPerStroke) 
+        const val_MinMaxReales = (ict * blanksPerStroke) > 0
+            ? val_BlanksPerYear / (ict * blanksPerStroke)
             : 0;
 
         // 5. Min. Reales (Con OEE) -> ESTE ES EL 'RealMin'
@@ -355,7 +421,7 @@ export const calculateTotalProjectLoad = (
         // Solo mostramos si hay volumen para no ensuciar
         if (adjustedVol > 0) {
             console.group(`📐 Fórmulas: ${partNumber} (${lineName})`);
-            console.log(`Config: Factor ${factor}% | OEE ${(oee*100).toFixed(0)}% | ICT ${ict}`);
+            console.log(`Config: Factor ${factor}% | OEE ${(oee * 100).toFixed(0)}% | ICT ${ict}`);
 
             const excelTable = [
                 {
@@ -399,14 +465,14 @@ export const calculateTotalProjectLoad = (
         }
 
         // --- E. ACUMULACIÓN PARA RESULTADOS FINALES ---
-        
+
         // Acumular RealMin (Min. Reales) para la lógica de Picos
         if (!sumRealMinByLine[lineId]) sumRealMinByLine[lineId] = 0;
         sumRealMinByLine[lineId] += val_MinReales;
 
         // Distribución por FY (Esto sigue usando la función mensual detallada)
         const capacityByFY = calculateMaterialLoad(material, lists, lists.fiscalYears || []);
-        
+
         Object.entries(capacityByFY).forEach(([fyIdStr, minutes]) => {
             const fyId = Number(fyIdStr);
             if (!result[lineId]) result[lineId] = {};
@@ -446,7 +512,7 @@ export const calculateTotalProjectLoad = (
             const lineObj = lists.linesList?.find((l: any) => Number(l.Value) === lineId);
             const lineName = lineObj ? lineObj.Text : `Line ${lineId}`;
 
-            if (Math.abs(maxVal - sumRealMin) > 1) { 
+            if (Math.abs(maxVal - sumRealMin) > 1) {
                 console.log(`   [${lineName}] Pico en ${fyName}. S&P: ${Math.round(maxVal)} vs Min.Reales: ${Math.round(sumRealMin)} -> REEMPLAZANDO.`);
                 result[lineId][maxFyId] = sumRealMin;
             }
@@ -469,11 +535,11 @@ export const calculateTotalProjectLoad = (
                 const fyId = Number(fyIdStr);
                 const fyObj = lists.fiscalYears?.find(f => f.ID === fyId);
                 const fyName = fyObj ? fyObj.Name : `FY ${fyId}`;
-                
+
                 // Original S&P
                 const originalMinutes = originalFyData[fyId] || 0;
                 const originalHours = originalMinutes / 60.0;
-                
+
                 // Final Ajustado
                 const finalHours = finalMinutes / 60.0;
 
@@ -485,7 +551,7 @@ export const calculateTotalProjectLoad = (
                 });
             });
         });
-        
+
         console.log(">> Tabla 2: Resumen Final Consolidado");
         console.table(summaryLog);
     } else {
@@ -502,11 +568,11 @@ export const calculateTotalProjectLoad = (
     });
 
     console.groupEnd();
-    return result; 
+    return result;
 };
 
 export const generateChartData = (
-    newLoadHours: Record<number, Record<number, number>>, 
+    newLoadHours: Record<number, Record<number, number>>,
     formData: Partial<Material>,
     lists: AppLists,
     projectPlantId: number,
@@ -546,7 +612,7 @@ export const generateChartData = (
     // Helper para obtener nombres (Estático > Dinámico > Fallback)
     const getStatusName = (id: number): string => {
         if (STATIC_STATUS_NAMES[id]) return STATIC_STATUS_NAMES[id];
-        
+
         if (lists.projectStatuses) {
             const s = lists.projectStatuses.find((x: any) => x.Value == id);
             if (s) return s.Text;
@@ -565,19 +631,19 @@ export const generateChartData = (
     if (currentLoadRaw && currentLoadRaw.length > 0) {
         currentLoadRaw.forEach((item: any) => {
             const fyId = item.FY;
-            
+
             // Detección robusta de propiedad ID (incluyendo 'St')
-            const rawStatusId = item.St 
-                             || item.ID_Status 
-                             || item.StatusId 
-                             || 0;
+            const rawStatusId = item.St
+                || item.ID_Status
+                || item.StatusId
+                || 0;
 
             const capInfo = plantCapacity.find(c => c.FY === fyId);
             let available = (capInfo ? (isSlitterContext ? capInfo.Slt : capInfo.Blk) : 0) || 1;
             if (available <= 0) available = 1;
 
             const percentage = (item.Hrs / available) * 100;
-            
+
             // Determinar nombre
             let statusName = "Unclassified";
             if (rawStatusId > 0) {
@@ -600,7 +666,7 @@ export const generateChartData = (
     // B. PROCESAR CARGA NUEVA (Proyecto Actual)
     // -------------------------------------------------------------------------
     const myLineHours = newLoadHours[activeLineId] || {};
-    
+
     // Determinar a qué estatus va lo nuevo (Usamos el ID pasado desde el padre)
     const targetStatus = projectStatusName || STATIC_STATUS_NAMES[currentProjectStatusId] || "Quotes";
 
@@ -612,7 +678,7 @@ export const generateChartData = (
 
         // Convertir Horas a Turnos si es Slitter (7.5h por turno)
         let numerator = isSlitterContext ? (hours / 7.5) : hours;
-        
+
         const addedPercentage = (numerator / available) * 100;
 
         // 1. Sumar al Mapa Final (Acumulado para la gráfica)
@@ -630,7 +696,7 @@ export const generateChartData = (
     // -------------------------------------------------------------------------
     // C. PADDING VISUAL & FILTRADO: (SOP - 1 año) hasta (EOP + 1 año)
     // -------------------------------------------------------------------------
-    
+
     // Definimos las variables de rango fuera del try/catch para usarlas en el filtro
     let viewStart: Date | null = null;
     let viewEnd: Date | null = null;
@@ -639,7 +705,7 @@ export const generateChartData = (
         try {
             // Helper simple para fechas YYYY-MM
             const parseDate = (dStr: string) => new Date(dStr.length === 7 ? `${dStr}-01` : dStr);
-            
+
             const sopDate = parseDate(formData.Real_SOP);
             const eopDate = parseDate(formData.Real_EOP);
 
@@ -672,7 +738,7 @@ export const generateChartData = (
     // -------------------------------------------------------------------------
     // D. GENERAR TABLA DE AUDITORÍA REORDENADA Y FILTRADA
     // -------------------------------------------------------------------------
-    
+
     // 🔥 FILTRO CRÍTICO: Aquí eliminamos los años que vienen de BD pero están fuera del rango
     const sortedFYs = Array.from(allFyIds)
         .filter(fyId => {
@@ -701,7 +767,7 @@ export const generateChartData = (
 
         // Construcción de Objeto: El orden de asignación define el orden de columnas en console.table
         const orderedRow: any = {};
-        
+
         // 1. Identificadores
         orderedRow["Línea"] = activeLineName;
         orderedRow["Fiscal Year"] = fyObj ? fyObj.Name : `FY ${fyId}`;
@@ -710,7 +776,7 @@ export const generateChartData = (
         // 2. Estatus Dinámicos (En orden de STATUS_ORDER)
         STATUS_ORDER.forEach(status => {
             let baseVal = rowData[status] || 0;
-            
+
             // Si este es el estatus del proyecto actual, mostramos desglose
             if (status === targetStatus && addedVal > 0) {
                 orderedRow[status] = `${baseVal.toFixed(2)}% (+${addedVal.toFixed(2)}%)`;
@@ -720,7 +786,7 @@ export const generateChartData = (
             }
         });
 
-      // 3. Columna de Referencia de lo Agregado
+        // 3. Columna de Referencia de lo Agregado
         // Usamos targetStatus dentro de los corchetes [] para que el nombre de la columna sea dinámico
         orderedRow[`➕ AGREGADO (${targetStatus})`] = addedVal > 0 ? `+${addedVal.toFixed(2)}%` : "0%";
         // 4. Total Final (Calculado desde finalMap para exactitud)
@@ -739,7 +805,7 @@ export const generateChartData = (
     // -------------------------------------------------------------------------
     // E. GENERAR DATASETS PARA CHART.JS
     // -------------------------------------------------------------------------
-    
+
     // Eje X: Etiquetas de Años Fiscales
     const labels = sortedFYs.map(id => {
         const fy = lists.fiscalYears?.find(f => f.ID === id);
@@ -754,8 +820,8 @@ export const generateChartData = (
     const datasets = Array.from(distinctStatuses).map(status => {
         // Mapeamos usando sortedFYs para asegurar que los datos coincidan con el eje X filtrado
         const data = sortedFYs.map(fyId => {
-            return finalMap[fyId] && finalMap[fyId][status] 
-                ? Number(finalMap[fyId][status].toFixed(2)) 
+            return finalMap[fyId] && finalMap[fyId][status]
+                ? Number(finalMap[fyId][status].toFixed(2))
                 : 0;
         });
 
@@ -767,17 +833,17 @@ export const generateChartData = (
             stack: 'Stack 0' // Apilamiento habilitado
         };
     })
-    // Ordenar visualmente (Base abajo -> Nuevo arriba)
-    .sort((a, b) => {
-        let idxA = STATUS_ORDER.indexOf(a.label);
-        let idxB = STATUS_ORDER.indexOf(b.label);
-        
-        // Si no está en la lista (ej: Unclassified), va al final o principio según preferencia
-        if (idxA === -1) idxA = 99; 
-        if (idxB === -1) idxB = 99;
-        
-        return idxA - idxB; 
-    });
+        // Ordenar visualmente (Base abajo -> Nuevo arriba)
+        .sort((a, b) => {
+            let idxA = STATUS_ORDER.indexOf(a.label);
+            let idxB = STATUS_ORDER.indexOf(b.label);
+
+            // Si no está en la lista (ej: Unclassified), va al final o principio según preferencia
+            if (idxA === -1) idxA = 99;
+            if (idxB === -1) idxB = 99;
+
+            return idxA - idxB;
+        });
 
     // Calcular máximo eje Y (para evitar cortes visuales)
     let maxTotal = 0;
@@ -794,4 +860,430 @@ export const generateChartData = (
         maxPercentage,
         lineName: activeLineName
     };
+};
+
+// ====================================================================================
+// 🔥 NUEVA FUNCIÓN MULTI-LÍNEA (REEMPLAZA A LA ANTIGUA)
+// ====================================================================================
+export const generateMultiLineChartData = (
+    newLoadHours: Record<number, Record<number, number>>, // Carga total del proyecto agrupada por línea
+    allProjectMaterials: Partial<Material>[], // Materiales del proyecto para cálculo de rangos
+    formData: Partial<Material>, // Material actual (para fallback de fechas)
+    lists: AppLists,
+    projectPlantId: number,
+    projectStatusName: string,
+    currentProjectStatusId: number
+): ChartDataPoints[] => {
+
+    const charts: ChartDataPoints[] = [];
+    console.groupCollapsed("📊 PASO 4: Generación Multi-Línea de Gráficas y Auditoría");
+
+    // 1. Identificar qué líneas tienen actividad
+    // Incluimos la línea actual del formulario + las que vienen en el cálculo total
+    const linesToProcess = new Set<number>();
+
+   // --- CORRECCIÓN DEFINITIVA AQUÍ ---
+    // Antes: Agregábamos la línea siempre (if currentLine > 0...)
+    // Ahora: Solo agregamos la línea del formulario si el material es VÁLIDO.
+    // Si falta volumen o ciclo, no la forzamos. Si hay otros materiales (hermanos) en esa línea,
+    // se agregarán por el bucle de newLoadHours de abajo.
+    const currentLine = Number(formData.ID_Real_Blanking_Line || formData.ID_Theoretical_Blanking_Line || 0);
+    const isCurrentMaterialValid = validateMaterialCapacity(formData).isValid;
+
+    if (currentLine > 0 && isCurrentMaterialValid) {
+        linesToProcess.add(currentLine);
+    }
+    // ----------------------------------
+
+    Object.keys(newLoadHours).forEach(k => linesToProcess.add(Number(k)));
+
+    if (linesToProcess.size === 0) {
+        console.warn("⚠️ No hay líneas activas para graficar.");
+        console.groupEnd();
+        return [];
+    }
+
+    // 2. Iterar sobre cada línea y aplicar LA MISMA LÓGICA que tenías para una sola
+    linesToProcess.forEach(activeLineId => {
+        if (activeLineId === 0) return;
+
+        const lineObj = lists.linesList?.find((l: any) => Number(l.Value) === activeLineId);
+        const activeLineName = lineObj ? lineObj.Text : `Line ${activeLineId}`;
+
+        console.group(`📈 Análisis para: ${activeLineName}`);
+
+        // --- LÓGICA DE RANGO DINÁMICO POR LÍNEA ---
+        let minDate: Date | null = null;
+        let maxDate: Date | null = null;
+
+        // A. Filtramos los materiales que "viven" en esta línea
+        const materialsOnThisLine = allProjectMaterials.filter(m => {
+            const rLine = Number(m.ID_Real_Blanking_Line);
+            const tLine = Number(m.ID_Theoretical_Blanking_Line);
+            const effLine = rLine > 0 ? rLine : (tLine > 0 ? tLine : 0);
+            return effLine === activeLineId;
+        });
+
+        // B. Buscamos el SOP más antiguo y el EOP más futuro
+        materialsOnThisLine.forEach(m => {
+            if (m.Real_SOP) {
+                // Convertir "YYYY-MM" a fecha
+                const s = new Date(m.Real_SOP.length === 7 ? `${m.Real_SOP}-01` : m.Real_SOP);
+                if (!minDate || s < minDate) minDate = s;
+            }
+            if (m.Real_EOP) {
+                // Convertir "YYYY-MM" a fecha
+                const e = new Date(m.Real_EOP.length === 7 ? `${m.Real_EOP}-01` : m.Real_EOP);
+                if (!maxDate || e > maxDate) maxDate = e;
+            }
+        });
+
+        // C. Aplicamos Padding (-1 año al inicio, +1 año al final)
+        let viewStart: Date | null = null;
+        let viewEnd: Date | null = null;
+
+        if (minDate && maxDate) {
+            viewStart = new Date(minDate);
+            viewStart.setFullYear(viewStart.getFullYear() - 1);
+
+            viewEnd = new Date(maxDate);
+            viewEnd.setFullYear(viewEnd.getFullYear() + 1);
+        } else {
+            // Fallback: Si la línea tiene carga pero no tiene materiales con fechas (raro, pero posible si viene de BD puro)
+            // Usamos las fechas del form actual por defecto
+            if (formData.Real_SOP && formData.Real_EOP) {
+                const s = new Date(formData.Real_SOP.length === 7 ? `${formData.Real_SOP}-01` : formData.Real_SOP);
+                const e = new Date(formData.Real_EOP.length === 7 ? `${formData.Real_EOP}-01` : formData.Real_EOP);
+                viewStart = new Date(s); viewStart.setFullYear(s.getFullYear() - 1);
+                viewEnd = new Date(e); viewEnd.setFullYear(e.getFullYear() + 1);
+            }
+        }
+        // ---------------------------------------------
+
+        const slitterLineId = Number(formData.ID_Slitting_Line);
+        const isSlitterContext = slitterLineId > 0 && activeLineId === slitterLineId;
+
+        // Datos base de BD
+        const plantCapacity = lists.capacityData ? lists.capacityData[projectPlantId.toString()] : [];
+        const currentLoadRaw = lists.currentLoad ? lists.currentLoad[activeLineId.toString()] : [];
+
+        // Helper Status
+        const getStatusName = (id: number): string => {
+            if (STATIC_STATUS_NAMES[id]) return STATIC_STATUS_NAMES[id];
+            const s = lists.projectStatuses?.find((x: any) => x.Value == id);
+            return s ? s.Text : `Status ${id}`;
+        };
+
+        const finalMap: Record<number, Record<string, number>> = {};
+        const auditMap: Record<number, any> = {};
+        const allFyIds = new Set<number>();
+
+        // A. PROCESAR CARGA BASE (BD)
+        if (currentLoadRaw && currentLoadRaw.length > 0) {
+            currentLoadRaw.forEach((item: any) => {
+                const fyId = item.FY;
+                const rawStatusId = item.St || item.ID_Status || item.StatusId || 0;
+
+                // Buscar capacidad total de la línea para ese año
+                const loadItem = currentLoadRaw.find((x: any) => x.FY === fyId);
+                // Usamos 'as any' para acceder a TotalHours si TS se queja
+                const totalCapacityHours = (loadItem as any)?.TotalHours || 0;
+
+                // Si no hay TotalHours en el objeto, intentamos usar el capacityData genérico (fallback)
+                const capInfo = plantCapacity.find(c => c.FY === fyId);
+                let available = 1;
+
+                // Preferencia: Si el endpoint devolvió TotalHours específico, usalo. Si no, usa el genérico.
+                if (totalCapacityHours > 0) {
+                    available = totalCapacityHours;
+                } else {
+                    available = (capInfo ? (isSlitterContext ? capInfo.Slt : capInfo.Blk) : 0) || 1;
+                }
+
+                if (available <= 0) available = 1;
+
+                const percentage = (item.Hrs / available) * 100;
+                const statusName = rawStatusId > 0 ? getStatusName(rawStatusId) : "Unclassified";
+
+                if (!finalMap[fyId]) finalMap[fyId] = {};
+                finalMap[fyId][statusName] = (finalMap[fyId][statusName] || 0) + percentage;
+
+                if (!auditMap[fyId]) auditMap[fyId] = {};
+                auditMap[fyId][statusName] = (auditMap[fyId][statusName] || 0) + percentage;
+
+                allFyIds.add(fyId);
+            });
+        }
+
+        // B. PROCESAR CARGA NUEVA (PROYECTO ACTUAL)
+        const myLineHours = newLoadHours[activeLineId] || {};
+        const targetStatus = projectStatusName || STATIC_STATUS_NAMES[currentProjectStatusId] || "Quotes";
+
+        Object.entries(myLineHours).forEach(([fyIdStr, hours]) => {
+            const fyId = Number(fyIdStr);
+
+            // Misma lógica de capacidad disponible para ser consistente
+            let available = 1;
+            // Intenta buscar en BD load primero
+            const dbItem = currentLoadRaw?.find((x: any) => x.FY === fyId);
+            if ((dbItem as any)?.TotalHours) {
+                available = (dbItem as any).TotalHours;
+            } else {
+                const capInfo = plantCapacity.find(c => c.FY === fyId);
+                available = (capInfo ? (isSlitterContext ? capInfo.Slt : capInfo.Blk) : 0) || 1;
+            }
+            if (available <= 0) available = 1;
+
+            // Ajuste turno slitter
+            const numerator = isSlitterContext ? (hours / 7.5) : hours;
+            const addedPercentage = (numerator / available) * 100;
+
+            if (!finalMap[fyId]) finalMap[fyId] = {};
+            finalMap[fyId][targetStatus] = (finalMap[fyId][targetStatus] || 0) + addedPercentage;
+
+            if (!auditMap[fyId]) auditMap[fyId] = {};
+            auditMap[fyId]["_ADDED_VAL_"] = addedPercentage;
+
+            allFyIds.add(fyId);
+        });
+
+        // D. TABLA DE AUDITORÍA Y SORTING
+        const sortedFYs = Array.from(allFyIds)
+            .filter(fyId => {
+                if (!viewStart || !viewEnd) return true;
+                const fyDef = lists.fiscalYears?.find(f => f.ID === fyId);
+                if (!fyDef) return false;
+                const fyStart = new Date(fyDef.Start);
+                const fyEnd = new Date(fyDef.End);
+                return fyEnd >= viewStart && fyStart <= viewEnd;
+            })
+            .sort((a, b) => a - b);
+
+        const auditTable: any[] = [];
+        sortedFYs.forEach(fyId => {
+            const fyObj = lists.fiscalYears?.find(f => f.ID === fyId);
+            // Capacidad para mostrar en tabla
+            let capDisplay = 0;
+            const dbItem = currentLoadRaw?.find((x: any) => x.FY === fyId);
+            if ((dbItem as any)?.TotalHours) capDisplay = (dbItem as any).TotalHours;
+            else {
+                const ci = plantCapacity.find(c => c.FY === fyId);
+                capDisplay = (ci ? (isSlitterContext ? ci.Slt : ci.Blk) : 0) || 0;
+            }
+
+            const rowData = auditMap[fyId] || {};
+            const addedVal = rowData["_ADDED_VAL_"] || 0;
+            const orderedRow: any = {};
+
+            orderedRow["Línea"] = activeLineName;
+            orderedRow["Fiscal Year"] = fyObj ? fyObj.Name : `FY ${fyId}`;
+            orderedRow["Capacidad"] = isSlitterContext ? `${capDisplay.toFixed(1)} T` : `${Math.round(capDisplay)} H`;
+
+            STATUS_ORDER.forEach(st => {
+                let base = rowData[st] || 0;
+                if (st === targetStatus && addedVal > 0) orderedRow[st] = `${base.toFixed(2)}% (+${addedVal.toFixed(2)}%)`;
+                else orderedRow[st] = base > 0 ? `${base.toFixed(2)}%` : "";
+            });
+
+            let total = 0;
+            if (finalMap[fyId]) Object.values(finalMap[fyId]).forEach(v => total += v);
+            orderedRow["TOTAL"] = `${total.toFixed(2)}%`;
+            auditTable.push(orderedRow);
+        });
+
+        console.table(auditTable);
+        console.groupEnd(); // Fin grupo línea
+
+        // ... (Generación de Datasets igual que antes, usando sortedFYs) ...
+        const labels = sortedFYs.map(id => lists.fiscalYears?.find(f => f.ID === id)?.Name || `FY ${id}`);
+        const distinctStatuses = new Set<string>();
+        Object.values(finalMap).forEach(d => Object.keys(d).forEach(s => distinctStatuses.add(s)));
+
+        const datasets = Array.from(distinctStatuses).map(st => {
+            const data = sortedFYs.map(fyId => (finalMap[fyId] && finalMap[fyId][st]) ? Number(finalMap[fyId][st].toFixed(2)) : 0);
+            return {
+                label: st,
+                data: data,
+                backgroundColor: STATUS_COLORS[st] || "#999",
+                fill: true,
+                stack: 'Stack 0'
+            };
+        }).sort((a, b) => {
+            let iA = STATUS_ORDER.indexOf(a.label), iB = STATUS_ORDER.indexOf(b.label);
+            if (iA === -1) iA = 99; if (iB === -1) iB = 99;
+            return iA - iB;
+        });
+
+        let maxTotal = 0;
+        sortedFYs.forEach((_, i) => {
+            const sum = datasets.reduce((acc, d) => acc + (d.data[i] || 0), 0);
+            if (sum > maxTotal) maxTotal = sum;
+        });
+
+        // NUEVO: Helper local para convertir las fechas MIN/MAX calculadas en Nombres de FY
+        const getFyName = (d: Date | null) => {
+            if (!d || !lists.fiscalYears) return undefined;
+            // Buscamos en qué FY cae esta fecha
+            const match = lists.fiscalYears.find(f => {
+                const s = new Date(f.Start);
+                const e = new Date(f.End);
+                return d >= s && d <= e;
+            });
+            return match ? match.Name : undefined;
+        };
+
+        // Calculamos los marcadores específicos para ESTA línea
+        // minDate y maxDate ya fueron calculados al inicio del bucle (sección B)
+        const specificFyStart = getFyName(minDate);
+        const specificFyEnd = getFyName(maxDate);
+
+        charts.push({
+            labels,
+            datasets,
+            maxPercentage: Math.ceil(Math.max(100, maxTotal) * 1.1),
+            lineName: activeLineName,
+            // 👇 ASIGNAMOS LOS VALORES ESPECÍFICOS
+            fyStartLine: specificFyStart,
+            fyEndLine: specificFyEnd
+        });
+    });
+
+    console.groupEnd(); // Fin del grupo paso 4
+    return charts;
+};
+
+/**
+ * Genera la estructura de MATRIZ para la Tabla de Resumen (Por Año Fiscal)
+ */
+export const generateCapacityBreakdown = (
+    allMaterials: Partial<Material>[],
+    currentEditingId: number,
+    lists: AppLists,
+    projectPlantId: number,
+    projectStatusName: string
+): LineCapacityGroup[] => {
+
+    const groups: Record<number, LineCapacityGroup> = {};
+
+    // 1. Obtener datos de referencia
+    const plantCapacity = lists.capacityData ? lists.capacityData[projectPlantId.toString()] : [];
+    const fiscalYears = lists.fiscalYears || [];
+
+    allMaterials.forEach(mat => {
+        // A. Determinar Línea
+        const rLine = Number(mat.ID_Real_Blanking_Line);
+        const tLine = Number(mat.ID_Theoretical_Blanking_Line);
+        const lineId = rLine > 0 ? rLine : (tLine > 0 ? tLine : 0);
+
+        const safeLineId = lineId;
+        const lineName = safeLineId === 0
+            ? "⚠️ No Line Assigned"
+            : (lists.linesList?.find((l: any) => Number(l.Value) === safeLineId)?.Text || `Line ${safeLineId}`);
+
+        // B. Inicializar Grupo si no existe
+        if (!groups[safeLineId]) {
+            groups[safeLineId] = {
+                lineId: safeLineId,
+                lineName: lineName,
+                materials: [],
+                lineTotals: {},
+                activeFYs: []
+            };
+        }
+
+        // C. Validación Básica
+        // Pasamos solo 'mat' porque quitamos dependencias innecesarias de la validación simple
+        const validation = validateMaterialCapacity(mat);
+        const fyBreakdown: Record<string, number> = {};
+        const isCurrent = mat.ID_Material === currentEditingId || (currentEditingId === 0 && !mat.ID_Material);
+
+        // D. CÁLCULO DETALLADO POR AÑO (Solo si es válido)
+        if (validation.isValid) {
+
+            // 1. Calculamos MINUTOS por FY ID usando tu función existente
+            const minutesMap = calculateMaterialLoad(mat, lists, fiscalYears);
+
+            const slitterLineId = Number(mat.ID_Slitting_Line);
+            const isSlitter = slitterLineId > 0 && lineId === slitterLineId;
+
+            // 2. Convertir Minutos a Porcentaje por FY
+            Object.entries(minutesMap).forEach(([fyIdStr, minutes]) => {
+                const fyId = Number(fyIdStr);
+                const fyDef = fiscalYears.find(f => f.ID === fyId);
+                if (!fyDef || minutes <= 0) return;
+
+                const fyName = fyDef.Name;
+
+                // Buscar capacidad instalada para ese año
+                // Nota: Para la tabla resumen usamos 'plantCapacity' (genérico) o tratamos de ser precisos
+                // Si tienes 'currentLoad' cargado en lists, podrías buscar ahí el 'TotalHours' específico, 
+                // pero 'plantCapacity' es más seguro como fallback rápido.
+                const capInfo = plantCapacity.find(c => c.FY === fyId);
+
+                // Definir denominador (Horas disponibles anuales)
+                let availableHours = 1;
+                if (capInfo) {
+                    // Si es Slitter y la BD lo maneja en turnos, ajusta aquí.
+                    // Asumiremos que capacityData trae Horas o Turnos estándar.
+                    // Tu lógica gráfica usa: isSlitter ? capInfo.Slt : capInfo.Blk
+                    availableHours = isSlitter ? capInfo.Slt : capInfo.Blk;
+
+                    // Si es Slitter, a veces availableHours viene en Turnos, y minutes en Minutos.
+                    // Ajuste típico de tu lógica gráfica:
+                    // if (isSlitter) numerator = minutes / 60 / 7.5; ...
+                    // Para simplificar la tabla, convertiremos todo a % directo de ocupación.
+                    // Si 'availableHours' son Horas anuales:
+                }
+
+                // Fallback seguro
+                if (availableHours <= 0) availableHours = 5000; // ~3 turnos default
+
+                // Cálculo %
+                // Si es slitter y available son Turnos: minutes/60/7.5 / available * 100
+                // Si available son Horas: minutes/60 / available * 100
+                // Usaremos lógica estándar de Horas por ahora:
+                const hours = minutes / 60;
+
+                // Ajuste especial Slitter si tu 'available' viene en turnos (según tu código previo)
+                let finalPercent = 0;
+                if (isSlitter) {
+                    // Asumiendo que availableHours es capacidad en TURNOS (como en tu gráfica)
+                    // y hours son horas reales.
+                    const shiftsRequired = hours / 7.5;
+                    finalPercent = (shiftsRequired / availableHours) * 100;
+                } else {
+                    finalPercent = (hours / availableHours) * 100;
+                }
+
+                // Guardar en el breakdown
+                fyBreakdown[fyName] = finalPercent;
+
+                // Sumar al total de la línea
+                groups[safeLineId].lineTotals[fyName] = (groups[safeLineId].lineTotals[fyName] || 0) + finalPercent;
+
+                // Registrar que este año tiene datos
+                if (!groups[safeLineId].activeFYs.includes(fyName)) {
+                    groups[safeLineId].activeFYs.push(fyName);
+                }
+            });
+        }
+
+        groups[safeLineId].materials.push({
+            materialId: mat.ID_Material || 0,
+            partNumber: mat.Part_Number || "New Material",
+            lineId: safeLineId,
+            lineName: lineName,
+            isCurrentEditing: isCurrent,
+            validation: validation,
+            fyBreakdown: fyBreakdown,
+            projectStatus: projectStatusName
+        });
+    });
+
+    // Ordenar FYs cronológicamente para cada grupo
+    Object.values(groups).forEach(g => {
+        g.activeFYs.sort(); // String sort "FY24", "FY25" funciona bien.
+    });
+
+    return Object.values(groups).sort((a, b) => a.lineId - b.lineId);
 };

@@ -33,7 +33,9 @@ export interface ChartDataPoints {
     labels: string[];
     datasets: any[];
     maxPercentage: number;
-    lineName?: string;
+    lineName: string;
+    fyStartLine?: string; 
+    fyEndLine?: string;
 }
 
 export interface SlittingValidationRule {
@@ -495,4 +497,34 @@ export interface IhsProductionItem {
     Production_Year: number;
     Production_Month: number; // 👈 Nuevo
     Production_Amount: number;
+}
+
+export interface CapacityValidationResult {
+    isValid: boolean;
+    missingFields: string[];
+    // loadPercentage: number; // 👈 YA NO USAMOS ESTE GLOBAL
+    // loadMinutes: number;    // 👈 NI ESTE
+}
+
+export interface MaterialCapacitySummary {
+    materialId: number;
+    partNumber: string;
+    lineId: number;
+    lineName: string;
+    isCurrentEditing: boolean;
+    validation: CapacityValidationResult;
+    // 👇 NUEVO: Diccionario clave (Nombre FY) -> valor (%)
+    fyBreakdown: Record<string, number>; 
+    projectStatus: string; 
+}
+
+export interface LineCapacityGroup {
+    lineId: number;
+    lineName: string;
+    // totalPercentage: number; // 👈 YA NO SIRVE EL TOTAL GLOBAL
+    materials: MaterialCapacitySummary[];
+    // 👇 NUEVO: Totales por año para el pie de tabla de esa línea
+    lineTotals: Record<string, number>; 
+    // 👇 NUEVO: Lista de años que tienen datos en esta línea (para pintar columnas)
+    activeFYs: string[];
 }
