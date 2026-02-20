@@ -157,4 +157,4 @@ _[Ss]cripts
 **/.vs/
 .vs/
 #ignora la carpeta de node
-CódigoFuente/ClientApp
+#CódigoFuente/ClientApp
