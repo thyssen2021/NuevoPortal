@@ -1,0 +1,30 @@
+﻿@{
+    ViewBag.Title = "Mis Solicitudes Concur";
+    ViewBag.PrimerNivel = "recursos_humanos";
+    ViewBag.SegundoNivel = "solicitud_rh";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div id="concur-hr-dashboard-root"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="module" src="~/Scripts/ReactDist/assets/main.js"></script>
+}

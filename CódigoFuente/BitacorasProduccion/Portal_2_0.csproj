@@ -372,6 +372,7 @@
     <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\clientesController.cs" />
     <Compile Include="Controllers\CombosController.cs" />
+    <Compile Include="Controllers\ConcurController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\EChartsController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
@@ -812,6 +813,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_comunicaciones_tipo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_Concur_Solicitudes.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_epo.cs">
@@ -6183,6 +6187,9 @@
     <Content Include="Views\BG_Forecast_cat_fiscal_years\Index.cshtml" />
     <Content Include="Views\OT_Cargas\Index.cshtml" />
     <Content Include="Views\ProduccionResultado\ReporteBalanceScrap.cshtml" />
+    <Content Include="Views\Concur\SolicitudRH.cshtml" />
+    <Content Include="Views\Concur\DashboardIT.cshtml" />
+    <Content Include="Views\Concur\MisSolicitudes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

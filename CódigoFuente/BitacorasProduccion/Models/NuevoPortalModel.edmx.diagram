@@ -645,6 +645,7 @@
         <EntityTypeShape EntityType="Portal_2_0Model.OT_Cargas" Width="1.5" PointX="29.375" PointY="3.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.OT_Datos" Width="1.5" PointX="31.625" PointY="1.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_Datos_OT_Cargas" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_Concur_Solicitudes" Width="1.5" PointX="24.375" PointY="17.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

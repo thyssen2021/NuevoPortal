@@ -104,11 +104,11 @@ namespace Portal_2_0.Models
                 };
 
                 //********** Comentar para productivo ************//
-                //emailsTo = new List<string>();
-                //emailsTo.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
-                //emailsCC = new List<string>();
-                //mail.Subject = "(🔔 Pruebas MM) " + subject;
-                //emailsCC.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
+                emailsTo = new List<string>();
+                emailsTo.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
+                emailsCC = new List<string>();
+                mail.Subject = "(🔔 Pruebas MM) " + subject;
+                emailsCC.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
                 // ************************************//
 
                 //agrega los destinatarios
@@ -1738,6 +1738,197 @@ namespace Portal_2_0.Models
             body = body.Replace("#ENLACE", domainName + "/MejoraContinua/Evaluar/" + solicitud.id);
             return body;
         }
+        #endregion
+
+        #region Concur
+        public string getBodyConcurNuevaSolicitudIT(IT_Concur_Solicitudes solicitud, string nombreSolicitante)
+        {
+            // Obtener la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+            string enlace = domainName + "/Concur/DashboardIT";
+            string anio = DateTime.Now.Year.ToString();
+            string logoUrl = $"data:image/png;base64,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";
+            string perfilTexto = solicitud.IsApprover == "Y" ? "Sí" : "No";
+
+            // Construcción de la plantilla HTML On-The-Fly
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("<!DOCTYPE html><html lang=\"es\"><head><meta charset=\"utf-8\" /><title>Notificación Concur</title></head>");
+            sb.Append("<body style=\"margin: 0; padding: 0; background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\">");
+
+            // Contenedor principal
+            sb.Append("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color: #f0f2f5; padding: 40px 20px;\">");
+            sb.Append("<tr><td align=\"center\">");
+
+            // Tarjeta blanca central
+            sb.Append("<table width=\"600\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color: #ffffff; border-radius: 8px; border-top: 6px solid #009ff5; box-shadow: 0 5px 20px rgba(0,0,0,0.05);\">");
+
+            // Header
+            sb.Append("<tr><td style=\"padding: 30px 40px 10px 40px;\">");
+            sb.Append("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr>");
+            // Si la imagen del logo sale rota (x roja), asegúrate de que logoUrl apunte a una imagen pública o incrustada correctamente.
+            sb.Append($"<td align=\"left\"><img src=\"{logoUrl}\" alt=\"thyssenkrupp\" style=\"max-height: 35px; display: block;\" /></td>");
+            sb.Append($"<td align=\"right\" style=\"font-size: 13px; color: #888888; font-family: sans-serif;\">Folio <b style=\"color: #333;\">#{solicitud.IdSolicitud}</b></td>");
+            sb.Append("</tr></table>");
+            sb.Append("</td></tr>");
+
+            // Título principal
+            sb.Append("<tr><td style=\"padding: 10px 40px 25px 40px;\">");
+            sb.Append("<h2 style=\"margin: 0 0 15px 0; color: #1a1a1a; font-size: 24px; font-family: sans-serif;\">Nueva Solicitud de Concur</h2>");
+            sb.Append("<div style=\"background-color: #f0f9ff; border-left: 4px solid #009ff5; padding: 15px 20px;\">");
+            sb.Append($"<p style=\"margin: 0; color: #004d7a; font-size: 14px; line-height: 1.6; font-family: sans-serif;\"><b>{nombreSolicitante}</b> de Recursos Humanos ha solicitado la creación de un nuevo perfil en Concur. Entre al portal para generar el layout layout TXT.</p>");
+            sb.Append("</div>");
+            sb.Append("</td></tr>");
+
+            // Caja de detalles
+            sb.Append("<tr><td style=\"padding: 0 40px 30px 40px;\">");
+            sb.Append("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px;\">");
+            sb.Append("<tr><td style=\"padding: 25px;\">");
+            sb.Append("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">");
+
+            sb.Append("<tr>");
+            sb.Append("<td width=\"50%\" style=\"padding-bottom: 20px; font-family: sans-serif;\">");
+            sb.Append("<span style=\"font-size: 11px; color: #888888; text-transform: uppercase; letter-spacing: 1px;\">Colaborador</span><br/>");
+            sb.Append($"<span style=\"font-size: 15px; color: #222222; font-weight: bold;\">{solicitud.FirstName} {solicitud.LastName}</span>");
+            sb.Append("</td>");
+            sb.Append("<td width=\"50%\" style=\"padding-bottom: 20px; font-family: sans-serif;\">");
+            sb.Append("<span style=\"font-size: 11px; color: #888888; text-transform: uppercase; letter-spacing: 1px;\">8ID</span><br/>");
+            sb.Append($"<span style=\"font-size: 15px; color: #009ff5; font-weight: bold;\">{solicitud.GlobalEmployeeID}</span>");
+            sb.Append("</td>");
+            sb.Append("</tr>");
+
+            sb.Append("<tr>");
+            sb.Append("<td width=\"50%\" style=\"padding-bottom: 5px; font-family: sans-serif;\">");
+            sb.Append("<span style=\"font-size: 11px; color: #888888; text-transform: uppercase; letter-spacing: 1px;\">Centro de Costos</span><br/>");
+            sb.Append($"<span style=\"font-size: 15px; color: #222222; font-weight: bold;\">{solicitud.CostCenterValue}</span>");
+            sb.Append("</td>");
+            sb.Append("<td width=\"50%\" style=\"padding-bottom: 5px; font-family: sans-serif;\">");
+            sb.Append("<span style=\"font-size: 11px; color: #888888; text-transform: uppercase; letter-spacing: 1px;\">¿Es autorizador?</span><br/>");
+            sb.Append($"<span style=\"font-size: 13px; color: #333333; background-color: #e2e8f0; padding: 4px 10px; border-radius: 12px; font-weight: bold;\">{perfilTexto}</span>");
+            sb.Append("</td>");
+            sb.Append("</tr>");
+
+            sb.Append("</table>");
+            sb.Append("</td></tr>");
+            sb.Append("</table>");
+            sb.Append("</td></tr>");
+
+            // Botón CTA (Bulletproof para Outlook y otros clientes de correo)
+            sb.Append("<tr><td align=\"center\" style=\"padding: 0 40px 45px 40px;\">");
+            sb.Append("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\"><tr>");
+            sb.Append("<td align=\"center\" style=\"border-radius: 6px;\" bgcolor=\"#009ff5\">");
+            sb.Append($"<a href=\"{enlace}\" target=\"_blank\" style=\"font-size: 15px; font-family: sans-serif; color: #ffffff; text-decoration: none; border-radius: 6px; padding: 12px 30px; border: 1px solid #009ff5; display: inline-block; font-weight: bold;\">Ir al Dashboard de IT</a>");
+            sb.Append("</td></tr></table>");
+            sb.Append("</td></tr>");
+
+            // Footer corporativo (Azul Marino Thyssenkrupp #009ff5)
+            sb.Append("<tr><td style=\"background-color: #009ff5; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;\">");
+            sb.Append("<p style=\"margin: 0; color: #ffffff; font-size: 13px; font-weight: bold; font-family: sans-serif; letter-spacing: 0.5px;\">thyssenkrupp Materials de México</p>");
+            // Texto secundario en un azul claro para hacer buen contraste
+            sb.Append($"<p style=\"margin: 5px 0 0 0; color: #80c4ec; font-size: 11px; font-family: sans-serif;\">Notificación automática del Portal tkMM &copy; {anio}</p>");
+            sb.Append("</td></tr>");
+
+            sb.Append("</table>");
+            sb.Append("</td></tr></table>");
+            sb.Append("</body></html>");
+
+            return sb.ToString();
+        }
+
+        public string getBodyConcurSolicitudCompletadaRH(IT_Concur_Solicitudes solicitud)
+        {
+            // Obtener la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+            string enlace = domainName + "/Concur/MisSolicitudes";
+            string anio = DateTime.Now.Year.ToString();
+            string logoUrl = $"data:image/png;base64,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";
+            string perfilTexto = solicitud.IsApprover == "Y" ? "Sí" : "No";
+
+            // Construcción de la plantilla HTML On-The-Fly (Versión Éxito/Completado)
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("<!DOCTYPE html><html lang=\"es\"><head><meta charset=\"utf-8\" /><title>Solicitud Concur Completada</title></head>");
+            sb.Append("<body style=\"margin: 0; padding: 0; background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\">");
+
+            // Contenedor principal
+            sb.Append("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color: #f0f2f5; padding: 40px 20px;\">");
+            sb.Append("<tr><td align=\"center\">");
+
+            // Tarjeta central con acento verde (Success)
+            sb.Append("<table width=\"600\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color: #ffffff; border-radius: 8px; border-top: 6px solid #16a34a; box-shadow: 0 5px 20px rgba(0,0,0,0.05);\">");
+
+            // Header
+            sb.Append("<tr><td style=\"padding: 30px 40px 10px 40px;\">");
+            sb.Append("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr>");
+            sb.Append($"<td align=\"left\"><img src=\"{logoUrl}\" alt=\"thyssenkrupp\" style=\"max-height: 35px; display: block;\" /></td>");
+            sb.Append($"<td align=\"right\" style=\"font-size: 13px; color: #888888; font-family: sans-serif;\">Folio <b style=\"color: #333;\">#{solicitud.IdSolicitud}</b></td>");
+            sb.Append("</tr></table>");
+            sb.Append("</td></tr>");
+
+            // Título principal
+            sb.Append("<tr><td style=\"padding: 10px 40px 25px 40px;\">");
+            sb.Append("<h2 style=\"margin: 0 0 15px 0; color: #1a1a1a; font-size: 24px; font-family: sans-serif;\">¡Alta Completada!</h2>");
+
+            // Caja de alerta verde
+            sb.Append("<div style=\"background-color: #dcfce7; border-left: 4px solid #16a34a; padding: 15px 20px;\">");
+            sb.Append($"<p style=\"margin: 0; color: #155724; font-size: 14px; line-height: 1.6; font-family: sans-serif;\">El equipo de IT ha procesado exitosamente la solicitud de <b>{solicitud.FirstName} {solicitud.LastName}</b>. El perfil en Concur ya se encuentra configurado.</p>");
+            sb.Append("</div>");
+            sb.Append("</td></tr>");
+
+            // Caja de detalles
+            sb.Append("<tr><td style=\"padding: 0 40px 30px 40px;\">");
+            sb.Append("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px;\">");
+            sb.Append("<tr><td style=\"padding: 25px;\">");
+            sb.Append("<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">");
+
+            sb.Append("<tr>");
+            sb.Append("<td width=\"50%\" style=\"padding-bottom: 20px; font-family: sans-serif;\">");
+            sb.Append("<span style=\"font-size: 11px; color: #888888; text-transform: uppercase; letter-spacing: 1px;\">Colaborador</span><br/>");
+            sb.Append($"<span style=\"font-size: 15px; color: #222222; font-weight: bold;\">{solicitud.FirstName} {solicitud.LastName}</span>");
+            sb.Append("</td>");
+            sb.Append("<td width=\"50%\" style=\"padding-bottom: 20px; font-family: sans-serif;\">");
+            sb.Append("<span style=\"font-size: 11px; color: #888888; text-transform: uppercase; letter-spacing: 1px;\">8ID</span><br/>");
+            sb.Append($"<span style=\"font-size: 15px; color: #16a34a; font-weight: bold;\">{solicitud.GlobalEmployeeID}</span>");
+            sb.Append("</td>");
+            sb.Append("</tr>");
+
+            sb.Append("<tr>");
+            sb.Append("<td width=\"50%\" style=\"padding-bottom: 5px; font-family: sans-serif;\">");
+            sb.Append("<span style=\"font-size: 11px; color: #888888; text-transform: uppercase; letter-spacing: 1px;\">Centro de Costos</span><br/>");
+            sb.Append($"<span style=\"font-size: 15px; color: #222222; font-weight: bold;\">{solicitud.CostCenterValue}</span>");
+            sb.Append("</td>");
+            sb.Append("<td width=\"50%\" style=\"padding-bottom: 5px; font-family: sans-serif;\">");
+            sb.Append("<span style=\"font-size: 11px; color: #888888; text-transform: uppercase; letter-spacing: 1px;\">¿Es autorizador?</span><br/>");
+            sb.Append($"<span style=\"font-size: 13px; color: #333333; background-color: #e2e8f0; padding: 4px 10px; border-radius: 12px; font-weight: bold;\">{perfilTexto}</span>");
+            sb.Append("</td>");
+            sb.Append("</tr>");
+
+            sb.Append("</table>");
+            sb.Append("</td></tr>");
+            sb.Append("</table>");
+            sb.Append("</td></tr>");
+
+            // Botón CTA al Dashboard de RH
+            sb.Append("<tr><td align=\"center\" style=\"padding: 0 40px 45px 40px;\">");
+            sb.Append("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\"><tr>");
+            sb.Append("<td align=\"center\" style=\"border-radius: 6px;\" bgcolor=\"#009ff5\">");
+            sb.Append($"<a href=\"{enlace}\" target=\"_blank\" style=\"font-size: 15px; font-family: sans-serif; color: #ffffff; text-decoration: none; border-radius: 6px; padding: 12px 30px; border: 1px solid #009ff5; display: inline-block; font-weight: bold;\">Ir a Mis Solicitudes</a>");
+            sb.Append("</td></tr></table>");
+            sb.Append("</td></tr>");
+
+            // Footer corporativo
+            sb.Append("<tr><td style=\"background-color: #009ff5; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;\">");
+            sb.Append("<p style=\"margin: 0; color: #ffffff; font-size: 13px; font-weight: bold; font-family: sans-serif; letter-spacing: 0.5px;\">thyssenkrupp Materials de México</p>");
+            sb.Append($"<p style=\"margin: 5px 0 0 0; color: #80c4ec; font-size: 11px; font-family: sans-serif;\">Notificación automática del Portal Interno &copy; {anio}</p>");
+            sb.Append("</td></tr>");
+
+            sb.Append("</table>");
+            sb.Append("</td></tr></table>");
+            sb.Append("</body></html>");
+
+            return sb.ToString();
+        }
+
         #endregion
     }
 }

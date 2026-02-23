@@ -106,6 +106,10 @@ namespace Clases.Util
         //budget - Arlett
         public const string BUDGET_IHS = "BUDGET_IHS";
         public const string BUDGET_IHS_CATALOGOS = "BUDGET_IHS_CATALOGOS";
+        //concur
+        public const string CONCUR_RH_SOLICITUD = "CONCUR_RH_SOLICITUD";
+        public const string CONCUR_IT_ADMINISTRACION = "CONCUR_IT_ADMINISTRACION";
+
 
     }
 }

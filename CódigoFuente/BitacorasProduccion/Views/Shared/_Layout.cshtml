@@ -161,7 +161,7 @@
                                         </ul>
                                     </li>
                                     @if (User.IsInRole(TipoRoles.RH) || User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR)
-                                        || User.IsInRole(TipoRoles.RH_DETALLES_EMPLEADOS)
+                                        || User.IsInRole(TipoRoles.RH_DETALLES_EMPLEADOS) || User.IsInRole(TipoRoles.CONCUR_RH_SOLICITUD) 
                                         )
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "recursos_humanos" ? "active" : null )">
@@ -184,13 +184,20 @@
                                                     <li class="@(ViewBag.SegundoNivel == "SolicitudesFinalizadas" ? "current-page" : null )"><a href="@Url.Action("SolicitudesFinalizadas", "IT_matriz_requerimientos")">Solicitudes Finalizadas</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "Manual" ? "current-page" : null )"><a href="@Url.Action("ManualUsuario", "IT_matriz_requerimientos")" target="_blank">Manual de Usuario</a></li>
                                                 }
+                                                @if (User.IsInRole(TipoRoles.CONCUR_RH_SOLICITUD))
+                                                {
+                                                    <h3>Concur</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitud_rh" ? "current-page" : null )"><a href="@Url.Action("MisSolicitudes", "Concur")">Solictud Concur</a></li>
+                                                }
 
                                             </ul>
                                         </li>
                                     }
 
                                     @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR) || User.IsInRole(TipoRoles.IT_CATALOGOS) || User.IsInRole(TipoRoles.IT_SOLICITUD_USUARIOS)
-                                        || User.IsInRole(TipoRoles.IT_INVENTORY) || User.IsInRole(TipoRoles.IT_ASIGNACION_HARDWARE))
+                                        || User.IsInRole(TipoRoles.IT_INVENTORY) || User.IsInRole(TipoRoles.IT_ASIGNACION_HARDWARE)
+                                        || User.IsInRole(TipoRoles.CONCUR_IT_ADMINISTRACION)                                         
+                                        )
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "sistemas" ? "active" : null )">
                                             <a><i class="fa fa-computer"></i>Sistemas<span class="fa fa-chevron-down"></span></a>
@@ -264,6 +271,11 @@
                                                     <h3>Recordatorios</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "it_notificaciones" ? "current-page" : null )"><a href="@Url.Action("index", "IT_notificaciones_actividad")">Recordatorios</a></li>
 
+                                                }
+                                                @if (User.IsInRole(TipoRoles.CONCUR_IT_ADMINISTRACION))
+                                                {
+                                                    <h3>Concur</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "dashboard_concur_it" ? "current-page" : null )"><a href="@Url.Action("DashboardIT", "Concur")">Solictudes Concur</a></li>
                                                 }
                                             </ul>
                                         </li>

@@ -1294,6 +1294,25 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="aplica_descripcion" Type="bit" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="IT_Concur_Solicitudes">
+          <Key>
+            <PropertyRef Name="IdSolicitud" />
+          </Key>
+          <Property Name="IdSolicitud" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="GlobalEmployeeID" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="LoginId" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="EmailAddress" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="CostCenterValue" Type="nvarchar" MaxLength="50" />
+          <Property Name="ApproverEmployeeID" Type="nvarchar" MaxLength="50" />
+          <Property Name="IsApprover" Type="nvarchar" MaxLength="1" />
+          <Property Name="Estatus" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="UsuarioSolicita" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="FechaSolicitud" Type="datetime" Nullable="false" />
+          <Property Name="UsuarioProcesa" Type="nvarchar" MaxLength="128" />
+          <Property Name="FechaProcesado" Type="datetime" />
+        </EntityType>
         <EntityType Name="IT_epo">
           <Key>
             <PropertyRef Name="id" />
@@ -8536,6 +8555,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <EntitySet Name="IT_asignacion_software" EntityType="Self.IT_asignacion_software" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_carpetas_red" EntityType="Self.IT_carpetas_red" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_comunicaciones_tipo" EntityType="Self.IT_comunicaciones_tipo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_Concur_Solicitudes" EntityType="Self.IT_Concur_Solicitudes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_epo" EntityType="Self.IT_epo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_equipos_checklist" EntityType="Self.IT_equipos_checklist" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_equipos_checklist_actividades" EntityType="Self.IT_equipos_checklist_actividades" Schema="dbo" store:Type="Tables" />
@@ -18275,6 +18295,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             <End Role="OT_Cargas" EntitySet="OT_Cargas" />
             <End Role="OT_Datos" EntitySet="OT_Datos" />
           </AssociationSet>
+          <EntitySet Name="IT_Concur_Solicitudes" EntityType="Portal_2_0Model.IT_Concur_Solicitudes" />
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -21341,6 +21362,25 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="IT_Concur_Solicitudes">
+          <Key>
+            <PropertyRef Name="IdSolicitud" />
+          </Key>
+          <Property Name="IdSolicitud" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GlobalEmployeeID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="FirstName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="LastName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="LoginId" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="EmailAddress" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="CostCenterValue" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ApproverEmployeeID" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IsApprover" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
+          <Property Name="Estatus" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="UsuarioSolicita" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="FechaSolicitud" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UsuarioProcesa" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="FechaProcesado" Type="DateTime" Precision="3" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -25720,6 +25760,26 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
                 <ScalarProperty Name="Posicion" ColumnName="Posicion" />
                 <ScalarProperty Name="ID_CargaOT" ColumnName="ID_CargaOT" />
                 <ScalarProperty Name="ID_DatoOT" ColumnName="ID_DatoOT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_Concur_Solicitudes">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_Concur_Solicitudes">
+              <MappingFragment StoreEntitySet="IT_Concur_Solicitudes">
+                <ScalarProperty Name="FechaProcesado" ColumnName="FechaProcesado" />
+                <ScalarProperty Name="UsuarioProcesa" ColumnName="UsuarioProcesa" />
+                <ScalarProperty Name="FechaSolicitud" ColumnName="FechaSolicitud" />
+                <ScalarProperty Name="UsuarioSolicita" ColumnName="UsuarioSolicita" />
+                <ScalarProperty Name="Estatus" ColumnName="Estatus" />
+                <ScalarProperty Name="IsApprover" ColumnName="IsApprover" />
+                <ScalarProperty Name="ApproverEmployeeID" ColumnName="ApproverEmployeeID" />
+                <ScalarProperty Name="CostCenterValue" ColumnName="CostCenterValue" />
+                <ScalarProperty Name="EmailAddress" ColumnName="EmailAddress" />
+                <ScalarProperty Name="LoginId" ColumnName="LoginId" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="GlobalEmployeeID" ColumnName="GlobalEmployeeID" />
+                <ScalarProperty Name="IdSolicitud" ColumnName="IdSolicitud" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

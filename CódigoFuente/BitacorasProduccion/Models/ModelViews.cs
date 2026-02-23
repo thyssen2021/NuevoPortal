@@ -499,4 +499,16 @@ namespace Portal_2_0.Models
         }
     }
 
+    public class ConcurRequestViewModel
+    {
+        public string GlobalEmployeeID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string LoginId { get; set; }
+        public string EmailAddress { get; set; }
+        public string CostCenterValue { get; set; }
+        public string ApproverEmployeeID { get; set; }
+        public string IsApprover { get; set; }
+    }
+
 }
