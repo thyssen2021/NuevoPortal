@@ -476,6 +476,7 @@
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Controllers\UtilidadesController.cs" />
+    <Compile Include="Controllers\UtilsController.cs" />
     <Compile Include="Controllers\VideosController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -1579,6 +1580,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_valores_forecast.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\VisitasLagermex.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Vw_Materiales_Vencimiento.cs">
@@ -6193,6 +6197,7 @@
     <Content Include="Views\Concur\SolicitudRH.cshtml" />
     <Content Include="Views\Concur\DashboardIT.cshtml" />
     <Content Include="Views\Concur\MisSolicitudes.cshtml" />
+    <Content Include="Views\Utils\DashboardVisitasLagermex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

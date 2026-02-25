@@ -8,13 +8,15 @@ import App from './App.tsx';
 import ConcurRequestForm from './components/ConcurRequestForm.tsx';
 import ConcurITDashboard from './components/ConcurITDashboard.tsx';
 import ConcurHRDashboard from './components/ConcurHRDashboard.tsx';
+import Utils_RegistrosDashboard from './components/Utils_VisitasLagermexDashboard.tsx';
 
 // 2. Registrar los componentes mapeándolos al ID del contenedor definido en Razor (.cshtml)
 const componentsRegistry: Record<string, React.ElementType> = {
     'client-part-information-root': App,
     'concur-hr-form-root': ConcurRequestForm,
     'concur-it-dashboard-root': ConcurITDashboard,
-    'concur-hr-dashboard-root': ConcurHRDashboard, // <- Añadir esta línea
+    'concur-hr-dashboard-root': ConcurHRDashboard, 
+    'utils-registros-dashboard-root': Utils_RegistrosDashboard,
 };
 
 // 3. Escanear el DOM y montar dinámicamente el componente correspondiente

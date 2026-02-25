@@ -310,5 +310,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<OT_Cargas> OT_Cargas { get; set; }
         public virtual DbSet<OT_Datos> OT_Datos { get; set; }
         public virtual DbSet<IT_Concur_Solicitudes> IT_Concur_Solicitudes { get; set; }
+        public virtual DbSet<VisitasLagermex> VisitasLagermex { get; set; }
     }
 }

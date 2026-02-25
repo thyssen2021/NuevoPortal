@@ -3712,6 +3712,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="nota" Type="varchar" MaxLength="250" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="VisitasLagermex">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IPAddress" Type="nvarchar" MaxLength="50" />
+          <Property Name="UserAgent" Type="nvarchar(max)" />
+          <Property Name="FechaVisita" Type="datetime" />
+          <Property Name="HashUnico" Type="varbinary" MaxLength="8000" StoreGeneratedPattern="Computed" />
+          <Property Name="VisitorId" Type="nvarchar" MaxLength="100" />
+          <Property Name="Ubicacion" Type="nvarchar" MaxLength="150" />
+        </EntityType>
         <!--Errores durante la generación:
 advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_datos_base_reporte_pesadas">
@@ -8732,6 +8744,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <EntitySet Name="upgrade_usuarios" EntityType="Self.upgrade_usuarios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="upgrade_values_checklist" EntityType="Self.upgrade_values_checklist" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="upgrade_values_transaccion" EntityType="Self.upgrade_values_transaccion" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="VisitasLagermex" EntityType="Self.VisitasLagermex" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_cantidad_budget_historico" EntityType="Self.budget_cantidad_budget_historico" store:Type="Tables" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [budget_cantidad_budget_historico].[id] AS [id], 
@@ -18296,6 +18309,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             <End Role="OT_Datos" EntitySet="OT_Datos" />
           </AssociationSet>
           <EntitySet Name="IT_Concur_Solicitudes" EntityType="Portal_2_0Model.IT_Concur_Solicitudes" />
+          <EntitySet Name="VisitasLagermex" EntityType="Portal_2_0Model.VisitasLagermex" />
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -21380,6 +21394,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <Property Name="FechaSolicitud" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="UsuarioProcesa" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="FechaProcesado" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="VisitasLagermex">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IPAddress" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="UserAgent" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FechaVisita" Type="DateTime" Precision="3" />
+          <Property Name="HashUnico" Type="Binary" MaxLength="8000" FixedLength="false" annotation:StoreGeneratedPattern="Computed" />
+          <Property Name="VisitorId" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Ubicacion" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -25780,6 +25806,19 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
                 <ScalarProperty Name="FirstName" ColumnName="FirstName" />
                 <ScalarProperty Name="GlobalEmployeeID" ColumnName="GlobalEmployeeID" />
                 <ScalarProperty Name="IdSolicitud" ColumnName="IdSolicitud" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="VisitasLagermex">
+            <EntityTypeMapping TypeName="Portal_2_0Model.VisitasLagermex">
+              <MappingFragment StoreEntitySet="VisitasLagermex">
+                <ScalarProperty Name="Ubicacion" ColumnName="Ubicacion" />
+                <ScalarProperty Name="VisitorId" ColumnName="VisitorId" />
+                <ScalarProperty Name="HashUnico" ColumnName="HashUnico" />
+                <ScalarProperty Name="FechaVisita" ColumnName="FechaVisita" />
+                <ScalarProperty Name="UserAgent" ColumnName="UserAgent" />
+                <ScalarProperty Name="IPAddress" ColumnName="IPAddress" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
